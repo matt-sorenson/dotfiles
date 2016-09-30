@@ -1,0 +1,44 @@
+[user]
+    email = sorenson.matt@gmail.com
+    name = Matthew Sorenson
+
+[color]
+    ui = always
+
+[core]
+    pager = diff-highlight | less -FMRiX
+    editor = emacs
+
+[push]
+    default = simple
+
+[alias]
+    # submodule helpers
+    rfetch = git fetch --recurse-submodules
+    rpush = push --recurse-submodules=check
+    up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+
+    pushf = push --force-with-lease
+
+    gcf = !git -c gc.reflogExpire=0 -c gc.reflogExpireUnreachable=0 -c gc.rerereresolved=0 -c gc.rerereunresolved=0 -c gc.pruneExpire=now gc "$@"
+
+    # log helpers
+    olog = log --oneline
+    dag = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)' --all
+
+    alias = !git config --get-regexp ^alias\\. | cut -f2- -d .
+    it = !git init && git commit -m “root” --allow-empty
+    amend = commit --amend --no-edit
+    tracking = rev-parse --abbrev-ref --symbolic-full-name @{u}
+    wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
+
+[diff]
+    algorithm = patience
+
+[filter "lfs"]
+    clean = git-lfs clean %f
+    smudge = git-lfs smudge %f
+    required = true
+
+[include]
+    path = ~/.dotfiles/local/gitconfig
