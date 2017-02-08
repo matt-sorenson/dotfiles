@@ -8,6 +8,7 @@
 [core]
     pager = diff-highlight | less -FMRiX
     editor = emacs
+    excludesfile = ~/.dotfiles/gitignore
 
 [push]
     default = simple

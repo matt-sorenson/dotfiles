@@ -94,7 +94,6 @@ else
     if [ -z ${DOTFILES_LOCAL_GIT_REPO} ]; then
         print_header green "DOTFILES_LOCAL_GIT_REPO not defined, creating default $LOCAL_DOTFILES"
         mkdir -p "${LOCAL_DOTFILES}"
-        echo "[core]\n    excludesfile = ${DOTFILES}/gitignore" > "${LOCAL_DOTFILES}/gitconfig"
     else
         print_header green "checking out ${LOCAL_DOTFILES} from ${DOTFILES_LOCAL_GIT_REPO}"
         safe_git_clone "${DOTFILES_LOCAL_GIT_REPO}" "${LOCAL_DOTFILES}"
