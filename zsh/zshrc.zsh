@@ -41,15 +41,20 @@ setopt no_beep
 prompt ender
 
 # if not in a tmux session prompt to start one
-if [ "$TMUX" = "" ]; then
+if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
     tmux attach;
 
     if [ 0 -ne $? ]; then
-        read -q "LAUNCH_TMUX?launch tmux? "
-        if [ 'y' = "$LAUNCH_TMUX" ]; then
-           tmux
+        if [ -v PROMPT_FOR_TMUX ]; then
+            read -q "LAUNCH_TMUX?launch tmux? "
+            if [ 'y' = "$LAUNCH_TMUX" ]; then
+               tmux
+               exit
+            fi
+            unset LAUNCH_TMUX
+        else
+            tmux
         fi
-        unset LAUNCH_TMUX
     fi
 fi
 
