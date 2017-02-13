@@ -67,7 +67,7 @@ fi
 
 if [[ "${OSTYPE}" =~ "darwin" ]]; then
     # Add ssh keys from keychain on macOS
-    ssh-add -K
+    ssh-add -A
 else
     ssh-add
 fi
