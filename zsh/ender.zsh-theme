@@ -20,7 +20,7 @@ pmodload 'helper'
 _prompt_ender_current_bg='NONE'
 _prompt_ender_start_time=$SECONDS
 
-function prompt_ender_start_segment {
+function prompt_ender_start_segment() {
   local bg fg
   [[ -n "$1" ]] && bg="%K{$1}" || bg="%k"
   [[ -n "$2" ]] && fg="%F{$2}" || fg="%f"
@@ -33,7 +33,7 @@ function prompt_ender_start_segment {
   [[ -n "$3" ]] && print -n "$3"
 }
 
-function prompt_ender_end_segment {
+function prompt_ender_end_segment() {
   if [[ -n "$_prompt_ender_current_bg" ]]; then
     print -n " %k%F{$_prompt_ender_current_bg}"
   else
@@ -43,23 +43,25 @@ function prompt_ender_end_segment {
   _prompt_ender_current_bg=''
 }
 
-function prompt_ender_seg_last_call_status {
-  if [[ $? == 0 ]]; then
+function prompt_ender_seg_last_call_status() {
+  local EXIT_STATUS=$1
+
+  if [[ $EXIT_STATUS == 0 ]]; then
     prompt_ender_start_segment green black '✓'
   else
     prompt_ender_start_segment red black '✘'
   fi
 }
 
-function prompt_ender_seg_history {
+function prompt_ender_seg_history() {
   prompt_ender_start_segment white black '$[HISTCMD-1]'
 }
 
-function prompt_ender_seg_hostname {
+function prompt_ender_seg_hostname() {
   prompt_ender_start_segment black default '%m%f'
 }
 
-function prompt_ender_seg_dir {
+function prompt_ender_seg_dir() {
   if [[ $AT_WORK -eq 1 && `pwd` =~ "$WORKSPACE_ROOT_DIR/([^/]*)/src/([^/]*)(.*)" ]]; then
     prompt_ender_start_segment blue black "$match[1]"
     prompt_ender_start_segment cyan black "$match[2]"
@@ -72,17 +74,17 @@ function prompt_ender_seg_dir {
   fi
 }
 
-function prompt_ender_seg_SEA_time {
+function prompt_ender_seg_SEA_time() {
   prompt_ender_start_segment black default '$(TZ=America/Los_Angeles date +"%H:%M:%S")'
 }
 
-function prompt_ender_seg_git_info {
+function prompt_ender_seg_git_info() {
   if [[ -n "$git_info" ]]; then
     prompt_ender_start_segment green black '${(e)git_info[ref]}${(e)git_info[status]}'
   fi
 }
 
-function prompt_ender_seg_is_root {
+function prompt_ender_seg_is_root() {
   local SU_PROMPT
   case $UID in
     0) SU_PROMPT='#' ;;
@@ -91,10 +93,11 @@ function prompt_ender_seg_is_root {
   prompt_ender_start_segment white black $SU_PROMPT
 }
 
-function prompt_ender_build_prompt1 {
+function prompt_ender_build_prompt1() {
+  local LAST_CALL_EXIT_STATUS=$?
   _prompt_ender_current_bg='NONE'
 
-  prompt_ender_seg_last_call_status
+  prompt_ender_seg_last_call_status $LAST_CALL_EXIT_STATUS
   prompt_ender_seg_history
   prompt_ender_seg_hostname
   prompt_ender_seg_dir
@@ -102,7 +105,7 @@ function prompt_ender_build_prompt1 {
   prompt_ender_end_segment
 }
 
-function prompt_ender_build_prompt2 {
+function prompt_ender_build_prompt2() {
   prompt_ender_seg_SEA_time
   prompt_ender_seg_git_info
   prompt_ender_seg_is_root
@@ -110,7 +113,7 @@ function prompt_ender_build_prompt2 {
   prompt_ender_end_segment
 }
 
-function prompt_ender_print_elapsed_time {
+function prompt_ender_print_elapsed_time() {
   local end_time=$(( SECONDS - _prompt_ender_start_time ))
   local hours minutes seconds remainder
 
@@ -129,7 +132,7 @@ function prompt_ender_print_elapsed_time {
   fi
 }
 
-function prompt_ender_precmd {
+function prompt_ender_precmd() {
   setopt LOCAL_OPTIONS
   unsetopt XTRACE KSH_ARRAYS
 
@@ -142,11 +145,11 @@ function prompt_ender_precmd {
   prompt_ender_print_elapsed_time
 }
 
-function prompt_ender_preexec {
+function prompt_ender_preexec() {
   _prompt_ender_start_time="$SECONDS"
 }
 
-function prompt_ender_setup {
+function prompt_ender_setup() {
   setopt LOCAL_OPTIONS
   unsetopt XTRACE KSH_ARRAYS
   prompt_opts=(cr percent subst)
