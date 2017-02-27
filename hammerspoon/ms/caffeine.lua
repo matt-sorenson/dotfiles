@@ -1,7 +1,7 @@
 local menubar
 local timer
 
-local function isOn()
+local function is_on()
     return hs.caffeinate.get('displayIdle')
 end
 
@@ -13,7 +13,7 @@ local function set(enabled)
 
     hs.caffeinate.set('displayIdle', enabled)
 
-    if isOn() then
+    if is_on() then
         menubar:setIcon(hs.configdir .. '/icons/caffeine-active@2x.png')
     else
         menubar:setIcon(hs.configdir .. '/icons/caffeine-inactive@2x.png')
@@ -29,7 +29,7 @@ local function on()
 end
 
 local function toggle()
-    set(not isOn())
+    set(not is_on())
 end
 
 local function timed_on(time_in_sec)
@@ -47,7 +47,7 @@ end
 
 if not menubar then
     menubar = hs.menubar.new(false)
-    set(isOn())
+    set(is_on())
     menubar:returnToMenuBar()
 end
 
@@ -55,7 +55,7 @@ add_cleanup_fn(function() menubar:removeFromMenuBar(); menubar = nil end)
 
 menubar:setMenu(function(keys)
     local out = {
-        { title = ((isOn() and "Turn Off") or "Turn On"), fn = ((isOn() and off) or on) },
+        { title = ((is_on() and "Turn Off") or "Turn On"), fn = ((is_on() and off) or on) },
         { title = '-' },
         --{ title = '10 Seconds', fn = function() timed_on(10) end }, -- Uncomment this line for testing
         { title = '30 Minutes', fn = function() timed_on_m(30) end },
@@ -87,7 +87,8 @@ return {
     timed_on = timed_on,
     timed_on_m = timed_on_m,
 
-    isOn = isOn,
+    is_on = is_on,
+    is_off = function() return not is_on() end,
 
     lock_screen = lock_screen
 }
