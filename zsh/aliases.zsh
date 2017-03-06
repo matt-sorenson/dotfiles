@@ -12,6 +12,14 @@ ws() {
     fi
 }
 
+is-function() {
+  if [ 1 -eq $(type $1 | grep "shell function" | wc -l) ]; then
+    return 0
+  fi
+
+  return 1
+}
+
 clang-format-ri() {
     local srcpath="${1}"
     shift
