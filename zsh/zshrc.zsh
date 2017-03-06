@@ -47,6 +47,7 @@ setopt extended_glob
 setopt interactive_comments # treat comments as comments in interactive shell
 setopt no_beep
 setopt clobber
+setopt multios
 
 prompt ender
 
