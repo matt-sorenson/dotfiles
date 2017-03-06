@@ -51,9 +51,12 @@ window_modal:bind({},        'S', '↓ 50%', bind.set_window_rect({ 0.0, 0.5, 1.
 window_modal:bind({},        'D', '→ 50%', bind.set_window_rect({ 0.5, 0.0, 0.5, 1.0 }))
 
 window_modal:add_help_seperator()
-window_modal:bind({}, 'F', 'Maximize',       bind.set_window_rect({ 0, 0, 1, 1 }))
-window_modal:bind({}, 'G', 'Grid' ,          hs.grid.show)
-window_modal:bind({}, 'T', 'Default Layout', layout.apply)
+window_modal:bind({}, 'F', 'Maximize',                    bind.set_window_rect({ 0, 0, 1, 1 }))
+window_modal:bind({}, 'G', 'Grid' ,                       hs.grid.show)
+window_modal:bind({}, 'R', 'Apply Layout to Window',      layout.apply_current_window)
+window_modal:bind({}, 'T', 'Apply Default Layout',        function() layout.apply_layout("Default") end)
+window_modal:bind({}, 'E', 'Apply Media Layout',          function() layout.apply_layout("Media") end)
+window_modal:bind({}, 'C', 'Apply Communications Layout', function() layout.apply_layout("Communications") end)
 
 music_modal:bind({}, 'S', hs.utf8.codepointToUTF8('U+23EF'), music.fn('playpause'))
 music_modal:bind({}, 'A', hs.utf8.codepointToUTF8('U+23EE'), music.fn('previous'), { shiftable = true })
