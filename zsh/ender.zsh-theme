@@ -53,6 +53,15 @@ function prompt_ender_seg_last_call_status() {
   fi
 }
 
+function prompt_ender_seg_security() {
+  if is-function prompt-security-str; then
+    local sec_prompt="$(prompt-security-str)"
+    if [ -n "${sec_prompt}" ]; then
+      prompt_ender_start_segment red black "${sec_prompt}"
+    fi
+  fi
+}
+
 function prompt_ender_seg_history() {
   prompt_ender_start_segment white black '$[HISTCMD-1]'
 }
@@ -102,12 +111,14 @@ function prompt_ender_build_prompt1() {
   prompt_ender_seg_hostname
   prompt_ender_seg_dir
 
+
   prompt_ender_end_segment
 }
 
 function prompt_ender_build_prompt2() {
   prompt_ender_seg_SEA_time
   prompt_ender_seg_git_info
+  prompt_ender_seg_security
   prompt_ender_seg_is_root
 
   prompt_ender_end_segment

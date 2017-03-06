@@ -1,3 +1,5 @@
+prompt-security-str() {}
+
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 if [ -f "${DOTFILES}/zsh/path.zsh" ]; then
     source "${DOTFILES}/zsh/path.zsh"
