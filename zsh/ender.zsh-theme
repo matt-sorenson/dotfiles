@@ -181,9 +181,9 @@ function prompt_ender_setup() {
   # Set git-info parameters.
   zstyle ':prezto:module:git:info' verbose 'yes'
   zstyle ':prezto:module:git:info:action' format ' ⁝ %s'
-  zstyle ':prezto:module:git:info:added' format ' ✚'
-  zstyle ':prezto:module:git:info:ahead' format ' ⬆'
-  zstyle ':prezto:module:git:info:behind' format ' ⬇'
+  zstyle ':prezto:module:git:info:added' format ' ✚ %a'
+  zstyle ':prezto:module:git:info:ahead' format ' ⬆ %A'
+  zstyle ':prezto:module:git:info:behind' format ' ⬇ %B'
   zstyle ':prezto:module:git:info:branch' format '\u00A0%b'
   zstyle ':prezto:module:git:info:commit' format '➦\u00A0%.7c'
   zstyle ':prezto:module:git:info:deleted' format ' ✖'
