@@ -31,8 +31,8 @@ local function add_media_layouts(layout_name)
     layout.add_app(layout_name, nil,       'Amazon Music', 'secondary', 1/8, 1/2, 6/8, 1/3)
     layout.add_app(layout_name, 'Spotify', nil,            'secondary', 1/8, 1/2, 6/8, 1/3)
     layout.add_app(layout_name, 'iTunes',  nil,            'secondary', 1/8, 1/2, 6/8, 1/3)
-    layout.add_app(layout_name, nil,       'reddit',       'secondary', 1/8, 4/7, 6/8, 3/7)
-    layout.add_app(layout_name, nil,       'Hacker News',  'secondary', 1/8, 4/7, 6/8, 3/7)
+    layout.add_app(layout_name, nil,       'reddit',       'secondary', 1/8, 8/14, 6/8, 5.5/14)
+    layout.add_app(layout_name, nil,       'Hacker News',  'secondary', 1/8, 8/14, 6/8, 5.5/14)
 end
 
 add_communications_layouts('default')
