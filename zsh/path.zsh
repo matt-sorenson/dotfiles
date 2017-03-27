@@ -1,9 +1,7 @@
 add_to_path() {
-    if [ ! -d "${1}" ] || [[ "${PATH}" =~ "(^|:)${1}(:|$)" ]]; then
-        return 0
+    if [ -d "${1}" ] && [[ ! "${PATH}" =~ "(^|:)${1}(:|$)" ]]; then
+        PATH="${1}:${PATH}"
     fi
-
-    PATH="${1}:${PATH}"
 }
 
 # osx /etc/zprofile borks the path so fix it...
