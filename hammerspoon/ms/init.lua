@@ -69,7 +69,9 @@ music_modal:bind({}, 'X', 'Lower Volume 1%', audio.update_output_volume_fn(-1), 
 init_finder_modal(global_modal)
 init_power_modal(global_modal)
 
-sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
+if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
+    sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
+end
 
 require('default_layout')
 
