@@ -20,15 +20,6 @@ hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', {toggle = true, new_wi
 
 local global_modal = bind.modal_new(bind.default_modal(), {'ctrl', 'cmd'}, 'B')
 
-local function init_finder_modal(parent)
-    local finder_modal = bind.modal_new(parent, {}, 'F', 'Finder')
-    local workspace_directory = sys.is_work_computer() and ('/Volumes/' .. REMOTE_SHARE_FOLDER .. '/ws') or (os.getenv('HOME') .. '/ws')
-
-    finder_modal:bind({}, 'G', 'Home', sys.select_app_fn('Finder', {window = sys.who_am_i(), new_window = sys.open_finder_fn() }))
-    finder_modal:bind({}, 'W', 'Workspace', sys.select_app_fn('Finder', { window = 'ws', new_window = sys.open_finder_fn(workspace_directory) }))
-    finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', {window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
-end
-
 local function init_power_modal(parent)
     local power_modal  = bind.modal_new(parent, {}, 'E', 'Power')
 
@@ -38,8 +29,9 @@ local function init_power_modal(parent)
     end
 end
 
-local music_modal  = bind.modal_new(global_modal, {}, 'S', 'Music')
 local window_modal = bind.modal_new(global_modal, {}, 'W', 'Window')
+local finder_modal = bind.modal_new(global_modal, {}, 'F', 'Finder')
+local music_modal  = bind.modal_new(global_modal, {}, 'S', 'Music')
 
 window_modal:bind({'shift'}, 'W', '↑ 33%', bind.set_window_rect({   0,   0,   1, 1/3 }))
 window_modal:bind({'shift'}, 'A', '← 33%', bind.set_window_rect({   0,   0, 1/3,   1 }))
@@ -58,6 +50,10 @@ window_modal:bind({}, 'T', 'Apply Default Layout',        function() layout.appl
 window_modal:bind({}, 'E', 'Apply Media Layout',          function() layout.apply_layout("Media") end)
 window_modal:bind({}, 'C', 'Apply Communications Layout', function() layout.apply_layout("Communications") end)
 
+finder_modal:bind({}, 'G', 'Home', sys.select_app_fn('Finder', {window = sys.who_am_i(), new_window = sys.open_finder_fn() }))
+finder_modal:bind({}, 'W', 'Workspace', sys.select_app_fn('Finder', { window = 'ws', new_window = sys.open_finder_fn(os.getenv('HOME') .. '/ws') }))
+finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', {window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
+
 music_modal:bind({}, 'S', hs.utf8.codepointToUTF8('U+23EF'), music.fn('playpause'))
 music_modal:bind({}, 'A', hs.utf8.codepointToUTF8('U+23EE'), music.fn('previous'), { shiftable = true })
 music_modal:bind({}, 'D', hs.utf8.codepointToUTF8('U+23ED'), music.fn('next'),     { shiftable = true })
@@ -66,7 +62,6 @@ music_modal:add_help_seperator()
 music_modal:bind({}, 'W', 'Raise Volume 1%', audio.update_output_volume_fn( 1), { shiftable = true })
 music_modal:bind({}, 'X', 'Lower Volume 1%', audio.update_output_volume_fn(-1), { shiftable = true })
 
-init_finder_modal(global_modal)
 init_power_modal(global_modal)
 
 if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
