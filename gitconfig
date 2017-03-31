@@ -10,6 +10,9 @@
     editor = emacs
     excludesfile = ~/.dotfiles/gitignore
 
+[pull]
+    rebase = true
+
 [push]
     default = simple
 
