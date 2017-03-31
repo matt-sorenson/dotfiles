@@ -30,9 +30,9 @@ local STANDARD_GRID = {
 }
 
 local function select_layout()
-    keyboard_type = sys.find_usb_device_by_name('ErgoDox') and 'ErgoDox'
+    ergodox = sys.find_usb_device_by_name('ErgoDox')
 
-    if 'ErgoDox' == keyboard_type and ERGODOX_GRID ~= hs.grid.HINTS then
+    if ergodox and ERGODOX_GRID ~= hs.grid.HINTS then
         print('ergodox grid')
         hs.grid.HINTS = ERGODOX_GRID
     elseif STANDARD_GRID ~= hs.grid.HINTS then
