@@ -2,12 +2,11 @@ local layout   = require 'ms.layout'
 local sys      = require 'ms.sys'
 
 -- Misc
-layout.add_app('default', 'Finder',        nil, 'primary',    0, 0, 1/6, 1)
-layout.add_app('default', 'Sublime Text',  nil, 'primary',  1/6, 0, 1/2, 1)
-layout.add_app('default', 'Quiver',        nil, 'primary',  1/6, 0, 1/2, 1)
-layout.add_app('default', 'NoMachine',     nil, 'primary',  1/6, 0, 1/2, 1)
-layout.add_app('default', 'Google Chrome', nil, 'primary',  2/3, 0, 1/3, 1)
-layout.add_app('default', 'Firefox',       nil, 'primary',  2/3, 0, 1/3, 1)
+layout.add_app('default', 'Finder',  nil, 'primary',    0, 0, 1/6, 1)
+layout.add_app('default', 'Sublime', nil, 'primary',  1/6, 0, 1/2, 1)
+layout.add_app('default', 'Quiver',  nil, 'primary',  1/6, 0, 1/2, 1)
+layout.add_app('default', 'Chrome',  nil, 'primary',  2/3, 0, 1/3, 1)
+layout.add_app('default', 'Firefox', nil, 'primary',  2/3, 0, 1/3, 1)
 
 if sys.is_work_computer() then
     layout.add_app('default', 'iTerm', nil, 'secondary', 0, 0, 9/10, 1/2)
