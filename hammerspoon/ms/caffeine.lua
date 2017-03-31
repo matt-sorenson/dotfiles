@@ -64,15 +64,16 @@ menubar:setMenu(function(keys)
 
     if timer then
         local time_left = timer:nextTrigger()
+        local fmt
 
-        local time_str
         if time_left < 60 then
-            time_str = string.format('%i seconds remaining', math.floor(time_left))
+            fmt = '%is remaining'
         else
-            time_str = string.format('%i minutes remaining', math.floor(time_left / 60))
+            fmt = '%im remaining'
+            time_left = math.floor(time_left / 60)
         end
 
-        table.insert(out, 1, { title = time_str })
+        table.insert(out, 1, { title = string.format(fmt, time_left) })
         table.insert(out, 2, { title = '-' })
     end
 
