@@ -76,16 +76,19 @@ end
 local function on_caffeinate_change(arg)
     -- No need to re-run hammerspoon initialization when system is going to sleepish state
     local IGNORE_EVENTS = {}
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensDidLock]      = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensDidSleep]     = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensaverDidStart] = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensaverWillStop] = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.systemWillPowerOff]  = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.systemWillSleep]     = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.screensaverDidStart]    = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.screensaverWillStop]    = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.screensDidLock]         = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.screensDidSleep]        = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.sessionDidResignActive] = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.systemWillPowerOff]     = true
+    IGNORE_EVENTS[hs.caffeinate.watcher.systemWillSleep]        = true
 
     if not IGNORE_EVENTS[arg] then
-        print(EVENT_NAMES[arg])
+        print("caffeinate event:", EVENT_NAMES[arg])
         on_device_change()
+    else
+        print("caffeinate ignored event:", EVENT_NAMES[arg])
     end
 end
 
