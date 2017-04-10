@@ -114,23 +114,17 @@ local function print_help(self)
     local max_shortcut = 0
 
     hs.fnutils.ieach(self.msgs, function(msg)
-        if 'table' == type(msg) then
-            if #msg.shortcut > max_shortcut then
-                max_shortcut = #msg.shortcut
-            end
+        if ('table' == type(msg)) and (#msg.shortcut > max_shortcut) then
+            max_shortcut = #msg.shortcut
         end
     end)
 
-    if 0 ~= (max_shortcut % 2) then
-        max_shortcut = max_shortcut + 2 - (max_shortcut % 2)
-    end
-
     formatted_msgs = hs.fnutils.map(self.msgs, function(msg)
-        if 'table' == type(msg) then
-            return string.format('%-' .. max_shortcut .. 's \t%s', msg.shortcut, msg.msg)
-        else
+        if 'string' == type(msg) then
             return msg
         end
+
+        return string.format('%-' .. max_shortcut .. 's\t%s', msg.shortcut, msg.msg)
     end)
 
     displayed_alert = hs.alert(table.concat(formatted_msgs, '\n'), 3)
