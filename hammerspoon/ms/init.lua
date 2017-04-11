@@ -47,7 +47,7 @@ finder_modal:bind({}, 'G', 'Home',        sys.select_app_fn('Finder', { window =
 finder_modal:bind({}, 'W', 'Workspace',   sys.select_app_fn('Finder', { window = 'ws', new_window = sys.open_finder_fn('~/ws') }))
 finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
 
-music_modal:bind({}, 'S', 'Play/Pause',    music.fn('app.playpause()')),    { shiftable = true }
+music_modal:bind({}, 'S', 'Play/Pause',    music.fn('app.playpause()'),     { shiftable = true })
 music_modal:bind({}, 'A', 'Previous',      music.fn('app.previousTrack()'), { shiftable = true })
 music_modal:bind({}, 'D', 'Next',          music.fn('app.nextTrack()'),     { shiftable = true })
 music_modal:bind({}, 'R', 'Shuffle',       music.fn('shuffle'),             { shiftable = true })

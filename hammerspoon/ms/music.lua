@@ -9,9 +9,9 @@ local players = {
     itunes = {
         name = 'iTunes',
         bundle_id = 'com.apple.iTunes',
-        fn = function(cmd) return  app_js('iTunes', cmd) end
+        fn = function(cmd) return  app_js('iTunes', cmd) end,
 
-        shuffle = function() return app_js('iTunes', 'app.shuffleEnabled = !app.shuffleEnabled()') end
+        shuffle = function() return app_js('iTunes', 'app.shuffleEnabled = !app.shuffleEnabled()') end,
         is_shuffled = function() return app_js('iTunes', 'app.shuffleEnabled()') end
     },
 

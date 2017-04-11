@@ -51,7 +51,7 @@ if not menubar then
     menubar:returnToMenuBar()
 end
 
-add_cleanup_fn(function() menubar:removeFromMenuBar(); menubar = nil end)
+add_cleanup_fn(function() menubar:delete(); menubar = nil end)
 
 menubar:setMenu(function(keys)
     local out = {
