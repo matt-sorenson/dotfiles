@@ -18,6 +18,9 @@ hs.window.animationDuration = 0
 
 hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', {toggle = true, new_window = {'Shell', 'New Window'} }))
 
+-- Defeat attempts at blocking paste
+hs.hotkey.bind({'cmd', 'alt'}, "V", function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end)
+
 local global_modal = bind.modal_new(bind.default_modal(), {'ctrl', 'cmd'}, 'B')
 
 local window_modal = bind.modal_new(global_modal, {}, 'W', 'Window')
