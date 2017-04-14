@@ -1,21 +1,5 @@
 local current_modal, _default_modal
 
-local function set_window_rect(rect)
-    return function()
-        local win = hs.window.focusedWindow()
-        local screen_frame = win:screen():frame()
-
-        local frame = {
-            x = screen_frame.x + (screen_frame.w * rect[1]),
-            y = screen_frame.y + (screen_frame.h * rect[2]),
-            w = screen_frame.w * rect[3],
-            h = screen_frame.h * rect[4]
-        }
-
-        win:setFrameInScreenBounds(frame)
-    end
-end
-
 local function modal_enter(self)
     if current_modal and (current_modal ~= self) then
         current_modal:exit(true)
@@ -171,6 +155,4 @@ end
 return {
     modal_new = modal_new,
     default_modal = default_modal,
-
-    set_window_rect = set_window_rect,
 }
