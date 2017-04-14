@@ -5,11 +5,15 @@ local function app_js(app, cmd)
     return result, ok
 end
 
+local function app_fn(app, fn_name)
+    return app_js(app, 'app.' .. fn_name .. "();")
+end
+
 local players = {
     itunes = {
         name = 'iTunes',
         bundle_id = 'com.apple.iTunes',
-        fn = function(cmd) return  app_js('iTunes', cmd) end,
+        fn = function(cmd) return  app_fn('iTunes', cmd) end,
 
         shuffle = function() return app_js('iTunes', 'app.shuffleEnabled = !app.shuffleEnabled()') end,
         is_shuffled = function() return app_js('iTunes', 'app.shuffleEnabled()') end
@@ -18,13 +22,15 @@ local players = {
     spotify = {
         name = 'Spotify',
         bundle_id = 'com.spotify.client',
-        fn = function(cmd) app_js('Spotify', cmd) end,
+        fn = function(cmd) app_fn('Spotify', cmd) end,
 
         shuffle = function() return app_js('Spotify', 'app.shuffling = !app.shuffling()') end,
         is_shuffled = function() return app_js('Spotify', 'spotify', 'app.shuffling()') end
     }
 }
 
+-- If iTunes is currently playing the 'current_player' is iTunes, otherwise
+-- default to Spotify.
 local function current_player()
     if hs.itunes.isPlaying() then
         return players.itunes
