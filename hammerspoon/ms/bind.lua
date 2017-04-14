@@ -101,16 +101,16 @@ local function modal_add_help_seperator(self)
 end
 
 local displayed_alert
-local function clear_alert()
+local function alert(msg)
     if displayed_alert then
         hs.alert.closeSpecific(displayed_alert, 0)
         displayed_alert = nil
     end
+
+    displayed_alert = hs.alert(msg, 3)
 end
 
 local function print_help(self)
-    clear_alert()
-
     local max_shortcut = 0
 
     hs.fnutils.ieach(self.msgs, function(msg)
@@ -127,7 +127,7 @@ local function print_help(self)
         return string.format('%-' .. max_shortcut .. 's\t%s', msg.shortcut, msg.msg)
     end)
 
-    displayed_alert = hs.alert(table.concat(formatted_msgs, '\n'), 3)
+    alert(table.concat(formatted_msgs, '\n'))
 end
 
 local function modal_new(parent, mods, key, name)
