@@ -1,5 +1,7 @@
 local WHO_AM_I = os.getenv('USER')
-local IS_WORK_COMPUTER = 0 < #(hs.fnutils.filter(hs.host.names(), function(e) return string.find(e, '.ant.') end))
+
+-- hs.host.names() is insanely slow (something like 5 seconds)
+local IS_WORK_COMPUTER = string.find(hs.execute('hostname'), '.ant.')
 
 local function mount_smb(host, share)
     if hs.fs.volume.allVolumes()['/Volumes/' .. share] then
