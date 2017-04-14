@@ -15,9 +15,13 @@ end)
 result, msg = pcall(function() require 'config' end)
 
 if result then
-    hs.notify.show('Hammerspoon', '', 'Config (re)loaded')
+    hs.notify.show('Hammerspoon', 'Config (re)loaded', '')
     print('Hammerspoon config (re)loaded')
 else
-    hs.notify.show('Hammerspoon', 'Failed to (re)load', msg)
+    hs.notify.new(hs.openConsole, {
+        title = 'Hammerspoon',
+        subTitle = 'Failed to (re)load',
+        informativeText = ''
+    }):send()
     print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
 end
