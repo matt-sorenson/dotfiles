@@ -1,6 +1,7 @@
 local WHO_AM_I = os.getenv('USER')
 
 -- hs.host.names() is insanely slow (something like 5 seconds)
+-- so just use hs.exectute('hostname') instead
 local IS_WORK_COMPUTER = string.find(hs.execute('hostname'), '.ant.')
 
 local function set_window_rect_fn(rect)
@@ -20,19 +21,10 @@ local function set_window_rect_fn(rect)
 end
 
 local function mount_smb(host, share)
-    if hs.fs.volume.allVolumes()['/Volumes/' .. share] then
-        return
-    end
+    local smb_share = 'smb://' .. host .. ':445/' .. share
+    local out = hs.osascript.applescript('mount volume "' .. smb_share .. '"')
 
-    pcall(function()
-        hs.applescript.applescript([[
-            tell application "Finder"
-                try
-                    mount volume "smb://]] .. host .. ":445/" .. share .. [["
-                end try
-            end tell
-        ]])
-    end)
+    return out
 end
 
 local function find_usb_device_by_name(name)
