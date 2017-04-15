@@ -37,31 +37,35 @@ local function modal_bind_wrapper_shift(self, mods, key, msg, fn, options)
     local new_mods = hs.fnutils.copy(mods)
 
     new_opts.shiftable = nil
-    new_opts.skip_help_msg = true
+    new_opts.skip_help_msg = false
+    new_opts.shifted = true
     new_opts.skip_clear_modal = true
     table.insert(new_mods, 'shift')
 
     self:bind(new_mods, key, msg, fn, new_opts)
 end
 
-local function convert_to_help_msg(mods, key, msg)
-    mods = hs.fnutils.map(mods, function(mod) return hs.utf8.registeredKeys[mod] or mod end)
-    table.insert(mods, key)
+local function convert_to_help_msg(mods, key, msg, shiftable)
+    mods = table.concat(hs.fnutils.map(mods, function(mod)
+        local out = hs.utf8.registeredKeys[mod] or mod
 
-    return {shortcut = table.concat(mods), msg = msg}
+        if shiftable and '⇧' == out then
+            out = '[⇧]'
+        end
+
+        return out
+    end))
+
+    return {shortcut = mods .. key, msg = msg}
 end
 
 local function modal_bind(self, mods, key, msg, fn, options)
-    if 'table' == type(msg) or 'function' == type(msg) then
-        options = fn or {}
-        fn = msg
-        msg = nil
-    end
-
     options = options or {}
 
     if options.shiftable then
         modal_bind_wrapper_shift(self, mods, key, msg, fn, options)
+        options = hs.fnutils.copy(options)
+        options.skip_help_msg = true
     end
 
     if not options.skip_clear_modal then
@@ -72,7 +76,7 @@ local function modal_bind(self, mods, key, msg, fn, options)
     table.insert(self.saved_binds, bind)
 
     if (not options.skip_help_msg) and msg then
-        table.insert(self.msgs, convert_to_help_msg(mods, key, msg))
+        table.insert(self.msgs, convert_to_help_msg(mods, key, msg, options.shifted))
     end
 
     if self.running then
@@ -85,12 +89,15 @@ local function modal_add_help_seperator(self)
 end
 
 local displayed_alert
-local function alert(msg)
+local function clear_alert()
     if displayed_alert then
         hs.alert.closeSpecific(displayed_alert, 0)
         displayed_alert = nil
     end
+end
 
+local function alert(msg)
+    clear_alert()
     displayed_alert = hs.alert(msg, 3)
 end
 
@@ -108,13 +115,15 @@ local function print_help(self)
             return msg
         end
 
-        return string.format('%-' .. max_shortcut .. 's\t%s', msg.shortcut, msg.msg)
+        return string.format('%-' .. max_shortcut .. 's %s', msg.shortcut, msg.msg)
     end)
 
     alert(table.concat(formatted_msgs, '\n'))
 end
 
-local function modal_new(parent, mods, key, name)
+local function modal_new(mods, key, name, parent)
+    parent = parent or ((type(parent) ~= 'boolean') and _default_modal)
+
     local out = {}
 
     out.saved_binds = {}
@@ -134,7 +143,7 @@ local function modal_new(parent, mods, key, name)
     out.add_help_seperator = modal_add_help_seperator
 
     if parent then
-        parent:bind(mods, key, name, function() out:enter() end, name)
+        parent:bind(mods, key, name, function() out:enter() end)
         out:bind({}, 'H', function() print_help(out) end, { skip_clear_modal = true })
         out:bind({}, 'ESCAPE', function() hs.alert('⎋ - Cancel') end)
     end
@@ -142,17 +151,12 @@ local function modal_new(parent, mods, key, name)
     return out;
 end
 
-local function default_modal()
-    if not _default_modal then
-        _default_modal = modal_new()
-        _default_modal.on_exit = function() end
-        _default_modal:enter()
-    end
-
-    return _default_modal
+if not _default_modal then
+    _default_modal = modal_new(nil, nil, nil, false)
+    _default_modal.on_exit = function() end
+    _default_modal:enter()
 end
 
 return {
-    modal_new = modal_new,
-    default_modal = default_modal,
+    new = modal_new,
 }
