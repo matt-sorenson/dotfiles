@@ -11,7 +11,8 @@ hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
     hs.reload()
 end)
 
--- use pcall to load the file so we can put the error in the console and continue to have the reload hotkey working
+-- use pcall to load the file so we can put the error in the console and
+-- continue to have the reload hotkey working
 result, msg = pcall(function() require 'config' end)
 
 if result then
