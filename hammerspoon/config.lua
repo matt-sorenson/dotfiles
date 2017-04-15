@@ -11,7 +11,7 @@ if sys.is_work_computer() then
     REMOTE_SHARE_FOLDER = 'desktop'
 else
     REMOTE_SHARE_HOST = 'matt-srv'
-    REMOTE_SHARE_FOLDER = 'matt'
+    REMOTE_SHARE_FOLDER = 'matt-srv'
 end
 
 hs.window.animationDuration = 0
