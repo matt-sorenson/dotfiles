@@ -21,46 +21,46 @@ hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', {toggle = true, new_wi
 -- Defeat attempts at blocking paste
 hs.hotkey.bind({'cmd', 'alt'}, "V", function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end)
 
-local global_modal = bind.modal_new(bind.default_modal(), {'ctrl', 'cmd'}, 'B')
+local global_modal = bind.new({'ctrl', 'cmd'}, 'B')
 
-local window_modal = bind.modal_new(global_modal, {}, 'W', 'Window')
-local finder_modal = bind.modal_new(global_modal, {}, 'F', 'Finder')
-local music_modal  = bind.modal_new(global_modal, {}, 'S', 'Music')
-local power_modal  = bind.modal_new(global_modal, {}, 'E', 'Power')
+local window_modal = bind.new({}, 'W', 'Window', global_modal)
+local finder_modal = bind.new({}, 'F', 'Finder', global_modal)
+local music_modal  = bind.new({}, 'S', 'Music', global_modal)
+local power_modal  = bind.new({}, 'E', 'Power', global_modal)
 
-window_modal:bind({'shift'}, 'W', '33% ↑', sys.set_window_rect_fn({   0,   0,   1, 1/3 }))
-window_modal:bind({'shift'}, 'A', '33% ←', sys.set_window_rect_fn({   0,   0, 1/3,   1 }))
-window_modal:bind({'shift'}, 'S', '33% ↓', sys.set_window_rect_fn({   0, 2/3,   1, 1/3 }))
-window_modal:bind({'shift'}, 'D', '33% →', sys.set_window_rect_fn({ 2/3,   0, 1/3,   1 }))
-window_modal:bind({},        'W', '50% ↑', sys.set_window_rect_fn({ 0.0, 0.0, 1.0, 0.5 }))
-window_modal:bind({},        'A', '50% ←', sys.set_window_rect_fn({ 0.0, 0.0, 0.5, 1.0 }))
-window_modal:bind({},        'S', '50% ↓', sys.set_window_rect_fn({ 0.0, 0.5, 1.0, 0.5 }))
-window_modal:bind({},        'D', '50% →', sys.set_window_rect_fn({ 0.5, 0.0, 0.5, 1.0 }))
+window_modal:bind({'shift'}, 'W', '↑', sys.set_window_rect_fn({   0,   0,   1, 1/3 }), { shifted = true })
+window_modal:bind({'shift'}, 'A', '←', sys.set_window_rect_fn({   0,   0, 1/3,   1 }), { shifted = true })
+window_modal:bind({'shift'}, 'S', '↓', sys.set_window_rect_fn({   0, 2/3,   1, 1/3 }), { shifted = true })
+window_modal:bind({'shift'}, 'D', '→', sys.set_window_rect_fn({ 2/3,   0, 1/3,   1 }), { shifted = true })
+window_modal:bind({},       'W', nil, sys.set_window_rect_fn({ 0.0, 0.0, 1.0, 0.5 }))
+window_modal:bind({},       'A', nil, sys.set_window_rect_fn({ 0.0, 0.0, 0.5, 1.0 }))
+window_modal:bind({},       'S', nil, sys.set_window_rect_fn({ 0.0, 0.5, 1.0, 0.5 }))
+window_modal:bind({},       'D', nil, sys.set_window_rect_fn({ 0.5, 0.0, 0.5, 1.0 }))
 
 window_modal:add_help_seperator()
 window_modal:bind({}, 'Q', "Quiet current window",        sys.set_window_rect_fn({1/8, 8/14, 6/8, 5.5/14}))
 window_modal:bind({}, 'F', 'Maximize',                    sys.set_window_rect_fn({ 0, 0, 1, 1 }))
 window_modal:bind({}, 'G', 'Grid' ,                       hs.grid.show)
 window_modal:bind({}, 'R', 'Apply layout to window',      layout.apply_current_window)
-window_modal:bind({}, 'T', 'Apply Default Layout',        function() layout.apply_layout("Default") end)
-window_modal:bind({}, 'E', 'Apply Media Layout',          function() layout.apply_layout("Media") end)
-window_modal:bind({}, 'C', 'Apply Communications Layout', function() layout.apply_layout("Communications") end)
+window_modal:bind({}, 'T', 'Apply Default Layout',        layout.apply_layout_fn("Default"))
+window_modal:bind({}, 'E', 'Apply Media Layout',          layout.apply_layout_fn("Media"))
+window_modal:bind({}, 'C', 'Apply Communications Layout', layout.apply_layout_fn("Communications"))
 
-finder_modal:bind({}, 'G', 'Home',        sys.select_app_fn('Finder', { window = sys.who_am_i(), new_window = sys.open_finder_fn('~/') }))
-finder_modal:bind({}, 'W', 'Workspace',   sys.select_app_fn('Finder', { window = 'ws', new_window = sys.open_finder_fn('~/ws') }))
+finder_modal:bind({}, 'G', 'Home',        sys.select_app_fn('Finder', { window = sys.who_am_i(),      new_window = sys.open_finder_fn('~/') }))
+finder_modal:bind({}, 'W', 'Workspace',   sys.select_app_fn('Finder', { window = 'ws',                new_window = sys.open_finder_fn('~/ws') }))
 finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
 
 music_modal:bind({}, 'S', 'Play/Pause',    music.fn('playpause'),     { shiftable = true })
 music_modal:bind({}, 'A', 'Previous',      music.fn('previousTrack'), { shiftable = true })
 music_modal:bind({}, 'D', 'Next',          music.fn('nextTrack'),     { shiftable = true })
 music_modal:bind({}, 'R', 'Shuffle',       music.fn('shuffle'),       { shiftable = true })
-music_modal:bind({}, 'C', 'Select player', function() sys.select_app(music.current_player_bundleID()) end)
+music_modal:bind({}, 'C', 'Select player', music.select_current_player)
 music_modal:add_help_seperator()
 music_modal:bind({}, 'W', 'Raise volume', audio.update_output_volume_fn( 1), { shiftable = true })
 music_modal:bind({}, 'X', 'Lower volume', audio.update_output_volume_fn(-1), { shiftable = true })
 
 power_modal:bind({}, 'S', 'Screen Saver', hs.caffeinate.startScreensaver)
-for i = 1,6 do
+for i = 1,5 do
     power_modal:bind({}, tostring(i), 'Caffeine on ' .. i .. '0 Minutes', function() caffeine.timed_on_m(i * 10) end)
 end
 

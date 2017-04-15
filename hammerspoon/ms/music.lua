@@ -1,3 +1,5 @@
+local sys = require('ms.sys')
+
 local function app_js(app, cmd)
     local script = "var app = Application('" .. app .. "'); " .. cmd
     local ok, result = hs.osascript.javascript(script)
@@ -39,20 +41,27 @@ local function current_player()
     return players.spotify
 end
 
+local function select_current_player()
+    sys.select_app(music.current_player_bundleID())
+end
+
+local function fn(key, ...)
+    local args = {...}
+    return function()
+        local player = current_player()
+        if player[key] then
+            player[key](table.unpack(args))
+        else
+            player.fn(key)
+        end
+    end
+end
+
 local out = {
     current_player_bundleID = function() return current_players().bundle_id end,
     current_player_name = function() return current_players().name end,
-    fn = function(key, ...)
-        local args = {...}
-        return function()
-            local player = current_player()
-            if player[key] then
-                player[key](table.unpack(args))
-            else
-                player.fn(key)
-            end
-        end
-    end
+    fn = fn,
+    select_current_player = select_current_player
 }
 
 local metatable = {

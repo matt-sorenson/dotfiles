@@ -165,6 +165,7 @@ return {
     move_window = move_window,
 
     apply_layout = apply_layout,
+    apply_layout_fn = function(name) return function() apply_layout(name) end end,
     apply_to_window = apply_to_window,
     apply_current_window = apply_current_window
 }
