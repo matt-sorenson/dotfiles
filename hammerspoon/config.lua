@@ -16,7 +16,7 @@ end
 
 hs.window.animationDuration = 0
 
-hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', {toggle = true, new_window = {'Shell', 'New Window'} }))
+hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', { new_window = {'Shell', 'New Window'} }))
 
 -- Defeat attempts at blocking paste
 hs.hotkey.bind({'cmd', 'alt'}, "V", function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end)

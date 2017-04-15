@@ -61,11 +61,7 @@ local function select_app(app_name, cfg)
     end
 
     if win then
-        if win ~= hs.window.focusedWindow() then
-            win:focus()
-        elseif cfg.toggle then
-            app:hide()
-        end
+        win:focus()
     elseif cfg.new_window then
         if 'function' == type(cfg.new_window) then
             cfg.new_window(app)
