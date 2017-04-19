@@ -1,3 +1,4 @@
+local spaces = require("hs._asm.undocumented.spaces")
 local sys = require 'ms.sys'
 
 local screen_layouts = {}
