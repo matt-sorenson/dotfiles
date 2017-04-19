@@ -68,7 +68,7 @@ if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
     sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
 end
 
-require('default_layout')
+--require('default_layout')
 
 local function on_device_change()
     grid.setup_screen()
@@ -88,10 +88,10 @@ local function on_caffeinate_change(arg)
     IGNORE_EVENTS[hs.caffeinate.watcher.systemWillSleep]        = true
 
     if not IGNORE_EVENTS[arg] then
-        print("caffeinate event:", EVENT_NAMES[arg])
+        print("caffeinate event:", arg)
         on_device_change()
     else
-        print("caffeinate ignored event:", EVENT_NAMES[arg])
+        print("caffeinate ignored event:", arg)
     end
 end
 
