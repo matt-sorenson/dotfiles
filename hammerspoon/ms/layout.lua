@@ -1,53 +1,44 @@
 local sys      = require 'ms.sys'
 
 local screen_layout = {
-    { id = 722476045 },
-    { id = 722476558 },
-    { id = 724070605 },
-    { resolution = { w = 3840, h = 2160 } },
-    { resolution = { w = 2160, h = 3840 } },
-    { resolution = { w = 3008, h = 1692 } },
-    { resolution = { w = 1692, h = 3008 } },
-    { resolution = { w = 3440, h = 1440 } },
-    { name = 'DELL U3415W' },
-    { resolution = { w = 2560, h = 1440 } },
-    { resolution = { w = 1440, h = 2560 } },
-    { id = 69731904 },
-    { resolution = { w = 1920, h = 1200 } },
-    { resolution = { w = 1680, h = 1050 } },
-    { name = 'Color LCD' }
+    { w = 3840, h = 2160 },
+    { w = 2160, h = 3840 },
+    { w = 3008, h = 1692 },
+    { w = 1692, h = 3008 },
+    { w = 3440, h = 1440 },
+    'DELL U3415W',
+    { w = 2560, h = 1440 },
+    { w = 1440, h = 2560 },
+    { w = 1920, h = 1200 },
+    { w = 1680, h = 1050 },
+    'Color LCD'
 }
 
 local layouts = {}
 
 local function get_screens_helper(screen)
-    local out = { hs.screen.find(screen.id) }
+    local query = screen
 
-    if #out > 0 then
-        return out
+    if 'table' == type(screen) then
+        query = screen.w .. 'x' .. screen.h
     end
 
-    out = { hs.screen.find(screen.name) }
-
-    local resolution
-
-    if screen.resolution then
-        resolution = screen.resolution.w .. 'x' .. screen.resolution.h
-    end
-
-    if #out > 0 then
-        return out
-    end
-
-    return { hs.screen.find(resolution) }
+    return { hs.screen.find(screen.id) }
 end
 
 local function get_screens(screen_descs)
     local out = {}
     local hash = {}
 
+    local primary = hs.screen.primaryScreen()
+
     hs.fnutils.ieach(screen_descs, function(screen_desc)
         local screens = get_screens_helper(screen_desc)
+
+        if hs.fnutils.contains(screens, primary) then
+            screens = hs.fnutils.ifilter(screens, function(e) return e == primary end )
+            table.insert(screens, 1, primary)
+        end
 
         hs.fnutils.ieach(screens, function(screen)
             if hash[screen:id()] == nil then
@@ -64,20 +55,7 @@ local function calc_screens()
     local primary, secondary, laptop = table.unpack(get_screens(screen_layout))
 
     if not primary then
-        if secondary then
-            primary = secondary
-            secondary = nil
-        elseif laptop then
-            primary = laptop
-            laptop = nil
-        else
-            primary = hs.screen.allScreens()[1]
-        end
-    end
-
-    if (not secondary) and laptop then
-        secondary = laptop
-        laptop = nil
+        primary = hs.screen.primaryScreen()
     end
 
     return { primary = primary, secondary = secondary, laptop = laptop }
