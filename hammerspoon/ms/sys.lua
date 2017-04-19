@@ -75,6 +75,22 @@ local function select_app_fn(app, cfg)
     return function() select_app(app, cfg) end
 end
 
+local function ls(dir)
+    local _, iter = hs.fs.dir('~/.hammerspoon/layouts')
+    local contents = {}
+
+    repeat
+        local filename = iter:next()
+
+        if(filename and ('..' ~= filename) and ('.' ~= filename)) then
+            table.insert(contents, filename)
+        end
+    until filename == nil
+    iter:close()
+
+    return contents
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     is_work_computer = function() return IS_WORK_COMPUTER end,
@@ -82,6 +98,8 @@ return {
     select_app = select_app,
     set_window_rect_fn = set_window_rect_fn,
     who_am_i = function() return WHO_AM_I end,
+
+    ls = ls,
 
     open_finder_fn = open_finder_fn,
     select_app_fn = select_app_fn

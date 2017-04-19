@@ -1,149 +1,129 @@
-local sys      = require 'ms.sys'
+local sys = require 'ms.sys'
 
-local screen_layout = {
-    { w = 3840, h = 2160 },
-    { w = 2160, h = 3840 },
-    { w = 3008, h = 1692 },
-    { w = 1692, h = 3008 },
-    { w = 3440, h = 1440 },
-    'DELL U3415W',
-    { w = 2560, h = 1440 },
-    { w = 1440, h = 2560 },
-    { w = 1920, h = 1200 },
-    { w = 1680, h = 1050 },
-    'Color LCD'
-}
+local screen_layouts = {}
 
-local layouts = {}
+local function load_screen_layouts()
+    local layout_files = sys.ls('~/.hammerspoon/layouts/')
 
-local function get_screens_helper(screen)
-    local query = screen
+    for _, filename in pairs(layout_files) do
+        if filename:match('.lua$') then
+            local require_str = 'layouts.' .. filename:gsub('.lua$', '')
 
-    if 'table' == type(screen) then
-        query = screen.w .. 'x' .. screen.h
+            screen_layouts[require_str] = require(require_str);
+        end
     end
-
-    return { hs.screen.find(screen.id) }
 end
 
-local function get_screens(screen_descs)
-    local out = {}
-    local hash = {}
+function get_screen_layout()
+    local curr_score = 0
+    local curr_layout = nil
 
-    local primary = hs.screen.primaryScreen()
+    for _, layout in pairs(screen_layouts) do
+        local score = layout:score()
 
-    hs.fnutils.ieach(screen_descs, function(screen_desc)
-        local screens = get_screens_helper(screen_desc)
-
-        if hs.fnutils.contains(screens, primary) then
-            screens = hs.fnutils.ifilter(screens, function(e) return e == primary end )
-            table.insert(screens, 1, primary)
+        if score > curr_score then
+            curr_score = score
+            curr_layout = layout
         end
 
-        hs.fnutils.ieach(screens, function(screen)
-            if hash[screen:id()] == nil then
-                table.insert(out, screen)
-                hash[screen:id()] = true
-            end
-        end)
-    end)
-
-    return out
-end
-
-local function calc_screens()
-    local primary, secondary, laptop = table.unpack(get_screens(screen_layout))
-
-    if not primary then
-        primary = hs.screen.primaryScreen()
+--        print(_, score)
     end
 
-    return { primary = primary, secondary = secondary, laptop = laptop }
+    return curr_layout
 end
 
-local function move_window(window, rect, screen)
-    window = (('string' == type(window)) and hs.window.find(window)) or window
-    if not window then return end
-
-    screen = screen or window:screen()
-
-    window:setFrame(screen:fromUnitRect(rect))
-end
-
-local function add_app(layout_name, app_name, window_name, screen_name, x, y, w, h)
-    layout_name = layout_name:lower()
-
-    layouts[layout_name] = layouts[layout_name] or {}
-
-    table.insert(layouts[layout_name], {
-        app    = ((app_name and app_name:lower()) or nil),
-        window = ((window_name and window_name:lower()) or nil),
-        screen = screen_name:lower(),
-        rect   = {x, y, w, h}
-    })
-end
-
-local function score_layout(win_name, app_name, layout)
+local function score_element(layout_name, app_name, win_name, element)
     local score = 0
 
-    if app_name and layout.app and app_name:match(layout.app) then
+    -- TODO use layout_name
+
+    if app_name and element.app and app_name:match(element.app:lower()) then
         score = score + 1
     end
 
-    if win_name and layout.window and win_name:match(layout.window) then
+    if win_name and element.window and win_name:match(element.window:lower()) then
         score = score + 2
     end
 
     return score;
 end
 
-local function find_layout(window, name)
-    local win_name = window:title():lower()
+local function find_element_in_layout(layout_name, layout, window)
     local app_name = window:application():name():lower()
-    name = (name or "default"):lower()
+    local win_name = window:title():lower()
+
+    layout_name = (layout_name or 'default'):lower()
 
     local curr_score = 0
-    local curr_layout = nil
+    local curr_element, curr_screen, curr_ws = nil
 
-    hs.fnutils.ieach(layouts[name], function(layout)
-        local score = score_layout(win_name, app_name, layout)
+    for screen_i, screen in ipairs(layout) do
+        for ws_i, workspace in ipairs(screen) do
+            for _, element in ipairs(workspace) do
+                local score = score_element(layout_name, app_name, win_name, element)
 
-        if score > curr_score then
-            curr_score = score
-            curr_layout = layout
+                print(string.format("%20s %20s %20s %20s %20s", score, app_name, win_name, element.app, element.window))
+
+                if score > curr_score then
+                    curr_score = score
+                    curr_element = element
+                    curr_screen = screen_i
+                    curr_ws = ws_i
+                end
+            end
         end
-    end)
+    end
 
-    return curr_layout
+    return curr_element, curr_screen, curr_ws
 end
 
-local function apply_to_window(window, screens, name)
-    screens = screens or calc_screens()
-    local app_layout = find_layout(window, name)
+local function move_window(window, element, screen_layout, screen_id, ws_id)
+    window = (('string' == type(window)) and hs.window.find(window)) or window
+    if not window then
+        return
+    end
 
-    if app_layout then
-        move_window(window, app_layout.rect, screens[app_layout.screen])
+    local screen = screen_layout.screens()[screen_id] or window:screen()
+
+    if ws_id and screen_layout.layout[screen_id][ws_id].fullscreen then
+        window:moveToScreen(screen)
+        window:setFullScreen(true)
+    else
+        window:setFrame(screen:fromUnitRect(element.rect))
     end
 end
 
-local function apply_layout(name)
-    local screens = calc_screens()
+local function apply_to_window(layout_name, window, screen_layout)
+    screen_layout = screen_layout or get_screen_layout()
+
+    local element, screen, ws = find_element_in_layout(layout_name, screen_layout.layout, window)
+
+    if element then
+        move_window(window, element, screen_layout, screen, ws)
+    end
+end
+
+local function apply_to_current_window(layout_name)
+    apply_to_window(layout_name, hs.window.focusedWindow())
+end
+
+local function apply_layout(layout_name)
+    local screen_layout = get_screen_layout()
 
     hs.fnutils.ieach(hs.window.allWindows(), function(window)
-        apply_to_window(window, screens, name)
+        apply_to_window(layout_name, window, screen_layout)
     end)
 end
 
-local function apply_current_window(name)
-    apply_to_window(hs.window.focusedWindow(), nil, name)
+local function apply_layout_fn(layout_name)
+    return function() apply_layout(layout_name) end
 end
 
-return {
-    add_app = add_app,
-    move_window = move_window,
+load_screen_layouts()
 
-    apply_layout = apply_layout,
-    apply_layout_fn = function(name) return function() apply_layout(name) end end,
+return {
     apply_to_window = apply_to_window,
-    apply_current_window = apply_current_window
+    apply_to_current_window = apply_to_current_window,
+    apply_layout = apply_layout,
+    apply_layout_fn = apply_layout_fn,
 }
