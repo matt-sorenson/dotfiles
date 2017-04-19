@@ -25,24 +25,51 @@ function get_screen_layout()
             curr_score = score
             curr_layout = layout
         end
-
---        print(_, score)
     end
 
     return curr_layout
 end
 
-local function score_element(layout_name, app_name, win_name, element)
-    local score = 0
-
-    -- TODO use layout_name
-
-    if app_name and element.app and app_name:match(element.app:lower()) then
-        score = score + 1
+local function score_str_tbl(str, array, score)
+    if type(array) ~= 'table' then
+        array = {array}
     end
 
-    if win_name and element.window and win_name:match(element.window:lower()) then
-        score = score + 2
+    for _, v in ipairs(array) do
+        if str:match(v:lower()) then
+            return score
+        end
+    end
+
+    return -1
+end
+
+local function score_element(layout_name, app_name, win_name, element)
+    local score = 0
+    local correct_layout = false
+
+    if ('default' ~= layout_name) or element.no_default then
+        if 0 > score_str_tbl(layout_name, element.layouts, 1) then
+            return -1
+        end
+    end
+
+    if app_name and element.app then
+        local app_score = score_str_tbl(app_name, element.app, 1)
+        if 0 > app_score then
+            return -1
+        end
+
+        score = score + app_score
+    end
+
+    if win_name and element.window then
+        local win_score = score_str_tbl(win_name, element.window, 2)
+        if 0 > win_score then
+            return -1
+        end
+
+        score = score + win_score
     end
 
     return score;
@@ -59,16 +86,25 @@ local function find_element_in_layout(layout_name, layout, window)
 
     for screen_i, screen in ipairs(layout) do
         for ws_i, workspace in ipairs(screen) do
-            for _, element in ipairs(workspace) do
-                local score = score_element(layout_name, app_name, win_name, element)
-
-                print(string.format("%20s %20s %20s %20s %20s", score, app_name, win_name, element.app, element.window))
+            if workspace.app or workspace.window then
+                local score = score_element(layout_name, app_name, win_name, workspace)
 
                 if score > curr_score then
                     curr_score = score
-                    curr_element = element
-                    curr_screen = screen_i
-                    curr_ws = ws_i
+                    curr_element = nil
+                    curr_screen = nil
+                    curr_ws = nil
+                end
+            else
+                for _, element in ipairs(workspace) do
+                    local score = score_element(layout_name, app_name, win_name, element)
+
+                    if score > curr_score then
+                        curr_score = score
+                        curr_element = element
+                        curr_screen = screen_i
+                        curr_ws = ws_i
+                    end
                 end
             end
         end

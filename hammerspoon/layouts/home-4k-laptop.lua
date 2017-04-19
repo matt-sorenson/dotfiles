@@ -3,47 +3,29 @@ local sys    = require 'ms.sys'
 local layout = {
     { -- Primary Screen
         { -- Workspace 1
-            { app = 'Sublime', rect = {   0, 0, 1/2, 1 }, layouts = {'default'} },
-            { app = 'Quiver',  rect = {   0, 0, 1/2, 1 }, layouts = {'default'} },
-            { app = 'Chrome',  rect = { 1/2, 0, 1/2, 1 }, layouts = {'default'} },
-            { app = 'Firefox', rect = { 1/2, 0, 1/2, 1 }, layouts = {'default'} },
+            { app = {'Sublime', 'Quiver'}, rect = {   0, 0, 1/2, 1 } },
+            { app = {'Chrome', 'Firefox'}, rect = { 1/2, 0, 1/2, 1 } },
         },
     },
     { -- Secondary Screen
-        { -- Workspace iTunes
-            { app = 'iTunes',  rect = { 0, 0, 1, 1 }, layouts = {'default', 'media'} },
+        { app = {'iTunes', 'Spotify'},  layouts = 'media' },
 
-            fullscreen = true
-        },
-        { -- Workspace Spotify
-            { app = 'Spotify', rect = { 0, 0, 1, 1 }, layouts = {'default', 'media'} },
-
-            fullscreen = true
-        },
         { -- Workspace 1
-            { app = 'iTerm',      rect = {    0, 0,    1, 1/2 }, layouts = {'default'} },
+            { app = 'iTerm', rect = { 0, 0, 1, 1/2 } },
 
-            { app = 'Slack',    rect = {   0, 1/2, 1/2, 1/2 }, layouts = {'default', 'communications'} },
-            { app = 'Messages', rect = { 1/2, 1/2, 1/2, 1/2 }, layouts = {'default', 'communications'} },
+            { app = 'Slack',    rect = {   0, 1/2, 1/2, 1/2 }, layouts = 'communications' },
+            { app = 'Messages', rect = { 1/2, 1/2, 1/2, 1/2 }, layouts = 'communications' },
 
-            { window = 'Youtube', rect = { 1/10, 0, 8/10,   1 }, layouts = {'default', 'media'} },
+            { window = 'Youtube', rect = { 1/10, 0, 8/10, 1 }, layouts = 'media' },
         },
-        { -- Workspace Mail
-            { app = 'Mail', rect = { 0, 0, 1, 1 }, layouts = {'default', 'media'} },
 
-            fullscreen = true
-        },
-        { -- Workspace Fantastical
-            { app = 'Fantastical', rect = { 0, 0, 1, 1 }, layouts = {'default', 'media'} },
-
-            fullscreen = true
-        },
+        { app = {'Mail', 'Fantastical'}, layouts = 'communications' },
     }
 }
 
 local function score(self)
-    if (not sys.is_work_computer()) and hs.screen('DELL P2715Q') and hs.screen('Color LCD') then
-        return 3
+    if hs.screen('DELL P2715Q') and hs.screen('Color LCD') then
+        return 2
     end
 
     return -1
