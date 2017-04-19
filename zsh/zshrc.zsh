@@ -69,11 +69,5 @@ if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
     fi
 fi
 
-if [[ "${OSTYPE}" =~ "darwin" ]]; then
-    # Add ssh keys from keychain on macOS
-    ssh-add -A
-else
-    ssh-add
-fi
-
+ssh-add
 compinit
