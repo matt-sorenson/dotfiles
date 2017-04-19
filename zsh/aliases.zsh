@@ -13,15 +13,30 @@ ws() {
 }
 
 is-function() {
-  if [ 1 -eq $(type $1 | grep "shell function" | wc -l) ]; then
-    return 0
-  fi
-
-  return 1
+    if [ 1 -ne $(type $1 | grep "shell function" | wc -l) ]; then
+        return 1
+    fi
 }
 
 clang-format-ri() {
     local srcpath="${1}"
     shift
     find "${srcpath}" -exec clang-format -i -style=file "$@" {} \;
+}
+
+check-formulas() {
+    local -A visited_formulas
+
+    echo "Searching for formulas not depended on by other formulas..."
+
+    for formula in `brew list`; do
+        if [[ -z `brew uses --installed $formula` ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
+            read "input?$formula is not depended on by other formulas. Remove? [Y/n] "
+            visited_formulas[$formula]=1
+            if [[ "$input" == "Y" ]]; then
+                brew remove $formula
+                check_formulas `brew deps --1 --installed $formula`
+            fi
+        fi
+    done
 }
