@@ -2,8 +2,6 @@ local sys    = require 'ms.sys'
 
 local layout = {
     { -- Primary Screen
-        { app = {'Mail', 'Fantastical'}, layouts = 'media' },
-
         { -- Workspace 1
             { app = 'Finder',                          rect = {  0, 0, 1/6, 1} },
             { app = {'Sublime', 'IntelliJ', 'Quiver'}, rect = {1/6, 0, 1/2, 1} },
@@ -11,8 +9,6 @@ local layout = {
         },
     },
     { -- Secondary Screen
-        { app = {'iTunes', 'Spotify' }, layouts = 'media' },
-
         { -- Workspace 1
             { app = 'iTerm', rect = { 0, 0, 9/10, 1/2} },
 
@@ -23,7 +19,7 @@ local layout = {
             { app = 'Adium',                      rect = {    0, 1/2,  1/3, 1/2 }, layouts = 'communications' },
             { app = 'Adium', window = 'Contacts', rect = {  2/3, 1/2,  1/3, 1/2 }, layouts = 'communications' },
             { app = 'Messages',                   rect = {  1/5, 4/7,  3/5, 3/7 }, layouts = 'communications' },
-        }
+        },
     }
 }
 

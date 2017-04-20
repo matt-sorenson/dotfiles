@@ -87,25 +87,14 @@ local function find_element_in_layout(layout_name, layout, window)
 
     for screen_i, screen in ipairs(layout) do
         for ws_i, workspace in ipairs(screen) do
-            if workspace.app or workspace.window then
-                local score = score_element(layout_name, app_name, win_name, workspace)
+            for _, element in ipairs(workspace) do
+                local score = score_element(layout_name, app_name, win_name, element)
 
                 if score > curr_score then
                     curr_score = score
-                    curr_element = nil
-                    curr_screen = nil
-                    curr_ws = nil
-                end
-            else
-                for _, element in ipairs(workspace) do
-                    local score = score_element(layout_name, app_name, win_name, element)
-
-                    if score > curr_score then
-                        curr_score = score
-                        curr_element = element
-                        curr_screen = screen_i
-                        curr_ws = ws_i
-                    end
+                    curr_element = element
+                    curr_screen = screen_i
+                    curr_ws = ws_i
                 end
             end
         end
@@ -121,13 +110,7 @@ local function move_window(window, element, screen_layout, screen_id, ws_id)
     end
 
     local screen = screen_layout.screens()[screen_id] or window:screen()
-
-    if ws_id and screen_layout.layout[screen_id][ws_id].fullscreen then
-        window:moveToScreen(screen)
-        window:setFullScreen(true)
-    else
-        window:setFrame(screen:fromUnitRect(element.rect))
-    end
+    window:setFrame(screen:fromUnitRect(element.rect))
 end
 
 local function apply_to_window(layout_name, window, screen_layout)
