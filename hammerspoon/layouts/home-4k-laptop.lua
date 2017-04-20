@@ -18,8 +18,6 @@ local layout = {
 
             { window = 'Youtube', rect = { 1/10, 0, 8/10, 1 }, layouts = 'media' },
         },
-
-        { app = {'Mail', 'Fantastical'}, layouts = 'communications' },
     }
 }
 
