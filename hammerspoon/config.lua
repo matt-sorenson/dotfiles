@@ -6,10 +6,7 @@ local layout   = require 'ms.layout'
 local music    = require 'ms.music'
 local sys      = require 'ms.sys'
 
-if sys.is_work_computer() then
-    REMOTE_SHARE_HOST = 'sorensm.aka.amazon.com'
-    REMOTE_SHARE_FOLDER = 'desktop'
-else
+if not sys.is_work_computer() then
     REMOTE_SHARE_HOST = 'matt-srv'
     REMOTE_SHARE_FOLDER = 'matt-srv'
 end
@@ -67,8 +64,6 @@ end
 if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
     sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
 end
-
---require('default_layout')
 
 local function on_device_change()
     grid.setup_screen()
