@@ -103,31 +103,31 @@ local function find_element_in_layout(layout_name, layout, window)
     return curr_element, curr_screen, curr_ws
 end
 
-local function move_window(window, element, screen_layout, screen_id, ws_id)
+local function move_window(window, rect, screen_layout, screen_id, ws_id)
     window = (('string' == type(window)) and hs.window.find(window)) or window
     if not window then
         return
     end
 
     local screen = screen_layout.screens()[screen_id] or window:screen()
-    window:setFrame(screen:fromUnitRect(element.rect))
+    window:setFrame(screen:fromUnitRect(rect))
 end
 
-local function apply_to_window(layout_name, window, screen_layout)
+--[[ export ]] local function apply_to_window(layout_name, window, screen_layout)
     screen_layout = screen_layout or get_screen_layout()
 
     local element, screen, ws = find_element_in_layout(layout_name, screen_layout.layout, window)
 
     if element then
-        move_window(window, element, screen_layout, screen, ws)
+        move_window(window, element.rect, screen_layout, screen, ws)
     end
 end
 
-local function apply_to_current_window(layout_name)
+--[[ export ]] local function apply_to_current_window(layout_name)
     apply_to_window(layout_name, hs.window.focusedWindow())
 end
 
-local function apply_layout(layout_name)
+--[[ export ]] local function apply_layout(layout_name)
     local screen_layout = get_screen_layout()
 
     hs.fnutils.ieach(hs.window.allWindows(), function(window)
@@ -135,8 +135,14 @@ local function apply_layout(layout_name)
     end)
 end
 
-local function apply_layout_fn(layout_name)
+--[[ export ]] local function apply_layout_fn(layout_name)
     return function() apply_layout(layout_name) end
+end
+
+--[[ export ]] local function move_window_fn(rect, screen_i)
+    return function()
+        move_window(hs.window.focusedWindow(), rect, get_screen_layout(), screen_i)
+    end
 end
 
 load_screen_layouts()
@@ -146,4 +152,6 @@ return {
     apply_to_current_window = apply_to_current_window,
     apply_layout = apply_layout,
     apply_layout_fn = apply_layout_fn,
+
+    move_window_fn = move_window_fn,
 }

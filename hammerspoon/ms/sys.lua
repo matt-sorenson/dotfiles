@@ -4,22 +4,6 @@ local WHO_AM_I = os.getenv('USER')
 -- so just use hs.exectute('hostname') instead
 local IS_WORK_COMPUTER = string.find(hs.execute('hostname'), '.ant.')
 
-local function set_window_rect_fn(rect)
-    return function()
-        local win = hs.window.focusedWindow()
-        local screen_frame = win:screen():frame()
-
-        local frame = {
-            x = screen_frame.x + (screen_frame.w * rect[1]),
-            y = screen_frame.y + (screen_frame.h * rect[2]),
-            w = screen_frame.w * rect[3],
-            h = screen_frame.h * rect[4]
-        }
-
-        win:setFrameInScreenBounds(frame)
-    end
-end
-
 local function mount_smb(host, share)
     local smb_share = 'smb://' .. host .. ':445/' .. share
     local out = hs.osascript.applescript('mount volume "' .. smb_share .. '"')
@@ -96,7 +80,6 @@ return {
     is_work_computer = function() return IS_WORK_COMPUTER end,
     mount_smb = mount_smb,
     select_app = select_app,
-    set_window_rect_fn = set_window_rect_fn,
     who_am_i = function() return WHO_AM_I end,
 
     ls = ls,
