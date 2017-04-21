@@ -115,6 +115,7 @@ end
 
 --[[ export ]] local function apply_to_window(layout_name, window, screen_layout)
     screen_layout = screen_layout or get_screen_layout()
+    window = window or hs.window.focusedWindow()
 
     local element, screen, ws = find_element_in_layout(layout_name, screen_layout.layout, window)
 
@@ -123,11 +124,7 @@ end
     end
 end
 
---[[ export ]] local function apply_to_current_window(layout_name)
-    apply_to_window(layout_name, hs.window.focusedWindow())
-end
-
---[[ export ]] local function apply_layout(layout_name)
+--[[ export ]] local function apply(layout_name)
     local screen_layout = get_screen_layout()
 
     hs.fnutils.ieach(hs.window.allWindows(), function(window)
@@ -135,8 +132,8 @@ end
     end)
 end
 
---[[ export ]] local function apply_layout_fn(layout_name)
-    return function() apply_layout(layout_name) end
+--[[ export ]] local function apply_fn(layout_name)
+    return function() apply(layout_name) end
 end
 
 --[[ export ]] local function move_window_fn(rect, screen_i)
@@ -149,9 +146,8 @@ load_screen_layouts()
 
 return {
     apply_to_window = apply_to_window,
-    apply_to_current_window = apply_to_current_window,
-    apply_layout = apply_layout,
-    apply_layout_fn = apply_layout_fn,
+    apply = apply,
+    apply_fn = apply_fn,
 
     move_window_fn = move_window_fn,
 }
