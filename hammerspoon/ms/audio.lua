@@ -26,18 +26,18 @@ else
     setup_output = function() end
 end
 
-local function update_output_volume(d_volume)
+local function update_volume(d_volume)
     local default_out = hs.audiodevice.defaultOutputDevice()
     local curr_volume = default_out:outputVolume()
     default_out:setOutputVolume(math.max(0, math.min(100, curr_volume + d_volume)))
 end
 
-local function update_output_volume_fn(d_volume)
-    return function() update_output_volume(d_volume) end
+local function update_volume_fn(d_volume)
+    return function() update_volume(d_volume) end
 end
 
 return {
-    update_output_volume_fn = update_output_volume_fn,
-    update_output_volume = update_output_volume,
+    update_volume_fn = update_volume_fn,
+    update_volume = update_volume,
     setup_output = setup_output
 }
