@@ -56,8 +56,8 @@ music_modal:bind({}, 'D', 'Next',          music.fn('nextTrack'),     { shiftabl
 music_modal:bind({}, 'R', 'Shuffle',       music.fn('shuffle'),       { shiftable = true })
 music_modal:bind({}, 'C', 'Select player', music.select_current_player)
 music_modal:add_help_seperator()
-music_modal:bind({}, 'W', 'Raise volume', audio.update_output_volume_fn( 1), { shiftable = true })
-music_modal:bind({}, 'X', 'Lower volume', audio.update_output_volume_fn(-1), { shiftable = true })
+music_modal:bind({}, 'W', 'Raise volume', audio.update_volume_fn( 1), { shiftable = true })
+music_modal:bind({}, 'X', 'Lower volume', audio.update_volume_fn(-1), { shiftable = true })
 
 power_modal:bind({}, 'S', 'Screen Saver', hs.caffeinate.startScreensaver)
 for i = 1,5 do
