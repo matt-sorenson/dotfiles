@@ -3,9 +3,10 @@ local sys    = require 'ms.sys'
 local layout = {
     { -- Primary Screen
         { -- Workspace 1
-            { app = 'Finder',                          rect = {  0, 0, 1/6, 1} },
-            { app = {'Sublime', 'IntelliJ', 'Quiver'}, rect = {1/6, 0, 1/2, 1} },
-            { app = {'Chrome', 'Firefox'},             rect = {2/3, 0, 1/3, 1} },
+            { app = 'Finder',              rect = {  0, 0, 1/6, 1} },
+            { app = {'Sublime', 'Quiver'}, rect = {1/6, 0, 1/2, 1} },
+            { app = {'Chrome', 'Firefox'}, rect = {2/3, 0, 1/3, 1} },
+            { app = 'IntelliJ',            rect = {  0, 0, 2/3, 1} }
         },
     },
     { -- Secondary Screen
