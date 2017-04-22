@@ -18,23 +18,23 @@ hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', { new_window = {'Shell
 -- Defeat attempts at blocking paste
 hs.hotkey.bind({'cmd', 'alt'}, "V", function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end)
 
-local global_modal = bind.new({'ctrl', 'cmd'}, 'B')
+local global_modal = bind.new(nil, {'ctrl', 'cmd'}, 'B')
 
-local window_modal = bind.new({}, 'W', 'Window', global_modal)
-local finder_modal = bind.new({}, 'F', 'Finder', global_modal)
-local music_modal  = bind.new({}, 'S', 'Music',  global_modal)
-local power_modal  = bind.new({}, 'E', 'Power',  global_modal)
+local window_modal = bind.new(global_modal, {}, 'W', 'Window')
+local finder_modal = bind.new(global_modal, {}, 'F', 'Finder')
+local music_modal  = bind.new(global_modal, {}, 'S', 'Music')
+local power_modal  = bind.new(global_modal, {}, 'E', 'Power')
 
 window_modal:bind({'shift'}, 'W', '↑', layout.move_window_fn({   0,   0,   1, 1/3 }), { shifted = true })
 window_modal:bind({'shift'}, 'A', '←', layout.move_window_fn({   0,   0, 1/3,   1 }), { shifted = true })
 window_modal:bind({'shift'}, 'S', '↓', layout.move_window_fn({   0, 2/3,   1, 1/3 }), { shifted = true })
 window_modal:bind({'shift'}, 'D', '→', layout.move_window_fn({ 2/3,   0, 1/3,   1 }), { shifted = true })
-window_modal:bind({},        'W', nil, layout.move_window_fn({ 0.0, 0.0, 1.0, 0.5 }))
-window_modal:bind({},        'A', nil, layout.move_window_fn({ 0.0, 0.0, 0.5, 1.0 }))
-window_modal:bind({},        'S', nil, layout.move_window_fn({ 0.0, 0.5, 1.0, 0.5 }))
-window_modal:bind({},        'D', nil, layout.move_window_fn({ 0.5, 0.0, 0.5, 1.0 }))
+window_modal:bind({},        'W', layout.move_window_fn({ 0.0, 0.0, 1.0, 0.5 }))
+window_modal:bind({},        'A', layout.move_window_fn({ 0.0, 0.0, 0.5, 1.0 }))
+window_modal:bind({},        'S', layout.move_window_fn({ 0.0, 0.5, 1.0, 0.5 }))
+window_modal:bind({},        'D', layout.move_window_fn({ 0.5, 0.0, 0.5, 1.0 }))
 
-window_modal:add_help_seperator()
+window_modal:help_seperator()
 window_modal:bind({}, 'Q', "Quiet current window",        layout.move_window_fn({1/8, 8/14, 6/8, 5.5/14}, 2))
 window_modal:bind({}, 'F', 'Maximize',                    layout.move_window_fn({ 0, 0, 1, 1 }))
 window_modal:bind({}, 'G', 'Grid' ,                       hs.grid.show)
@@ -45,14 +45,13 @@ window_modal:bind({}, 'C', 'Apply Communications Layout', layout.apply_fn("Commu
 
 finder_modal:bind({}, 'G', 'Home',        sys.select_app_fn('Finder', { window = sys.who_am_i(),      new_window = sys.open_finder_fn('~/') }))
 finder_modal:bind({}, 'W', 'Workspace',   sys.select_app_fn('Finder', { window = 'ws',                new_window = sys.open_finder_fn('~/ws') }))
-finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
 
 music_modal:bind({}, 'S', 'Play/Pause',    music.fn('playpause'),     { shiftable = true })
 music_modal:bind({}, 'A', 'Previous',      music.fn('previousTrack'), { shiftable = true })
 music_modal:bind({}, 'D', 'Next',          music.fn('nextTrack'),     { shiftable = true })
 music_modal:bind({}, 'R', 'Shuffle',       music.fn('shuffle'),       { shiftable = true })
 music_modal:bind({}, 'C', 'Select player', music.select_current_player)
-music_modal:add_help_seperator()
+music_modal:help_seperator()
 music_modal:bind({}, 'W', 'Raise volume', audio.update_volume_fn( 1), { shiftable = true })
 music_modal:bind({}, 'X', 'Lower volume', audio.update_volume_fn(-1), { shiftable = true })
 
@@ -63,6 +62,8 @@ end
 
 if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
     sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
+
+    finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
 end
 
 local function on_device_change()

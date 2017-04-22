@@ -20,7 +20,7 @@ local function modal_exit(self, skip_default)
     self:on_exit()
 end
 
-local function modal_bind_wrapper_fn(self, fn)
+local function modal_bind_wrapper_fn(self, fn, skip_reset)
     return function()
         result, msg = pcall(fn);
 
@@ -28,7 +28,9 @@ local function modal_bind_wrapper_fn(self, fn)
             print(msg)
         end
 
-        self:exit();
+        if not skip_reset then
+            self:exit();
+        end
     end
 end
 
@@ -60,6 +62,11 @@ local function convert_to_help_msg(mods, key, msg, shiftable)
 end
 
 local function modal_bind(self, mods, key, msg, fn, options)
+    if type(msg) == 'function' then
+        options = fn
+        fn = msg
+        msg = nil
+    end
     options = options or {}
 
     if options.shiftable then
@@ -68,9 +75,7 @@ local function modal_bind(self, mods, key, msg, fn, options)
         options.skip_help_msg = true
     end
 
-    if not options.skip_clear_modal then
-        fn = modal_bind_wrapper_fn(self, fn)
-    end
+    fn = modal_bind_wrapper_fn(self, fn, options.skip_clear_modal)
 
     local bind = hs.hotkey.new(mods, key, msg, fn)
     table.insert(self.saved_binds, bind)
@@ -82,10 +87,6 @@ local function modal_bind(self, mods, key, msg, fn, options)
     if self.running then
         bind:enable()
     end
-end
-
-local function modal_add_help_seperator(self)
-    table.insert(self.msgs, '-----------------')
 end
 
 local displayed_alert
@@ -121,41 +122,43 @@ local function print_help(self)
     alert(table.concat(formatted_msgs, '\n'))
 end
 
-local function modal_new(mods, key, name, parent)
-    parent = parent or ((type(parent) ~= 'boolean') and _default_modal)
+local modal_mt = { __index = {} }
+
+modal_mt.__index.on_enter = function() end
+modal_mt.__index.on_exit = function() _default_modal:enter() end
+modal_mt.__index.enter = modal_enter
+modal_mt.__index.exit = modal_exit
+modal_mt.__index.bind = modal_bind
+
+modal_mt.__index.help_seperator = function(self)
+    table.insert(self.msgs, '----------')
+end
+
+local function escape_fn() hs.alert('⎋ - Cancel') end
+
+local function modal_new(parent, mods, key, name)
+    parent = ((parent ~= 'noparent') and (parent or _default_modal)) or nil
 
     local out = {}
+    setmetatable(out, modal_mt)
 
     out.saved_binds = {}
     out.msgs = {}
     out.running = false
 
-    out.on_enter = function() end
-    out.on_exit = function()
-        _default_modal:enter()
-        clear_alert()
-    end
-
-    out.enter = modal_enter
-    out.exit = modal_exit
-    out.bind = modal_bind
-
-    out.add_help_seperator = modal_add_help_seperator
-
     if parent then
         parent:bind(mods, key, name, function() out:enter() end)
         out:bind({}, 'H', function() print_help(out) end, { skip_clear_modal = true })
-        out:bind({}, 'ESCAPE', function() hs.alert('⎋ - Cancel') end)
+        out:bind({}, 'ESCAPE', escape_fn)
     end
 
     return out;
 end
 
-if not _default_modal then
-    _default_modal = modal_new(nil, nil, nil, false)
-    _default_modal.on_exit = function() end
-    _default_modal:enter()
-end
+_default_modal = modal_new('noparent')
+_default_modal.on_enter = function() clear_alert() end
+_default_modal.on_exit = function() end
+_default_modal:enter()
 
 return {
     new = modal_new,
