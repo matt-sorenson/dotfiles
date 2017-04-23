@@ -1,4 +1,3 @@
-local spaces = require("hs._asm.undocumented.spaces")
 local sys = require 'ms.sys'
 
 local screen_layouts = {}
@@ -45,18 +44,18 @@ local function score_str_tbl(str, array, score)
     return -1
 end
 
-local function score_element(layout_name, app_name, win_name, element)
+local function score_rule(layout_name, app_name, win_name, rule)
     local score = 0
     local correct_layout = false
 
-    if ('default' ~= layout_name) or element.no_default then
-        if 0 > score_str_tbl(layout_name, element.layouts, 1) then
+    if ('default' ~= layout_name) or rule.no_default then
+        if 0 > score_str_tbl(layout_name, rule.layouts, 1) then
             return -1
         end
     end
 
-    if app_name and element.app then
-        local app_score = score_str_tbl(app_name, element.app, 1)
+    if app_name and rule.app then
+        local app_score = score_str_tbl(app_name, rule.app, 1)
         if 0 > app_score then
             return -1
         end
@@ -64,8 +63,8 @@ local function score_element(layout_name, app_name, win_name, element)
         score = score + app_score
     end
 
-    if win_name and element.window then
-        local win_score = score_str_tbl(win_name, element.window, 2)
+    if win_name and rule.window then
+        local win_score = score_str_tbl(win_name, rule.window, 2)
         if 0 > win_score then
             return -1
         end
@@ -76,34 +75,31 @@ local function score_element(layout_name, app_name, win_name, element)
     return score;
 end
 
-local function find_element_in_layout(layout_name, layout, window)
+local function find_rule_in_layout(layout_name, layout, window)
     local app_name = window:application():name():lower()
     local win_name = window:title():lower()
 
     layout_name = (layout_name or 'default'):lower()
 
     local curr_score = 0
-    local curr_element, curr_screen, curr_ws = nil
+    local curr_rule, curr_screen = nil
 
     for screen_i, screen in ipairs(layout) do
-        for ws_i, workspace in ipairs(screen) do
-            for _, element in ipairs(workspace) do
-                local score = score_element(layout_name, app_name, win_name, element)
+        for _, rule in ipairs(screen) do
+            local score = score_rule(layout_name, app_name, win_name, rule)
 
-                if score > curr_score then
-                    curr_score = score
-                    curr_element = element
-                    curr_screen = screen_i
-                    curr_ws = ws_i
-                end
+            if score > curr_score then
+                curr_score = score
+                curr_rule = rule
+                curr_screen = screen_i
             end
         end
     end
 
-    return curr_element, curr_screen, curr_ws
+    return curr_rule, curr_screen
 end
 
-local function move_window(window, rect, screen_layout, screen_id, ws_id)
+local function move_window(window, rect, screen_layout, screen_id)
     window = (('string' == type(window)) and hs.window.find(window)) or window
     if not window then
         return
@@ -117,10 +113,10 @@ end
     screen_layout = screen_layout or get_screen_layout()
     window = window or hs.window.focusedWindow()
 
-    local element, screen, ws = find_element_in_layout(layout_name, screen_layout.layout, window)
+    local rule, screen = find_rule_in_layout(layout_name, screen_layout.layout, window)
 
-    if element then
-        move_window(window, element.rect, screen_layout, screen, ws)
+    if rule then
+        move_window(window, rule.rect, screen_layout, screen)
     end
 end
 
