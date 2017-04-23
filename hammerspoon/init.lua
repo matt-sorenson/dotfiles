@@ -21,6 +21,16 @@ table.append = function(t1, ...)
     return t1
 end
 
+table.find = function(haystack, needle)
+    for k,v in pairs(haystack) do
+        if v == needle then
+            return k
+        end
+    end
+
+    return nil
+end
+
 -- use pcall to load the file so we can put the error in the console and
 -- continue to have the reload hotkey working
 result, msg = pcall(function() require 'config' end)
