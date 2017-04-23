@@ -8,8 +8,6 @@ local layout = {
         },
     },
     { -- Secondary Screen
-        { app = {'iTunes', 'Spotify'},  layouts = 'media' },
-
         { -- Workspace 1
             { app = 'iTerm', rect = { 0, 0, 1, 1/2 } },
 
