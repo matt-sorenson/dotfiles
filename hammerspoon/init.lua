@@ -11,6 +11,18 @@ hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
     hs.reload()
 end)
 
+function toarray(input)
+    if not input then
+        return {}
+    end
+
+    if 'table' == type(input) then
+        return input
+    end
+
+    return {input}
+end
+
 table.append = function(t1, ...)
     for _, t2 in ipairs({...}) do
         for _, v in ipairs(t2) do
