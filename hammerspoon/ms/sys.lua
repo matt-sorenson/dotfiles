@@ -24,7 +24,7 @@ end
 
 local function open_finder_fn(path)
     return function()
-        hs.execute('open ' .. (path or os.getenv('HOME')))
+        hs.execute('open ' .. (path or '~'))
     end
 end
 
