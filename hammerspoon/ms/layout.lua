@@ -4,15 +4,24 @@ local screen_layouts = {}
 
 local function load_screen_layouts()
     local layout_files = sys.ls('~/.hammerspoon/layouts/')
+    local require_match
+    if sys.is_work_computer() then -- skip layouts meant for other computers
+        require_match = '^work'
+    else
+        require_match = '^home'
+    end
 
     for _, filename in pairs(layout_files) do
-        if filename:match('.lua$') then
+        if filename:match('.lua$') and filename:match(require_match) then
             local require_str = 'layouts.' .. filename:gsub('.lua$', '')
+            print(require_str)
 
             screen_layouts[require_str] = require(require_str);
         end
     end
 end
+
+load_screen_layouts()
 
 function get_screen_layout()
     local curr_score = 0
@@ -137,8 +146,6 @@ end
         move_window(hs.window.focusedWindow(), rect, get_screen_layout(), screen_i)
     end
 end
-
-load_screen_layouts()
 
 return {
     apply_to_window = apply_to_window,
