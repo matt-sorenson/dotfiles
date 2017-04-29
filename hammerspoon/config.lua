@@ -43,8 +43,8 @@ window_modal:bind({}, 'T', 'Apply Default Layout',        layout.apply)
 window_modal:bind({}, 'E', 'Apply Media Layout',          layout.apply_fn("Media"))
 window_modal:bind({}, 'C', 'Apply Communications Layout', layout.apply_fn("Communications"))
 
-finder_modal:bind({}, 'G', 'Home',        sys.select_app_fn('Finder', { window = sys.who_am_i(),      new_window = sys.open_finder_fn('~/') }))
-finder_modal:bind({}, 'W', 'Workspace',   sys.select_app_fn('Finder', { window = 'ws',                new_window = sys.open_finder_fn('~/ws') }))
+finder_modal:bind({}, 'G', 'Home',      sys.select_app_fn('Finder', { window = sys.who_am_i(), new_window = sys.open_finder_fn('~/') }))
+finder_modal:bind({}, 'W', 'Workspace', sys.select_app_fn('Finder', { window = 'ws',           new_window = sys.open_finder_fn('~/ws') }))
 
 music_modal:bind({}, 'S', 'Play/Pause',    music.fn('playpause'),     { shiftable = true })
 music_modal:bind({}, 'A', 'Previous',      music.fn('previousTrack'), { shiftable = true })
