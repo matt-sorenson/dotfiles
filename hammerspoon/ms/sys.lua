@@ -17,8 +17,6 @@ local function find_usb_device_by_name(name)
         if dev.productName and dev.productName:lower():match(name) then
             return true
         end
-
-        return false
     end))
 end
 
@@ -46,12 +44,10 @@ local function select_app(app_name, cfg)
 
     if win then
         win:focus()
-    elseif cfg.new_window then
-        if 'function' == type(cfg.new_window) then
-            cfg.new_window(app)
-        elseif 'table' == type(cfg.new_window) then
-            app:selectMenuItem(cfg.new_window)
-        end
+    elseif 'function' == type(cfg.new_window) then
+        cfg.new_window(app)
+    elseif 'table' == type(cfg.new_window) then
+        app:selectMenuItem(cfg.new_window)
     end
 end
 
