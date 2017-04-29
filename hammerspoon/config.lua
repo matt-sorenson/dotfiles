@@ -6,7 +6,10 @@ local layout   = require 'ms.layout'
 local music    = require 'ms.music'
 local sys      = require 'ms.sys'
 
-if not sys.is_work_computer() then
+if sys.is_work_computer() then
+    REMOTE_SHARE_HOST = 'sorensm.aka.amazon.com'
+    REMOTE_SHARE_FOLDER = 'desktop'
+else
     REMOTE_SHARE_HOST = 'matt-srv'
     REMOTE_SHARE_FOLDER = 'matt-srv'
 end
