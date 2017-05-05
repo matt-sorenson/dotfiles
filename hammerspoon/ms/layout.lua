@@ -1,14 +1,28 @@
 local sys = require 'ms.sys'
 
-function layout_score(self)
-    if #(self:screens()) ~= #self.layout then
+local screen_configurations = {}
+
+local function layout_score(self)
+    local score = 0
+
+    if #(self:screens()) == #self.layout then
+        score = score + #self.layout
+    else
         return -1
     end
 
-    return #self.layout
+    if self.is_work_computer then
+        if sys.is_work_computer() then
+            score = score + 1
+        else
+            return -1
+        end
+    end
+
+    return score
 end
 
-function layout_screens(self)
+local function layout_screens(self)
     local out = {}
     layout = self.layout
 
@@ -118,19 +132,11 @@ local function layout_new(layout)
     return out
 end
 
-local screen_configurations = {}
-
 local function load_screen_configurations()
     local layout_files = sys.ls('~/.hammerspoon/layouts/')
-    local require_match
-    if sys.is_work_computer() then -- skip layouts meant for other computers
-        require_match = '^work'
-    else
-        require_match = '^home'
-    end
 
     for _, filename in pairs(layout_files) do
-        if filename:match('.lua$') and filename:match(require_match) then
+        if filename:match('.lua$') then
             local require_str = 'layouts.' .. filename:gsub('.lua$', '')
             local layout = layout_new(require(require_str))
 
@@ -139,9 +145,7 @@ local function load_screen_configurations()
     end
 end
 
-load_screen_configurations()
-
-function get_screen_layout()
+local function get_screen_layout()
     local curr_score = 0
     local curr_layout = nil
 
@@ -177,11 +181,12 @@ end
     end
 end
 
+load_screen_configurations()
+
 return {
     apply_to_window = apply_to_window,
     apply = apply,
     apply_fn = apply_fn,
-
 
     move_window_fn = move_window_fn,
 }

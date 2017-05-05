@@ -10,5 +10,7 @@ return {
 
         { app = 'Adium',                      rect = {    0, 1/10, 1/3, 9/10 }, layouts = 'communications' },
         { app = 'Adium', window = 'Contacts', rect = {  2/3, 1/10, 1/3, 9/10 }, layouts = 'communications' },
-    }
+    },
+
+    is_work_computer = true,
 }
