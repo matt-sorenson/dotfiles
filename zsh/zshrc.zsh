@@ -8,23 +8,22 @@ fi
 export WORKSPACE_ROOT_DIR="$HOME/ws"
 export AT_WORK=0
 
-if [ -f "$DOTFILES/local/zsh/zshrc.zsh" ]; then
-    source "$DOTFILES/local/zsh/zshrc.zsh";
+if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
+    source "${DOTFILES}/local/zsh/zshrc.zsh";
 fi
 
 source "${HOME}/.zprezto/init.zsh"
 
-source "$DOTFILES/zsh/aliases.zsh";
+source "${DOTFILES}/zsh/aliases.zsh";
 
-if [ -d "$DOTFILES/zsh/completion" ]; then
-    fpath=("$DOTFILES/zsh/completion" $fpath)
+if [ -d "${DOTFILES}/zsh/completion" ]; then
+    fpath=("${DOTFILES}/zsh/completion" $fpath)
 fi
 
 COMPLETION_WAITING_DOTS="true"
 
 # History settings
-HIST_STAMPS="yyyy-mm-dd"
-HISTFILE="$HOME/.dotfiles/tmp/history"
+HISTFILE="${DOTFILES}/tmp/history"
 HISTSIZE=101000
 SAVEHIST=100000
 setopt hist_expire_dups_first
@@ -49,8 +48,6 @@ setopt no_beep
 setopt clobber
 setopt multios
 
-prompt ender
-
 # if not in a tmux session prompt to start one
 if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
     tmux attach;
@@ -70,4 +67,6 @@ if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
 fi
 
 ssh-add
+prompt ender
+
 compinit
