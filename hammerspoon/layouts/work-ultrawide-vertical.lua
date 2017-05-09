@@ -18,7 +18,7 @@ return {
         { app = 'Slack',                      rect = { 1/10,   0, 9/10, 2/3 }, layouts = 'communications' },
         { app = 'Adium',                      rect = {    0, 2/3,  1/3, 1/3 }, layouts = 'communications' },
         { app = 'Adium', window = 'Contacts', rect = {  2/3, 2/3,  1/3, 1/3 }, layouts = 'communications' },
-        { app = 'Messages',                   rect = {  1/5, 4/6,  3/5, 3/7 }, layouts = 'communications' },
+        { app = 'Messages',                   rect = {  1/5, 4/6,  3/5, 2/6 }, layouts = 'communications' },
     },
 
     is_work_computer = true,
