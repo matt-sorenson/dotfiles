@@ -10,15 +10,15 @@ return {
     { -- Secondary Screen
         screen = '1440x2560',
 
-        { app = 'iTerm', rect = { 0, 0, 9/10, 2/3} },
+        { app = 'iTerm',                      rect = { 0,      0, 9/10,   5/9 } },
+        { app = 'Slack',                      rect = { 1/10,   0, 9/10,   5/9 }, layouts = 'communications' },
 
-        { window = {'reddit', 'Hacker News'}, rect = { 1/8, 8/14, 6/8, 11/28 }, layouts = 'media' },
-        { window = 'Youtube',                 rect = { 1/8,  1/2, 6/8,   1/3 }, layouts = 'media' },
+        { window = {'reddit', 'Hacker News'}, rect = {  2/8, 5/9,  6/8, 11/28 }, layouts = 'media' },
+        { window = 'Youtube',                 rect = {    0, 1/2,  6/8,   1/3 }, layouts = 'media' },
 
-        { app = 'Slack',                      rect = { 1/10,   0, 9/10, 2/3 }, layouts = 'communications' },
-        { app = 'Adium',                      rect = {    0, 2/3,  1/3, 1/3 }, layouts = 'communications' },
-        { app = 'Adium', window = 'Contacts', rect = {  2/3, 2/3,  1/3, 1/3 }, layouts = 'communications' },
-        { app = 'Messages',                   rect = {  1/5, 4/6,  3/5, 2/6 }, layouts = 'communications' },
+        { app = 'Messages',                   rect = {    0, 3/4,  1/3,   1/4 }, layouts = 'communications' },
+        { app = 'Adium',                      rect = {  1/3, 3/4,  1/3,   1/4 }, layouts = 'communications' },
+        { app = 'Chime',                      rect = {  1/2, 3/4,  1/2,   1/4 }, layouts = 'communications' },
     },
 
     is_work_computer = true,
