@@ -1,20 +1,18 @@
 prompt-security-str() {}
 
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
-if [ -f "${DOTFILES}/zsh/path.zsh" ]; then
-    source "${DOTFILES}/zsh/path.zsh"
-fi
+source "${DOTFILES}/zsh/path.zsh"
 
-export WORKSPACE_ROOT_DIR="$HOME/ws"
-export AT_WORK=0
+WORKSPACE_ROOT_DIR="$HOME/ws"
+AT_WORK=0
 
-if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
-    source "${DOTFILES}/local/zsh/zshrc.zsh";
+if [ -f "$DOTFILES/local/zsh/zshrc.zsh" ]; then
+    source "$DOTFILES/local/zsh/zshrc.zsh"
 fi
 
 source "${HOME}/.zprezto/init.zsh"
 
-source "${DOTFILES}/zsh/aliases.zsh";
+source "${DOTFILES}/zsh/aliases.zsh"
 
 if [ -d "${DOTFILES}/zsh/completion" ]; then
     fpath=("${DOTFILES}/zsh/completion" $fpath)
@@ -50,7 +48,7 @@ setopt multios
 
 # if not in a tmux session prompt to start one
 if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
-    tmux attach;
+    tmux attach
 
     if [ 0 -ne $? ]; then
         if [ -v PROMPT_FOR_TMUX ]; then
