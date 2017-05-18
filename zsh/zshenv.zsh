@@ -1,13 +1,11 @@
-export DOTFILES="$HOME/.dotfiles"
+export DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 
 if [ -f "$DOTFILES/local/zsh/zshenv.zsh" ]; then
-    source "$DOTFILES/local/zsh/zshenv.zsh";
+    source "$DOTFILES/local/zsh/zshenv.zsh"
 fi
 
-if [ -f "${DOTFILES}/zsh/path.zsh" ]; then
-    # /etc/zprofile
-    source "${DOTFILES}/zsh/path.zsh"
-fi
+# /etc/zprofile
+source "${DOTFILES}/zsh/path.zsh"
 
 if [[ "$OSTYPE" == darwin* ]]; then
   export BROWSER='open'
