@@ -14,6 +14,8 @@ source "${HOME}/.zprezto/init.zsh"
 
 source "${DOTFILES}/zsh/aliases.zsh"
 
+source "${DOTFILES}/zsh/update.zsh"
+
 if [ -d "${DOTFILES}/zsh/completion" ]; then
     fpath=("${DOTFILES}/zsh/completion" $fpath)
 fi
@@ -45,6 +47,8 @@ setopt interactive_comments # treat comments as comments in interactive shell
 setopt no_beep
 setopt clobber
 setopt multios
+
+auto_check_for_update
 
 # if not in a tmux session prompt to start one
 if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
