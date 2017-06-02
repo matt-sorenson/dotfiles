@@ -21,6 +21,16 @@ function toarray(input)
     return {input}
 end
 
+table.keys = function(t)
+    local out = {}
+
+    for k, _ in pairs(t) do
+        table.insert(out, k)
+    end
+
+    return out
+end
+
 table.append = function(t1, ...)
     for _, t2 in ipairs({...}) do
         for _, v in ipairs(t2) do

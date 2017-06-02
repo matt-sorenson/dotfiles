@@ -1,9 +1,6 @@
 local audio    = require 'ms.audio'
 local bind     = require 'ms.bind'
-local caffeine = require 'ms.caffeine'
 local grid     = require 'ms.grid'
-local layout   = require 'ms.layout'
-local music    = require 'ms.music'
 local sys      = require 'ms.sys'
 
 if sys.is_work_computer() then
@@ -16,57 +13,13 @@ end
 
 hs.window.animationDuration = 0
 
-hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', { new_window = {'Shell', 'New Window'} }))
-
--- Defeat attempts at blocking paste
-hs.hotkey.bind({'cmd', 'alt'}, "V", function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end)
-
-local global_modal = bind.new(nil, {'ctrl', 'cmd'}, 'B')
-
-local window_modal = bind.new(global_modal, {}, 'W', 'Window')
-local finder_modal = bind.new(global_modal, {}, 'F', 'Finder')
-local music_modal  = bind.new(global_modal, {}, 'S', 'Music')
-local power_modal  = bind.new(global_modal, {}, 'E', 'Power')
-
-window_modal:bind({'shift'}, 'W', '↑', layout.move_window_fn({   0,   0,   1, 1/3 }), { shifted = true })
-window_modal:bind({'shift'}, 'A', '←', layout.move_window_fn({   0,   0, 1/3,   1 }), { shifted = true })
-window_modal:bind({'shift'}, 'S', '↓', layout.move_window_fn({   0, 2/3,   1, 1/3 }), { shifted = true })
-window_modal:bind({'shift'}, 'D', '→', layout.move_window_fn({ 2/3,   0, 1/3,   1 }), { shifted = true })
-window_modal:bind({},        'W', layout.move_window_fn({ 0.0, 0.0, 1.0, 0.5 }))
-window_modal:bind({},        'A', layout.move_window_fn({ 0.0, 0.0, 0.5, 1.0 }))
-window_modal:bind({},        'S', layout.move_window_fn({ 0.0, 0.5, 1.0, 0.5 }))
-window_modal:bind({},        'D', layout.move_window_fn({ 0.5, 0.0, 0.5, 1.0 }))
-
-window_modal:help_seperator()
-window_modal:bind({}, 'Q', "Quiet current window",        layout.move_window_fn({1/8, 8/14, 6/8, 5.5/14}, 2))
-window_modal:bind({}, 'F', 'Maximize',                    layout.move_window_fn({ 0, 0, 1, 1 }))
-window_modal:bind({}, 'G', 'Grid' ,                       hs.grid.show)
-window_modal:bind({}, 'R', 'Apply layout to window',      layout.apply_to_window)
-window_modal:bind({}, 'T', 'Apply Default Layout',        layout.apply)
-window_modal:bind({}, 'E', 'Apply Media Layout',          layout.apply_fn("Media"))
-window_modal:bind({}, 'C', 'Apply Communications Layout', layout.apply_fn("Communications"))
-
-finder_modal:bind({}, 'G', 'Home',      sys.select_app_fn('Finder', { window = sys.who_am_i(), new_window = sys.open_finder_fn('~/') }))
-finder_modal:bind({}, 'W', 'Workspace', sys.select_app_fn('Finder', { window = 'ws',           new_window = sys.open_finder_fn('~/ws') }))
-
-music_modal:bind({}, 'S', 'Play/Pause',    music.fn('playpause'),     { shiftable = true })
-music_modal:bind({}, 'A', 'Previous',      music.fn('previousTrack'), { shiftable = true })
-music_modal:bind({}, 'D', 'Next',          music.fn('nextTrack'),     { shiftable = true })
-music_modal:bind({}, 'R', 'Shuffle',       music.fn('shuffle'),       { shiftable = true })
-music_modal:bind({}, 'C', 'Select player', music.select_current_player)
-music_modal:help_seperator()
-music_modal:bind({}, 'W', 'Raise volume', audio.update_volume_fn( 1), { shiftable = true })
-music_modal:bind({}, 'X', 'Lower volume', audio.update_volume_fn(-1), { shiftable = true })
-
-power_modal:bind({}, 'S', 'Screen Saver', hs.caffeinate.startScreensaver)
-for i = 1,5 do
-    power_modal:bind({}, tostring(i), 'Caffeine on ' .. i .. '0 Minutes', function() caffeine.timed_on_m(i * 10) end)
-end
+local modal = bind.init(require('keymap'))
 
 if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
     sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
 
-    finder_modal:bind({}, 'R', 'Remote Home', sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }))
+    local finder_modal = modal.children['global'].children['finder']
+    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }) })
 end
 
 local function on_device_change()
