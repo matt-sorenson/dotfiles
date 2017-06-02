@@ -231,6 +231,8 @@ menubar:setMenu(function()
     return out
 end)
 
+add_cleanup_fn(function() menubar:delete(); menubar = nil end)
+
 return {
     apply_to_window = apply_to_window,
     apply = apply,
