@@ -1,5 +1,6 @@
 local sys = require 'ms.sys'
 
+local menubar
 local screen_configurations = {}
 
 local function layout_score(self)
@@ -32,6 +33,35 @@ local function layout_screens(self)
         if screen then
             table.insert(out, screen)
         end
+    end
+
+    return out
+end
+
+local function layout_layout_names(self)
+    local layout_names = {}
+
+    print('here')
+
+    for _, screen in ipairs(self.layout) do
+        print(screen.screen)
+        for _, rule in ipairs(screen) do
+            print(rule.app, rule.layouts, type(rule.layouts))
+            if type(rule.layouts) == 'string' then
+                layout_names[rule.layouts] = true
+            elseif type(rule.layouts) == 'table' then
+                for _, layout in ipairs(rule.layouts) do
+                    layout_names[layout] = true
+                end
+            end
+        end
+    end
+
+    local out = {}
+
+    for layout, _ in pairs(layout_names) do
+        table.insert(out, layout)
+        print(layout)
     end
 
     return out
@@ -122,6 +152,7 @@ local layout_mt = { __index = {} }
 layout_mt.__index.apply = layout_apply
 layout_mt.__index.screens = layout_screens
 layout_mt.__index.score = layout_score
+layout_mt.__index.layout_names = layout_layout_names
 
 local function layout_new(layout)
     local out = {}
@@ -182,6 +213,23 @@ end
 end
 
 load_screen_configurations()
+
+menubar = hs.menubar.new(false)
+menubar:setIcon(hs.configdir .. '/icons/monitor@2x.png')
+menubar:returnToMenuBar()
+
+menubar:setMenu(function()
+    local out = {
+        { title = 'Default', fn = apply }
+    }
+
+    for _, layout in ipairs(get_screen_layout():layout_names()) do
+        local title = layout:sub(1,1):upper() .. layout:sub(2)
+        table.insert(out, { title = title, fn = apply_fn(layout) })
+    end
+
+    return out
+end)
 
 return {
     apply_to_window = apply_to_window,
