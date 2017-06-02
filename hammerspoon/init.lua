@@ -14,9 +14,7 @@ end)
 function toarray(input)
     if not input then
         return {}
-    end
-
-    if 'table' == type(input) then
+    elseif 'table' == type(input) then
         return input
     end
 
