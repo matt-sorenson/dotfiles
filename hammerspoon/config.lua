@@ -40,10 +40,10 @@ local function on_caffeinate_change(arg)
     IGNORE_EVENTS[hs.caffeinate.watcher.systemWillSleep]        = true
 
     if not IGNORE_EVENTS[arg] then
-        print("caffeinate event:", arg)
+        print("caffeinate event:", table.find(hs.caffeinate.watcher, arg))
         on_device_change()
     else
-        print("caffeinate ignored event:", arg)
+        print("caffeinate ignored event:", table.find(hs.caffeinate.watcher, arg))
     end
 end
 
