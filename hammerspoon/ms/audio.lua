@@ -1,6 +1,7 @@
 local sys = require 'ms.sys'
 
-local setup_output
+local function setup_output()
+end
 
 if sys.is_work_computer() then
     local DEVICE_UIDS = {
@@ -22,8 +23,6 @@ if sys.is_work_computer() then
             end
         end
     end
-else
-    setup_output = function() end
 end
 
 local function update_volume(d_volume)
