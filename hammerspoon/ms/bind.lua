@@ -73,25 +73,63 @@ end
 
 local function modal_concat_mods(mods)
     if 'string' == type(mods) then
-        return hs.utf8.registeredKeys[mods] or mods
+        return hs.utf8.registeredKeys[mods] or mods:upper()
     elseif 'table' == type(mods) then
         return table.concat(hs.fnutils.map(mods, function(mod)
-                return hs.utf8.registeredKeys[mod] or mod
+                return hs.utf8.registeredKeys[mod] or mod:upper()
             end))
     else
         return ''
     end
 end
 
-local function modal_convert_to_help_msg(config)
-    local shortcut = modal_concat_mods(config.mods) .. config.key:upper()
+local function array_set_remove(t1, t2)
+    local out = {}
 
-    if mods_optional then
-        shortcut = '[' .. modal_concat_mods(config.mods_optional) .. ']' .. shortcut 
+    for _, v in ipairs(t1) do
+        if not table.find(t2, v) then
+            table.insert(out, v)
+        end
+    end
+
+    return out
+end
+
+local function modal_convert_to_help_msg(config)
+    local required_mods = {}
+    local optional_mods = {}
+
+    if config.optional_mods then
+        for _, v in ipairs(toarray(config.optional_mods)) do
+            optional_mods[v] = true
+        end
+    end
+
+    if config.repeat_on_mods then
+        for _, v in ipairs(toarray(config.repeat_on_mods)) do
+            optional_mods[v] = true
+        end
+    end
+
+    if config.mods then
+        for _, v in ipairs(toarray(config.mods)) do
+            required_mods[v] = true
+        end
+    end
+
+    required_mods = table.keys(required_mods)
+    optional_mods = table.keys(optional_mods)
+
+    local mods_str = modal_concat_mods(array_set_remove(required_mods, optional_mods))
+    local opt_mods_str = modal_concat_mods(optional_mods)
+    local key_str = config.key:upper()
+
+    if 0 ~= #opt_mods_str then
+        opt_mods_str = '[' .. opt_mods_str .. ']'
     end
 
     return {
-        shortcut = shortcut,
+        shortcut = opt_mods_str .. mods_str .. key_str,
         msg = config.msg
     }
 end
@@ -162,7 +200,7 @@ local function modal_print_help(self)
             return msg
         end
 
-        return string.format('%-' .. max_shortcut .. 's %s', msg.shortcut, msg.msg)
+        return string.format('%-' .. max_shortcut .. 's\t%s', msg.shortcut, msg.msg)
     end)
 
     modal_alert(table.concat(formatted_msgs, '\n'))
