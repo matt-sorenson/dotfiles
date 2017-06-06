@@ -138,10 +138,10 @@ local function modal_bind(self, config)
     if config.repeat_on_mods then
         local repeat_on_mods_config = hs.fnutils.copy(config)
         repeat_on_mods_config.mods = hs.fnutils.copy(toarray(config.mods))
-        table.concat(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
+        table.append(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
         repeat_on_mods_config.repeat_on_mods = nil
-        repeat_on_mods_config.msg = nil
         repeat_on_mods_config.skip_clear = true
+        repeat_on_mods_config.skip_help_msg = true
         modal_bind(self, repeat_on_mods_config)
     end
 
@@ -162,7 +162,7 @@ local function modal_bind(self, config)
     local bind = hs.hotkey.new(config.mods or '', config.key,
             arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
 
-    if config.msg then
+    if config.msg and config.skip_help_msg then
         table.insert(self.msgs, modal_convert_to_help_msg(config))
     end
 
