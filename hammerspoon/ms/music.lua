@@ -42,7 +42,7 @@ local function current_player()
 end
 
 local function select_current_player()
-    sys.select_app(music.current_player_bundleID())
+    sys.select_app(current_player().bundle_id)
 end
 
 local function fn(key, ...)
@@ -58,8 +58,6 @@ local function fn(key, ...)
 end
 
 local out = {
-    current_player_bundleID = function() return current_players().bundle_id end,
-    current_player_name = function() return current_players().name end,
     fn = fn,
     select_current_player = select_current_player
 }
