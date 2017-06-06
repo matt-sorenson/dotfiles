@@ -41,8 +41,6 @@ end
 local function layout_layout_names(self)
     local layout_names = {}
 
-    print('here')
-
     for _, screen in ipairs(self.layout) do
         print(screen.screen)
         for _, rule in ipairs(screen) do
