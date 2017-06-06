@@ -138,7 +138,7 @@ local function modal_bind(self, config)
     if config.repeat_on_mods then
         local repeat_on_mods_config = hs.fnutils.copy(config)
         repeat_on_mods_config.mods = hs.fnutils.copy(toarray(config.mods))
-        table.append(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
+        table.concat(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
         repeat_on_mods_config.repeat_on_mods = nil
         repeat_on_mods_config.msg = nil
         repeat_on_mods_config.skip_clear = true

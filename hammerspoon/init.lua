@@ -11,10 +11,10 @@ hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
     hs.reload()
 end)
 
+-- If the input is not a table then insert it as the first element of an array and return that array.
+-- Usefull for functions that take 1 or more of a value
 function toarray(input)
-    if not input then
-        return {}
-    elseif 'table' == type(input) then
+    if 'table' == type(input) then
         return input
     end
 
@@ -31,7 +31,7 @@ table.keys = function(t)
     return out
 end
 
-table.append = function(t1, ...)
+table.concat = function(t1, ...)
     for _, t2 in ipairs({...}) do
         for _, v in ipairs(t2) do
             table.insert(t1, v)
