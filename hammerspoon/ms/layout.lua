@@ -199,8 +199,8 @@ end
     apply(layout_name, window)
 end
 
---[[ export ]] local function apply_fn(layout_name)
-    return function() apply(layout_name) end
+--[[ export ]] local function apply_fn(...)
+    return function() apply(...) end
 end
 
 --[[ export ]] local function move_window_fn(rect, screen_id)
