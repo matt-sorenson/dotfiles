@@ -5,7 +5,7 @@ local music    = require 'ms.music'
 local caffeine = require 'ms.caffeine'
 
 return {
-    { mods = 'alt', key = 'space', fn = sys.select_app_fn('iTerm', { new_window = {'Shell', 'New Window'} })},
+    { mods = 'alt', key = 'space', fn = sys.select_app_fn('iTerm', nil, {'Shell', 'New Window'})},
 
     -- defeat attempts to block paste
     { mods = {'cmd', 'alt'}, key = 'V', fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end},
@@ -43,8 +43,8 @@ return {
             title = 'Finder',
             key = 'F',
 
-            { key = 'G', msg = 'Home',      fn = sys.select_app_fn('Finder', { window = sys.who_am_i(), new_window = sys.open_finder_fn('~/') })   },
-            { key = 'W', msg = 'Workspace', fn = sys.select_app_fn('Finder', { window = 'ws',           new_window = sys.open_finder_fn('~/ws') }) },
+            { key = 'G', msg = 'Home',      fn = sys.select_app_fn('Finder', sys.who_am_i(), sys.open_finder_fn('~/'))   },
+            { key = 'W', msg = 'Workspace', fn = sys.select_app_fn('Finder', 'ws',           sys.open_finder_fn('~/ws')) },
         },
 
         {
