@@ -26,7 +26,7 @@ local function open_finder_fn(path)
     end
 end
 
-local function select_app(app_name, cfg)
+local function select_app(app_name, win_name, new_window)
     cfg = cfg or {}
 
     local app = hs.appfinder.appFromName(app_name)
@@ -36,23 +36,23 @@ local function select_app(app_name, cfg)
     end
 
     local win
-    if cfg.window then
-        win = app:findWindow(cfg.window)
+    if win_name then
+        win = app:findWindow(win_name)
     else
         win = app:mainWindow()
     end
 
     if win then
         win:focus()
-    elseif 'function' == type(cfg.new_window) then
-        cfg.new_window(app)
-    elseif 'table' == type(cfg.new_window) then
-        app:selectMenuItem(cfg.new_window)
+    elseif 'function' == type(new_window) then
+        new_window(app)
+    elseif 'table' == type(new_window) then
+        app:selectMenuItem(new_window)
     end
 end
 
-local function select_app_fn(app, cfg)
-    return function() select_app(app, cfg) end
+local function select_app_fn(...)
+    return function() select_app(...) end
 end
 
 local function ls(dir)
