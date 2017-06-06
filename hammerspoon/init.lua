@@ -31,7 +31,7 @@ table.keys = function(t)
     return out
 end
 
-table.concat = function(t1, ...)
+table.append = function(t1, ...)
     for _, t2 in ipairs({...}) do
         for _, v in ipairs(t2) do
             table.insert(t1, v)
