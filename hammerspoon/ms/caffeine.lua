@@ -41,10 +41,6 @@ local function timed_on_m(time_in_min)
     timed_on(hs.timer.minutes(time_in_min))
 end
 
-local function lock_screen()
-    hs.caffeinate.lockScreen()
-end
-
 if not menubar then
     menubar = hs.menubar.new(false)
     set(is_on())
@@ -90,6 +86,4 @@ return {
 
     is_on = is_on,
     is_off = function() return not is_on() end,
-
-    lock_screen = lock_screen
 }
