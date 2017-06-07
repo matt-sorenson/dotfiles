@@ -30,13 +30,13 @@ return {
 
             '-',
 
-            { key = 'Q', msg = 'Quiet current window',        fn = layout.move_window_fn({1/8, 8/14, 6/8, 5.5/14}, 2) },
-            { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({ 0, 0, 1, 1 })              },
-            { key = 'G', msg = 'Grid' ,                       fn = hs.grid.show                                       },
-            { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window                             },
-            { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply                                       },
-            { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media')                           },
-            { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications')                  },
+            { key = 'Q', msg = 'Quiet current window',        fn = layout.move_window_fn({ 1/4, 5/9,  3/4, 11/28 }, 2) },
+            { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({   0,    0,   1,     1 })    },
+            { key = 'G', msg = 'Grid' ,                       fn = hs.grid.show                                        },
+            { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window                              },
+            { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply                                        },
+            { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media')                            },
+            { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications')                   },
         },
 
         {
