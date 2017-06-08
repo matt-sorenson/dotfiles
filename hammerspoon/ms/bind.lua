@@ -45,10 +45,6 @@ end
 local function modal_bind_fn_wrapper(self, fn, skip_clear)
     local out = {}
 
-    if nil == skip_clear then
-        skip_clear = false
-    end
-
     if 'function' == type(fn) then
         fn = { pressed_fn = fn }
     end
@@ -71,18 +67,6 @@ local function modal_bind_fn_wrapper(self, fn, skip_clear)
     return out
 end
 
-local function modal_concat_mods(mods)
-    if 'string' == type(mods) then
-        return hs.utf8.registeredKeys[mods] or mods:upper()
-    elseif 'table' == type(mods) then
-        return table.concat(hs.fnutils.map(mods, function(mod)
-                return hs.utf8.registeredKeys[mod] or mod:upper()
-            end))
-    else
-        return ''
-    end
-end
-
 local function array_set_remove(t1, t2)
     local out = {}
 
@@ -95,33 +79,48 @@ local function array_set_remove(t1, t2)
     return out
 end
 
+local function normalize_mod(mod)
+    if 'command' == mod then
+        mod = 'cmd'
+    elseif 'control' == mod then
+        mod = 'ctrl'
+    end
+
+    return hs.utf8.registeredKeys[mod] or mod:upper()
+end
+
 local function modal_convert_to_help_msg(config)
     local required_mods = {}
     local optional_mods = {}
 
     if config.optional_mods then
         for _, v in ipairs(toarray(config.optional_mods)) do
-            optional_mods[v] = true
+            optional_mods[normalize_mod(v)] = true
+            print("opt: ", normalize_mod(v))
         end
     end
 
     if config.repeat_on_mods then
         for _, v in ipairs(toarray(config.repeat_on_mods)) do
-            optional_mods[v] = true
+            optional_mods[normalize_mod(v)] = true
+            print("rep: ", normalize_mod(v))
         end
     end
 
     if config.mods then
         for _, v in ipairs(toarray(config.mods)) do
-            required_mods[v] = true
+            required_mods[normalize_mod(v)] = true
+            print("req: ", normalize_mod(v))
         end
     end
+
+    print("key: ", config.key:upper(), config.msg)
 
     required_mods = table.keys(required_mods)
     optional_mods = table.keys(optional_mods)
 
-    local mods_str = modal_concat_mods(array_set_remove(required_mods, optional_mods))
-    local opt_mods_str = modal_concat_mods(optional_mods)
+    local mods_str = table.concat(array_set_remove(required_mods, optional_mods))
+    local opt_mods_str = table.concat(optional_mods)
     local key_str = config.key:upper()
 
     if 0 ~= #opt_mods_str then
@@ -162,7 +161,7 @@ local function modal_bind(self, config)
     local bind = hs.hotkey.new(config.mods or '', config.key,
             arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
 
-    if config.msg and config.skip_help_msg then
+    if config.msg and (not config.skip_help_msg) then
         table.insert(self.msgs, modal_convert_to_help_msg(config))
     end
 
