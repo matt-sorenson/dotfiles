@@ -23,10 +23,10 @@ return {
             { mods = 'shift', key = 'A', msg = '←', fn = layout.move_window_fn({   0,   0, 1/3,   1 }), optional_mods = 'shift' },
             { mods = 'shift', key = 'S', msg = '↓', fn = layout.move_window_fn({   0, 2/3,   1, 1/3 }), optional_mods = 'shift' },
             { mods = 'shift', key = 'D', msg = '→', fn = layout.move_window_fn({ 2/3,   0, 1/3,   1 }), optional_mods = 'shift' },
-            { key = 'W', fn = layout.move_window_fn({ 0.0, 0.0, 1.0, 0.5 }) },
-            { key = 'A', fn = layout.move_window_fn({ 0.0, 0.0, 0.5, 1.0 }) },
-            { key = 'S', fn = layout.move_window_fn({ 0.0, 0.5, 1.0, 0.5 }) },
-            { key = 'D', fn = layout.move_window_fn({ 0.5, 0.0, 0.5, 1.0 }) },
+            { key = 'W', msg = '↑', fn = layout.move_window_fn({ 0.0, 0.0, 1.0, 0.5 }), skip_help_msg = true },
+            { key = 'A', msg = '←', fn = layout.move_window_fn({ 0.0, 0.0, 0.5, 1.0 }), skip_help_msg = true },
+            { key = 'S', msg = '↓', fn = layout.move_window_fn({ 0.0, 0.5, 1.0, 0.5 }), skip_help_msg = true },
+            { key = 'D', msg = '→', fn = layout.move_window_fn({ 0.5, 0.0, 0.5, 1.0 }), skip_help_msg = true },
 
             '-',
 
