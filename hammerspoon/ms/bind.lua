@@ -242,7 +242,12 @@ local function modal_new(config, parent)
     out.title = config.title
 
     if parent then
-        parent:bind({mods = config.mods, key = config.key, msg = config.title, fn = function() out:enter() end, skip_clear = true })
+        local title = config.title
+        if config.skip_help_msg then
+            title = nil
+        end
+
+        parent:bind({mods = config.mods, key = config.key, msg = title, fn = function() out:enter() end, skip_clear = true })
         out:bind({ key = 'H',      fn = function() modal_print_help(out) end, skip_clear = true })
         out:bind({ key = 'escape', fn = escape_fn })
     end

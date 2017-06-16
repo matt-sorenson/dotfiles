@@ -5,15 +5,14 @@ local music    = require 'ms.music'
 local caffeine = require 'ms.caffeine'
 
 return {
-    { mods = 'alt', key = 'space', fn = sys.select_app_fn('iTerm', nil, {'Shell', 'New Window'})},
-
-    -- defeat attempts to block paste
-    { mods = {'cmd', 'alt'}, key = 'V', fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end},
-
     {
         title = 'global',
         mods = { 'ctrl', 'cmd' },
         key = 'B',
+        skip_help_msg = true,
+
+        -- defeat attempts to block paste
+        { key = 'V', fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end},
 
         {
             title = 'Window',
@@ -65,7 +64,7 @@ return {
 
         {
             title = 'Power',
-            key = 'e',
+            key = 'E',
 
             { key = 'S', msg = 'Screen Saver',           fn = hs.caffeinate.startScreensaver },
             { key = '1', msg = 'Caffeine on 10 Minutes', fn = function() caffeine.timed_on_m(10) end },

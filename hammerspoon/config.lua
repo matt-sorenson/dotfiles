@@ -13,6 +13,7 @@ end
 
 hs.window.animationDuration = 0
 
+hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', nil, {'Shell', 'New Window'}))
 local modal = bind.init(require('keymap'))
 
 if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
