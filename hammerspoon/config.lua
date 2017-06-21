@@ -20,7 +20,7 @@ if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
     sys.mount_smb(REMOTE_SHARE_HOST, REMOTE_SHARE_FOLDER)
 
     local finder_modal = modal.children['global'].children['finder']
-    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', { window = REMOTE_SHARE_FOLDER, new_window = sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER) }) })
+    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', REMOTE_SHARE_FOLDER, sys.open_finder_fn('/Volumes/' .. REMOTE_SHARE_FOLDER)) })
 end
 
 local function on_device_change()
