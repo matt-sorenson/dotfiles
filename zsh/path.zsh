@@ -4,6 +4,12 @@ add_to_path() {
     fi
 }
 
+add_to_end_of_path() {
+    if [ -d "${1}" ] && [[ ! "${PATH}" =~ "(^|:)${1}(:|$)" ]]; then
+        PATH="${PATH}:${1}"
+    fi
+}
+
 # osx /etc/zprofile borks the path so fix it...
 if [ -x /usr/libexec/path_helper ]; then
     PATH=
