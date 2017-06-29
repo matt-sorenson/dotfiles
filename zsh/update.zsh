@@ -9,7 +9,7 @@ check_for_update() {
         echo "$color${header}\n= ${message}\n${header}$reset_color"
     }
 
-    local original_dir=$(pwd)
+    local original_dir="$(pwd)"
 
     local REPOS_TO_UPDATE=("${DOTFILES}" "${DOTFILES}/local" "${HOME}/.emacs.d" "${HOME}/.zprezto")
     local OUT=0
