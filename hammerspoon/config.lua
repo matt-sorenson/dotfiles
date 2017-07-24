@@ -29,22 +29,24 @@ local function on_device_change()
     audio.setup_output('usb')
 end
 
-local function on_caffeinate_change(arg)
+local function on_caffeinate_change(new_state)
     -- No need to re-run hammerspoon initialization when system is going to sleepish state
-    local IGNORE_EVENTS = {}
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensaverDidStart]    = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensaverWillStop]    = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensDidLock]         = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.screensDidSleep]        = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.sessionDidResignActive] = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.systemWillPowerOff]     = true
-    IGNORE_EVENTS[hs.caffeinate.watcher.systemWillSleep]        = true
+    local IGNORE_EVENTS = {
+        hs.caffeinate.watcher.screensaverDidStart,
+        hs.caffeinate.watcher.screensaverWillStop,
+        hs.caffeinate.watcher.screensDidLock,
+        hs.caffeinate.watcher.screensDidSleep,
+        hs.caffeinate.watcher.sessionDidResignActive,
+        hs.caffeinate.watcher.systemWillPowerOff,
+        hs.caffeinate.watcher.systemWillSleep,
+    }
 
-    if not IGNORE_EVENTS[arg] then
-        print("caffeinate event:", table.find(hs.caffeinate.watcher, arg))
-        on_device_change()
+    local new_state_name = table.find(hs.caffeinate.watcher, new_state)
+    if table.find(IGNORE_EVENTS, new_state) then
+        print('caffeinate ignored event:', new_state_name)
     else
-        print("caffeinate ignored event:", table.find(hs.caffeinate.watcher, arg))
+        print('caffeinate event:', new_state_name)
+        on_device_change()
     end
 end
 
