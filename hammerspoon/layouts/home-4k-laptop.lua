@@ -12,7 +12,6 @@ return {
 
         { app = 'Slack',    rect = {   0, 1/2, 1/2, 1/2 }, layouts = 'communications' },
         { app = 'Messages', rect = { 1/2, 1/2, 1/2, 1/2 }, layouts = 'communications' },
-        { app = 'Adium',    rect = {   0, 1/2, 1/3, 1/2 }, layouts = 'communications' },
         { app = 'Chime',    rect = { 1/2, 1/2, 1/2, 1/2 }, layouts = 'communications' },
 
         { window = 'Youtube', rect = { 1/10, 0, 8/10, 1 }, layouts = 'media' },
