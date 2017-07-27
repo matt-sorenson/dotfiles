@@ -13,9 +13,8 @@ ws() {
 }
 
 is-function() {
-    if [ 1 -ne $(type $1 | grep "shell function" | wc -l) ]; then
-        return 1
-    fi
+    typeset -f "$1" > /dev/null
+    return $?
 }
 
 clang-format-ri() {
