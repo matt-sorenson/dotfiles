@@ -38,6 +38,7 @@
 
 [diff]
     algorithm = histogram
+    indentHeuristic = on
 
 [filter "lfs"]
     clean = git-lfs clean %f
