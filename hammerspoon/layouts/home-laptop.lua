@@ -7,7 +7,7 @@ return {
 
         { app = 'iTerm',   rect = {   0, 0,   1, 1/2 } },
 
-        { app = 'Slack',    rect = {   0, 0, 1/2, 1 }, layouts = 'communications' },
+        { window = 'Slack', rect = {   0, 0, 1/2, 1 }, layouts = 'communications' },
         { app = 'Messages', rect = { 1/2, 0, 1/2, 1 }, layouts = 'communications' },
     }
 }

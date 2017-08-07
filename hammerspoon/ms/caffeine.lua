@@ -28,10 +28,6 @@ local function on()
     set(true)
 end
 
-local function toggle()
-    set(not is_on())
-end
-
 local function timed_on(time_in_sec)
     on()
     timer = hs.timer.doAfter(time_in_sec, off)
@@ -47,7 +43,12 @@ if not menubar then
     menubar:returnToMenuBar()
 end
 
-add_cleanup_fn(function() menubar:delete(); menubar = nil end)
+add_cleanup_fn(function()
+    if menubar then
+        menubar:delete();
+        menubar = nil
+    end
+end)
 
 menubar:setMenu(function(keys)
     local out = {
@@ -80,7 +81,7 @@ return {
     set = set,
     off = off,
     on = on,
-    toggle = toggle,
+    toggle = function() set(not is_on()) end,
     timed_on = timed_on,
     timed_on_m = timed_on_m,
 
