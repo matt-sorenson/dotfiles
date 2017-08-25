@@ -1,6 +1,6 @@
 autoload -Uz colors && colors
 
-print_header(){
+print-header(){
     local color="$fg_bold[${1}]"
     local header="================================================================================"
     shift
@@ -8,14 +8,14 @@ print_header(){
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
-check_for_update() {
+check-for-update() {
     local -a REPOS_TO_UPDATE
     REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.emacs.d" "${HOME}/.zprezto" )
     local OUT=0
 
     for dir in $REPOS_TO_UPDATE; do
         if [[ -d "${dir}" ]] && [[ -d "${dir}/.git" ]]; then
-            print_header green "Updating ${dir}"
+            print-header green "Updating ${dir}"
 
             pushd "${dir}" > /dev/null
 
@@ -31,20 +31,20 @@ check_for_update() {
 
             git status | grep "Your branch is up-to-date" > /dev/null
             if [[ $? -ne 0 ]]; then
-                print_header red "Repo could not automaticly merge: ${dir}"
+                print-header red "Repo could not automaticly merge: ${dir}"
                 OUT=1
             fi
 
             popd > /dev/null
         else
-            print_header yellow "Missing Directory: ${dir}"
+            print-header yellow "Missing Directory: ${dir}"
         fi
     done
 
     return $OUT
 }
 
-auto_check_for_update() {
+auto-check-for-update() {
     local WEEK_IN_SECONDS=$((7 * 60 * 60 * 24))
     local CURRENT_TIME=$(date +%s)
     local WEEK_AGO=$((${CURRENT_TIME} - ${WEEK_IN_SECONDS}))
@@ -60,7 +60,7 @@ auto_check_for_update() {
         read -q "RUN_UPDATE?It's been over a week, update dotfiles? "
         if [ 'y' = "$RUN_UPDATE" ]; then
             echo
-            check_for_update
+            check-for-update
 
             if [[ $? -eq 0 ]]; then
                 echo $CURRENT_TIME >! "${UPDATE_FILENAME}"

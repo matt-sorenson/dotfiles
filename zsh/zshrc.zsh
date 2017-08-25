@@ -46,7 +46,7 @@ setopt no_beep
 setopt clobber
 setopt multios
 
-auto_check_for_update
+auto-check-for-update
 
 # if not in a tmux session prompt to start one
 if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then

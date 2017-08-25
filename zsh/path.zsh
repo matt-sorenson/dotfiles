@@ -1,12 +1,6 @@
-add_to_path() {
+add-to-path() {
     if [ -d "${1}" ] && [[ ! "${PATH}" =~ "(^|:)${1}(:|$)" ]]; then
         PATH="${1}:${PATH}"
-    fi
-}
-
-add_to_end_of_path() {
-    if [ -d "${1}" ] && [[ ! "${PATH}" =~ "(^|:)${1}(:|$)" ]]; then
-        PATH="${PATH}:${1}"
     fi
 }
 
@@ -16,11 +10,11 @@ if [ -x /usr/libexec/path_helper ]; then
     eval `/usr/libexec/path_helper -s`
 fi
 
-add_to_path "/usr/local/bin"
-add_to_path "/usr/local/sbin"
-add_to_path "${DOTFILES}/bin"
-add_to_path "${DOTFILES}/local/bin"
-add_to_path "${HOME}/bin"
+add-to-path "/usr/local/bin"
+add-to-path "/usr/local/sbin"
+add-to-path "${DOTFILES}/bin"
+add-to-path "${DOTFILES}/local/bin"
+add-to-path "${HOME}/bin"
 
 export PATH
 
