@@ -19,6 +19,8 @@ if [ -d "${DOTFILES}/zsh/completion" ]; then
 fi
 
 COMPLETION_WAITING_DOTS="true"
+# Autocomplete will complete past '-'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 # History settings
 HISTFILE="${DOTFILES}/tmp/history"
