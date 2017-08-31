@@ -13,7 +13,7 @@ return {
         { app = 'iTerm',                      rect = { 0,      0, 9/10,   5/9 } },
 
         { window = {'reddit', 'Hacker News'}, rect = {  1/4, 5/9,  3/4, 11/28 }, layouts = 'media' },
-        { window = 'Youtube',                 rect = {    0, 1/2,  3/4,   1/3 }, layouts = 'media' },
+        { window = 'Youtube',                 rect = {    0, .48,   .7,   1/3 }, layouts = 'media' },
 
         { window = 'Slack',                   rect = { 1/10,   0, 9/10,   5/9 }, layouts = 'communications' },
         { app = 'Messages',                   rect = {    0, 3/4,  1/2,   1/4 }, layouts = 'communications' },
