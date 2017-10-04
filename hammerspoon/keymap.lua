@@ -12,20 +12,15 @@ return {
         skip_help_msg = true,
 
         -- defeat attempts to block paste
-        { key = 'V', fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end},
+        { key = 'V', msg = 'key event paste', fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end },
 
         {
             title = 'Window',
             key = 'W',
 
-            { mods = 'shift', key = 'W', msg = '↑', fn = layout.move_window_fn({   0,   0,   1, 1/3 }), optional_mods = 'shift' },
-            { mods = 'shift', key = 'A', msg = '←', fn = layout.move_window_fn({   0,   0, 1/3,   1 }), optional_mods = 'shift' },
-            { mods = 'shift', key = 'S', msg = '↓', fn = layout.move_window_fn({   0, 2/3,   1, 1/3 }), optional_mods = 'shift' },
-            { mods = 'shift', key = 'D', msg = '→', fn = layout.move_window_fn({ 2/3,   0, 1/3,   1 }), optional_mods = 'shift' },
-            { key = 'W', msg = '↑', fn = layout.move_window_fn({ 0.0, 0.0, 1.0, 0.5 }), skip_help_msg = true },
-            { key = 'A', msg = '←', fn = layout.move_window_fn({ 0.0, 0.0, 0.5, 1.0 }), skip_help_msg = true },
-            { key = 'S', msg = '↓', fn = layout.move_window_fn({ 0.0, 0.5, 1.0, 0.5 }), skip_help_msg = true },
-            { key = 'D', msg = '→', fn = layout.move_window_fn({ 0.5, 0.0, 0.5, 1.0 }), skip_help_msg = true },
+            { key = '1', msg = '1st 1/3rd of screen', fn = layout.move_window_fn({   0,   0,   1/3, 1 }) },
+            { key = '2', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
+            { key = '3', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
 
             '-',
 
@@ -47,7 +42,7 @@ return {
         },
 
         {
-            title = 'Music',
+            title = '♫',
             key = 'S',
 
             { key = 'S', msg = 'Play/Pause',    fn = music.fn('playpause'),     repeat_on_mods = 'shift' },
@@ -63,7 +58,7 @@ return {
         },
 
         {
-            title = 'Power',
+            title = '🔌',
             key = 'E',
 
             { key = 'S', msg = 'Screen Saver',           fn = hs.caffeinate.startScreensaver },
