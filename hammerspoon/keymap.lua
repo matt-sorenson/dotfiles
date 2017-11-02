@@ -18,9 +18,12 @@ return {
             title = 'Window',
             key = 'W',
 
-            { key = '1', msg = '1st 1/3rd of screen', fn = layout.move_window_fn({   0,   0,   1/3, 1 }) },
-            { key = '2', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
-            { key = '3', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
+            { key = '1', msg = '1st 1/2nd of screen', fn = layout.move_window_fn({   0,   0,   1/2, 1 }) },
+            { key = '2', msg = '2nd 1/2nd of screen', fn = layout.move_window_fn({ 1/2,   0,   1/2, 1 }) },
+
+            { key = '1', mods = 'shift', msg = '1st 1/3rd of screen', fn = layout.move_window_fn({   0,   0,   1/3, 1 }) },
+            { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
+            { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
 
             '-',
 
@@ -42,7 +45,7 @@ return {
         },
 
         {
-            title = '♫',
+            title = 'Sound',
             key = 'S',
 
             { key = 'S', msg = 'Play/Pause',    fn = music.fn('playpause'),     repeat_on_mods = 'shift' },
@@ -58,7 +61,7 @@ return {
         },
 
         {
-            title = '🔌',
+            title = 'Energy',
             key = 'E',
 
             { key = 'S', msg = 'Screen Saver',           fn = hs.caffeinate.startScreensaver },
