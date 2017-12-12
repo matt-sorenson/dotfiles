@@ -29,7 +29,7 @@ check-for-update() {
                 fi
             fi
 
-            git status | grep "Your branch is up to date" > /dev/null
+            git status | grep "Your branch is up[ -]to[ -]date" > /dev/null
             if [[ $? -ne 0 ]]; then
                 print-header red "Repo could not automaticly merge: ${dir}"
                 OUT=1
