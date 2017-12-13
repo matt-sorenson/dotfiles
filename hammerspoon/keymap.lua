@@ -1,8 +1,9 @@
 local audio    = require 'ms.audio'
-local sys      = require 'ms.sys'
+local caffeine = require 'ms.caffeine'
+local grid     = require 'ms.grid'
 local layout   = require 'ms.layout'
 local music    = require 'ms.music'
-local caffeine = require 'ms.caffeine'
+local sys      = require 'ms.sys'
 
 return {
     {
@@ -29,11 +30,13 @@ return {
 
             { key = 'Q', msg = 'Quiet current window',        fn = layout.move_window_fn({ 1/4, 5/9,  3/4, 11/28 }, 2) },
             { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({   0,    0,   1,     1 })    },
-            { key = 'G', msg = 'Grid' ,                       fn = hs.grid.show                                        },
             { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window                              },
             { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply                                        },
             { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media')                            },
             { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications')                   },
+
+            { key = 'G', msg = 'Grid',                        fn = grid.default_show_grid_fn, optional_mods = 'shift'  },
+            { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.shift_show_grid_fn, skip_help_msg = true       }
         },
 
         {
