@@ -24,8 +24,6 @@ if REMOTE_SHARE_HOST and REMOTE_SHARE_FOLDER then
 end
 
 local function on_device_change()
-    grid.setup_screen()
-    grid.select_layout()
     audio.setup_output('usb')
 end
 
