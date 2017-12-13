@@ -96,25 +96,20 @@ local function modal_convert_to_help_msg(config)
     if config.optional_mods then
         for _, v in ipairs(toarray(config.optional_mods)) do
             optional_mods[normalize_mod(v)] = true
-            print("opt: ", normalize_mod(v))
         end
     end
 
     if config.repeat_on_mods then
         for _, v in ipairs(toarray(config.repeat_on_mods)) do
             optional_mods[normalize_mod(v)] = true
-            print("rep: ", normalize_mod(v))
         end
     end
 
     if config.mods then
         for _, v in ipairs(toarray(config.mods)) do
             required_mods[normalize_mod(v)] = true
-            print("req: ", normalize_mod(v))
         end
     end
-
-    print("key: ", config.key:upper(), config.msg)
 
     required_mods = table.keys(required_mods)
     optional_mods = table.keys(optional_mods)
