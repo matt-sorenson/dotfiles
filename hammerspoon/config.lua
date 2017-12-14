@@ -50,6 +50,5 @@ end
 
 on_device_change()
 
-hs.screen.watcher.new(on_device_change):start()
 hs.caffeinate.watcher.new(on_caffeinate_change):start()
 hs.usb.watcher.new(on_device_change):start()
