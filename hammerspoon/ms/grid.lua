@@ -38,7 +38,6 @@ local function pre_show()
     hs.grid.setGrid('3x4', '1920x1080') -- 1080 Vertical
 
     hs.grid.setGrid('4x3', '2560×1440') -- 1440p Horizontal
-    hs.grid.setGrid('3x4', '1440x2560') -- 1440p Vertical
 end
 
 local function default_show_grid_fn()
