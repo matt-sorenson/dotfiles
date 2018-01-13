@@ -27,28 +27,7 @@ local function on_device_change()
     audio.setup_output('usb')
 end
 
-local function on_caffeinate_change(new_state)
-    -- No need to re-run hammerspoon initialization when system is going to sleepish state
-    local IGNORE_EVENTS = {
-        hs.caffeinate.watcher.screensaverDidStart,
-        hs.caffeinate.watcher.screensaverWillStop,
-        hs.caffeinate.watcher.screensDidLock,
-        hs.caffeinate.watcher.screensDidSleep,
-        hs.caffeinate.watcher.sessionDidResignActive,
-        hs.caffeinate.watcher.systemWillPowerOff,
-        hs.caffeinate.watcher.systemWillSleep,
-    }
-
-    local new_state_name = table.find(hs.caffeinate.watcher, new_state)
-    if table.find(IGNORE_EVENTS, new_state) then
-        print('caffeinate ignored event:', new_state_name)
-    else
-        print('caffeinate event:', new_state_name)
-        on_device_change()
-    end
-end
-
 on_device_change()
 
-hs.caffeinate.watcher.new(on_caffeinate_change):start()
+hs.caffeinate.watcher.new(on_device_change):start()
 hs.usb.watcher.new(on_device_change):start()
