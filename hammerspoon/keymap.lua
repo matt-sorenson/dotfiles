@@ -45,6 +45,8 @@ return {
 
             { key = 'G', msg = 'Home',      fn = sys.select_app_fn('Finder', sys.who_am_i(), sys.open_finder_fn('~/'))   },
             { key = 'W', msg = 'Workspace', fn = sys.select_app_fn('Finder', 'ws',           sys.open_finder_fn('~/ws')) },
+
+            { key = 'S', msg = 'Mount Remotes', fn = function() sys.mount_smb_shares(REMOTE_SHARES) end }
         },
 
         {
