@@ -1,6 +1,5 @@
 local sys = require 'ms.sys'
 
-local menubar
 local screen_configurations = {}
 
 local function layout_score(self)
@@ -211,25 +210,6 @@ end
 end
 
 load_screen_configurations()
-
-menubar = hs.menubar.new(false)
-menubar:setIcon(hs.configdir .. '/icons/monitor@2x.png')
-menubar:returnToMenuBar()
-
-menubar:setMenu(function()
-    local out = {
-        { title = 'Default', fn = apply }
-    }
-
-    for _, layout in ipairs(get_screen_layout():layout_names()) do
-        local title = layout:sub(1,1):upper() .. layout:sub(2)
-        table.insert(out, { title = title, fn = apply_fn(layout) })
-    end
-
-    return out
-end)
-
-add_cleanup_fn(function() menubar:delete(); menubar = nil end)
 
 return {
     apply_to_window = apply_to_window,
