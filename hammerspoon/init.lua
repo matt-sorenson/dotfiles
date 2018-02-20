@@ -67,5 +67,13 @@ else
     print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
 end
 
+local function gc()
+    print("pre-gc memory" + collectgarbage("count")/1024 + "mb")
+    collectgarbage("collect")
+    print("post-gc memory" + collectgarbage("count")/1024 + "mb")
+end
+
 -- Initialization creates lots of garbage
-collectgarbage("collect")
+gc()
+
+hs.timer.doEvery(hs.timer.hours(1), gc)
