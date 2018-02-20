@@ -11,6 +11,15 @@ local function mount_smb(host, share)
     return out
 end
 
+local function mount_smb_shares(shares_map)
+    for host, shares in pairs(shares_map) do
+        for _, share in ipairs(shares) do
+            mount_smb(host, share)
+        end
+    end
+end
+
+
 local function find_usb_device_by_name(name)
     name = name:lower()
     return table.unpack(hs.fnutils.filter(hs.usb.attachedDevices(), function(dev)
@@ -75,6 +84,7 @@ return {
     find_usb_device_by_name = find_usb_device_by_name,
     is_work_computer = function() return IS_WORK_COMPUTER end,
     mount_smb = mount_smb,
+    mount_smb_shares = mount_smb_shares,
     select_app = select_app,
     who_am_i = function() return WHO_AM_I end,
 

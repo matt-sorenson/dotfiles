@@ -66,3 +66,6 @@ else
     }):send()
     print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
 end
+
+-- Initialization creates lots of garbage
+collectgarbage("collect")
