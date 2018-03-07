@@ -68,9 +68,7 @@ else
 end
 
 local function gc()
-    print("pre-gc memory" + collectgarbage("count")/1024 + "mb")
     collectgarbage("collect")
-    print("post-gc memory" + collectgarbage("count")/1024 + "mb")
 end
 
 -- Initialization creates lots of garbage
