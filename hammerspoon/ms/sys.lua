@@ -2,7 +2,7 @@ local WHO_AM_I = os.getenv('USER')
 
 -- hs.host.names() is insanely slow (something like 5 seconds)
 -- so just use hs.exectute('hostname') instead
-local IS_WORK_COMPUTER = string.find(hs.execute('hostname'), '.ant.')
+local IS_WORK_COMPUTER = (nil ~= string.find(hs.execute('hostname'), '4c32759b81b5'))
 
 local function mount_smb(host, share)
     local smb_share = 'smb://' .. host .. ':445/' .. share
