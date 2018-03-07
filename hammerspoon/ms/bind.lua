@@ -115,7 +115,7 @@ local function modal_convert_to_help_msg(config)
     optional_mods = table.keys(optional_mods)
 
     local mods_str = table.concat(array_set_remove(required_mods, optional_mods))
-    local opt_mods_str = table.concat(optional_mods)
+    local opt_mods_str = table.concat(optional_mods, '][')
     local key_str = config.key:upper()
 
     if 0 ~= #opt_mods_str then
