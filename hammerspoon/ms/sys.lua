@@ -63,7 +63,7 @@ local function select_app_fn(app_name, win_name, new_window)
 end
 
 local function ls(dir)
-    local _, iter = hs.fs.dir('~/.hammerspoon/layouts')
+    local _, iter = hs.fs.dir(dir)
     local contents = {}
 
     repeat
