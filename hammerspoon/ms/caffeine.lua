@@ -14,9 +14,9 @@ local function set(enabled)
     hs.caffeinate.set('displayIdle', enabled)
 
     if is_on() then
-        menubar:setIcon(hs.configdir .. '/icons/caffeine-active@2x.png')
+        --menubar:setIcon(hs.configdir .. '/icons/caffeine-active@2x.png')
     else
-        menubar:setIcon(hs.configdir .. '/icons/caffeine-inactive@2x.png')
+        --menubar:setIcon(hs.configdir .. '/icons/caffeine-inactive@2x.png')
     end
 end
 
@@ -43,7 +43,6 @@ if not menubar then
     set(is_on())
     menubar:returnToMenuBar()
 end
---]]
 
 add_cleanup_fn(function()
     if menubar then
@@ -80,6 +79,8 @@ if menubar then
         return out;
     end)
 end
+
+--]]
 
 return {
     set = set,
