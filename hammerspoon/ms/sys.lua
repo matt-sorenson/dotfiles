@@ -36,8 +36,6 @@ local function open_finder_fn(path)
 end
 
 local function select_app(app_name, win_name, new_window)
-    cfg = cfg or {}
-
     local app = hs.appfinder.appFromName(app_name)
     if not app then
         hs.application.open(app_name)
