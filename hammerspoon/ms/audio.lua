@@ -8,7 +8,27 @@ if sys.is_work_computer() then
     DEVICE_UIDS['usb'] = 'AppleUSBAudioEngine:Unknown Manufacturer:C_Media USB Audio Device   :14120000:2,1'
 end
 
-local function setup_output(device_name)
+--[[export]] local function get_device()
+    return hs.audiodevice.defaultOutputDevice()
+end
+
+--[[export]] local function get_volume()
+    return get_device():outputVolume()
+end
+
+--[[export]] local function set_volume(volume)
+    return get_device():setOutputVolume(volume)
+end
+
+--[[export]] local function update_volume(d_volume)
+    set_volume(math.max(0, math.min(100, get_volume + d_volume)))
+end
+
+--[[export]] local function update_volume_fn(d_volume)
+    return function() update_volume(d_volume) end
+end
+
+--[[export]] local function setup_output(device_name)
     local requested_uid = DEVICE_UIDS[device_name] or device_name
 
     if nil == requested_uid then return end
@@ -23,31 +43,11 @@ local function setup_output(device_name)
     end
 end
 
-local function get_device()
-    return hs.audiodevice.defaultOutputDevice()
-end
-
-local function get_volume()
-    return get_device():outputVolume()
-end
-
-local function set_volume(volume)
-    return get_device():setOutputVolume(volume)
-end
-
-local function update_volume(d_volume)
-    set_volume(math.max(0, math.min(100, get_volume + d_volume)))
-end
-
-local function update_volume_fn(d_volume)
-    return function() update_volume(d_volume) end
-end
-
 return {
     get_volume = get_volume,
     set_volume = set_volume,
-
     update_volume_fn = update_volume_fn,
     update_volume = update_volume,
+
     setup_output = setup_output
 }
