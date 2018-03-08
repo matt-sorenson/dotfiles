@@ -145,11 +145,14 @@ local function layout_apply(self, layout_name, windows)
     end)
 end
 
-local layout_mt = { __index = {} }
-layout_mt.__index.apply = layout_apply
-layout_mt.__index.screens = layout_screens
-layout_mt.__index.score = layout_score
-layout_mt.__index.layout_names = layout_layout_names
+local layout_mt = {
+    __index = {
+        apply = layout_apply,
+        screens = layout_screens,
+        score = layout_score,
+        layout_names = layout_layout_names,
+    }
+}
 
 local function layout_new(layout)
     local out = {}
