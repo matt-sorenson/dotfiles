@@ -56,7 +56,7 @@ return {
             { key = 'S', msg = 'Play/Pause',    fn = music.fn('playpause'),     repeat_on_mods = 'shift' },
             { key = 'A', msg = 'Previous',      fn = music.fn('previousTrack'), repeat_on_mods = 'shift' },
             { key = 'D', msg = 'Next',          fn = music.fn('nextTrack'),     repeat_on_mods = 'shift' },
-            { key = 'R', msg = 'Shuffle',       fn = music.fn('shuffle'),       repeat_on_mods = 'shift' },
+            { key = 'R', msg = 'Shuffle',       fn = music.fn('shuffle'), },
             { key = 'C', msg = 'Select player', fn = music.select_current_player },
 
             '-',
