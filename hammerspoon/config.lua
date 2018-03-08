@@ -1,7 +1,7 @@
-local audio    = require 'ms.audio'
-local bind     = require 'ms.bind'
-local grid     = require 'ms.grid'
-local sys      = require 'ms.sys'
+local audio = require 'ms.audio'
+local bind  = require 'ms.bind'
+local grid  = require 'ms.grid'
+local sys   = require 'ms.sys'
 
 REMOTE_SHARES = {}
 
@@ -12,8 +12,6 @@ else
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
     REMOTE_HOME = 'matt-srv'
 end
-
-sys.mount_smb_shares(REMOTE_SHARES)
 
 hs.window.animationDuration = 0
 
@@ -27,6 +25,7 @@ end
 
 local function on_device_change()
     audio.setup_output('usb')
+    sys.mount_smb_shares(REMOTE_SHARES)
 end
 
 on_device_change()
