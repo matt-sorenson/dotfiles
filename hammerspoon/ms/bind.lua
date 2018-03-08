@@ -224,7 +224,7 @@ local function create_modal(config, parent)
     end
 end
 
-local function modal_new(config, parent)
+--[[export]] local function modal_new(config, parent)
     parent = ((parent ~= 'noparent') and (parent or _default_modal)) or nil
 
     local out = {}
@@ -260,7 +260,7 @@ local function modal_new(config, parent)
     return out;
 end
 
-local function init(config)
+--[[export]] local function init(config)
     _default_modal = modal_new(config, 'noparent')
     _default_modal.on_enter = function() modal_clear_alert() end
     _default_modal.on_exit = function() end
