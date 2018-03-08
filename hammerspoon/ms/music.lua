@@ -41,11 +41,11 @@ local function current_player()
     return players.spotify
 end
 
-local function select_current_player()
+--[[ export ]] local function select_current_player()
     sys.select_app(current_player().bundle_id)
 end
 
-local function fn(key, ...)
+--[[ export ]] local function fn(key, ...)
     local args = {...}
     return function()
         local player = current_player()
