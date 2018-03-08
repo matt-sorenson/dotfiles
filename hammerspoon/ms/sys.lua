@@ -4,23 +4,7 @@ local WHO_AM_I = os.getenv('USER')
 -- so just use hs.exectute('hostname') instead
 local IS_WORK_COMPUTER = (nil ~= string.find(hs.execute('hostname'), '4c32759b81b5'))
 
-local function mount_smb(host, share)
-    local smb_share = 'smb://' .. host .. ':445/' .. share
-    local out = hs.osascript.applescript('mount volume "' .. smb_share .. '"')
-
-    return out
-end
-
-local function mount_smb_shares(shares_map)
-    for host, shares in pairs(shares_map) do
-        for _, share in ipairs(shares) do
-            mount_smb(host, share)
-        end
-    end
-end
-
-
-local function find_usb_device_by_name(name)
+--[[ export ]] local function find_usb_device_by_name(name)
     name = name:lower()
     return table.unpack(hs.fnutils.filter(hs.usb.attachedDevices(), function(dev)
         if dev.productName and dev.productName:lower():match(name) then
@@ -29,13 +13,22 @@ local function find_usb_device_by_name(name)
     end))
 end
 
-local function open_finder_fn(path)
-    return function()
-        hs.execute('open ' .. (path or '~'))
+--[[ export ]] local function mount_smb(host, share)
+    local smb_share = 'smb://' .. host .. ':445/' .. share
+    local out = hs.osascript.applescript('mount volume "' .. smb_share .. '"')
+
+    return out
+end
+
+--[[ export ]] local function mount_smb_shares(shares_map)
+    for host, shares in pairs(shares_map) do
+        for _, share in ipairs(shares) do
+            mount_smb(host, share)
+        end
     end
 end
 
-local function select_app(app_name, win_name, new_window)
+--[[ export ]] local function select_app(app_name, win_name, new_window)
     local app = hs.appfinder.appFromName(app_name)
     if not app then
         hs.application.open(app_name)
@@ -58,11 +51,7 @@ local function select_app(app_name, win_name, new_window)
     end
 end
 
-local function select_app_fn(app_name, win_name, new_window)
-    return function() select_app(app_name, win_name, new_window) end
-end
-
-local function ls(dir)
+--[[ export ]] local function ls(dir)
     local _, iter = hs.fs.dir(dir)
     local contents = {}
 
@@ -78,12 +67,23 @@ local function ls(dir)
     return contents
 end
 
+--[[ export ]] local function open_finder_fn(path)
+    return function()
+        hs.execute('open ' .. (path or '~'))
+    end
+end
+
+--[[ export ]] local function select_app_fn(app_name, win_name, new_window)
+    return function() select_app(app_name, win_name, new_window) end
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
-    is_work_computer = function() return IS_WORK_COMPUTER end,
     mount_smb = mount_smb,
     mount_smb_shares = mount_smb_shares,
     select_app = select_app,
+
+    is_work_computer = function() return IS_WORK_COMPUTER end,
     who_am_i = function() return WHO_AM_I end,
 
     ls = ls,
