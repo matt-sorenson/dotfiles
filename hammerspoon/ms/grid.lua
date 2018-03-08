@@ -40,7 +40,7 @@ local function pre_show()
     hs.grid.setGrid('4x3', '2560×1440') -- 1440p Horizontal
 end
 
-local function default_show_grid_fn()
+--[[export]] local function default_show_grid_fn()
     pre_show()
 
     hs.grid.setGrid('6x3', 'DELL U3415W')
@@ -51,7 +51,7 @@ local function default_show_grid_fn()
     hs.grid.show()
 end
 
-local function shift_show_grid_fn()
+--[[export]] local function shift_show_grid_fn()
     pre_show()
 
     hs.grid.setGrid('5x3', 'DELL U3415W')
