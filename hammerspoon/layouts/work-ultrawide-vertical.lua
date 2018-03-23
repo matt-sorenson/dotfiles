@@ -16,8 +16,8 @@ return {
         { window = 'Youtube',                 rect = {    0, .493,   .7,   1/3 }, layouts = 'media' },
 
         { window = 'Slack',                   rect = { 1/10,   0, 9/10,   5/9 }, layouts = 'communications' },
-        { app = 'Messages',                   rect = {    0, 3/4,  1/2,   1/4 }, layouts = 'communications' },
-        { app = 'Chime',                      rect = {  1/2, 3/4,  1/2,   1/4 }, layouts = 'communications' },
+        { app = 'Messages',                   rect = {    0, 2/3,  1/2,   1/3 }, layouts = 'communications' },
+        { app = 'Chime',                      rect = {  1/2, 2/3,  1/2,   1/3 }, layouts = 'communications' },
     },
 
     is_work_computer = true,
