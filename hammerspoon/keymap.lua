@@ -61,8 +61,8 @@ return {
 
             '-',
 
-            { key = 'W', msg = 'Raise volume', fn = audio.update_volume_fn( 1), repeat_on_mods = 'shift' },
-            { key = 'X', msg = 'Lower volume', fn = audio.update_volume_fn(-1), repeat_on_mods = 'shift' },
+            { key = 'W', msg = 'Raise volume', fn = audio.update_volume_fn( 3), repeat_on_mods = 'shift' },
+            { key = 'X', msg = 'Lower volume', fn = audio.update_volume_fn(-3), repeat_on_mods = 'shift' },
         },
 
         {
