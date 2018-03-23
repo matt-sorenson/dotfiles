@@ -20,5 +20,6 @@ return {
         { app = 'Chime',                      rect = {  1/2, 2/3,  1/2,   1/3 }, layouts = 'communications' },
     },
 
+    bonus = true,
     is_work_computer = true,
 }

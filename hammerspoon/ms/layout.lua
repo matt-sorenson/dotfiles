@@ -11,12 +11,16 @@ local function layout_score(self)
         return -1
     end
 
-    if self.is_work_computer then
+    if self.layout.is_work_computer then
         if sys.is_work_computer() then
             score = score + 1
         else
             return -1
         end
+    end
+
+    if self.layout.bonus then
+        score = score + 10
     end
 
     return score
