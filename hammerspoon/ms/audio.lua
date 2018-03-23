@@ -21,7 +21,7 @@ end
 end
 
 --[[export]] local function update_volume(d_volume)
-    set_volume(math.max(0, math.min(100, get_volume + d_volume)))
+    set_volume(math.max(0, math.min(100, get_volume() + d_volume)))
 end
 
 --[[export]] local function update_volume_fn(d_volume)
