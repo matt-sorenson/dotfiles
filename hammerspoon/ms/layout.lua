@@ -192,17 +192,17 @@ local function get_screen_layout()
     return curr_layout
 end
 
---[[ export ]] local function apply_to_window(layout_name, window)
-    window = window or hs.window.focusedWindow()
-    apply(layout_name, window)
-end
-
 --[[ export ]] local function apply(layout_name, windows)
     get_screen_layout():apply(layout_name, windows)
 end
 
 --[[ export ]] local function apply_fn(layout_name, windows)
     return function() apply(layout_name, windows) end
+end
+
+--[[ export ]] local function apply_to_window(layout_name, window)
+    window = window or hs.window.focusedWindow()
+    apply(layout_name, window)
 end
 
 --[[ export ]] local function move_window_fn(rect, screen_id)
@@ -215,9 +215,9 @@ end
 load_screen_configurations()
 
 return {
-    apply_to_window = apply_to_window,
     apply = apply,
     apply_fn = apply_fn,
+    apply_to_window = apply_to_window,
 
     move_window_fn = move_window_fn,
 }
