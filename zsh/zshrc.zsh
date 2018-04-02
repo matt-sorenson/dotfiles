@@ -18,6 +18,11 @@ if [ -d "${DOTFILES}/zsh/completion" ]; then
     fpath=("${DOTFILES}/zsh/completion" $fpath)
 fi
 
+if [[ "$OSTYPE" == darwin* ]]; then
+    export CLICOLOR=1
+    export LSCOLORS=GxFxCxDxBxegedabagaced
+fi
+
 COMPLETION_WAITING_DOTS="true"
 # Autocomplete will complete past '-'
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
