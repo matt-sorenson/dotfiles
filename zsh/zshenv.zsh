@@ -4,7 +4,6 @@ if [ -f "$DOTFILES/local/zsh/zshenv.zsh" ]; then
     source "$DOTFILES/local/zsh/zshenv.zsh"
 fi
 
-# /etc/zprofile
 source "${DOTFILES}/zsh/path.zsh"
 
 if [[ "$OSTYPE" == darwin* ]]; then
