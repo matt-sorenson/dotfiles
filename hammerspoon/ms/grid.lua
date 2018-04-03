@@ -30,7 +30,7 @@ local function select_layout()
     end
 end
 
-local function pre_show()
+--[[export]] local function show(mod)
     select_layout()
 
     hs.grid.setGrid('5x3', '3840x2160') -- 4k Horizontal
@@ -38,31 +38,23 @@ local function pre_show()
     hs.grid.setGrid('3x4', '1920x1080') -- 1080 Vertical
 
     hs.grid.setGrid('4x3', '2560×1440') -- 1440p Horizontal
-end
 
---[[export]] local function default_show_grid_fn()
-    pre_show()
+    if (mod == 'shift') then
+        hs.grid.setGrid('5x3', 'DELL U3415W')
+        hs.grid.setGrid('5x3', '3440x1440') -- 34" Ultra-Wide
 
-    hs.grid.setGrid('6x3', 'DELL U3415W')
-    hs.grid.setGrid('6x3', '3440x1440') -- 34" Ultra-Wide
+        hs.grid.setGrid('4x4', '1440x2560') -- 1440p Vertical
+    else
+        hs.grid.setGrid('6x3', 'DELL U3415W')
+        hs.grid.setGrid('6x3', '3440x1440') -- 34" Ultra-Wide
 
-    hs.grid.setGrid('3x4', '1440x2560') -- 1440p Vertical
-
-    hs.grid.show()
-end
-
---[[export]] local function shift_show_grid_fn()
-    pre_show()
-
-    hs.grid.setGrid('5x3', 'DELL U3415W')
-    hs.grid.setGrid('5x3', '3440x1440') -- 34" Ultra-Wide
-
-    hs.grid.setGrid('4x4', '1440x2560') -- 1440p Vertical
+        hs.grid.setGrid('3x4', '1440x2560') -- 1440p Vertical
+    end
 
     hs.grid.show()
 end
 
 return {
-    default_show_grid_fn = default_show_grid_fn,
-    shift_show_grid_fn = shift_show_grid_fn
+    show = show
+    show_fn = function(mod) return function() show(mod) end end
 }
