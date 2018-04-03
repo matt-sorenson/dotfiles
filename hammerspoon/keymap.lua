@@ -35,8 +35,8 @@ return {
             { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media')                            },
             { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications')                   },
 
-            { key = 'G', msg = 'Grid',                        fn = grid.default_show_grid_fn, optional_mods = 'shift'  },
-            { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.shift_show_grid_fn, skip_help_msg = true       }
+            { key = 'G', msg = 'Grid',                        fn = grid.show, optional_mods = 'shift'                  },
+            { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.show_fn('shift'), skip_help_msg = true         }
         },
 
         {
