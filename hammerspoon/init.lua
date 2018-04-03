@@ -1,15 +1,5 @@
-local cleanupfns = {}
-
-function add_cleanup_fn(fn)
-    table.insert(cleanupfns, fn)
-end
-
 -- Easy reloading of config file
-hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
-    hs.fnutils.ieach(cleanupfns, function(fn) fn() end)
-
-    hs.reload()
-end)
+hs.hotkey.bind({'ctrl', 'cmd'}, 'R', hs.reload)
 
 -- If the input is not a table then insert it as the first element of an array
 -- and return that array. Usefull for functions that take 1 or more of a value
