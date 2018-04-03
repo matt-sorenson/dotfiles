@@ -11,8 +11,8 @@ hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
     hs.reload()
 end)
 
--- If the input is not a table then insert it as the first element of an array and return that array.
--- Usefull for functions that take 1 or more of a value
+-- If the input is not a table then insert it as the first element of an array
+-- and return that array. Usefull for functions that take 1 or more of a value
 function toarray(input)
     if 'table' == type(input) then
         return input
