@@ -55,6 +55,6 @@ end
 end
 
 return {
-    show = show
+    show = show,
     show_fn = function(mod) return function() show(mod) end end
 }
