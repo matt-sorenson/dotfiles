@@ -1,5 +1,8 @@
 -- Easy reloading of config file
-hs.hotkey.bind({'ctrl', 'cmd'}, 'R', hs.reload)
+hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
+    hs.notify.show('Hammerspoon', 'Reloading', '')
+    hs.reload()
+end)
 
 -- If the input is not a table then insert it as the first element of an array
 -- and return that array. Usefull for functions that take 1 or more of a value
