@@ -8,7 +8,9 @@ print-header(){
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
-check-for-update() {
+local-check-for-update() {}
+
+dot-check-for-update() {
     local -a REPOS_TO_UPDATE
     REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.emacs.d" "${HOME}/.zprezto" )
     local OUT=0
@@ -41,6 +43,11 @@ check-for-update() {
         fi
     done
 
+    local-check-for-update
+    if [[ $? -ne 0 ]]; then
+        OUT=1
+    fi
+
     return $OUT
 }
 
@@ -59,8 +66,7 @@ auto-check-for-update() {
     if [[ $LAST_UPDATE -lt $WEEK_AGO ]]; then
         read -q "RUN_UPDATE?It's been over a week, update dotfiles? "
         if [ 'y' = "$RUN_UPDATE" ]; then
-            echo
-            check-for-update
+            dot-check-for-update
 
             if [[ $? -eq 0 ]]; then
                 echo $CURRENT_TIME >! "${UPDATE_FILENAME}"
