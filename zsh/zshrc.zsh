@@ -4,6 +4,8 @@ source "${DOTFILES}/zsh/path.zsh"
 WORKSPACE_ROOT_DIR="$HOME/ws"
 AT_WORK=0
 
+source "${DOTFILES}/zsh/update.zsh"
+
 if [ -f "$DOTFILES/local/zsh/zshrc.zsh" ]; then
     source "$DOTFILES/local/zsh/zshrc.zsh"
 fi
@@ -11,8 +13,6 @@ fi
 source "${HOME}/.zprezto/init.zsh"
 
 source "${DOTFILES}/zsh/aliases.zsh"
-
-source "${DOTFILES}/zsh/update.zsh"
 
 if [ -d "${DOTFILES}/zsh/completion" ]; then
     fpath=("${DOTFILES}/zsh/completion" $fpath)
