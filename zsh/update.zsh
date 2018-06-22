@@ -43,6 +43,23 @@ dot-check-for-update() {
         fi
     done
 
+    if type "brew" >> /dev/null; then
+        print-header green "Updating brew."
+        brew update
+
+        if [[ $? -eq 0 ]]; then
+            brew upgrade
+
+            if [[ $? -ne 0 ]]; then
+                print-header red "Failed to upgrade brew."
+                OUT=1
+            fi
+        else
+            print-header red "Failed to update brew."
+            OUT=1
+        fi
+    fi
+
     local-check-for-update
     if [[ $? -ne 0 ]]; then
         OUT=1
