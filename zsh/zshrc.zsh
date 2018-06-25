@@ -57,9 +57,7 @@ auto-check-for-update
 
 # if not in a tmux session prompt to start one
 if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
-    tmux attach
-
-    if [ 0 -ne $? ]; then
+    if ! tmux attach; then
         if [ -v PROMPT_FOR_TMUX ]; then
             read -q "LAUNCH_TMUX?launch tmux? "
             if [ 'y' = "$LAUNCH_TMUX" ]; then
