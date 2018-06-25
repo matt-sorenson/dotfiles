@@ -29,8 +29,7 @@ dot-check-for-update() {
                 fi
             fi
 
-            git status | grep "Your branch is up[ -]to[ -]date" > /dev/null
-            if [[ $? -ne 0 ]]; then
+            if ! git status | grep "Your branch is up[ -]to[ -]date" > /dev/null; then
                 print-header red "Repo could not automaticly merge: ${dir}"
                 OUT=1
             fi
@@ -43,12 +42,9 @@ dot-check-for-update() {
 
     if type "brew" >> /dev/null; then
         print-header green "Updating brew."
-        brew update
 
-        if [[ $? -eq 0 ]]; then
-            brew upgrade
-
-            if [[ $? -ne 0 ]]; then
+        if brew update; then
+            if ! brew upgrade; then
                 print-header red "Failed to upgrade brew."
                 OUT=1
             fi
@@ -59,8 +55,7 @@ dot-check-for-update() {
     fi
 
     if type "local-check-for-update" >> /dev/null; then
-        local-check-for-update
-        if [[ $? -ne 0 ]]; then
+        if local-check-for-update; then
             OUT=1
         fi
     fi
