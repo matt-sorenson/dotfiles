@@ -8,8 +8,6 @@ print-header(){
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
-local-check-for-update() {}
-
 dot-check-for-update() {
     local -a REPOS_TO_UPDATE
     REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.emacs.d" "${HOME}/.zprezto" )
@@ -60,9 +58,11 @@ dot-check-for-update() {
         fi
     fi
 
-    local-check-for-update
-    if [[ $? -ne 0 ]]; then
-        OUT=1
+    if type "local-check-for-update" >> /dev/null; then
+        local-check-for-update
+        if [[ $? -ne 0 ]]; then
+            OUT=1
+        fi
     fi
 
     return $OUT

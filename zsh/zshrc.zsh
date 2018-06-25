@@ -4,11 +4,11 @@ source "${DOTFILES}/zsh/path.zsh"
 WORKSPACE_ROOT_DIR="$HOME/ws"
 AT_WORK=0
 
-source "${DOTFILES}/zsh/update.zsh"
-
 if [ -f "$DOTFILES/local/zsh/zshrc.zsh" ]; then
     source "$DOTFILES/local/zsh/zshrc.zsh"
 fi
+
+source "${DOTFILES}/zsh/update.zsh"
 
 source "${HOME}/.zprezto/init.zsh"
 
