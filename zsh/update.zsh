@@ -60,13 +60,17 @@ dot-check-for-update() {
         fi
     fi
 
+    if [[ $OUT -eq 0 ]]; then
+        echo $CURRENT_TIME >! "${UPDATE_FILENAME}"
+    fi
+
     return $OUT
 }
 
 auto-check-for-update() {
-    local WEEK_IN_SECONDS=$((7 * 60 * 60 * 24))
+    local DAY_IN_SECONDS=$((60 * 60 * 24))
     local CURRENT_TIME=$(date +%s)
-    local WEEK_AGO=$((${CURRENT_TIME} - ${WEEK_IN_SECONDS}))
+    local DAY_AGO=$((${CURRENT_TIME} - ${DAY_IN_SECONDS}))
     local LAST_UPDATE=0
 
     local UPDATE_FILENAME="${DOTFILES}/tmp/dotfile-update"
@@ -75,12 +79,10 @@ auto-check-for-update() {
         LAST_UPDATE=$(cat "${UPDATE_FILENAME}")
     fi
 
-    if [[ $LAST_UPDATE -lt $WEEK_AGO ]]; then
-        read -q "RUN_UPDATE?It's been over a week, update dotfiles? "
+    if [[ $LAST_UPDATE -lt $DAY_AGO ]]; then
+        read -q "RUN_UPDATE?It's been over a day, update dotfiles? "
         if [ 'y' = "$RUN_UPDATE" ]; then
-            if dot-check-for-update; then
-                echo $CURRENT_TIME >! "${UPDATE_FILENAME}"
-            fi
+            dot-check-for-update;
         fi
     fi
 }
