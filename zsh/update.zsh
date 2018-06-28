@@ -55,7 +55,7 @@ dot-check-for-update() {
     fi
 
     if type "local-check-for-update" >> /dev/null; then
-        if local-check-for-update; then
+        if ! local-check-for-update; then
             OUT=1
         fi
     fi
@@ -78,9 +78,7 @@ auto-check-for-update() {
     if [[ $LAST_UPDATE -lt $WEEK_AGO ]]; then
         read -q "RUN_UPDATE?It's been over a week, update dotfiles? "
         if [ 'y' = "$RUN_UPDATE" ]; then
-            dot-check-for-update
-
-            if [[ $? -eq 0 ]]; then
+            if dot-check-for-update; then
                 echo $CURRENT_TIME >! "${UPDATE_FILENAME}"
             fi
         fi
