@@ -61,6 +61,7 @@ dot-check-for-update() {
     fi
 
     if [[ $OUT -eq 0 ]]; then
+        local UPDATE_FILENAME="${DOTFILES}/tmp/dotfile-update"
         echo $CURRENT_TIME >! "${UPDATE_FILENAME}"
     fi
 
