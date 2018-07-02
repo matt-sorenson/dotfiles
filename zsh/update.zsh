@@ -68,9 +68,9 @@ dot-check-for-update() {
 }
 
 auto-check-for-update() {
-    local DAY_IN_SECONDS=$((60 * 60 * 24))
+    local FIFTEEN_HOURS_IN_SECONDS=$((60 * 60 * 15))
     local CURRENT_TIME=$(date +%s)
-    local DAY_AGO=$((${CURRENT_TIME} - ${DAY_IN_SECONDS}))
+    local DAY_AGO=$((${CURRENT_TIME} - ${FIFTEEN_HOURS_IN_SECONDS}))
     local LAST_UPDATE=0
 
     local UPDATE_FILENAME="${DOTFILES}/tmp/dotfile-update"
@@ -80,7 +80,8 @@ auto-check-for-update() {
     fi
 
     if [[ $LAST_UPDATE -lt $DAY_AGO ]]; then
-        read -q "RUN_UPDATE?It's been over a day, update dotfiles? "
+        read -q "RUN_UPDATE?It's been a while, update dotfiles? "
+        echo '' # read -q doesn't output a newline
         if [ 'y' = "$RUN_UPDATE" ]; then
             dot-check-for-update;
         fi
