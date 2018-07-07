@@ -20,7 +20,7 @@ is-function() {
 clang-format-ri() {
     local srcpath="${1}"
     shift
-    find ./src/ -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
+    find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
 }
 
 check-formulas() {
