@@ -43,11 +43,13 @@ end
     end
 
     if win then
-        win:focus()
+        return win:focus()
     elseif 'function' == type(new_window) then
         new_window(app)
+        return app:focusedWindow()
     elseif 'table' == type(new_window) then
         app:selectMenuItem(new_window)
+        return app:focusedWindow()
     end
 end
 
@@ -85,9 +87,9 @@ end
             end
         end
 
-        select_app(app_name, win_name, new_window)
+        local new_window = select_app(app_name, win_name, new_window)
 
-        if hs.window.focusedWindow() ~= focused_window then
+        if new_window ~= focused_window then
             prev_window = focused_window
         end
     end

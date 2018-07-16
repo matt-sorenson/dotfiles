@@ -1,3 +1,7 @@
+require 'hs.ipc'
+
+hs.ipc.cliInstall()
+
 -- Easy reloading of config file
 hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
     hs.notify.show('Hammerspoon', 'Reloading', '')

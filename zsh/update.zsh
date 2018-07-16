@@ -40,6 +40,9 @@ dot-check-for-update() {
         fi
     done
 
+    print-header green "Reloading hammerspoon"
+    hs -c "hs.reload()"
+
     if type "brew" >> /dev/null; then
         print-header green "Updating brew."
 
