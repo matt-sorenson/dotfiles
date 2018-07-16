@@ -8,35 +8,46 @@ print-header(){
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
+dot-check-for-update-git() {
+    local dir="$1"
+    local OUT=0
+
+    if [[ -d "${dir}" ]] && [[ -d "${dir}/.git" ]]; then
+        print-header green "Updating ${dir}"
+
+        pushd "${dir}" > /dev/null
+
+        git fetch
+        local BRANCH_STATUS="$(git status | grep -i "your branch is")"
+        if grep "and can be fast-forwarded" <<< "${BRANCH_STATUS}" &> /dev/null; then
+            local BRANCH="$(perl -pe "s|Your branch is behind '(.*?)' by \d* commit(s){0,1}, and can be fast-forwarded.|\1|" <<< "${BRANCH_STATUS}")"
+
+            if [[ -n "${BRANCH// }" ]]; then
+                git merge "$BRANCH"
+            fi
+        fi
+
+        if ! git status | grep "Your branch is up[ -]to[ -]date" > /dev/null; then
+            print-header red "Repo could not automaticly merge: ${dir}"
+            OUT=1
+        fi
+
+        popd > /dev/null
+    else
+        print-header yellow "Missing Directory: ${dir}"
+    fi
+
+    return $OUT
+}
+
 dot-check-for-update() {
     local -a REPOS_TO_UPDATE
     REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.emacs.d" "${HOME}/.zprezto" )
     local OUT=0
 
     for dir in $REPOS_TO_UPDATE; do
-        if [[ -d "${dir}" ]] && [[ -d "${dir}/.git" ]]; then
-            print-header green "Updating ${dir}"
-
-            pushd "${dir}" > /dev/null
-
-            git fetch
-            local BRANCH_STATUS="$(git status | grep -i "your branch is")"
-            if grep "and can be fast-forwarded" <<< "${BRANCH_STATUS}" &> /dev/null; then
-                local BRANCH="$(perl -pe "s|Your branch is behind '(.*?)' by \d* commit(s){0,1}, and can be fast-forwarded.|\1|" <<< "${BRANCH_STATUS}")"
-
-                if [[ -n "${BRANCH// }" ]]; then
-                    git merge "$BRANCH"
-                fi
-            fi
-
-            if ! git status | grep "Your branch is up[ -]to[ -]date" > /dev/null; then
-                print-header red "Repo could not automaticly merge: ${dir}"
-                OUT=1
-            fi
-
-            popd > /dev/null
-        else
-            print-header yellow "Missing Directory: ${dir}"
+        if ! dot-check-for-update-git "$dir"; then
+            OUT=1
         fi
     done
 
