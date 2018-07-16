@@ -51,6 +51,48 @@ end
     end
 end
 
+local function app_window_names_match(window, app_name, win_name)
+    local focused_app_title = window:application():title():lower()
+    local focused_window_title = window:title():lower()
+
+    app_name = app_name and app_name:lower() or nil
+    win_name = win_name and win_name:lower() or nil
+
+    if (nil ~= app_name) and (nil == focused_app_title:match(app_name)) then
+        return false
+    end
+
+    if (nil ~= win_name) and (nil == focused_window_title:match(win_name)) then
+        return false
+    end
+
+    return true
+end
+
+--[[ export ]] local function toggle_select_app_fn(app_name, win_name, new_window)
+    local prev_window = nil;
+
+    return function()
+        local focused_window = hs.window.focusedWindow()
+
+        if nil ~= prev_window then
+            if app_window_names_match(focused_window, app_name, win_name) then
+                -- Ensure that we haven't left the selected app before toggling
+                -- away from it.
+                prev_window:focus()
+                prev_window = nil
+                return
+            end
+        end
+
+        select_app(app_name, win_name, new_window)
+
+        if hs.window.focusedWindow() ~= focused_window then
+            prev_window = focused_window
+        end
+    end
+end
+
 --[[ export ]] local function ls(dir)
     local _, iter = hs.fs.dir(dir)
     local contents = {}
@@ -82,6 +124,7 @@ return {
     mount_smb = mount_smb,
     mount_smb_shares = mount_smb_shares,
     select_app = select_app,
+    toggle_select_app_fn = toggle_select_app_fn,
 
     is_work_computer = function() return IS_WORK_COMPUTER end,
     who_am_i = function() return WHO_AM_I end,
