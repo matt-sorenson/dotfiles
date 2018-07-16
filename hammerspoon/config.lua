@@ -15,7 +15,7 @@ end
 
 hs.window.animationDuration = 0
 
-hs.hotkey.bind('alt', 'space', sys.select_app_fn('iTerm', nil, {'Shell', 'New Window'}))
+hs.hotkey.bind('alt', 'space', sys.toggle_select_app_fn('iTerm', nil, {'Shell', 'New Window'}))
 local modal = bind.init(require('keymap'))
 
 if REMOTE_HOME then
