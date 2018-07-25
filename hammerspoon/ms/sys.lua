@@ -2,7 +2,7 @@ local WHO_AM_I = os.getenv('USER')
 
 -- hs.host.names() is insanely slow (something like 5 seconds)
 -- so just use hs.exectute('hostname') instead
-local IS_WORK_COMPUTER = (nil ~= string.find(hs.execute('hostname'), '4c32759b81b5'))
+local IS_WORK_COMPUTER = (nil ~= string.find(hs.execute('hostname'), 'f45c89a3b28b'))
 
 --[[ export ]] local function find_usb_device_by_name(name)
     name = name:lower()
@@ -75,7 +75,7 @@ end
     local prev_window = nil;
 
     return function()
-        local focused_window = hs.window.focusedWindow()
+        local focused_window = hs.application.frontmostApplication():focusedWindow()
 
         if nil ~= prev_window then
             if app_window_names_match(focused_window, app_name, win_name) then
