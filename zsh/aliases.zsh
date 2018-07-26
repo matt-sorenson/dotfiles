@@ -5,8 +5,14 @@ alias vi=vim
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
 ws() {
-    if [ ${#} -gt 1 ]; then
-        cd "$WORKSPACE_ROOT_DIR/$1/src/$2";
+    if [ ${#} -gt 2 ]; then
+        cd "$WORKSPACE_ROOT_DIR/$1/$2/src/$3";
+    elif [ ${#} -gt 1 ]; then
+        if [ -d "$WORKSPACE_ROOT_DIR/$1/src/$2" ]; then
+            cd "$WORKSPACE_ROOT_DIR/$1/src/$2";
+        elif [ -d "$WORKSPACE_ROOT_DIR/$1/$2" ]; then
+            cd "$WORKSPACE_ROOT_DIR/$1/$2";
+        fi
     else
         cd "$WORKSPACE_ROOT_DIR/$1"
     fi

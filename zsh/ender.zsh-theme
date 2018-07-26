@@ -71,7 +71,12 @@ function prompt_ender_seg_hostname() {
 }
 
 function prompt_ender_seg_dir() {
-  if [[ $AT_WORK -eq 1 && `pwd` =~ "$WORKSPACE_ROOT_DIR/([^/]*)/src/([^/]*)(.*)" ]]; then
+  if [[ $AT_WORK -eq 1 && `pwd` =~ "$WORKSPACE_ROOT_DIR/([^/]*)/([^/]*)/src/([^/]*)(.*)" ]]; then
+    prompt_ender_start_segment cyan black "$match[1]"
+    prompt_ender_start_segment blue black "$match[2]"
+    prompt_ender_start_segment cyan black "$match[3]"
+    prompt_ender_start_segment blue black "/${match[4]#?}"
+  elif [[ $AT_WORK -eq 1 && `pwd` =~ "$WORKSPACE_ROOT_DIR/([^/]*)/src/([^/]*)(.*)" ]]; then
     prompt_ender_start_segment blue black "$match[1]"
     prompt_ender_start_segment cyan black "$match[2]"
     prompt_ender_start_segment blue black "/${match[3]#?}"
