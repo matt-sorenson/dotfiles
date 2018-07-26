@@ -54,6 +54,10 @@ end
 end
 
 local function app_window_names_match(window, app_name, win_name)
+    if nil == window then
+        return false
+    end
+
     local focused_app_title = window:application():title():lower()
     local focused_window_title = window:title():lower()
 
