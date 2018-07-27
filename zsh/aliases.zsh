@@ -45,3 +45,11 @@ check-formulas() {
         fi
     done
 }
+
+print-header(){
+    local color="$fg_bold[${1}]"
+    local header="================================================================================"
+    shift
+    local message="${@}"
+    echo "$color${header}\n= ${message}\n${header}$reset_color"
+}
