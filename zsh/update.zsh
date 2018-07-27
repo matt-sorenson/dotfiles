@@ -1,13 +1,5 @@
 autoload -Uz colors && colors
 
-print-header(){
-    local color="$fg_bold[${1}]"
-    local header="================================================================================"
-    shift
-    local message="${@}"
-    echo "$color${header}\n= ${message}\n${header}$reset_color"
-}
-
 dot-check-for-update-git() {
     local dir="$1"
     local OUT=0
