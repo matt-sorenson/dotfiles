@@ -1,4 +1,6 @@
 return {
+    name = "work-ultrawide-laptop",
+
     { -- Primary Screen
         screen = '3440x1440',
 

@@ -60,7 +60,7 @@ else
         title = 'Hammerspoon',
         subTitle = 'Failed to (re)load',
         informativeText = ''
-    }):send():withdrawAfter(0)
+    }):withdrawAfter(0):send()
     print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
 end
 

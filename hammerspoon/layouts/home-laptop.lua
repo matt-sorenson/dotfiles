@@ -1,4 +1,6 @@
 return {
+        name = "home-laptop",
+
     { -- Laptop Screen
         screen = 'Color LCD',
 

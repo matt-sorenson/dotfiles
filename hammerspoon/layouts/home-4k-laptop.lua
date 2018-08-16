@@ -1,4 +1,6 @@
 return {
+    name = "home-4k-laptop",
+
     { -- Primary Screen
         screen = 'DELL P2715Q',
 

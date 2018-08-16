@@ -1,4 +1,6 @@
 return {
+    name = "work-laptop",
+
     { -- Primary Screen
         screen = 'Color LCD',
 
