@@ -211,8 +211,27 @@ end
 
 --[[ export ]] local function move_window_fn(rect, screen_id)
     return function()
-        screen = get_screen_layout():screens()[screen_id]
+        local screen = get_screen_layout():screens()[screen_id]
         move_window(hs.window.focusedWindow(), rect, screen)
+    end
+end
+
+--[[ export ]] local function quiet_window_fn(location_n)
+    if nil == location_n then
+        location_n = 1
+    end
+
+    return function()
+        local layout = get_screen_layout()
+
+        if nil == layout or nil == layout.layout.quiet_locations or nil == layout.layout.quiet_locations[location_n] then
+            return
+        end
+
+        local quiet_location = layout.layout.quiet_locations[location_n]
+        local screen = layout:screens()[quiet_location.screen]
+
+        move_window(hs.window.focusedWindow(), quiet_location.rect, screen)
     end
 end
 
@@ -224,4 +243,6 @@ return {
     apply_to_window = apply_to_window,
 
     move_window_fn = move_window_fn,
+
+    quiet_window_fn = quiet_window_fn,
 }
