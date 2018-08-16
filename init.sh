@@ -72,8 +72,7 @@ if [[ "${OSTYPE}" =~ "darwin" ]]; then
     safe-set-link "${HOME}/.hammerspoon" "${DOTFILES}/hammerspoon"
 
     print-header green "Settings up karabiner"
-    mkdir -p "${HOME}/.config/karabiner/"
-    safe-set-link "${HOME}/.config/karabiner/karabiner.json" "${DOTFILES}/karabiner.json"
+    safe-set-link "${HOME}/.config/karabiner/karabiner" "${DOTFILES}/karabiner"
 
     print-header blue "macOS specific files done"
 fi
