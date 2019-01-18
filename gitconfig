@@ -27,6 +27,7 @@
     gcf = !git -c gc.reflogExpire=0 -c gc.reflogExpireUnreachable=0 -c gc.rerereresolved=0 -c gc.rerereunresolved=0 -c gc.pruneExpire=now gc "$@"
 
     # log helpers
+    authors =  !git log --format='%aN <%aE>' | sort -u
     olog = log --oneline
     dag = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)' --all
 
