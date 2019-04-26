@@ -4,8 +4,8 @@ return {
     { -- Primary Screen
         screen = 'DELL P2715Q',
 
-        { app = {'Sublime', 'Quiver', 'IntelliJ'}, rect = {   0, 0, 1/2, 1 } },
-        { app = {'Chrome', 'Firefox'},             rect = { 1/2, 0, 1/2, 1 } },
+        { app = {'Sublime', 'Quiver'}, rect = {   0, 0, 1/2, 1 } },
+        { app = {'Chrome', 'Firefox'}, rect = { 1/2, 0, 1/2, 1 } },
     },
     { -- Secondary Screen
         screen = 'Color LCD',
