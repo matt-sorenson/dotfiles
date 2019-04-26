@@ -5,10 +5,7 @@ local sys   = require 'ms.sys'
 
 REMOTE_SHARES = {}
 
-if sys.is_work_computer() then
-    REMOTE_SHARES['sorensm.aka.amazon.com'] = { 'desktop' }
-    REMOTE_HOME = 'desktop'
-else
+if not sys.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
     REMOTE_HOME = 'matt-srv'
 end
