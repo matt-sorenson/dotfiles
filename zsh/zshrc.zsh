@@ -74,4 +74,8 @@ fi
 ssh-add
 prompt ender
 
+if which rbenv; then
+    eval "$(rbenv init -)"
+fi
+
 compinit
