@@ -1,3 +1,5 @@
+hs.notify.show('Hammerspoon', '(Re)loading', '')
+
 require 'hs.ipc'
 require 'ms.helper'
 
@@ -5,7 +7,6 @@ hs.ipc.cliInstall()
 
 -- Easy reloading of config file
 hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
-    hs.notify.show('Hammerspoon', 'Reloading', '')
     hs.reload()
 end)
 
