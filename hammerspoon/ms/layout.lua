@@ -193,6 +193,8 @@ local function get_screen_layout()
         end
     end
 
+    assert(nil ~= curr_layout, "could not find screen layout.")
+
     return curr_layout
 end
 
