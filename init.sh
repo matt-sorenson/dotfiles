@@ -61,7 +61,7 @@ safe-git-clone "https://github.com/syl20bnr/spacemacs" "${HOME}/.emacs.d"
 safe-set-link "${HOME}/.spacemacs" "${DOTFILES}/spacemacs.el"
 
 print-header green "Setting up prezto"
-safe-git-clone "https://github.com/zsh-users/prezto.git" "${HOME}/.zprezto"
+safe-git-clone "https://github.com/sorin-ionescu/prezto.git" "${HOME}/.zprezto"
 safe-set-link "${HOME}/.zprezto/modules/prompt/functions/prompt_ender_setup" "${DOTFILES}/zsh/ender.zsh-theme"
 safe-set-link "${HOME}/.zpreztorc" "${DOTFILES}/zpreztorc.zsh"
 
