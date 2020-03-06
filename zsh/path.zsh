@@ -15,6 +15,7 @@ add-to-path "/usr/local/sbin"
 add-to-path "${DOTFILES}/bin"
 add-to-path "${DOTFILES}/local/bin"
 add-to-path "${HOME}/bin"
+add-to-path "${HOME}/.rbenv/bin"
 
 export PATH
 
