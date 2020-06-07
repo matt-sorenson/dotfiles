@@ -80,10 +80,13 @@ fi
 
 if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
     wsl-mount() {
-        echo "$1 $2"
         mkdir -p "$1"
         if ! mountpoint -q "$1" ; then
-            sudo mount -t drvfs "$2" "$1" -o metadata,uid=1000,gid=1000,umask=22,fmask=111
+            if sudo mount -t drvfs "$2" "$1" -o metadata,uid=1000,gid=1000,umask=22,fmask=111 ; then
+                echo "Mounted '${1}'"
+	    fi
+        else
+            echo "'${1}' Already mounted."
         fi
     }
 

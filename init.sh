@@ -54,11 +54,7 @@ print-header(){
 
 DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 
-#safe-git-clone "git@bitbucket.org:ender341/dotfiles.git" "${DOTFILES}"
-
-print-header green "Setting up spacemacs"
-safe-git-clone "https://github.com/syl20bnr/spacemacs" "${HOME}/.emacs.d"
-safe-set-link "${HOME}/.spacemacs" "${DOTFILES}/spacemacs.el"
+safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
 
 print-header green "Setting up prezto"
 safe-git-clone "https://github.com/sorin-ionescu/prezto.git" "${HOME}/.zprezto"
@@ -106,3 +102,4 @@ mkdir -p "${DOTFILES}/tmp"
 pushd "${DOTFILES}"
 git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
 popd
+
