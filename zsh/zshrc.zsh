@@ -78,21 +78,4 @@ if which rbenv; then
     eval "$(rbenv init -)"
 fi
 
-if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
-    wsl-mount() {
-        mkdir -p "$1"
-        if ! mountpoint -q "$1" ; then
-            if sudo mount -t drvfs "$2" "$1" -o metadata,uid=1000,gid=1000,umask=22,fmask=111 ; then
-                echo "Mounted '${1}'"
-	    fi
-        else
-            echo "'${1}' Already mounted."
-        fi
-    }
-
-    wsl-mount /mnt/h 'H:\'
-    wsl-mount /mnt/m 'M:\'
-fi
-
-
 compinit
