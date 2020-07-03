@@ -78,4 +78,8 @@ if which rbenv; then
     eval "$(rbenv init -)"
 fi
 
+if [ -d "${HOME}/.cargo" ]; then
+    source ${HOME}/.cargo/env
+fi
+
 compinit
