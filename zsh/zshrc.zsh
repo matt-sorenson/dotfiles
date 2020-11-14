@@ -14,6 +14,11 @@ source "${HOME}/.zprezto/init.zsh"
 
 source "${DOTFILES}/zsh/aliases.zsh"
 
+if [ -d "$HOME/.nvm" ]
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+fi
+
 if [ -d "${DOTFILES}/zsh/completion" ]; then
     fpath=("${DOTFILES}/zsh/completion" $fpath)
 fi
@@ -83,3 +88,5 @@ if [ -d "${HOME}/.cargo" ]; then
 fi
 
 compinit
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
