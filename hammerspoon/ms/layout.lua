@@ -237,14 +237,19 @@ end
     end
 end
 
+--[[ export ]] local function reload_layouts()
+    screen_configurations = {}
+
+    load_screen_configurations()
+end
+
 load_screen_configurations()
 
 return {
     apply = apply,
     apply_fn = apply_fn,
     apply_to_window = apply_to_window,
-
     move_window_fn = move_window_fn,
-
     quiet_window_fn = quiet_window_fn,
+    reload_layouts = reload_layouts,
 }
