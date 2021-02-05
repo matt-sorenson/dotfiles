@@ -22,7 +22,9 @@ end
 
 local function on_device_change()
     audio.setup_output('usb')
-    sys.mount_smb_shares(REMOTE_SHARES)
+    if not sys.is_work_computer() then
+        sys.mount_smb_shares(REMOTE_SHARES)
+    end
 end
 
 on_device_change()
