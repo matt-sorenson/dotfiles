@@ -2,7 +2,7 @@ local WHO_AM_I = os.getenv('USER')
 
 -- hs.host.names() is insanely slow (something like 5 seconds)
 -- so just use hs.exectute('hostname') instead
-local IS_WORK_COMPUTER = (nil ~= string.find(hs.execute('hostname'), '186590df6aa9'))
+local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes("~/.hammerspoon/is-work"))
 
 --[[ export ]] local function find_usb_device_by_name(name)
     name = name:lower()
