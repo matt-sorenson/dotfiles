@@ -28,8 +28,10 @@ return {
 
             '-',
 
+            -- Move window to out of the way (usually second screen somewhere)
             { key = 'Q', msg = 'Quiet current window',                 fn = layout.quiet_window_fn(1), optional_mods = 'shift' },
             { key = 'Q', mods = 'shift', msg = 'Quiet current window', fn = layout.quiet_window_fn(2), skip_help_msg = true },
+
             { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({   0,    0,   1,     1 })    },
             { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window                              },
             { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply                                        },
