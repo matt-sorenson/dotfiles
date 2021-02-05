@@ -30,5 +30,4 @@ if [[ ! -d "$TMPDIR" ]]; then
 fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
-export HOMEBREW_GITHUB_API_TOKEN=e69a63365a3d4dffb9a26ed903ea7b5f1b44acaa
 export HOMEBREW_NO_ANALYTICS=1
