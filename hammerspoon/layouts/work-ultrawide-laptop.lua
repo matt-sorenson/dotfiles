@@ -4,9 +4,9 @@ return {
     { -- Primary Screen
         screen = '3440x1440',
 
-        { app = 'Finder',                rect = {  0, 0, 1/6, 1} },
-        { app = {'Sublime', 'Quiver'},   rect = {1/6, 0, 1/2, 1} },
-        { app = {'Chrome', 'Firefox'},   rect = {2/3, 0, 1/3, 1} },
+        { app = 'Finder',              rect = {  0, 0, 1/6, 1} },
+        { app = {'Code', 'Quiver'},    rect = {1/6, 0, 1/2, 1} },
+        { app = {'Chrome', 'Firefox'}, rect = {2/3, 0, 1/3, 1} },
     }, { -- Secondary Screen
         screen = 'Color LCD',
 

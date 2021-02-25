@@ -4,7 +4,7 @@ return {
     { -- Laptop Screen
         screen = 'Color LCD',
 
-        { app = {'Sublime', 'Quiver'}, rect = {   0, 0, 4/5, 1 } },
+        { app = {'Code', 'Quiver'}, rect = {   0, 0, 4/5, 1 } },
         { app = {'Chrome', 'Firefox'}, rect = { 1/5, 0, 4/5, 1 } },
 
         { app = 'iTerm',   rect = {   0, 0,   1, 1/2 } },
