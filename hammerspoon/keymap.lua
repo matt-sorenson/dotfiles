@@ -26,6 +26,12 @@ return {
             { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
             { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
 
+            { key = '1', mods = 'cmd', msg = 'left 3/5th of screen', fn = layout.move_window_fn({    0,   0,   3/5, 1 }) },
+            { key = '2', mods = 'cmd', msg = 'right 3/5th of screen', fn = layout.move_window_fn({ 2/5,   0,   3/5, 1 }) },
+
+            { key = '1', mods = {'cmd', 'ctrl'}, msg = 'left 2/5th of screen', fn = layout.move_window_fn({    0,   0,   2/5, 1 }) },
+            { key = '2', mods = {'cmd', 'ctrl'}, msg = 'right 2/5th of screen', fn = layout.move_window_fn({ 3/5,   0,   2/5, 1 }) },
+
             '-',
 
             -- Move window to out of the way (usually second screen somewhere)
