@@ -16,9 +16,12 @@ add-to-path "${DOTFILES}/bin"
 add-to-path "${DOTFILES}/local/bin"
 add-to-path "${HOME}/bin"
 add-to-path "${HOME}/.rbenv/bin"
+add-to-path "${HOME}/.yarn/bin"
+add-to-path "${HOME}/.config/yarn/global/node_modules/.bin"
+add-to-path "/usr/local/Cellar/postgresql@9.5/9.5.25/bin"
 
 export PATH
 
-if [ -d "${/usr/local/share/man}" ]; then
+if [ -d "/usr/local/share/man" ]; then
     export MANPATH="/usr/local/share/man:${MANPATH}"
 fi

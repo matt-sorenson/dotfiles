@@ -14,7 +14,7 @@ source "${HOME}/.zprezto/init.zsh"
 
 source "${DOTFILES}/zsh/aliases.zsh"
 
-if [ -d "$HOME/.nvm" ]
+if [ -d "${HOME}/.nvm" ]; then
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 fi
@@ -76,7 +76,7 @@ if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
     fi
 fi
 
-ssh-add
+ssh-add -A
 prompt ender
 
 if which rbenv; then
@@ -87,6 +87,4 @@ if [ -d "${HOME}/.cargo" ]; then
     source ${HOME}/.cargo/env
 fi
 
-compinit
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+compinit -i
