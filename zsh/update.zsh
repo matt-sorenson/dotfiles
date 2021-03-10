@@ -34,7 +34,7 @@ dot-check-for-update-git() {
 
 dot-check-for-update() {
     local -a REPOS_TO_UPDATE
-    REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.emacs.d" "${HOME}/.zprezto" )
+    REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.zprezto" )
     local OUT=0
 
     for dir in $REPOS_TO_UPDATE; do
