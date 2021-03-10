@@ -5,8 +5,8 @@ return {
         screen = '3440x1440',
 
         { app = 'Finder',                       rect = {  0, 0, 1/6, 1} },
-        { app = {'Code', 'Quiver', 'DataGrip', 'IntelliJ IDEA'}, rect = {  0, 0, 1/2, 1} },
-        { app = {'Chrome', 'Firefox'},          rect = {1/2, 0, 1/2, 1} },
+        { app = {'Code', 'Quiver', 'DataGrip', 'IntelliJ IDEA'}, rect = {  0, 0, 3/5, 1} },
+        { app = {'Chrome', 'Firefox'},          rect = {3/5, 0, 2/5, 1} },
     }, { -- Secondary Screen
         screen = '1440x2560',
         { app = 'iTerm',                      rect = { 0,      0, 9/10,   5/9 } },
