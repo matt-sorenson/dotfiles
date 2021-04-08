@@ -1,31 +1,5 @@
 #compdef ws
 
-local curcontext="$curcontext" state line
-typeset -A opt_args
+#typeset -A opt_args
 
-_arguments \
-    "1:Service:->service"\
-    "2:Workspace:->workspace"\
-    "3:Project:->project"
-
-case "$state" in
-    service)
-        compadd `ls -1 "$WORKSPACE_ROOT_DIR/"`
-        ;;
-    workspace)
-        if [ $AT_WORK -eq 1 ]; then
-            if [ -d "$WORKSPACE_ROOT_DIR/$words[2]/src/" ]; then
-                compadd `ls -1 "$WORKSPACE_ROOT_DIR/$words[2]/src/" | grep -v -e build`
-            else
-                compadd `ls -1 "$WORKSPACE_ROOT_DIR/$words[2]/" | grep -v -e build`
-            fi
-        fi
-        ;;
-    project)
-        if [ $AT_WORK -eq 1 ]; then
-            if ! [ -d "$WORKSPACE_ROOT_DIR/$words[2]/src/" ]; then
-                compadd `ls -1 "$WORKSPACE_ROOT_DIR/$words[2]/$words[3]/src" | grep -v -e build`
-            fi
-        fi
-        ;;
-esac
+_files -W /${WORKSPACE_ROOT_DIR}/
