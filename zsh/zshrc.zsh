@@ -61,17 +61,19 @@ setopt multios
 auto-check-for-update
 
 # if not in a tmux session prompt to start one
-if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
-    if ! tmux attach; then
-        if [ -v PROMPT_FOR_TMUX ]; then
-            read -q "LAUNCH_TMUX?launch tmux? "
-            if [ 'y' = "$LAUNCH_TMUX" ]; then
-               tmux
-               exit
+if type tmux > /dev/null; then
+    if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
+        if ! tmux attach; then
+            if [ -v PROMPT_FOR_TMUX ]; then
+                read -q "LAUNCH_TMUX?launch tmux? "
+                if [ 'y' = "$LAUNCH_TMUX" ]; then
+                tmux
+                exit
+                fi
+                unset LAUNCH_TMUX
+            else
+                tmux
             fi
-            unset LAUNCH_TMUX
-        else
-            tmux
         fi
     fi
 fi
@@ -79,7 +81,7 @@ fi
 ssh-add -A
 prompt ender
 
-if which rbenv; then
+if type rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
 
