@@ -34,20 +34,20 @@ check-formulas() {
 
     echo "Searching for formulas not depended on by other formulas..."
 
-    for formula in `brew list`; do
-        if [[ -z `brew uses --installed $formula` ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
-            read "input?$formula is not depended on by other formulas. Remove? [Y/n] "
+    for formula in $(brew list); do
+        if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
+            read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
             visited_formulas[$formula]=1
-            if [[ "$input" == "Y" ]]; then
-                brew remove $formula
-                check_formulas `brew deps --1 --installed $formula`
+            if [[ "${input}" == "Y" ]]; then
+                brew remove "${formula}"
+                check_formulas $(brew deps --1 --installed "${formula}")
             fi
         fi
     done
 }
 
 print-header(){
-    local color="$fg_bold[${1}]"
+    local color="${fg_bold[${1}]}"
     local header="================================================================================"
     shift
     local message="${@}"
