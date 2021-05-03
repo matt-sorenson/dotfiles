@@ -4,8 +4,8 @@ source "${DOTFILES}/zsh/path.zsh"
 WORKSPACE_ROOT_DIR="$HOME/ws"
 AT_WORK=0
 
-if [ -f "$DOTFILES/local/zsh/zshrc.zsh" ]; then
-    source "$DOTFILES/local/zsh/zshrc.zsh"
+if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
+    source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
 
 source "${DOTFILES}/zsh/update.zsh"
@@ -60,24 +60,6 @@ setopt multios
 
 auto-check-for-update
 
-# if not in a tmux session prompt to start one
-if type tmux > /dev/null; then
-    if [[ "${TMUX}" = "" && "${TERM}" != "screen" ]]; then
-        if ! tmux attach; then
-            if [ -v PROMPT_FOR_TMUX ]; then
-                read -q "LAUNCH_TMUX?launch tmux? "
-                if [ 'y' = "$LAUNCH_TMUX" ]; then
-                tmux
-                exit
-                fi
-                unset LAUNCH_TMUX
-            else
-                tmux
-            fi
-        fi
-    fi
-fi
-
 ssh-add -A
 prompt ender
 
@@ -86,7 +68,7 @@ if type rbenv > /dev/null ; then
 fi
 
 if [ -d "${HOME}/.cargo" ]; then
-    source ${HOME}/.cargo/env
+    source "${HOME}/.cargo/env"
 fi
 
 compinit -i
