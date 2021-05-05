@@ -32,7 +32,7 @@
     dag = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)' --all
 
     alias = !git config --get-regexp ^alias\\. | cut -f2- -d .
-    it = !git init && git commit -m “root” --allow-empty
+    it = !git init && git commit -m "root" --allow-empty
     amend = commit --amend --no-edit
     tracking = rev-parse --abbrev-ref --symbolic-full-name @{u}
     wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
