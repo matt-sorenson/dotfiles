@@ -10,8 +10,8 @@ if [[ "$OSTYPE" == darwin* ]]; then
   export BROWSER='open'
 fi
 
-export EDITOR='vim'
-export VISUAL='vim'
+export EDITOR='emacs'
+export VISUAL='emacs'
 export PAGER='less -FgMRXi'
 
 if [[ -z "$LANG" ]]; then
