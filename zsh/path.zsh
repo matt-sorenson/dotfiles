@@ -18,7 +18,10 @@ add-to-path "${HOME}/bin"
 add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.yarn/bin"
 add-to-path "${HOME}/.config/yarn/global/node_modules/.bin"
-add-to-path /usr/local/Cellar/postgresql@9.6/*/bin
+
+if [ -d "/usr/local/Cellar/postgresql@9.6" ]; then
+    add-to-path /usr/local/Cellar/postgresql@9.6/*/bin
+fi
 
 export PATH
 
