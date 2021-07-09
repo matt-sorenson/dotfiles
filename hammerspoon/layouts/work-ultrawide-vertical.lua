@@ -15,8 +15,8 @@ return {
         { window = 'Youtube',                 rect = {   0, 1/2,    1,   1/2 }, layouts = 'media' },
         { app = 'Music',                      rect = {   0, 1/2,    1,   1/2 }, layouts = 'media' },
 
-        { window = 'Slack',                   rect = {   0,   0, 9/10,   1/2 }, layouts = 'communications' },
-        { app = 'Messages',                   rect = {   0, 2/3,  1/2,   1/3 }, layouts = 'communications' },
+        { window = 'Slack',                   rect = {    0,   0, 9/10,   1/2 }, layouts = 'communications' },
+        { app = 'Messages',                   rect = { 1/10,   0, 9/10,   1/2 }, layouts = 'communications' },
     },
 
     quiet_locations = {
