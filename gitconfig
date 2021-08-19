@@ -7,7 +7,7 @@
 
 [core]
     pager = diff-highlight | less -FMRiX
-    editor = vim
+    editor = emacs
     excludesfile = ~/.dotfiles/gitignore
 
 [pull]
