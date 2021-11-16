@@ -60,7 +60,7 @@ setopt multios
 
 auto-check-for-update
 
-ssh-add -A
+ssh-add --apple-load-keychain
 prompt ender
 
 if type rbenv > /dev/null ; then
