@@ -12,7 +12,6 @@ return {
         screen = '1440x2560',
         { app = 'iTerm',                      rect = { 0,      0, 9/10,   5/9 } },
 
-        { window = {'reddit', 'Hacker News'}, rect = { 1/4, 5/9,  3/4, 11/28 }, layouts = 'media' },
         { window = 'Youtube',                 rect = {   0, 1/2,    1,   1/2 }, layouts = 'media' },
         { app = 'Music',                      rect = {   0, 1/2,    1,   1/2 }, layouts = 'media' },
 
