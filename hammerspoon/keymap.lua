@@ -91,6 +91,14 @@ return {
             { key = '3', msg = 'Caffeine on 30 Minutes', fn = function() caffeine.timed_on_m(30) end },
             { key = '4', msg = 'Caffeine on 40 Minutes', fn = function() caffeine.timed_on_m(40) end },
             { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
-        }
+        },
+
+        { key = 'T', msg = 'Select Random PR Targets', fn = function()
+                local PR_TARGETS = {'Unspecified'}
+                local index = hs.math.random(1, #PR_TARGETS)
+
+                hs.alert(PR_TARGETS[index], 3)
+            end
+        },
     }
 }
