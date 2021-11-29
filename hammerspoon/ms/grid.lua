@@ -42,12 +42,16 @@ end
         hs.grid.setGrid('5x4', '3840x2160') -- 4k Horizontal
         hs.grid.setGrid('5x3', 'DELL U3415W')
         hs.grid.setGrid('5x3', '3440x1440') -- 34" Ultra-Wide
+        hs.grid.setGrid('5x3', '5120x1440') -- 49" Ultra-Wide
+        hs.grid.setGrid('5x3', 'LS49AG95')
 
         hs.grid.setGrid('4x4', '1440x2560') -- 1440p Vertical
     else
         hs.grid.setGrid('5x3', '3840x2160') -- 4k Horizontal
         hs.grid.setGrid('6x3', 'DELL U3415W')
         hs.grid.setGrid('6x3', '3440x1440') -- 34" Ultra-Wide
+        hs.grid.setGrid('6x3', '5120x1440') -- 49" Ultra-Wide
+        hs.grid.setGrid('6x3', 'LS49AG95')
 
         hs.grid.setGrid('3x4', '1440x2560') -- 1440p Vertical
     end
