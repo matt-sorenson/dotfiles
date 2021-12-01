@@ -27,7 +27,9 @@ else
 end
 
 local function gc()
+    print("Pre GC: " .. collectgarbage("count"))
     collectgarbage("collect")
+    print("Post GC: " .. collectgarbage("count"))
 end
 
 -- Initialization creates lots of garbage
