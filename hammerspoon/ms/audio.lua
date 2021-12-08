@@ -1,12 +1,11 @@
 local sys = require 'ms.sys'
 
 local DEVICE_UIDS = {
+    audioengine = 'AppleUSBAudioEngine:Audioengine                     :Audioengine 2+  :14441400:1',
+    builtin = 'BuiltInSpeakerDevice',
     monitor = 'AppleHDAEngineOutputDP:3,0,1,0:0:{AC10-A0A6-3034594C}',
+    usb = 'AppleUSBAudioEngine:Unknown Manufacturer:C_Media USB Audio Device   :14120000:2,1',
 }
-
-if sys.is_work_computer() then
-    DEVICE_UIDS['usb'] = 'AppleUSBAudioEngine:Unknown Manufacturer:C_Media USB Audio Device   :14120000:2,1'
-end
 
 --[[export]] local function get_device()
     return hs.audiodevice.defaultOutputDevice()
@@ -35,10 +34,15 @@ end
 
     local default_device_uid = hs.audiodevice.defaultOutputDevice():uid();
 
+    if debug_output.audio then
+        print("default uid:   '" .. default_device_uid .. "'")
+        print("requested uid: '" .. requested_uid .. "'")
+    end
+
     if default_device_uid ~= requested_uid then
-        local work_device = hs.audiodevice.findDeviceByUID(requested_uid)
-        if work_device then
-            work_device:setDefaultOutputDevice()
+        local new_device = hs.audiodevice.findDeviceByUID(requested_uid)
+        if new_device then
+            new_device:setDefaultOutputDevice()
         end
     end
 end
