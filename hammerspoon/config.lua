@@ -5,6 +5,11 @@ local sys   = require 'ms.sys'
 
 REMOTE_SHARES = {}
 
+debug_output = {
+    audio = false,
+    grid = true,
+}
+
 if not sys.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
     REMOTE_HOME = 'matt-srv'
@@ -21,7 +26,7 @@ if REMOTE_HOME then
 end
 
 local function on_device_change()
-    audio.setup_output('usb')
+    audio.setup_output('audioengine')
     if not sys.is_work_computer() then
         sys.mount_smb_shares(REMOTE_SHARES)
     end
