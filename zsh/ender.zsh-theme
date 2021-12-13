@@ -1,17 +1,4 @@
-#
-# A two-line, Powerline-inspired theme that displays contextual information.
-#
-# This theme requires a patched Powerline font, get them from
-# https://github.com/Lokaltog/powerline-fonts.
-#
-# Authors:
-#   Isaac Wolkerstorfer <i@agnoster.net>
-#   Jeff Sandberg <ender460@gmail.com>
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-# Screenshots:
-#   http://i.imgur.com/0XIWX.png
-#
+# Heavily modified 'Agnoster' Theme
 
 # Load dependencies.
 pmodload 'helper'
