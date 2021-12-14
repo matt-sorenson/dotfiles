@@ -119,8 +119,6 @@ end
 
 local function _layout_init_layout(self)
     for _, screen in ipairs(self:layout()) do
---        screen.screen = toarray(screen)
-
         for _, rule in ipairs(screen) do
             if rule.app then
                 rule.app = toarray(rule.app)
