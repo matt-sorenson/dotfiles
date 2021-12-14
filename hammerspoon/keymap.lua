@@ -2,7 +2,7 @@ local audio    = require 'ms.audio'
 local caffeine = require 'ms.caffeine'
 local grid     = require 'ms.grid'
 local layout   = require 'ms.layout'
-local music    = require 'ms.music'
+local media    = require 'ms.media'
 local sys      = require 'ms.sys'
 
 return {
@@ -60,11 +60,11 @@ return {
             title = 'Sound',
             key = 'S',
 
-            { key = 'S', msg = 'Play/Pause',    fn = music.fn('playpause'),     repeat_on_mods = 'shift' },
-            { key = 'A', msg = 'Previous',      fn = music.fn('previousTrack'), repeat_on_mods = 'shift' },
-            { key = 'D', msg = 'Next',          fn = music.fn('nextTrack'),     repeat_on_mods = 'shift' },
-            { key = 'R', msg = 'Shuffle',       fn = music.fn('shuffle'), },
-            { key = 'C', msg = 'Select player', fn = music.select_current_player },
+            { key = 'S', msg = 'Play/Pause',    fn = media.fn('playpause'),     repeat_on_mods = 'shift' },
+            { key = 'A', msg = 'Previous',      fn = media.fn('previousTrack'), repeat_on_mods = 'shift' },
+            { key = 'D', msg = 'Next',          fn = media.fn('nextTrack'),     repeat_on_mods = 'shift' },
+            { key = 'R', msg = 'Shuffle',       fn = media.fn('shuffle'), },
+            { key = 'C', msg = 'Select player', fn = media.select_current_player },
 
             '-',
 
