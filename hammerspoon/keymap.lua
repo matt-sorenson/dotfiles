@@ -23,20 +23,12 @@ return {
             { key = '2', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
             { key = '3', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
 
-            { key = '1', mods = 'shift', msg = '1st 1/2nd of screen', fn = layout.move_window_fn({   0,   0,   1/2, 1 }) },
-            { key = '2', mods = 'shift', msg = '2nd 1/2nd of screen', fn = layout.move_window_fn({ 1/2,   0,   1/2, 1 }) },
-
-            { key = '1', mods = 'cmd', msg = 'left 3/5th of screen', fn = layout.move_window_fn({    0,   0,   3/5, 1 }) },
-            { key = '2', mods = 'cmd', msg = 'right 3/5th of screen', fn = layout.move_window_fn({ 2/5,   0,   3/5, 1 }) },
-
-            { key = '1', mods = {'cmd', 'ctrl'}, msg = 'left 2/5th of screen', fn = layout.move_window_fn({    0,   0,   2/5, 1 }) },
-            { key = '2', mods = {'cmd', 'ctrl'}, msg = 'right 2/5th of screen', fn = layout.move_window_fn({ 3/5,   0,   2/5, 1 }) },
+            { key = '1', mods = 'alt', msg = '1st section of screen', fn = layout.move_window_to_section_fn(1) },
+            { key = '2', mods = 'alt', msg = '2nd section of screen', fn = layout.move_window_to_section_fn(2) },
+            { key = '3', mods = 'alt', msg = '3rd section of screen', fn = layout.move_window_to_section_fn(3) },
+            { key = '4', mods = 'alt', msg = '4rd section of screen', fn = layout.move_window_to_section_fn(4) },
 
             '-',
-
-            -- Move window to out of the way (usually second screen somewhere)
-            { key = 'Q', msg = 'Quiet current window',                 fn = layout.quiet_window_fn(1), optional_mods = 'shift' },
-            { key = 'Q', mods = 'shift', msg = 'Quiet current window', fn = layout.quiet_window_fn(2), skip_help_msg = true },
 
             { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({ 0, 0, 1, 1}) },
             { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window               },
