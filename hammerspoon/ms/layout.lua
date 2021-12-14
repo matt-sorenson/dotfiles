@@ -1,75 +1,16 @@
 local sys = require 'ms.sys'
 
-local screen_configurations = {}
+local screen_configs = {}
+local current_config
 
-local function layout_score(self)
-    local score = 0
+local function move_window(window, rect, screen)
+    screen = screen or window:screen()
 
-    if #(self:screens()) == #self.layout then
-        score = score + #self.layout
-    else
-        return -1
-    end
-
-    if self.layout.is_work_computer then
-        if sys.is_work_computer() then
-            score = score + 1
-        else
-            return -1
-        end
-    end
-
-    if self.layout.bonus then
-        score = score + 10
-    end
-
-    return score
+    window:setFrame(screen:fromUnitRect(rect))
 end
 
-local function layout_screens(self)
-    local out = {}
-    layout = self.layout
-
-    for _, screen_layout in ipairs(layout) do
-        local screen = hs.screen(screen_layout.screen)
-
-        if screen then
-            table.insert(out, screen)
-        end
-    end
-
-    return out
-end
-
-local function layout_layout_names(self)
-    local layout_names = {}
-
-    for _, screen in ipairs(self.layout) do
-        print(screen.screen)
-        for _, rule in ipairs(screen) do
-            print(rule.app, rule.layouts, type(rule.layouts))
-            if type(rule.layouts) == 'string' then
-                layout_names[rule.layouts] = true
-            elseif type(rule.layouts) == 'table' then
-                for _, layout in ipairs(rule.layouts) do
-                    layout_names[layout] = true
-                end
-            end
-        end
-    end
-
-    local out = {}
-
-    for layout, _ in pairs(layout_names) do
-        table.insert(out, layout)
-        print(layout)
-    end
-
-    return out
-end
-
-local function score_str_tbl(str, array)
-    for _, v in ipairs(toarray(array)) do
+local function _layout_score_str_tbl(array, str)
+    for _, v in ipairs(array) do
         if str:match(v:lower()) then
             return true
         end
@@ -78,26 +19,27 @@ local function score_str_tbl(str, array)
     return false
 end
 
-local function score_rule(layout_name, app_name, win_name, rule)
-    local score = 0
-    local correct_layout = false
-
-    if layout_name or rule.no_default then
-        if not score_str_tbl(layout_name, rule.layouts) then
+local function _layout_score_rule(category, app_name, win_name, rule)
+    if category then
+        if not rule.categories then
+            return -1
+        elseif not hs.fnutils.find(rule.categories, function(e) return e == category end) then
             return -1
         end
     end
 
-    if app_name and rule.app then
-        if not score_str_tbl(app_name, rule.app) then
+    local score = 0
+
+    if rule.app and app_name then
+        if not _layout_score_str_tbl(rule.app, app_name) then
             return -1
         end
 
         score = score + 1
     end
 
-    if win_name and rule.window then
-        if not score_str_tbl(win_name, rule.window) then
+    if rule.window and win_name then
+        if not _layout_score_str_tbl(rule.window, win_name) then
             return -1
         end
 
@@ -107,64 +49,131 @@ local function score_rule(layout_name, app_name, win_name, rule)
     return score
 end
 
-local function move_window(window, rect, screen)
-    screen = screen or window:screen()
-
-    window:setFrame(screen:fromUnitRect(rect))
-end
-
-local function layout_apply_to_window(self, layout_name, window, screens)
-    if layout_name then
-        layout_name = layout_name:lower()
-    end
+--[[ export ]]  local function _layout_apply_to_window(self, category, window)
+    window = window or hs.window.focusedWindow()
 
     local app_name = window:application():name():lower()
     local win_name = window:title():lower()
 
-    local score, rule, screen_id = 0, nil, nil
-    for curr_screen_id, screen in ipairs(layout) do
-        for _, curr_rule in ipairs(screen) do
-            local curr_score = score_rule(layout_name, app_name, win_name, curr_rule)
+    local top_score, rule, screen = -1, nil, nil
+    for i, layout in ipairs(self:layout()) do
+        for j, curr_rule in ipairs(layout) do
+            local score = _layout_score_rule(category, app_name, win_name, curr_rule)
 
-            if curr_score > score then
-                score = curr_score
+            if score > top_score then
+                top_score = score
                 rule = curr_rule
-                screen_id = curr_screen_id
+                screen = layout.screen
             end
         end
     end
 
     if rule then
-        screens = screens or self:screens()
-        move_window(window, rule.rect, screens[screen_id])
+        move_window(window, rule.rect, screen)
     end
 end
 
-local function layout_apply(self, layout_name, windows)
-    local screens = self:screens()
-    windows = (windows and toarray(windows)) or hs.window.allWindows()
+--[[ export ]] local function _layout_apply(self, category, windows)
+    windows = hs.window.allWindows()
 
     hs.fnutils.ieach(windows, function(window)
-        layout_apply_to_window(self, layout_name, window, screens)
+        _layout_apply_to_window(self, category, window)
     end)
 end
 
-local layout_mt = {
+--[[ export ]] local function _layout_move_window_to_section(self, window, section_n)
+    local sections = self:sections()
+
+    if sections and sections[section_n] then
+        local section = sections[section_n]
+        local screen = self:layout()[section.screen].screen
+
+        move_window(window, section.rect, screen)
+    end
+end
+
+local function _layout_get_screen(needles)
+    for _, needle in ipairs(needles) do
+        local screen = hs.screen(needle)
+
+        if screen then
+            return screen
+        end
+    end
+
+    return nil
+end
+
+local function _layout_init_screens(self)
+    for i, v in ipairs(self:layout()) do
+        local screen = _layout_get_screen(v.screen)
+        if not screen then
+            return false
+        end
+
+        v.screen = screen
+    end
+
+    return true
+end
+
+local function _layout_init_layout(self)
+    for _, screen in ipairs(self:layout()) do
+--        screen.screen = toarray(screen)
+
+        for _, rule in ipairs(screen) do
+            if rule.app then
+                rule.app = toarray(rule.app)
+            end
+
+            if rule.window then
+                rule.window = toarray(rule.window)
+            end
+
+            if rule.categories then
+                rule.categories = toarray(rule.categories)
+            end
+        end
+    end
+end
+
+local _layout_mt = {
     __index = {
-        apply = layout_apply,
-        screens = layout_screens,
-        score = layout_score,
-        layout_names = layout_layout_names,
+        apply = _layout_apply,
+        apply_to_window = _layout_apply_to_window,
+
+        move_window_to_section = _layout_move_window_to_section,
+
+        score = _layout_score,
     }
 }
 
-local function layout_new(layout)
-    local out = {}
+local function _layout_new(input, name)
+    local self = {
+        name = function(self) return input.name end,
+        sections = function(self) return input.sections end,
+        layout = function(self) return input.layout end,
+        is_work_computer = function(self) return input.is_work_computer end
+    }
 
-    out.layout = layout
-    setmetatable(out, layout_mt)
+    _layout_init_layout(self)
 
-    return out
+    -- If an expected screen is missing then don't load the layout
+    if not _layout_init_screens(self) then
+        print('[\'' .. name .. '\'] screens not found')
+        return nil
+    end
+
+    -- If the layout is for work and it's not a work computer then don't
+    -- load the layout
+    if self:is_work_computer() and not sys.is_work_computer() then
+        print('[\'' .. name .. '\'] not a work computer')
+        return nil
+    end
+
+    setmetatable(self, _layout_mt)
+
+    return self
 end
 
 local function load_screen_configurations()
@@ -172,43 +181,41 @@ local function load_screen_configurations()
 
     for _, filename in pairs(layout_files) do
         if filename:match('.lua$') then
-            local require_str = 'layouts.' .. filename:gsub('.lua$', '')
-            local layout = layout_new(require(require_str))
+            local name = filename:gsub('.lua$', '')
+            local require_str = 'layouts.' .. name
+            local layout = _layout_new(require(require_str), name)
 
-            table.insert(screen_configurations, layout)
+            table.insert(screen_configs, layout)
         end
     end
 end
 
-local function get_screen_layout()
-    local curr_score = 0
-    local curr_layout = nil
+--[[ export ]] local function reload_layouts()
+    screen_configs = {}
 
-    for _, layout in ipairs(screen_configurations) do
-        local score = layout:score()
+    load_screen_configurations()
 
-        if score > curr_score then
-            curr_score = score
-            curr_layout = layout
-        end
+    if 1 < #screen_configs then
+        print('too many screen layouts found.')
+    elseif 0 == #screen_configs then
+        print('no valid screen layouts found.')
+    else
+        current_config = screen_configs[1]
     end
-
-    assert(nil ~= curr_layout, "could not find screen layout.")
-
-    return curr_layout
 end
 
---[[ export ]] local function apply(layout_name, windows)
-    get_screen_layout():apply(layout_name, windows)
+reload_layouts()
+
+--[[ export ]] local function apply(category, windows)
+    current_config:apply(categories, windows)
 end
 
---[[ export ]] local function apply_fn(layout_name, windows)
-    return function() apply(layout_name, windows) end
+--[[ export ]] local function apply_to_window(category, window)
+    current_config:apply_to_window(categories, window)
 end
 
---[[ export ]] local function apply_to_window(layout_name, window)
-    window = window or hs.window.focusedWindow()
-    apply(layout_name, window)
+--[[ export ]] local function move_window_to_section(window, section)
+    current_config:move_window_to_section(window, section)
 end
 
 --[[ export ]] local function move_window_fn(rect, screen_id)
@@ -218,38 +225,18 @@ end
     end
 end
 
---[[ export ]] local function quiet_window_fn(location_n)
-    if nil == location_n then
-        location_n = 1
-    end
-
-    return function()
-        local layout = get_screen_layout()
-
-        if nil == layout or nil == layout.layout.quiet_locations or nil == layout.layout.quiet_locations[location_n] then
-            return
-        end
-
-        local quiet_location = layout.layout.quiet_locations[location_n]
-        local screen = layout:screens()[quiet_location.screen]
-
-        move_window(hs.window.focusedWindow(), quiet_location.rect, screen)
-    end
-end
-
---[[ export ]] local function reload_layouts()
-    screen_configurations = {}
-
-    load_screen_configurations()
-end
-
-load_screen_configurations()
-
 return {
     apply = apply,
-    apply_fn = apply_fn,
+    apply_fn = function(categories, windows)
+        return function() apply(layout_name, windows) end
+    end,
     apply_to_window = apply_to_window,
+
     move_window_fn = move_window_fn,
-    quiet_window_fn = quiet_window_fn,
-    reload_layouts = reload_layouts,
+    move_window_to_section = move_window_to_section,
+    move_window_to_section_fn = function(section)
+        return function() move_window_to_section(hs.window.focusedWindow(), section) end
+    end,
+
+    reload_layouts = reload_layouts
 }
