@@ -206,6 +206,8 @@ end
 
 reload_layouts()
 
+hs.screen.watcher.new(reload_layouts):start()
+
 --[[ export ]] local function apply(category, windows)
     current_config:apply(categories, windows)
 end
