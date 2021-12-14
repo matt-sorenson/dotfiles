@@ -12,11 +12,11 @@ return {
         }, { -- Secondary Screen
             screen = '1440x2560',
 
-            { window = 'Youtube',                 rect = {   0, 1/2,    1,   1/2 }, categories = 'media' },
-            { app = 'Music',                      rect = {   0, 1/2,    1,   1/2 }, categories = 'media' },
+            { window = 'Youtube', rect = {   0, 1/2,    1,   1/2 }, categories = 'media' },
+            { app = 'Music',      rect = {   0, 1/2,    1,   1/2 }, categories = 'media' },
 
-            { window = 'Slack',                   rect = {    0,   0, 9/10,   1/2 }, categories = 'communications' },
-            { app = 'Messages',                   rect = { 1/10,   0, 9/10,   1/2 }, categories = 'communications' },
+            { window = 'Slack',   rect = {    0,   0, 9/10,   1/2 }, categories = 'communications' },
+            { app = 'Messages',   rect = { 1/10,   0, 9/10,   1/2 }, categories = 'communications' },
         },
     },
 
