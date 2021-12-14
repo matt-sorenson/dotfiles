@@ -81,18 +81,22 @@ end
     end)
 end
 
+--[[ export ]] local function _layout_get_screen(self, index)
+    return self:layout()[index].screen
+end
+
 --[[ export ]] local function _layout_move_window_to_section(self, window, section_n)
     local sections = self:sections()
 
     if sections and sections[section_n] then
         local section = sections[section_n]
-        local screen = self:layout()[section.screen].screen
+        local screen = self:get_screen(section.screen or 1)
 
         move_window(window, section.rect, screen)
     end
 end
 
-local function _layout_get_screen(needles)
+local function _layout_lookup_screen(needles)
     for _, needle in ipairs(needles) do
         local screen = hs.screen(needle)
 
@@ -106,7 +110,7 @@ end
 
 local function _layout_init_screens(self)
     for i, v in ipairs(self:layout()) do
-        local screen = _layout_get_screen(v.screen)
+        local screen = _layout_lookup_screen(v.screen)
         if not screen then
             return false
         end
@@ -143,6 +147,7 @@ local _layout_mt = {
         move_window_to_section = _layout_move_window_to_section,
 
         score = _layout_score,
+        get_screen = _layout_get_screen,
     }
 }
 
