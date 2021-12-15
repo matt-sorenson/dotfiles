@@ -20,19 +20,8 @@ local players = {
         shuffle = function() return app_js('Music', 'app.shuffleEnabled = !app.shuffleEnabled()') end,
         is_shuffled = function() return app_js('Music', 'app.shuffleEnabled()') end
     },
-
-    spotify = {
-        name = 'Spotify',
-        bundle_id = 'com.spotify.client',
-        fn = function(cmd) app_fn('Spotify', cmd) end,
-
-        shuffle = function() return app_js('Spotify', 'app.shuffling = !app.shuffling()') end,
-        is_shuffled = function() return app_js('Spotify', 'spotify', 'app.shuffling()') end
-    }
 }
 
--- If music is currently playing the 'current_player' is music, otherwise
--- default to Spotify.
 local function current_player()
     return players.music
 end
