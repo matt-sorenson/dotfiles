@@ -1,6 +1,4 @@
 return {
-    name = "home-ultrawide",
-
     layout = {
         { -- Primary Screen
             screen = '3440x1440',

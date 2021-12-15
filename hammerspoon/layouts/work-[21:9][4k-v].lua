@@ -1,6 +1,4 @@
 return {
-    name = "work-ultrawide-vertical",
-
     layout = {
         { -- Primary Screen
             screen = '3440x1440',
