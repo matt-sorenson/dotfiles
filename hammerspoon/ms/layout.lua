@@ -223,9 +223,9 @@ end
     current_config:move_window_to_section(window, section)
 end
 
---[[ export ]] local function move_window_fn(rect, screen_id)
+--[[ export ]] local function move_window_fn(rect, screen_n)
     return function()
-        local screen = get_screen_layout():screens()[screen_id]
+        local screen = current_config:get_screen(screen_n or 1)
         move_window(hs.window.focusedWindow(), rect, screen)
     end
 end
