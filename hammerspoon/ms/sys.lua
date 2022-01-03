@@ -125,6 +125,12 @@ end
     return function() select_app(app_name, win_name, new_window) end
 end
 
+--[[ export ]] local function trigger_system_key_fn(key)
+    return function()
+        hs.eventtap.event.newSystemKeyEvent(key, true):post()
+    end
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     mount_smb = mount_smb,
