@@ -1,10 +1,9 @@
 local sys = require 'ms.sys'
 
-local DEVICE_UIDS = {
-    audioengine = 'AppleUSBAudioEngine:Audioengine                     :Audioengine 2+  :14441400:1',
-    builtin = 'BuiltInSpeakerDevice',
-    monitor = 'AppleHDAEngineOutputDP:3,0,1,0:0:{AC10-A0A6-3034594C}',
-    usb = 'AppleUSBAudioEngine:Unknown Manufacturer:C_Media USB Audio Device   :14120000:2,1',
+local DEVICE_NAMES = {
+    audioengine = 'Audioengine 2+  ',
+    builtin = 'MacBook Pro Speakers',
+    monitor = 'LS49AG95',
 }
 
 --[[export]] local function get_device()
@@ -28,21 +27,23 @@ end
 end
 
 --[[export]] local function setup_output(device_name)
-    local requested_uid = DEVICE_UIDS[device_name] or device_name
+    local requested_name = DEVICE_NAMES[device_name] or device_name
 
-    if nil == requested_uid then return end
+    if nil == requested_name then return end
 
-    local default_device_uid = hs.audiodevice.defaultOutputDevice():uid();
+    local default_device_name = hs.audiodevice.defaultOutputDevice():name();
 
     if debug_output.audio then
         print("default uid:   '" .. default_device_uid .. "'")
-        print("requested uid: '" .. requested_uid .. "'")
+        print("requested uid: '" .. requested_name .. "'")
     end
 
-    if default_device_uid ~= requested_uid then
-        local new_device = hs.audiodevice.findDeviceByUID(requested_uid)
+    if default_device_name ~= requested_name then
+        local new_device = hs.audiodevice.findOutputByName(requested_name)
         if new_device then
             new_device:setDefaultOutputDevice()
+        else
+            print("could not find audio device '" .. requested_name .. "'")
         end
     end
 end

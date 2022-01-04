@@ -138,6 +138,8 @@ return {
     select_app = select_app,
     toggle_select_app_fn = toggle_select_app_fn,
 
+    trigger_system_key_fn = trigger_system_key_fn,
+
     is_work_computer = function() return IS_WORK_COMPUTER end,
     who_am_i = function() return WHO_AM_I end,
 
