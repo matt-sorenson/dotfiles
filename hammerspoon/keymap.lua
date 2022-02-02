@@ -39,10 +39,6 @@ return {
 
             { key = 'G', msg = 'Grid',                        fn = grid.show, optional_mods = 'shift'                  },
             { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.show_fn('shift'), skip_help_msg = true         },
-
-            '-',
-
-            { key = 'R', mods = 'ctrl', msg = 'Reload layouts', fn = layout.reload_layouts                             },
         },
 
         {

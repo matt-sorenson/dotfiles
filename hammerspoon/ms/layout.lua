@@ -1,8 +1,5 @@
 local sys = require 'ms.sys'
 
-local screen_configs = {}
-local current_config
-
 local function move_window(window, rect, screen)
     screen = screen or window:screen()
 
@@ -69,7 +66,13 @@ end
     end
 
     if rule then
-        move_window(window, rule.rect, screen)
+        if rule.section then
+            self:move_window_to_section(window, rule.section)
+        elseif rule.rect then
+            move_window(window, rule.rect, screen)
+        else
+            error("layout:apply_to_window requires the rule to have either rect or section.")
+        end
     end
 end
 
@@ -163,16 +166,18 @@ local function _layout_new(input, name)
 
     -- If an expected screen is missing then don't load the layout
     if not _layout_init_screens(self) then
-        print('[\'' .. name .. '\'] screens not found')
+        print("['" .. name .. "'] screens not found")
         return nil
     end
 
     -- If the layout is for work and it's not a work computer then don't
     -- load the layout
     if self:is_work_computer() and not sys.is_work_computer() then
-        print('[\'' .. name .. '\'] not a work computer')
+        print("['" .. name .. "'] not a work computer")
         return nil
     end
+
+    print("['" .. name .. "'] layout fits")
 
     setmetatable(self, _layout_mt)
 
@@ -180,6 +185,7 @@ local function _layout_new(input, name)
 end
 
 local function load_screen_configurations()
+    local screen_configs = {}
     local layout_files = sys.ls('~/.hammerspoon/layouts/')
 
     for _, filename in pairs(layout_files) do
@@ -188,28 +194,28 @@ local function load_screen_configurations()
             local require_str = 'layouts.' .. name
             local layout = _layout_new(require(require_str), name)
 
-            table.insert(screen_configs, layout)
+            if layout ~= nil then
+                table.insert(screen_configs, layout)
+            end
         end
     end
+
+    return screen_configs
 end
 
---[[ export ]] local function reload_layouts()
-    screen_configs = {}
-
-    load_screen_configurations()
+local function get_config()
+    local screen_configs = load_screen_configurations()
 
     if 1 < #screen_configs then
-        print('too many screen layouts found.')
+        error('too many screen layouts found.')
     elseif 0 == #screen_configs then
-        print('no valid screen layouts found.')
+        error('no valid screen layouts found.')
     else
-        current_config = screen_configs[1]
+        return screen_configs[1]
     end
 end
 
-reload_layouts()
-
-hs.screen.watcher.new(reload_layouts):start()
+local current_config = get_config()
 
 --[[ export ]] local function apply(category, windows)
     current_config:apply(categories, windows)
@@ -241,7 +247,5 @@ return {
     move_window_to_section = move_window_to_section,
     move_window_to_section_fn = function(section)
         return function() move_window_to_section(hs.window.focusedWindow(), section) end
-    end,
-
-    reload_layouts = reload_layouts
+    end
 }
