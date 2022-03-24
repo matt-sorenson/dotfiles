@@ -4,6 +4,12 @@ local WHO_AM_I = os.getenv('USER')
 -- so just use hs.exectute('hostname') instead
 local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes("~/.hammerspoon/is-work"))
 
+--[[ export ]] local function gc()
+    print("Pre GC: " .. math.floor(collectgarbage("count")) .. 'kb')
+    collectgarbage("collect")
+    print("Post GC: " .. math.floor(collectgarbage("count")) .. 'kb')
+end
+
 --[[ export ]] local function find_usb_device_by_name(name)
     name = name:lower()
     return table.unpack(hs.fnutils.filter(hs.usb.attachedDevices(), function(dev)
@@ -146,5 +152,7 @@ return {
     ls = ls,
 
     open_finder_fn = open_finder_fn,
-    select_app_fn = select_app_fn
+    select_app_fn = select_app_fn,
+
+    gc = gc,
 }

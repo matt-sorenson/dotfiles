@@ -3,6 +3,8 @@ hs.notify.show('Hammerspoon', '(Re)loading', '')
 require 'hs.ipc'
 require 'ms.helper'
 
+local sys = require 'ms.sys'
+
 hs.ipc.cliInstall()
 
 -- Easy reloading of config file
@@ -26,13 +28,7 @@ else
     print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
 end
 
-local function gc()
-    print("Pre GC: " .. collectgarbage("count"))
-    collectgarbage("collect")
-    print("Post GC: " .. collectgarbage("count"))
-end
-
 -- Initialization creates lots of garbage
-gc()
+sys.gc()
 
-hs.timer.doEvery(hs.timer.hours(1), gc)
+hs.timer.doEvery(hs.timer.hours(1), sys.gc)
