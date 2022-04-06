@@ -177,27 +177,58 @@ end
 
 local function modal_alert(msg)
     modal_clear_alert()
-    displayed_alert = hs.alert(msg, 3)
+    displayed_alert = hs.alert(msg, { textFont = 'Berkeley Mono' }, 3)
 end
 
 local function modal_print_help(self)
     local max_shortcut = 0
+    local max_msg = 0
 
     hs.fnutils.ieach(self.msgs, function(msg)
-        if ('table' == type(msg)) and (#msg.shortcut > max_shortcut) then
-            max_shortcut = #msg.shortcut
+        if ('table' == type(msg)) and (hs.utf8.len(msg.shortcut) > max_shortcut) then
+            max_shortcut = hs.utf8.len(msg.shortcut)
+        end
+
+        if ('table' == type(msg) and (hs.utf8.len(msg.msg) > max_msg)) then
+            max_msg = hs.utf8.len(msg.msg)
         end
     end)
+
+    max_shortcut = max_shortcut
+
+    seperator_fmt = '%s─'
+    for i=1,max_shortcut do seperator_fmt = seperator_fmt .. '─' end
+    seperator_fmt = seperator_fmt .. '─%s─'
+    for i=1,max_msg do seperator_fmt = seperator_fmt .. '─' end
+    seperator_fmt = seperator_fmt .. '─%s'
 
     formatted_msgs = hs.fnutils.map(self.msgs, function(msg)
         if 'string' == type(msg) then
+            if '─' == msg then
+                return string.format(seperator_fmt, '├', '┼', '┤')
+            end
+
             return msg
         end
 
-        return string.format('%-' .. max_shortcut .. 's\t%s', msg.shortcut, msg.msg)
+        local shortcut = msg.shortcut
+        local message = msg.msg
+
+        while hs.utf8.len(shortcut) < max_shortcut do
+            shortcut = shortcut .. ' '
+        end
+
+        while hs.utf8.len(message) < max_msg do
+            message = message .. ' '
+        end
+
+        return string.format('│ %s │ %s │', shortcut, message)
     end)
 
-    modal_alert(table.concat(formatted_msgs, '\n'))
+    local prepend = string.format(seperator_fmt, '┌', '┬', '┐')
+    local postpend = string.format(seperator_fmt, '└', '┴', '┘')
+
+    modal_alert(prepend .. '\n' .. table.concat(formatted_msgs, '\n') .. '\n' .. postpend)
 end
 
 local modal_mt = { __index = {} }
@@ -207,7 +238,7 @@ modal_mt.__index.enter = modal_enter
 modal_mt.__index.exit = modal_exit
 modal_mt.__index.bind = modal_bind
 modal_mt.__index.help_seperator = function(self)
-    table.insert(self.msgs, '----------')
+    table.insert(self.msgs, '─')
 end
 
 local function escape_fn() hs.alert('⎋ - Cancel') end
