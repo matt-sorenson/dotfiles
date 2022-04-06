@@ -30,6 +30,14 @@ end
     timed_on(hs.timer.minutes(time_in_min))
 end
 
+--[[export]] local function alert_is_on()
+    if is_on() then
+        hs.alert("Caffeine is Enabled")
+    else
+        hs.alert("Caffeine is Disabled")
+    end
+end
+
 return {
     is_on = is_on,
     is_off = function() return not is_on() end,
@@ -39,4 +47,5 @@ return {
     toggle = function() set(not is_on()) end,
     timed_on = timed_on,
     timed_on_m = timed_on_m,
+    alert_is_on = alert_is_on
 }
