@@ -70,7 +70,7 @@ return {
             title = 'Energy',
             key = 'E',
 
-            { key = 'S', msg = 'Screen Saver',           fn = hs.caffeinate.startScreensaver },
+            { key = 'S', msg = 'Check Caffeine Status',  fn = caffeine.alert_is_on },
             { key = 'T', msg = 'Toggle Caffeine',        fn = caffeine.toggle },
             { key = '1', msg = 'Caffeine on 10 Minutes', fn = function() caffeine.timed_on_m(10) end },
             { key = '2', msg = 'Caffeine on 20 Minutes', fn = function() caffeine.timed_on_m(20) end },
