@@ -77,6 +77,7 @@ return {
             { key = '3', msg = 'Caffeine on 30 Minutes', fn = function() caffeine.timed_on_m(30) end },
             { key = '4', msg = 'Caffeine on 40 Minutes', fn = function() caffeine.timed_on_m(40) end },
             { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
+            { key = '6', msg = 'Caffeine on 60 Minutes', fn = function() caffeine.timed_on_m(60) end },
         },
 
         { key = 'T', msg = 'Select Random PR Targets (Squad One)', fn = function() work.get_random_team_member('squad-one') end },
