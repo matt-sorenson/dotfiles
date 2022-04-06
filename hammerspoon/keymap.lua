@@ -3,6 +3,7 @@ local caffeine = require 'ms.caffeine'
 local grid     = require 'ms.grid'
 local layout   = require 'ms.layout'
 local sys      = require 'ms.sys'
+local work     = require 'ms.work'
 
 return {
     {
@@ -78,21 +79,7 @@ return {
             { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
         },
 
-        { key = 'T', msg = 'Select Random PR Targets', fn = function()
-                local TEAMMATE_FILENAME = hs.fs.pathToAbsolute("~/.dotfiles/local/teammates")
-
-                if nil == hs.fs.attributes(TEAMMATE_FILENAME) then
-                    hs.alert("'" .. TEAMMATE_FILENAME .. "' is missing")
-                    return
-                end
-
-                local PR_TARGETS = {}
-                for name in io.lines(TEAMMATE_FILENAME)():gmatch('[^,%s]+') do
-                    PR_TARGETS[#PR_TARGETS + 1] = name
-                end
-
-                hs.alert(PR_TARGETS[hs.math.random(1, #PR_TARGETS)], 3)
-            end
-        },
+        { key = 'T', msg = 'Select Random PR Targets (Squad One)', fn = function() work.get_random_team_member('squad-one') end },
+        { key = 'R', msg = 'Select Random PR Targets (Super Squad)', fn = function() work.get_random_team_member('super-squad') end },
     }
 }
