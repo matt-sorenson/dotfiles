@@ -215,7 +215,7 @@ local function modal_print_help(self)
         local message = msg.msg
 
         while hs.utf8.len(shortcut) < max_shortcut do
-            shortcut = shortcut .. ' '
+            shortcut = ' ' .. shortcut
         end
 
         while hs.utf8.len(message) < max_msg do
