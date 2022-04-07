@@ -27,7 +27,7 @@ end
 end
 
 --[[export]] local function timed_on_m(time_in_min)
-timed_on_s(hs.timer.minutes(time_in_min))
+    timed_on_s(hs.timer.minutes(time_in_min))
 end
 
 --[[export]] local function alert_is_on()
