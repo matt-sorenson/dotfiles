@@ -2,37 +2,36 @@ local sys = require 'ms.sys'
 
 hs.grid.setMargins(hs.geometry.size(0, 0))
 
-local STANDARD_GRID = {
-    {  'Z',  'X',  'C',  'V',  'B',  'N' },
-    { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
-    {  '1',  '2',  '3',  '4',  '5',  '6' },
-    {  'Q',  'W',  'E',  'R',  'T',  'Y' },
-    {  'A',  'S',  'D',  'F',  'G',  'H' },
-}
+local KEYBOARD_GRIDS = {
+    standard = {
+        {  'Z',  'X',  'C',  'V',  'B',  'N' },
+        { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
+        {  '1',  '2',  '3',  '4',  '5',  '6' },
+        {  'Q',  'W',  'E',  'R',  'T',  'Y' },
+        {  'A',  'S',  'D',  'F',  'G',  'H' },
+    },
 
--- While this looks really odd, for 49" ultrawide want 6x2 grid
-local MOONLANDER_GRID = {
-    {  'Z',  'X',  'C',  'V',  'B',  'N' },
-    { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
-    {  '1',  '2',  '3',  '4',  '5',  '=' },
-    {  'Q',  'W',  'E',  'R',  'T',  'HOME' },
-    {  'A',  'S',  'D',  'F',  'G',  'H' },
+    -- While this looks really odd, for 49" ultrawide want 6x2 grid
+    moonlander = {
+        {  'Z',  'X',  'C',  'V',  'B',  'N' },
+        { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
+        {  '1',  '2',  '3',  '4',  '5',  '=' },
+        {  'Q',  'W',  'E',  'R',  'T',  'HOME' },
+        {  'A',  'S',  'D',  'F',  'G',  'H' },
+    }
 }
 
 local function select_layout()
-    if sys.find_usb_device_by_name('ErgoDox') or sys.find_usb_device_by_name('Moonlander Mark I') then
-        if MOONLANDER_GRID ~= hs.grid.HINTS then
-            if debug_output.grid then
-                print('moonlander grid')
-            end
-            hs.grid.HINTS = MOONLANDER_GRID
-        end
-    elseif STANDARD_GRID ~= hs.grid.HINTS then
+    local grid = KEYBOARD_GRIDS.standard
+
+    if sys.using_moonlander_ergodox() then
         if debug_output.grid then
-            print('standard grid')
+            print('moonlander grid')
         end
-        hs.grid.HINTS = STANDARD_GRID
+        grid = KEYBOARD_GRIDS.moonlander
     end
+
+    hs.grid.HINTS = grid
 end
 
 local GRID_LAYOUTS = {
