@@ -1,7 +1,6 @@
 local WHO_AM_I = os.getenv('USER')
 
--- hs.host.names() is insanely slow (something like 5 seconds)
--- so just use hs.exectute('hostname') instead
+-- Use 'is-work' file to determine this to massively simplify it
 local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes("~/.hammerspoon/is-work"))
 
 --[[ export ]] local function gc()
