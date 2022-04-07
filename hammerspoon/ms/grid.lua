@@ -23,7 +23,7 @@ local function select_layout()
     if sys.find_usb_device_by_name('ErgoDox') or sys.find_usb_device_by_name('Moonlander Mark I') then
         if MOONLANDER_GRID ~= hs.grid.HINTS then
             if debug_output.grid then
-                print('ergodox grid')
+                print('moonlander grid')
             end
             hs.grid.HINTS = MOONLANDER_GRID
         end
