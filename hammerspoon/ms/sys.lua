@@ -137,6 +137,10 @@ end
     end
 end
 
+--[[ export ]] local function using_moonlander_ergodox()
+    return find_usb_device_by_name('ErgoDox') or find_usb_device_by_name('Moonlander Mark I')
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     mount_smb = mount_smb,
@@ -155,4 +159,6 @@ return {
     select_app_fn = select_app_fn,
 
     gc = gc,
+
+    using_moonlander_ergodox = using_moonlander_ergodox,
 }
