@@ -38,8 +38,8 @@ return {
 
             '-',
 
-            { key = 'G', msg = 'Grid',                        fn = grid.show, optional_mods = 'shift'                  },
-            { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.show_fn('shift'), skip_help_msg = true         },
+            { key = 'G', msg = 'Grid',                        fn = grid.show, optional_mods = 'shift'          },
+            { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.show_fn('shift'), skip_help_msg = true },
         },
 
         {
@@ -70,8 +70,16 @@ return {
             title = 'Energy',
             key = 'E',
 
-            { key = 'S', msg = 'Check Caffeine Status',  fn = caffeine.alert_is_on },
-            { key = 'T', msg = 'Toggle Caffeine',        fn = caffeine.toggle },
+            { key = 'S', msg = 'Check Caffeine Status', fn = caffeine.alert_is_on },
+            { key = 'T', msg = 'Toggle Caffeine',       fn = caffeine.toggle      },
+
+            '-',
+
+            { key = 'O', msg = 'Turn Caffeine On',  fn = caffeine.on  },
+            { key = 'F', msg = 'Turn Caffeine Off', fn = caffeine.off },
+
+            '-',
+
             { key = '1', msg = 'Caffeine on 10 Minutes', fn = function() caffeine.timed_on_m(10) end },
             { key = '2', msg = 'Caffeine on 20 Minutes', fn = function() caffeine.timed_on_m(20) end },
             { key = '3', msg = 'Caffeine on 30 Minutes', fn = function() caffeine.timed_on_m(30) end },
