@@ -11,7 +11,7 @@ return {
             { app = {'Code', 'DataGrip', 'IntelliJ IDEA'}, section = 3 },
 
             { app = {'Chrome'},  section = 4 },
-            { app = {'Firefox'}, section = 1, categories = 'media' },
+            { app = {'Firefox', 'Music'}, section = 1, categories = 'media' },
         },
     },
 
