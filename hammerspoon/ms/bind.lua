@@ -211,16 +211,8 @@ local function modal_print_help(self)
             return msg
         end
 
-        local shortcut = msg.shortcut
-        local message = msg.msg
-
-        while hs.utf8.len(shortcut) < max_shortcut do
-            shortcut = ' ' .. shortcut
-        end
-
-        while hs.utf8.len(message) < max_msg do
-            message = message .. ' '
-        end
+        local shortcut = string.rep(' ', math.max(0, max_shortcut - hs.utf8.len(msg.shortcut))) .. msg.shortcut
+        local message = msg.msg .. string.rep(' ', math.max(0, max_msg - hs.utf8.len(msg.msg)))
 
         return string.format('│ %s │ %s │', shortcut, message)
     end)
