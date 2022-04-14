@@ -6,7 +6,7 @@ return {
             { app = 'Messages', rect = { 1/6, 1/8, 1/6, 7/8 }, categories = 'communications' },
             { window = 'Slack', rect = { 1/9,  0, (1/6)+(1/18), 7/8 }, categories = 'communications' },
 
-            { app = {'Postman'}, rect = {0, 1/2-1/20, 1/3, 1/2 + 2/20} },
+            { app = {'Postman'}, rect = {0, 1/2-1/20, 1/3, 1/2 + 3/40} },
 
             { app = {'Code', 'DataGrip', 'IntelliJ IDEA'}, section = 3 },
 
