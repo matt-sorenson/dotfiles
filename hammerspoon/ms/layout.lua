@@ -185,15 +185,14 @@ local function _layout_new(input, name)
 end
 
 local function load_screen_configurations()
-    local BASE_DIR = hs.fs.pathToAbsolute('~/.hammerspoon/layouts/')
-
     local screen_configs = {}
-    local layout_files = sys.ls(BASE_DIR)
+    local layout_files = sys.ls('~/.hammerspoon/layouts/')
 
     for _, filename in pairs(layout_files) do
         if filename:match('.lua$') then
             local name = filename:gsub('.lua$', '')
-            local layout = _layout_new(loadfile(BASE_DIR .. '/' .. filename)(), name)
+            local require_str = 'layouts.' .. name
+            local layout = _layout_new(require(require_str), name)
 
             if layout ~= nil then
                 table.insert(screen_configs, layout)
@@ -216,21 +215,23 @@ local function get_config()
     end
 end
 
+local current_config = get_config()
+
 --[[ export ]] local function apply(category, windows)
-    get_config():apply(categories, windows)
+    current_config:apply(categories, windows)
 end
 
 --[[ export ]] local function apply_to_window(category, window)
-    get_config():apply_to_window(categories, window)
+    current_config:apply_to_window(categories, window)
 end
 
 --[[ export ]] local function move_window_to_section(window, section)
-    get_config():move_window_to_section(window, section)
+    current_config:move_window_to_section(window, section)
 end
 
 --[[ export ]] local function move_window_fn(rect, screen_n)
     return function()
-        local screen = get_config():get_screen(screen_n or 1)
+        local screen = current_config:get_screen(screen_n or 1)
         move_window(hs.window.focusedWindow(), rect, screen)
     end
 end
