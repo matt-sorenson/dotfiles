@@ -23,10 +23,10 @@ return {
             { key = '2', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
             { key = '3', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
 
-            { key = '1', mods = 'alt', msg = '1st section of screen', fn = layout.move_window_to_section_fn(1) },
-            { key = '2', mods = 'alt', msg = '2nd section of screen', fn = layout.move_window_to_section_fn(2) },
-            { key = '3', mods = 'alt', msg = '3rd section of screen', fn = layout.move_window_to_section_fn(3) },
-            { key = '4', mods = 'alt', msg = '4rd section of screen', fn = layout.move_window_to_section_fn(4) },
+            { key = '1', mods = 'shift', msg = '1st section of screen', fn = layout.move_window_to_section_fn(1) },
+            { key = '2', mods = 'shift', msg = '2nd section of screen', fn = layout.move_window_to_section_fn(2) },
+            { key = '3', mods = 'shift', msg = '3rd section of screen', fn = layout.move_window_to_section_fn(3) },
+            { key = '4', mods = 'shift', msg = '4rd section of screen', fn = layout.move_window_to_section_fn(4) },
 
             '-',
 
