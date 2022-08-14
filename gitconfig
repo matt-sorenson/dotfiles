@@ -50,5 +50,6 @@
 
 [include]
     path = ~/.dotfiles/local/gitconfig
+
 [init]
 	defaultBranch = main
