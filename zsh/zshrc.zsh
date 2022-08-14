@@ -66,10 +66,6 @@ if type rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
 
-if [ -d "${HOME}/.cargo" ]; then
-    source "${HOME}/.cargo/env"
-fi
-
 if type direnv > /dev/null ; then
     eval "$(direnv hook zsh)"
 fi
