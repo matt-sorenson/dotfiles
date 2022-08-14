@@ -18,7 +18,7 @@
 
 [alias]
     # submodule helpers
-    rfetch = git fetch --recurse-submodules
+    rfetch = fetch --recurse-submodules
     rpush = push --recurse-submodules=check
     up = !git pull --rebase --prune $@ && git submodule update --init --recursive
 
