@@ -1,7 +1,6 @@
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-WORKSPACE_ROOT_DIR="$HOME/ws"
 AT_WORK=0
 
 if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
