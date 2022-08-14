@@ -32,3 +32,7 @@ fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
 export HOMEBREW_NO_ANALYTICS=1
+
+if [ -d "${HOME}/.cargo" ]; then
+    source "${HOME}/.cargo/env"
+fi
