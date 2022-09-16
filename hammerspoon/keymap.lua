@@ -88,7 +88,7 @@ return {
             { key = '6', msg = 'Caffeine on 60 Minutes', fn = function() caffeine.timed_on_m(60) end },
         },
 
-        { key = 'T', msg = 'Select Random PR Targets (Squad One)', fn = function() work.get_random_team_member('squad-one') end },
-        { key = 'R', msg = 'Select Random PR Targets (Super Squad)', fn = function() work.get_random_team_member('super-squad') end },
+        { key = 'T', msg = 'Select Random PR Targets (Squad One)', fn = function() work.get_random_team_member('team-squad-one') end },
+        { key = 'R', msg = 'Select Random PR Targets (Clinic Services)', fn = function() work.get_random_team_member('team-clinic-services') end },
     }
 }
