@@ -8,7 +8,7 @@ return {
 
             { app = {'Postman'}, rect = {0, 1/2-1/20, 1/3, 1/2 + 3/40} },
 
-            { app = {'Code', 'DataGrip', 'IntelliJ IDEA'}, section = 3 },
+            { app = {'Code', 'DataGrip', 'IntelliJ IDEA'}, section = 3, categories = 'primary' },
 
             { app = {'Chrome'},  section = 4 },
             { app = {'Firefox', 'Music'}, section = 1, categories = 'media' },

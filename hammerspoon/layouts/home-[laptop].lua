@@ -1,7 +1,7 @@
 return {
     layout = {
         { -- Laptop Screen
-            screen = 'Color LCD',
+            screen = 'Built-in Retina Display',
 
             { app = 'Code',                rect = {   0, 0, 4/5, 1 } },
             { app = {'Chrome', 'Firefox'}, rect = { 1/5, 0, 4/5, 1 } },
