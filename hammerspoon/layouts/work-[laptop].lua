@@ -1,7 +1,7 @@
 return {
     layout = {
         { -- Primary Screen
-            screen = 'Color LCD',
+            screen = 'Built-in Retina Display',
 
             { app = {'Code', 'DataGrip', 'IntelliJ IDEA'}, rect = { 0,  0, 4/5, 1} },
             { app = {'Chrome', 'Firefox'},                 rect = {1/5, 0, 4/5, 1} },
