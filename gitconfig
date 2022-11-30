@@ -24,8 +24,12 @@
 
     pushf = push --force-with-lease
 
+    # Checkout previously checked out branch. unlike normal `popd` doesn't
+    # act as a stack and calling it multiple times in a row will just go back
+    # and forth between the 2 branchs.
     popd = checkout -
 
+    # 'heavy duty' garbage collection
     gcf = !git -c gc.reflogExpire=0 -c gc.reflogExpireUnreachable=0 -c gc.rerereresolved=0 -c gc.rerereunresolved=0 -c gc.pruneExpire=now gc "$@"
 
     # log helpers
@@ -33,10 +37,19 @@
     olog = log --oneline
     dag = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)' --all
 
+    # List all aliases
     alias = !git config --get-regexp ^alias\\. | cut -f2- -d .
+
+    # Initialize repo and create initial commit
     it = !git init && git commit -m "root" --allow-empty
+
+    # add staged files to HEAD commit
     amend = commit --amend --no-edit
+
+    # set tracking branch
     tracking = rev-parse --abbrev-ref --symbolic-full-name @{u}
+
+    # wipe out any current changes and go back to HEAD. creates a commit in reflog to get those changes back.
     wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
 
 [diff]
