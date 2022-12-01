@@ -18,17 +18,22 @@ ws() {
     fi
 }
 
+# Helper function cause I can never remember the syntax
 is-function() {
     typeset -f "$1" > /dev/null
     return $?
 }
 
+# Recursivly format '.cpp', '.h', '.inl' files in place.
 clang-format-ri() {
     local srcpath="${1}"
     shift
     find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
 }
 
+# Finds brew formulas that aren't depended on by any other packages and asks
+# for each if they should be deleted. This is useful for cleaning up unused
+# dependencies cause brew is really bad at that.
 check-formulas() {
     local -A visited_formulas
 
@@ -46,6 +51,11 @@ check-formulas() {
     done
 }
 
+# Usefull for scripts to print a highlighted message
+# `print-header ${color} ${message}`
+# `print-header green  "Process Success"`
+# `print-header yellow "Process Warning"`
+# `print-header red    "Process Failed"`
 print-header(){
     local color="${fg_bold[${1}]}"
     local header="================================================================================"
