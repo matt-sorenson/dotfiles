@@ -19,10 +19,7 @@ add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.yarn/bin"
 add-to-path "${HOME}/.config/yarn/global/node_modules/.bin"
 add-to-path "/usr/local/opt/node@14/bin"
-
-if [ -d "/usr/local/opt/postgresql@12/bin" ]; then
-    add-to-path /usr/local/opt/postgresql@12/bin
-fi
+add-to-path '/usr/local/opt/postgresql@12/bin'
 
 export PATH
 
