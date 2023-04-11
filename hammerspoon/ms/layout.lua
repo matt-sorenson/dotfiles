@@ -186,12 +186,12 @@ end
 
 local function load_screen_configurations()
     local screen_configs = {}
-    local layout_files = sys.ls('~/.hammerspoon/layouts/')
+    local layout_files = sys.ls('~/.hammerspoon/resources/layouts')
 
     for _, filename in pairs(layout_files) do
         if filename:match('.lua$') then
             local name = filename:gsub('.lua$', '')
-            local require_str = 'layouts.' .. name
+            local require_str = 'resources.layouts.' .. name
             local layout = _layout_new(require(require_str), name)
 
             if layout ~= nil then
