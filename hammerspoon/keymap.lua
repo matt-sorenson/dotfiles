@@ -38,6 +38,10 @@ return {
 
             '-',
 
+            { key = 'S', msg = 'Get current window size', fn = sys.get_current_window_size },
+
+            '-',
+
             { key = 'G', msg = 'Grid',                        fn = grid.show, optional_mods = 'shift'          },
             { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.show_fn('shift'), skip_help_msg = true },
         },

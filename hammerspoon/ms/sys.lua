@@ -140,6 +140,14 @@ end
     return find_usb_device_by_name('ErgoDox') or find_usb_device_by_name('Moonlander Mark I')
 end
 
+--[[ export ]] local function get_current_window_size()
+    local size = hs.window.focusedWindow():size()
+
+    local msg = string.format("Window Size: %dx%d", size.w, size.h)
+
+    hs.alert(msg, { textFont = 'Berkeley Mono' }, 3)
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     mount_smb = mount_smb,
@@ -160,4 +168,6 @@ return {
     gc = gc,
 
     using_moonlander_ergodox = using_moonlander_ergodox,
+
+    get_current_window_size = get_current_window_size,
 }
