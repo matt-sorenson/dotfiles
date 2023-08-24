@@ -72,6 +72,15 @@ dot-check-for-update() {
         fi
     fi
 
+    if type ~/.config/emacs/bin/doom >> /dev/null; then
+        print-header green "Updating doom emacs."
+
+        if ! ~/.config/emacs/bin/doom upgrade; then
+            print-header red "failed to upgrade doom emacs."
+            OUT=1
+        fi
+    fi
+
     if [[ $OUT -eq 0 ]]; then
         local UPDATE_FILENAME="${DOTFILES}/tmp/dotfile-update"
         local CURRENT_TIME=$(date +%s)
