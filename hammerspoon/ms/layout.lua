@@ -156,10 +156,11 @@ local _layout_mt = {
 
 local function _layout_new(input, name)
     local self = {
-        name = function(self) return input.name end,
+        name = function(self) return name end,
         sections = function(self) return input.sections end,
         layout = function(self) return input.layout end,
-        is_work_computer = function(self) return input.is_work_computer end
+        is_work_computer = function(self) return input.is_work_computer == true end,
+        is_fallback = function(self) return input.fallback == true end,
     }
 
     _layout_init_layout(self)
@@ -203,16 +204,35 @@ local function load_screen_configurations()
     return screen_configs
 end
 
+local function filter_configs(screen_configs)
+    if #screen_configs > 1 then
+        local tmp = screen_configs
+        screen_configs = {}
+
+        for _, v in ipairs(tmp) do
+            if true ~= v:is_fallback() then
+                table.insert(screen_configs, v)
+            else
+                print("['" .. v:name() .. "]' excluded fallback")
+            end
+        end
+    end
+
+    return screen_configs
+end
+
 local function get_config()
     local screen_configs = load_screen_configurations()
+
+    screen_configs = filter_configs(screen_configs)
 
     if 1 < #screen_configs then
         error('too many screen layouts found.')
     elseif 0 == #screen_configs then
         error('no valid screen layouts found.')
-    else
-        return screen_configs[1]
     end
+
+    return screen_configs[1]
 end
 
 local current_config = get_config()

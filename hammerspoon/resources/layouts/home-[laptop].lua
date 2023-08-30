@@ -9,5 +9,10 @@ return {
             { window = 'Slack', rect = {   0, 0, 1/2, 1 }, layouts = 'communications' },
             { app = 'Messages', rect = { 1/2, 0, 1/2, 1 }, layouts = 'communications' },
         },
-    }
+    },
+
+    -- fallback means this layout is just the laptop screen
+    -- if multiple matching layouts are available then this layout
+    -- will not be used.
+    fallback = true,
 }
