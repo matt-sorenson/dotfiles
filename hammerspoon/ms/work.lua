@@ -11,7 +11,7 @@
         PR_TARGETS[#PR_TARGETS + 1] = name
     end
 
-    hs.alert(PR_TARGETS[hs.math.random(1, #PR_TARGETS)], 3)
+    hs.alert(PR_TARGETS[hs.math.random(1, #PR_TARGETS)])
 end
 
 return {
