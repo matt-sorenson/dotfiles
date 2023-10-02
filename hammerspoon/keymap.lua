@@ -93,7 +93,7 @@ return {
             { key = '0', msg = 'Caffeine on 180 Minutes', fn = function() caffeine.timed_on_m(180) end },
         },
 
-        { key = 'T', msg = 'Select Random PR Targets (Squad One)', fn = function() work.get_random_team_member('team-squad-one') end },
-        { key = 'R', msg = 'Select Random PR Targets (Clinic Services)', fn = function() work.get_random_team_member('team-clinic-services') end },
+        { key = 'R', msg = 'Select Random PR Targets (Squad One)', fn = work.get_random_team_member_fn('team-squad-one') },
+        { key = 'T', msg = 'Select Random PR Targets (Seal Team)', fn = work.get_random_team_member_fn('team-seal') },
     }
 }
