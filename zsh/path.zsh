@@ -18,8 +18,11 @@ add-to-path "${HOME}/bin"
 add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.yarn/bin"
 add-to-path "${HOME}/.config/yarn/global/node_modules/.bin"
-add-to-path "/usr/local/opt/node@14/bin"
 add-to-path '/usr/local/opt/postgresql@12/bin'
+
+if [ -f "/opt/homebrew/bin/brew" ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
 export PATH
 
