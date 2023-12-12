@@ -53,3 +53,27 @@ print-header(){
     local message="${@}"
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
+
+if type jq > /dev/null; then
+    function jwt_print () {
+        local jwt=$1;
+        if [ -z "${jwt}" ]; then
+            if ! type pbpaste > /dev/null; then
+                echo "ERROR: pbpaste not found. Must pass a JWT as an argument.";
+                return 1;
+            fi;
+            jwt=$(pbpaste);
+        fi;
+        echo "JWT> ${jwt}";
+        echo "Header:";
+        echo "${jwt}" | jq -R 'split(".") | .[0] | @base64d | fromjson';
+        echo "Payload:";
+        echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson';
+        echo -n "Issued at: ";
+        echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .iat | todate';
+        echo -n "Expire at: ";
+        echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .exp | todate';
+        echo -n "Sig: ";
+        echo "${jwt}" | jq -R 'split(".") | .[2]'
+    }
+fi
