@@ -8,6 +8,10 @@ ws() {
     cd "$WORKSPACE_ROOT_DIR/$1"
 }
 
+wscode() {
+    code "$WORKSPACE_ROOT_DIR/$1"
+}
+
 # Helper function cause I can never remember the syntax
 is-function() {
     typeset -f "$1" > /dev/null
