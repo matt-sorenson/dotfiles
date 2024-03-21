@@ -90,6 +90,8 @@ return {
             { key = '4', msg = 'Caffeine on 40 Minutes', fn = function() caffeine.timed_on_m(40) end },
             { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
             { key = '6', msg = 'Caffeine on 60 Minutes', fn = function() caffeine.timed_on_m(60) end },
+
+            { key = '9', msg = 'Caffeine on 120 Minutes', fn = function() caffeine.timed_on_m(120) end },
             { key = '0', msg = 'Caffeine on 180 Minutes', fn = function() caffeine.timed_on_m(180) end },
         },
 
