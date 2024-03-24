@@ -19,6 +19,4 @@ return {
         { screen = 1, rect = {       1/3, 0,             2/5, 1 } },
         { screen = 1, rect = { 1/3 + 2/5, 0, 1 - (1/3 + 2/5), 1 } },
     },
-
-    is_work_computer = true,
 }
