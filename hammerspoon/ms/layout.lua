@@ -206,6 +206,7 @@ end
 
 local function filter_configs(screen_configs)
     if #screen_configs > 1 then
+        print("Multiple screen layouts found, filtering out fallback layouts.")
         local tmp = screen_configs
         screen_configs = {}
 
@@ -214,6 +215,22 @@ local function filter_configs(screen_configs)
                 table.insert(screen_configs, v)
             else
                 print("['" .. v:name() .. "]' excluded fallback")
+            end
+        end
+    end
+
+    if #screen_configs > 1 then
+        if sys.is_work_computer() then
+            print("Multiple screen layouts found, on work computer, filtering out non-work layouts.")
+            local tmp = screen_configs
+            screen_configs = {}
+
+            for _, v in ipairs(tmp) do
+                if true == v:is_work_computer() then
+                    table.insert(screen_configs, v)
+                else
+                    print("['" .. v:name() .. "]' excluded non-work computer")
+                end
             end
         end
     end
