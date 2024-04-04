@@ -18,7 +18,8 @@ add-to-path "${HOME}/bin"
 add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.yarn/bin"
 add-to-path "${HOME}/.config/yarn/global/node_modules/.bin"
-add-to-path '/usr/local/opt/postgresql@12/bin'
+add-to-path '/opt/homebrew/opt/postgresql@12/bin/'
+
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
 
