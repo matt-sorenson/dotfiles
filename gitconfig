@@ -1,3 +1,6 @@
+    # Create the file `${dotfiles}/local/gitconfig` to override settings in here
+    # Specifically probably need to override user.email
+
 [user]
     email = matt@mattsorenson.com
     name = Matt Sorenson

@@ -6,7 +6,7 @@ return {
             { app = 'Messages', rect = { 1/6, 1/8, 1/6, 7/8 }, categories = 'communications' },
             { app = 'Slack', rect = { 1/10,  0, 5/18, 7/8 }, categories = 'communications' },
 
-            { app = {'Code', 'VSCodium', 'DataGrip', 'IntelliJ IDEA'}, section = 3, categories = 'primary' },
+            { app = {'Code', 'VSCodium', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 3, categories = 'primary' },
 
             { app = {'Chrome'},  section = 4 },
             { app = {'Firefox', 'Music'}, section = 1, categories = 'media' },
