@@ -30,9 +30,40 @@ end
     timed_on_s(hs.timer.minutes(time_in_min))
 end
 
+function time_remaining()
+    if timer then
+        return timer:nextTrigger()
+    end
+
+    return 0
+end
+
+function secondsToHumanReadable(time_in_sec)
+    local minutes = math.floor(time_in_sec / 60)
+    local hours = math.floor(minutes / 60)
+
+    if hours > 0 then
+        minutes = minutes - (60 * hours)
+
+        if minutes == 0 then
+            return string.format("%dh", hours)
+        end
+
+        return string.format("%dh %dm", hours, minutes)
+    elseif minutes > 0 then
+        return string.format("%dm", minutes)
+    end
+
+    return string.format("%ds", time_in_sec)
+end
+
 --[[export]] local function alert_is_on()
     if is_on() then
-        hs.alert("Caffeine is Enabled")
+        if timer then
+            hs.alert("Caffeine is Enabled: " .. secondsToHumanReadable(time_remaining()))
+        else
+            hs.alert("Caffeine is Enabled")
+        end
     else
         hs.alert("Caffeine is Disabled")
     end
