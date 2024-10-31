@@ -91,11 +91,14 @@ return {
             { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
             { key = '6', msg = 'Caffeine on 60 Minutes', fn = function() caffeine.timed_on_m(60) end },
 
-            { key = '9', msg = 'Caffeine on 120 Minutes', fn = function() caffeine.timed_on_m(120) end },
-            { key = '0', msg = 'Caffeine on 180 Minutes', fn = function() caffeine.timed_on_m(180) end },
+            '-',
+
+            { key = '1', mods = 'shift', msg = 'Caffeine on 1 Hour',  fn = function() caffeine.timed_on_m(60) end },
+            { key = '2', mods = 'shift', msg = 'Caffeine on 2 Hours', fn = function() caffeine.timed_on_m(120) end },
+            { key = '3', mods = 'shift', msg = 'Caffeine on 3 Hours', fn = function() caffeine.timed_on_m(180) end },
         },
 
-        { key = 'R', msg = 'Select Random PR Targets (Squad One)', fn = work.get_random_team_member_fn('team-squad-one') },
-        { key = 'T', msg = 'Select Random PR Targets (Seal Team)', fn = work.get_random_team_member_fn('team-seal') },
+        { key = 'C', msg = 'Select Random PR Targets (Security)', fn = work.get_random_team_member_fn('team-security') },
+
     }
 }
