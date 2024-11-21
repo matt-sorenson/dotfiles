@@ -1,7 +1,7 @@
 local sys = require 'ms.sys'
 
 local DEVICE_NAMES = {
-    audioengine = 'Audioengine 2+  ',
+    audioengine = 'Audioengine 2+',
     builtin = 'MacBook Pro Speakers',
     monitor = 'LS49AG95',
 }
