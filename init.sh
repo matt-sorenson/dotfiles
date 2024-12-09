@@ -62,7 +62,7 @@ print-header(){
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
-DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
+DOTFILES="${HOME}/.dotfiles"
 
 safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
 
