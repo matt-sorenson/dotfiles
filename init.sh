@@ -1,5 +1,15 @@
 #! /usr/bin/env zsh
 
+# Expect the following variables to be set:
+# GIT_EMAIL
+#   email to use for git commits
+# DOTFILES_LOCAL_GIT_REPO
+#   - git repo to clone for 'local' dotfiles.
+#   - If not set, a local directory will be created
+#   - if there's no reason to keep it seperate (like work specific configs that
+#     should be stored in works cloud) then just use the `./local.${HOSTNAME}`
+#     directory
+
 autoload -Uz colors && colors
 
 backup-file() {
