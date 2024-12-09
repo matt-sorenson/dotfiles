@@ -2,6 +2,7 @@ autoload -Uz colors && colors
 
 dot-check-for-update-git() {
     local dir="$1"
+    local QUIET="$2"
     local OUT=0
 
     if [[ -d "${dir}" ]]; then
@@ -26,10 +27,10 @@ dot-check-for-update-git() {
             fi
 
             popd > /dev/null
-        else
+        elif [[ "$QUIET" -ne 1 ]]; then
             print-header yellow "Directory not a git repo: ${dir}"
         fi
-    else
+    elif [[ "$QUIET" -ne 1 ]]; then
         print-header yellow "Missing Directory: ${dir}"
     fi
 
@@ -38,7 +39,7 @@ dot-check-for-update-git() {
 
 dot-check-for-update() {
     local -a REPOS_TO_UPDATE
-    REPOS_TO_UPDATE=( "${DOTFILES}" "${DOTFILES}/local" "${HOME}/.zprezto" )
+    REPOS_TO_UPDATE=( "${DOTFILES}" "${HOME}/.zprezto" )
     local OUT=0
 
     for dir in $REPOS_TO_UPDATE; do
@@ -46,6 +47,10 @@ dot-check-for-update() {
             OUT=1
         fi
     done
+
+    if ! dot-check-for-update-git "${DOTFILES}/local" 1; then
+        OUT=1
+    fi
 
     if type "hs" >> /dev/null; then
         print-header green "Reloading hammerspoon"
