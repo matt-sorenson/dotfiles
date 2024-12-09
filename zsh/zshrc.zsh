@@ -36,27 +36,30 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 HISTFILE="${DOTFILES}/tmp/history"
 HISTSIZE=101000
 SAVEHIST=100000
-setopt hist_expire_dups_first
-setopt hist_reduce_blanks
-setopt hist_ignore_dups
-setopt hist_find_no_dups
-setopt hist_verify
-setopt share_history
-setopt no_append_history
+setopt extended_history         # Write the history file in the ':start:elapsed;command' format.
+setopt hist_expire_dups_first   # Expire a duplicate event first when trimming history.
+setopt hist_reduce_blanks       # Remove superfluous blanks from each command line being added to the history list.
+setopt hist_ignore_dups         # Do not record an event that was just recorded again.
+setopt hist_find_no_dups        # Do not display a previously found event.
+setopt hist_verify              # For multiline history don’t execute the line directly; instead, perform history expansion and reload the line into the editing buffer.
+setopt share_history            # Share history between all sessions.
+setopt inc_append_history_time  # Append to history file instead of replacing it.
 
 # Directory stack options
-setopt auto_pushd
-setopt auto_cd
-setopt pushd_to_home
-setopt no_pushd_silent
+setopt auto_pushd           # treat cd as pushd allowing popd to go back to previous directory
+setopt auto_cd              # If provided a valid directory and no command treat it as cd
+setopt pushd_to_home        # Push to home when no directories in stack
+
+unsetopt pushd_silent       # Print the new directory stack after pushd or popd.
 
 # Random settings
-setopt complete_inword
-setopt extended_glob
+setopt complete_in_word     # Leave cursor when using completions
+setopt extended_glob        # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc. (An initial unquoted ‘~’ always produces named directory expansion.)
 setopt interactive_comments # treat comments as comments in interactive shell
-setopt no_beep
-setopt clobber
-setopt multios
+setopt clobber              # Allow `>` to truncate files
+setopt multios              # Perform implicit tees or cats when multiple redirections are attempted
+
+unsetopt beep               # Disable 'pc speaker' beep
 
 auto-check-for-update
 
