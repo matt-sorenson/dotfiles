@@ -1,5 +1,4 @@
 alias less='less -XF'
-alias please=sudo
 alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
