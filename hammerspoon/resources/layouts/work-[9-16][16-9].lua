@@ -1,7 +1,7 @@
 return {
     layout = {
         { -- Primary Screen
-            screen = {'3840x1600'},
+            screen = {'3840x1600', '3440x1440'},
 
             { app = {'Code', 'VSCodium', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1, categories = 'primary' },
 
