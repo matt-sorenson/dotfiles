@@ -15,11 +15,11 @@ local KEYBOARD_GRIDS = {
 
     -- While this looks really odd, for 49" ultrawide want 6x2 grid
     moonlander = {
-        {  'Z',  'X',  'C',  'V',  'B',  'N' },
         { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
         {  '1',  '2',  '3',  '4',  '5',  '=' },
         {  'Q',  'W',  'E',  'R',  'T',  'HOME' },
         {  'A',  'S',  'D',  'F',  'G',  'H' },
+        {  'Z',  'X',  'C',  'V',  'B',  'N' },
     }
 }
 
@@ -38,22 +38,25 @@ end
 
 local GRID_LAYOUTS = {
     standard = {
-        ['3840x2160']   = '5x2',
-        ['DELL U3415W'] = '6x2',
-        ['3440x1440']   = '6x2',
-        ['5120x1440']   = '6x2',
-        ['LS49AG95']    = '6x2',
-        ['1440x2560']   = '3x4'
+        ['5120x1440']   = '6x2', -- 49" Ultrawide
+        ['3840x1600']   = '5x2', -- 38" Ultrawide
+        ['3840x2160']   = '5x2', -- 4K
+        ['3440x1440']   = '6x2', -- 34" Ultrawide
+        ['1440x2560']   = '3x4', -- 27" 9:16 - Vertical
     },
+
     shift = {
-        ['3840x2160']   = '5x4',
-        ['DELL U3415W'] = '5x2',
-        ['3440x1440']   = '5x2',
-        ['5120x1440']   = '5x2',
-        ['LS49AG95']    = '5x2',
-        ['1440x2560']   = '4x4'
+        ['5120x1440']   = '5x3', -- 49" Ultrawide
     }
 }
+
+-- For other resolutions, use standard
+for k, v in pairs(GRID_LAYOUTS.standard) do
+    if GRID_LAYOUTS.shift[k] == nil then
+        GRID_LAYOUTS.shift[k] = v
+    end
+end
+
 
 local function set_grid(layout)
     for screen, dim in pairs(GRID_LAYOUTS[layout]) do
