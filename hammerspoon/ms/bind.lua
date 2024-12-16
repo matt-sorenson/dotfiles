@@ -1,6 +1,4 @@
-local logger = require 'ms.logger'
-
-local print = logger.logger_fn('bind')
+local print = require('ms.logger').logger_fn('bind')
 
 local current_modal, default_modal
 

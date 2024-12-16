@@ -1,6 +1,4 @@
-local logger = require 'ms.logger'
-
-local print = logger.logger_fn('init')
+local print = require('ms.logger').logger_fn('init')
 
 local WHO_AM_I = os.getenv('USER')
 

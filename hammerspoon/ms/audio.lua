@@ -1,7 +1,6 @@
 local sys = require 'ms.sys'
-local logger = require 'ms.logger'
 
-local print = logger.logger_fn('audio')
+local print = require('ms.logger').logger_fn('audio')
 
 local DEVICE_NAMES = {
     audioengine = 'Audioengine 2+',
@@ -29,6 +28,15 @@ end
     return function() update_volume(d_volume) end
 end
 
+--[[export]] local function toggle_mute()
+    local device = get_device()
+    device:setMuted(not device:muted())
+end
+
+--[[export]] local function is_muted()
+    return get_device():muted()
+end
+
 --[[export]] local function setup_output(device_name)
     local requested_name = DEVICE_NAMES[device_name] or device_name
 
@@ -51,11 +59,20 @@ end
     end
 end
 
+--[[ export ]] local function toggle_mic_mute()
+    local device = hs.audiodevice.defaultInputDevice()
+    device:setMuted(not device:muted())
+end
+
 return {
     get_volume = get_volume,
     set_volume = set_volume,
     update_volume_fn = update_volume_fn,
     update_volume = update_volume,
+    toggle_mute = toggle_mute,
+    is_muted = is_muted,
+
+    toggle_mic_mute = toggle_mic_mute,
 
     setup_output = setup_output
 }

@@ -36,3 +36,5 @@ on_device_change()
 
 hs.caffeinate.watcher.new(on_device_change):start()
 hs.usb.watcher.new(on_device_change):start()
+
+require 'ms.streamdeck'
