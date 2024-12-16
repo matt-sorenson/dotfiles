@@ -1,4 +1,7 @@
 local sys = require 'ms.sys'
+local logger = require 'ms.logger'
+
+local print = logger.logger_fn('init')
 
 hs.grid.setMargins(hs.geometry.size(0, 0))
 

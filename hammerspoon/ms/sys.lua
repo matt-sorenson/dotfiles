@@ -1,3 +1,7 @@
+local logger = require 'ms.logger'
+
+local print = logger.logger_fn('init')
+
 local WHO_AM_I = os.getenv('USER')
 
 -- Use 'is-work' file to determine this to massively simplify it
@@ -120,6 +124,14 @@ end
     return contents
 end
 
+--[[ export]] local function get_resource_path(local_path)
+return hs.configdir .. '/resources/' .. local_path
+end
+
+--[[ export ]] local function ls_resource_path(local_path)
+    return ls(get_resource_path(local_path))
+end
+
 --[[ export ]] local function open_finder_fn(path)
     return function()
         hs.execute('open ' .. (path or '~'))
@@ -161,6 +173,8 @@ return {
     who_am_i = function() return WHO_AM_I end,
 
     ls = ls,
+    ls_resource_path = ls_resource_path,
+    get_resource_path = get_resource_path,
 
     open_finder_fn = open_finder_fn,
     select_app_fn = select_app_fn,

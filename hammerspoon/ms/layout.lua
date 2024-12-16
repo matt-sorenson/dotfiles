@@ -1,4 +1,7 @@
 local sys = require 'ms.sys'
+local logger = require 'ms.logger'
+
+local print = logger.logger_fn('init')
 
 local function move_window(window, rect, screen)
     screen = screen or window:screen()
@@ -167,18 +170,18 @@ local function _layout_new(input, name)
 
     -- If an expected screen is missing then don't load the layout
     if not _layout_init_screens(self) then
-        print("['" .. name .. "'] screens not found")
+        print("'" .. name .. "' screens not found")
         return nil
     end
 
     -- If the layout is for work and it's not a work computer then don't
     -- load the layout
     if self:is_work_computer() and not sys.is_work_computer() then
-        print("['" .. name .. "'] not a work computer")
+        print("'" .. name .. "' not a work computer")
         return nil
     end
 
-    print("['" .. name .. "'] layout fits")
+    print("'" .. name .. "' layout fits")
 
     setmetatable(self, _layout_mt)
 
@@ -187,7 +190,7 @@ end
 
 local function load_screen_configurations()
     local screen_configs = {}
-    local layout_files = sys.ls('~/.hammerspoon/resources/layouts')
+    local layout_files = sys.ls_resource_path('/layouts')
 
     for _, filename in pairs(layout_files) do
         if filename:match('.lua$') then

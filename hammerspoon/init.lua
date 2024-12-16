@@ -4,6 +4,9 @@ require 'hs.ipc'
 require 'ms.helper'
 
 local sys = require 'ms.sys'
+local logger = require 'ms.logger'
+
+local print = logger.logger_fn('init')
 
 hs.ipc.cliInstall()
 

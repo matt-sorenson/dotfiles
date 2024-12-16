@@ -1,4 +1,7 @@
 local sys = require 'ms.sys'
+local logger = require 'ms.logger'
+
+local print = logger.logger_fn('audio')
 
 local DEVICE_NAMES = {
     audioengine = 'Audioengine 2+',
