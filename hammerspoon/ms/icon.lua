@@ -31,7 +31,7 @@ local function get_icon_from_canvas(elements, options)
 end
 
 local function try_load_image(path)
-  return hs.image.imageFromPath(sys.get_resource_path('streamdeck-icons/' .. name))
+  return hs.image.imageFromPath(sys.get_resource_path('icons/' .. path))
 end
 
 local EXTENSIONS_TO_TRY = { '.png', '.svg' }
@@ -70,7 +70,7 @@ local function load_icon_from_file(path)
     end
   end
 
-  print("failed to load streamdeck icon: " .. path)
+  print("failed to load icon: " .. path)
 end
 
 local function get_icon_from_file(path, options)
@@ -89,7 +89,7 @@ local function get_icon_from_file(path, options)
     table.insert(elements, {
         action = "fill",
         frame = { x = 0, y = 0, w = width, h = height },
-        fillColor = options.background_color or colors.systemBackgroundColor,
+        fillColor = options.background_color or colors.black,
         type = "rectangle",
     })
   end
@@ -105,7 +105,7 @@ end
 
 local function get_icon_from_text(text, options)
   local options = options or { }
-  local text_color = options.text_color or colors.tintColor
+  local text_color = options.text_color or colors.off_white
   local font = options['font'] or ".AppleSystemUIFont"
   local font_size = options['font_size'] or 70
   local elements = {}
@@ -117,7 +117,7 @@ local function get_icon_from_text(text, options)
     table.insert(elements, {
         action = "fill",
         frame = { x = 0, y = 0, w = width, h = height },
-        fillColor = options.background_color or colors.systemBackgroundColor,
+        fillColor = options.background_color or colors.black,
         type = "rectangle",
     })
   end
@@ -135,11 +135,33 @@ local function get_icon_from_text(text, options)
   return get_icon_from_canvas(elements, options)
 end
 
+local function get_icon_for_color(color, options)
+  local width = options.width or BUTTON_WIDTH
+  local height = options.height or BUTTON_HEIGHT
+
+  local elements = {
+    {
+      action = "fill",
+      frame = { x = 0, y = 0, w = width, h = height },
+      fillColor = color or colors.black,
+      type = "rectangle",
+    }
+  }
+
+  return get_icon_from_canvas(elements, options)
+end
+
 --[[ export ]] local function get_icon(options)
+  if type(options) == 'string' then
+    options = { text = options }
+  end
+
   if options.path then
     return get_icon_from_file(options.path, options)
   elseif options.text then
     return get_icon_from_text(options.text, options)
+  elseif options.color then
+    return get_icon_for_color(options.color, options)
   else 
     print('You must provide either a path or text to get_icon')
   end

@@ -64,6 +64,10 @@ end
     device:setMuted(not device:muted())
 end
 
+--[[ export ]] local function is_mic_muted()
+    return hs.audiodevice.defaultInputDevice():muted()
+end
+
 return {
     get_volume = get_volume,
     set_volume = set_volume,
@@ -73,6 +77,7 @@ return {
     is_muted = is_muted,
 
     toggle_mic_mute = toggle_mic_mute,
+    is_mic_muted = is_mic_muted,
 
     setup_output = setup_output
 }

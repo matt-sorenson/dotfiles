@@ -52,6 +52,7 @@ local function get_colors()
   colors.systemTealColor = system_colors.systemTealColor
   colors.systemYellowColor = system_colors.systemYellowColor
 
+  colors.off_white = { red = .98, green = .97, blue = .96, alpha = 1 }
   colors.white = { red = 1, green = 1, blue = 1, alpha = 1 }
   colors.black = { red = 0, green = 0, blue = 0, alpha = 1 }
   colors.blue = system_colors.systemBlueColor
