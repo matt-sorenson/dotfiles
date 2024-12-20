@@ -4,8 +4,7 @@ local print = require('ms.logger').logger_fn('audio')
 
 local DEVICE_NAMES = {
     audioengine = 'Audioengine 2+',
-    builtin = 'MacBook Pro Speakers',
-    monitor = 'LS49AG95',
+    builtin = 'MacBook Pro Speakers'
 }
 
 --[[export]] local function get_device()
@@ -38,16 +37,11 @@ end
 end
 
 --[[export]] local function setup_output(device_name)
-    local requested_name = DEVICE_NAMES[device_name] or device_name
+    local requested_name = device_name
 
     if nil == requested_name then return end
 
     local default_device_name = hs.audiodevice.defaultOutputDevice():name();
-
-    if debug_output.audio then
-        print("default uid:   '" .. default_device_uid .. "'")
-        print("requested uid: '" .. requested_name .. "'")
-    end
 
     if default_device_name ~= requested_name then
         local new_device = hs.audiodevice.findOutputByName(requested_name)
@@ -79,5 +73,7 @@ return {
     toggle_mic_mute = toggle_mic_mute,
     is_mic_muted = is_mic_muted,
 
-    setup_output = setup_output
+    setup_output = setup_output,
+
+    device_names = DEVICE_NAMES,
 }

@@ -1,10 +1,7 @@
 local audio = require 'ms.audio'
 local bind  = require 'ms.bind'
-local grid  = require 'ms.grid'
-local sys   = require 'ms.sys'
-
-local icon = require 'ms.icon'
 local streamdeck = require 'ms.streamdeck'
+local sys   = require 'ms.sys'
 
 REMOTE_SHARES = {}
 
@@ -20,70 +17,8 @@ end
 
 hs.window.animationDuration = 0
 
-local modal = bind.init(require('keymap'))
-
-local deck = streamdeck.new({
-    buttons = {
-        {
-            type = 'folder',
-
-            buttons = {
-                'up',
-                'blank',
-                'blank',
-                'blank',
-
-                'blank',
-                'blank',
-                'blank',
-                'blank',
-            }
-        },
-        'blank',
-        'blank',
-        {
-            on_press = function(self, deck)
-                audio:toggle_mic_mute()
-                return true
-            end,
-
-            get_icon = function(self)
-                if audio:is_mic_muted() then
-                    return icon.get_icon({
-                        path = 'mic-muted.png',
-                    })
-                else
-                    return icon.get_icon({
-                        path = 'mic-unmuted.png',
-                    })
-                end
-            end,
-        },
-
-        'blank',
-        'blank',
-        'blank',
-        {
-            on_press = function(self, deck)
-                audio:toggle_mute()
-                return true
-            end,
-
-            get_icon = function(self)
-                if audio:is_muted() then
-                    return icon.get_icon({
-                        path = 'speaker-muted.png',
-                    })
-                else
-                    return icon.get_icon({
-                        path = 'speaker-unmuted.png',
-                    })
-                end
-            end,
-        },
-    }
-})
-
+local modal = bind.init(require('config-keymap'))
+local deck = streamdeck.new(require('config-streamdeck'))
 
 if REMOTE_HOME then
     local finder_modal = modal.children['global'].children['finder']
@@ -91,7 +26,9 @@ if REMOTE_HOME then
 end
 
 local function on_device_change()
-    audio.setup_output('audioengine')
+    audio.setup_output(audio.device_names.audioengine)
+
+    -- On home machine mount NAS shares
     if not sys.is_work_computer() then
         sys.mount_smb_shares(REMOTE_SHARES)
     end
