@@ -55,19 +55,11 @@ return {
   encoders = {
     [4] = {
       on_turn = function(self, deck, direction)
-        local volume = audio.get_volume()
         if direction == 'left' then
           audio.update_volume(-7)
         else
           audio.update_volume(7)
         end
-
-        local new_volume = audio.get_volume()
-
-        print('volume', {
-          old_volume = volume,
-          new_volume = new_volume,
-        })
 
         return true
       end,
