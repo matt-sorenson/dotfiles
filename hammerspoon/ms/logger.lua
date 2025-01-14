@@ -64,7 +64,15 @@ local function system_logger(system, message, obj)
     end
 
     if (obj) then
-        print('[' .. system .. '] ' .. message .. '\n' .. table_to_string(obj, INDENT))
+        local obj_str
+
+        if type(obj) == 'table' then
+            obj_str = table_to_string(obj)
+        else
+            obj_str = tostring(obj)
+        end
+
+        print('[' .. system .. '] ' .. message .. '\n' .. obj_str)
     else
         print('[' .. system .. '] ' .. message)
     end

@@ -3,7 +3,7 @@ local print = require('ms.logger').logger_fn('sys')
 local WHO_AM_I = os.getenv('USER')
 
 -- Use 'is-work' file to determine this to massively simplify it
-local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes("~/.hammerspoon/is-work"))
+local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes("~/.hammerspoon/local/is-work"))
 
 --[[ export ]] local function gc()
     print("Pre GC: " .. math.floor(collectgarbage("count")) .. 'kb')
@@ -158,6 +158,20 @@ end
     hs.alert(msg, { textFont = 'Berkeley Mono' }, 3)
 end
 
+--[[ export ]] local function do_file_hs_local(filename)
+    local file = hs.fs.pathToAbsolute(hs.configdir .. "/local/" .. filename)
+    if not file then
+        return error("Could not find file: " .. filename)
+    end
+
+    local fn, err = loadfile(file)
+    if not fn then
+        error("Error loading file: " .. err)
+    end
+
+    return fn()
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     mount_smb = mount_smb,
@@ -182,4 +196,6 @@ return {
     using_moonlander_ergodox = using_moonlander_ergodox,
 
     get_current_window_size = get_current_window_size,
+
+    do_file_hs_local = do_file_hs_local,
 }

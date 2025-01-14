@@ -21,6 +21,7 @@ local function get_icon_from_canvas(elements, options)
   end
 
   canvas:replaceElements(elements)
+
   local image = canvas:imageFromCanvas()
 
   if canvas ~= shared_canvas then
@@ -90,7 +91,7 @@ local function get_icon_from_file(path, options)
         action = "fill",
         frame = { x = 0, y = 0, w = width, h = height },
         fillColor = options.background_color or colors.black,
-        type = "rectangle",
+        type = "rectangle"
     })
   end
 
@@ -98,6 +99,7 @@ local function get_icon_from_file(path, options)
       frame = { x = 0, y = 0, w = width, h = height },
       image = image,
       type = "image",
+      transformation = options.transform,
   })
 
   return get_icon_from_canvas(elements, options)
@@ -130,6 +132,7 @@ local function get_icon_from_text(text, options)
           color = text_color,
       }),
       type = "text",
+      transformation = options.transform,
   })
 
   return get_icon_from_canvas(elements, options)
@@ -162,6 +165,8 @@ end
     return get_icon_from_text(options.text, options)
   elseif options.color then
     return get_icon_for_color(options.color, options)
+  elseif options.canvas then
+    return get_icon_from_canvas(options.canvas, options)
   else 
     print('You must provide either a path or text to get_icon')
   end

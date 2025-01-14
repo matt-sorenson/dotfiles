@@ -5,11 +5,6 @@ local sys   = require 'ms.sys'
 
 REMOTE_SHARES = {}
 
-debug_output = {
-    audio = false,
-    grid = true,
-}
-
 if not sys.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
     REMOTE_HOME = 'matt-srv'

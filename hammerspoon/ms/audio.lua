@@ -7,6 +7,15 @@ local DEVICE_NAMES = {
     builtin = 'MacBook Pro Speakers'
 }
 
+local DEVICE_CONFIG = {
+    audioengine = {
+        min_delta = 7
+    },
+    default = {
+        min_delta = 5
+    }
+}
+
 --[[export]] local function get_device()
     return hs.audiodevice.defaultOutputDevice()
 end
@@ -23,17 +32,29 @@ end
     set_volume(math.max(0, math.min(100, get_volume() + d_volume)))
 end
 
---[[export]] local function update_volume_fn(d_volume)
-    return function() update_volume(d_volume) end
+--[[export]] local function increase_volume()
+local device = get_device()
+    if device:name() == DEVICE_NAMES.audioengine then
+        update_volume(DEVICE_CONFIG.default.min_delta)
+    end
+end
+
+--[[export]] local function decrease_volume()
+local device = get_device()
+    if device:name() == DEVICE_NAMES.audioengine then
+        update_volume(-DEVICE_CONFIG.audioengine.min_delta)
+    else
+        update_volume(-DEVICE_CONFIG.default.min_delta)
+    end
 end
 
 --[[export]] local function toggle_mute()
     local device = get_device()
-    device:setMuted(not device:muted())
+    device:setOutputMuted(not device:outputMuted())
 end
 
 --[[export]] local function is_muted()
-    return get_device():muted()
+    return get_device():outputMuted()
 end
 
 --[[export]] local function setup_output(device_name)
@@ -55,18 +76,22 @@ end
 
 --[[ export ]] local function toggle_mic_mute()
     local device = hs.audiodevice.defaultInputDevice()
-    device:setMuted(not device:muted())
+    device:setInputMuted(not device:inputMuted())
 end
 
 --[[ export ]] local function is_mic_muted()
-    return hs.audiodevice.defaultInputDevice():muted()
+    return hs.audiodevice.defaultInputDevice():inputMuted()
 end
 
 return {
     get_volume = get_volume,
     set_volume = set_volume,
-    update_volume_fn = update_volume_fn,
+
+    increase_volume = increase_volume,
+    decrease_volume = decrease_volume,
+
     update_volume = update_volume,
+
     toggle_mute = toggle_mute,
     is_muted = is_muted,
 

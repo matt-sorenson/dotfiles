@@ -27,9 +27,6 @@ local function select_layout()
     local grid = KEYBOARD_GRIDS.standard
 
     if sys.using_moonlander_ergodox() then
-        if debug_output.grid then
-            print('moonlander grid')
-        end
         grid = KEYBOARD_GRIDS.moonlander
     end
 
