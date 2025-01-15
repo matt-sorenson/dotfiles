@@ -19,20 +19,9 @@ local blank_button_image = icon.get_icon({
 
 local button_mt = {
   __index = {
-    --[[
-      for `on_press`/`on_release` if a true is returned then the button
-      will be redrawn after the callback is complete
-    ]]
     on_press = function(self, deck) end,
     on_release = function(self, deck) end,
 
-    --[[
-      return
-        - `hs.image` - the rendered image to display
-        - { canvas = hs.canvas } } - a canvas to render
-          - see see also ms.icon.get_icon_from_canvas for description
-          - see also https://www.hammerspoon.org/docs/hs.canvas.html
-    ]]
     get_icon = function(self) return blank_button_image end,
 
     -- return nil if the screen does not refresh by itself
@@ -55,10 +44,23 @@ local button_mt = {
 
   out.on_press = config.on_press
   out.on_release = config.on_release
-  out.get_refresh_rate = config.get_refresh_rate
+
+  if config.refresh_rate then
+    local refresh_rate = config.refresh_rate
+    out.get_refresh_rate = function(self) return refresh_rate end
+  else
+    out.get_refresh_rate = config.get_refresh_rate
+  end
 
   if config.icon then
-    icn = icon.get_icon(config.icon)
+    local icn
+
+    if type(config.icon) == 'userdata' then
+      -- 'userdata' here means it's an `hs.image`
+      icn = config.icon
+    else
+      icn = icon.get_icon(config.icon)
+    end
     out.get_icon = function(self) return icn end
   else
     out.get_icon = config.get_icon

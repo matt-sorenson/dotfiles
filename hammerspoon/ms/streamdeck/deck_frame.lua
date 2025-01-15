@@ -20,21 +20,30 @@ local encoder = require 'ms.streamdeck.encoder'
       { -- Any of the button fields may be nil
         type = 'button', -- nil will be treated as 'button'
 
+        -- Most implementations will just need `on_press` to be defined but
+        -- `on_release` is available if it is needed.
+        -- If either method returns `true` then the button will be redrawn.
         on_press = function(self, deck) end,
         on_release = function(self, deck) end,
 
         -- If `icon` is provided it will be used, otherwise falls back to `get_icon()`
+        -- get_icon should return either an `hs.image` or a table for `ms.icon.get_icon()`
+        icon = `hs.image` or input table for `ms.icon.get_icon()`
         get_icon = function(self) end,
-        icon = `hs.image`
+
+        -- If refresh_rate is provided then it is used, otherwise falls back to
+        -- `get_refresh_rate()`. If neither is provided a default
+        -- `get_refresh_rate()` is provided that returns nil. `get_refresh_rate()`
+        -- is called any time the the deck frame is entered.
+        refresh_rate = number, -- seconds,
+        get_refresh_rate = function(self) return <time_in_seconds> or nil end,
       },
 
       {
         type = 'folder',
 
-        stack = {
-          buttons = {},
-          encoders = {},
-        }
+        buttons = {},
+        encoders = {},
       }
     },
 
@@ -66,7 +75,7 @@ end
 local noop_button = button.new()
 local function redraw_button(self, deck, button_idx)
   local icn
-  
+
   if self.buttons[button_idx] then
     icn = self.buttons[button_idx]:get_icon()
   else
@@ -83,7 +92,7 @@ end
 local noop_encoder = encoder.new()
 local function redraw_encoder(self, deck, encoder_idx)
   local icn
-  
+
   if self.encoders[encoder_idx] then
     icn = self.encoders[encoder_idx]:get_screen_image()
   else
@@ -119,7 +128,7 @@ function button_callback(self, deck, button, pressed)
 end
 
 local function encoder_callback(self, deck, encoder, direction)
-  local result 
+  local result
   if self.encoders[encoder] then
     result = self.encoders[encoder]:on_turn(deck, direction)
   end
@@ -133,6 +142,20 @@ local function encoder_callback(self, deck, encoder, direction)
   end
 
   return result
+end
+
+local function refresh_button(deck_frame, button_idx, deck)
+  deck_frame:redraw_button(deck, button_idx)
+end
+
+local function refresh_encoder(deck_frame, encoder_idx, deck)
+  deck_frame:redraw_encoder(deck, encoder_idx)
+end
+
+local function setup_timer(deck_frame, method, index, deck, interval)
+  return hs.timer.new(interval, function()
+    method(deck_frame, index, deck)
+  end)
 end
 
 local function enter(self, deck)
@@ -155,9 +178,36 @@ local function enter(self, deck)
   end)
 
   redraw(self, deck)
+
+  self.timers = {}
+  for i, btn in pairs(self.buttons) do
+    local refresh_rate = btn.get_screen_refresh_rate()
+    if refresh_rate then
+      local timer = setup_timer(self, refresh_button, i, deck, refresh_rate)
+      timer:start()
+
+      table.insert(self.timers, timer)
+    end
+  end
+
+  for i, enc in pairs(self.encoders) do
+    local refresh_rate = enc.get_screen_refresh_rate()
+    if refresh_rate then
+      local timer = setup_timer(self, refresh_encoder, i, deck, refresh_rate)
+      timer[i]:start()
+
+      table.insert(self.timers, timer)
+    end
+  end
 end
 
 local function exit(self, deck)
+  -- Stop and delete all timers
+  for _, timer in pairs(self.timers) do
+    timer:stop()
+  end
+  self.timers = {}
+
   self:on_exit(deck)
 end
 
@@ -186,10 +236,11 @@ local up_icon = icon.get_icon({
   transform = hs.canvas.matrix.translate(48, 48):scale(-1, 1):rotate(90):translate(-48, -43),
 })
 
-
 local function deck_frame_new(config, parent)
   local out = {}
   setmetatable(out, deck_frame_mt)
+
+  out.timers = {}
 
   out.buttons = {}
   if config.buttons then
@@ -202,7 +253,7 @@ local function deck_frame_new(config, parent)
           get_icon = function(self) return btn.icon end
         elseif btn.get_icon then
           get_icon = btn.get_icon
-        else 
+        else
           get_icon = function(self) return icon.get_icon({ text = '📁' }) end
         end
 
