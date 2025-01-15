@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('config:streamdeck:deck_frame')
+local print = require('ms.logger').logger_fn('ms:streamdeck:deck_frame')
 
 local colors = require 'ms.colors'
 local icon = require 'ms.icon'
@@ -181,7 +181,7 @@ local function enter(self, deck)
 
     self.timers = {}
     for i, btn in pairs(self.buttons) do
-        local refresh_rate = btn.get_screen_refresh_rate()
+        local refresh_rate = btn.get_refresh_rate()
         if refresh_rate then
             local timer = setup_timer(self, refresh_button, i, deck, refresh_rate)
             timer:start()

@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('config:streamdeck:button')
+local print = require('ms.logger').logger_fn('ms:streamdeck:button')
 
 local colors = require 'ms.colors'
 local icon = require 'ms.icon'
@@ -48,7 +48,7 @@ local button_mt = {
     if config.refresh_rate then
         local refresh_rate = config.refresh_rate
         out.get_refresh_rate = function(self) return refresh_rate end
-    else
+    elseif config.get_refresh_rate then
         out.get_refresh_rate = config.get_refresh_rate
     end
 

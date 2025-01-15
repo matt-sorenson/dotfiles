@@ -1,6 +1,6 @@
-local sys = require 'ms.sys'
+local print = require('ms.logger').logger_fn('ms:audio')
 
-local print = require('ms.logger').logger_fn('audio')
+local sys = require 'ms.sys'
 
 local DEVICE_CONFIG = {
     audioengine = {

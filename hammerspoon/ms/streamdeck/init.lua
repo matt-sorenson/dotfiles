@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('config:streamdeck:init')
+local print = require('ms.logger').logger_fn('ms:streamdeck:init')
 
 local colors = require 'ms.colors'
 local icon = require 'ms.icon'

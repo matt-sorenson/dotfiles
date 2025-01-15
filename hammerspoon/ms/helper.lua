@@ -1,3 +1,5 @@
+local print = require('ms.logger').logger_fn('ms:helper')
+
 -- If the input is not a table then insert it as the first element of an array
 -- and return that array. Usefull for functions that take 1 or more of a value
 function toarray(input)

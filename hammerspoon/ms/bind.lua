@@ -1,7 +1,7 @@
+local print = require('ms.logger').logger_fn('ms:bind')
+
 -- only log errors from within the hs.hotkey module
 hs.hotkey.setLogLevel('error')
-
-local print = require('ms.logger').logger_fn('bind')
 
 local current_modal, default_modal
 

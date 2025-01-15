@@ -1,3 +1,5 @@
+local print = require('ms.logger').logger_fn('ms:caffeine')
+
 local timer
 
 --[[export]] local function is_on()

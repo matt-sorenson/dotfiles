@@ -1,3 +1,5 @@
+local print = require('ms.logger').logger_fn('ms:colors')
+
 local function get_colors()
     local system_colors = hs.drawing.color.lists().System
 

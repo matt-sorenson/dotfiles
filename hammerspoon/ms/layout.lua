@@ -1,6 +1,6 @@
-local sys = require 'ms.sys'
+local print = require('ms.logger').logger_fn('ms:layout')
 
-local print = require('ms.logger').logger_fn('layout')
+local sys = require 'ms.sys'
 
 local function move_window(window, rect, screen)
     screen = screen or window:screen()
