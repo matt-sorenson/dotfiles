@@ -1,5 +1,6 @@
 local print = require('ms.logger').logger_fn('init')
 
+-- This kludges the hs.logger.new to use the ms.logger instead with a wrapper.
 require 'ms.logger.hammerspoon-kludge'
 
 

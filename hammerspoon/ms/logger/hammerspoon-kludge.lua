@@ -1,5 +1,5 @@
 local hslog = require('hs.logger')
-local mslog = require 'ms.logger'
+local mslog = require('ms.logger')
 
 local function hs_log_level_to_log_level(input)
     if 'nothing' == input or 0 == input then
@@ -20,7 +20,7 @@ local function hs_log_level_to_log_level(input)
 end
 
 hslog.new = function(system, level)
-    if not string.find(system, 'hs.') and not 'hs' == system then
+    if not string.find(system, 'hs.') and 'hs' ~= system then
         system = 'hs.' .. system
     end
 
