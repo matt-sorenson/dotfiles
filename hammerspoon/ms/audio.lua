@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('ms:audio')
+local print = require('ms.logger').logger_fn('ms.audio')
 
 local sys = require 'ms.sys'
 

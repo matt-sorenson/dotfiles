@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('ms:home-assistant')
+local print = require('ms.logger').logger_fn('ms.home-assistant')
 
 local sys = require 'ms.sys'
 

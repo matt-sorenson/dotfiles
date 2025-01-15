@@ -20,7 +20,13 @@ local function hs_log_level_to_log_level(input)
 end
 
 hslog.new = function(system, level)
+    if not string.find(system, 'hs.') and not 'hs' == system then
+        system = 'hs.' .. system
+    end
+
     local wrapper = mslog.logger_fn(system)
+
+    print("created hs log system: " .. system)
 
     return {
         v = function(msg) wrapper:verbose(message) end,
