@@ -26,8 +26,6 @@ hslog.new = function(system, level)
 
     local wrapper = mslog.logger_fn(system)
 
-    print("created hs log system: " .. system)
-
     return {
         v = function(msg) wrapper:verbose(message) end,
         d = function(msg) wrapper:debug(message) end,
