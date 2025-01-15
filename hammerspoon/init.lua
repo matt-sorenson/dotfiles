@@ -1,11 +1,11 @@
+local print = require('ms.logger').logger_fn('init')
+
 hs.notify.show('Hammerspoon', '(Re)loading', '')
 
 require 'hs.ipc'
 require 'ms.helper'
 
 local sys = require 'ms.sys'
-
-local print = require('ms.logger').logger_fn('init')
 
 hs.ipc.cliInstall()
 

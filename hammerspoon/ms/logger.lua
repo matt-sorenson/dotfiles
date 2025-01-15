@@ -1,3 +1,5 @@
+local sys_print = print
+
 local logger_systems_to_skip = {}
 --[[ export ]] local function logger_skip_system(system)
     logger_systems_to_skip[system] = true
@@ -7,7 +9,7 @@ end
     logger_systems_to_skip[system] = nil
 end
 
-local log_level = {
+local LOG_LEVEL_ENUM = {
     DEBUG = 1,
     INFO = 2,
     WARN = 3,
@@ -16,12 +18,12 @@ local log_level = {
 }
 
 local function log_level_to_num(level)
-    return log_level[level]
+    return LOG_LEVEL_ENUM[level]
 end
 
-local log_level = log_level_to_num('INFO')
+local system_log_level = log_level_to_num('DEBUG')
 --[[ export ]] local function set_log_level(level)
-    log_level = log_level_to_num(level)
+    system_log_level = log_level_to_num(level)
 end
 
 local table_shallow_copy = function(t)
@@ -75,7 +77,7 @@ local function system_logger(system, level, message, obj)
         return
     end
 
-    if log_level_to_num(level) >= log_level then
+    if log_level_to_num(level) < system_log_level then
         return
     end
 
@@ -92,16 +94,56 @@ local function system_logger(system, level, message, obj)
             obj_str = tostring(obj)
         end
 
-        print('[' .. system .. '] ' .. message .. '\n' .. obj_str)
+        sys_print('[' .. level .. ':' .. system .. '] ' .. message .. '\n' .. obj_str)
     else
-        print('[' .. system .. '] ' .. message)
+        sys_print('[' .. level .. ':' .. system .. '] ' .. message)
     end
 end
 
+local logger_mt_index = {
+    __index = {
+        debug = function(self, message, obj)
+            system_logger(self.system, 'DEBUG', message, obj)
+        end,
+        info = function(self, message, obj)
+            system_logger(self.system, 'INFO', message, obj)
+        end,
+        warn = function(self, message, obj)
+            system_logger(self.system, 'WARN', message, obj)
+        end,
+        error = function(self, message, obj)
+            system_logger(self.system, 'ERROR', message, obj)
+        end,
+        fatal = function(self, message, obj)
+            system_logger(self.system, 'FATAL', message, obj)
+        end,
+    },
+    __call = function(self, message, obj)
+        self:info(message, obj)
+    end,
+}
+
+--[[
+    Suggested usage:
+    ```lua
+        local print = require('ms.logger').logger_fn('init')
+
+        print('test')
+        print:error('error test')
+    ```
+
+    this will output the following to the console:
+    ```
+        2025-01-15 11:04:00: [INFO:init] test
+        2025-01-15 11:04:00: [ERROR:init] error test
+    ```
+]]
 --[[ export ]] local function logger_fn(system)
-    return function(message, obj)
-        system_logger(system, 'INFO', message, obj)
-    end
+    local out = {
+        system = system,
+    }
+    setmetatable(out, logger_mt_index)
+    return out
 end
 
 return {
