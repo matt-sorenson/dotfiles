@@ -1,5 +1,8 @@
 local print = require('ms.logger').logger_fn('init')
 
+require 'ms.logger.hammerspoon-kludge'
+
+
 hs.notify.show('Hammerspoon', '(Re)loading', '')
 
 require 'hs.ipc'
