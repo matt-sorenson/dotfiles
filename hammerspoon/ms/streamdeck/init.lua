@@ -8,5 +8,5 @@ local deck_frame = require 'ms.streamdeck.deck_frame'
 local encoder = require 'ms.streamdeck.encoder'
 
 return {
-  new = deck_frame.new,
+    new = deck_frame.new,
 }

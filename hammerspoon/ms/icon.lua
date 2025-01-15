@@ -1,7 +1,7 @@
+local print = require('ms.logger').logger_fn('icon')
+
 local sys = require 'ms.sys'
 local colors = require "ms.colors"
-
-local print = require('ms.logger').logger_fn('icon')
 
 -- Lots stolen from https://github.com/peterhajas/dotfiles/blob/a717d8fb0e89c787112f78529f97f1314ad70377/hammerspoon/.hammerspoon/
 
@@ -167,7 +167,7 @@ end
     return get_icon_for_color(options.color, options)
   elseif options.canvas then
     return get_icon_from_canvas(options.canvas, options)
-  else 
+  else
     print('You must provide either a path or text to get_icon')
   end
 end
