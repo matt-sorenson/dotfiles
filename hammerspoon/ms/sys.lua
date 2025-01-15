@@ -3,7 +3,7 @@ local print = require('ms.logger').logger_fn('ms:sys')
 local WHO_AM_I = os.getenv('USER')
 
 -- Use 'is-work' file to determine this to massively simplify it
-local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes("~/.hammerspoon/local/is-work"))
+local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes(hs.configdir .. "/local/is-work"))
 
 --[[ export ]] local function gc()
     print("Pre GC: " .. math.floor(collectgarbage("count")) .. 'kb')

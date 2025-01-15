@@ -103,8 +103,5 @@ return {
             { key = '4', mods = 'shift', msg = 'Caffeine on 4 Hours', fn = function() caffeine.timed_on_m(4 * 60) end },
             { key = '5', mods = 'shift', msg = 'Caffeine on 5 Hours', fn = function() caffeine.timed_on_m(5 * 60) end },
         },
-
-        { key = 'C', msg = 'Select Random PR Targets (Security)', fn = work.get_random_team_member_fn('team-security') },
-
     }
 }
