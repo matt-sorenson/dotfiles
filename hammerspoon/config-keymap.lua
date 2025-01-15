@@ -90,12 +90,18 @@ return {
             { key = '4', msg = 'Caffeine on 40 Minutes', fn = function() caffeine.timed_on_m(40) end },
             { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
             { key = '6', msg = 'Caffeine on 60 Minutes', fn = function() caffeine.timed_on_m(60) end },
+            { key = '7', msg = 'Caffeine on 70 Minutes', fn = function() caffeine.timed_on_m(70) end },
+            { key = '8', msg = 'Caffeine on 80 Minutes', fn = function() caffeine.timed_on_m(80) end },
+            { key = '9', msg = 'Caffeine on 90 Minutes', fn = function() caffeine.timed_on_m(90) end },
+            { key = '0', msg = 'Caffeine on 100 Minutes', fn = function() caffeine.timed_on_m(100) end },
 
             '-',
 
-            { key = '1', mods = 'shift', msg = 'Caffeine on 1 Hour',  fn = function() caffeine.timed_on_m(60) end },
-            { key = '2', mods = 'shift', msg = 'Caffeine on 2 Hours', fn = function() caffeine.timed_on_m(120) end },
-            { key = '3', mods = 'shift', msg = 'Caffeine on 3 Hours', fn = function() caffeine.timed_on_m(180) end },
+            { key = '1', mods = 'shift', msg = 'Caffeine on 1 Hour',  fn = function() caffeine.timed_on_m(1* 60) end },
+            { key = '2', mods = 'shift', msg = 'Caffeine on 2 Hours', fn = function() caffeine.timed_on_m(2 * 60) end },
+            { key = '3', mods = 'shift', msg = 'Caffeine on 3 Hours', fn = function() caffeine.timed_on_m(3 * 60) end },
+            { key = '4', mods = 'shift', msg = 'Caffeine on 4 Hours', fn = function() caffeine.timed_on_m(4 * 60) end },
+            { key = '5', mods = 'shift', msg = 'Caffeine on 5 Hours', fn = function() caffeine.timed_on_m(5 * 60) end },
         },
 
         { key = 'C', msg = 'Select Random PR Targets (Security)', fn = work.get_random_team_member_fn('team-security') },
