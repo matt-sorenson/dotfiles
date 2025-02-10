@@ -134,11 +134,11 @@ return {
             title = 'Applications',
             key = 'A',
 
-            keybind_select_app('S', 'Slack',         sys.select_app_fn('Slack')),
-            keybind_select_app('V', 'Visual Studio', sys.select_app_fn('Visual Studio Code')),
-            keybind_select_app('F', 'Firefox',       sys.select_app_fn('Firefox')),
-            keybind_select_app('C', 'Chrome',        sys.select_app_fn('Google Chrome')),
-            keybind_select_app('Z', 'Zoom',          sys.select_app_fn('zoom.us')),
+            keybind_select_app('S', 'Slack',         'Slack'),
+            keybind_select_app('V', 'Visual Studio', 'Visual Studio Code'),
+            keybind_select_app('F', 'Firefox',       'Firefox'),
+            keybind_select_app('C', 'Chrome',        'Google Chrome'),
+            keybind_select_app('Z', 'Zoom',          'zoom.us'),
         }
     }
 }
