@@ -16,10 +16,10 @@ local KEYBOARD_GRIDS = {
     -- While this looks really odd, for 49" ultrawide want 6x2 grid
     moonlander = {
         { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
-        {  '1',  '2',  '3',  '4',  '5',  '=' },
-        {  'Q',  'W',  'E',  'R',  'T',  'HOME' },
-        {  'A',  'S',  'D',  'F',  'G',  'H' },
-        {  'Z',  'X',  'C',  'V',  'B',  'N' },
+        {  '1',  '2',  '3',  '4',  '5', '=' },
+        {  'Q',  'W',  'E',  'R',  'T', 'HOME' },
+        {  'A',  'S',  'D',  'F',  'G', 'H' },
+        {  'Z',  'X',  'C',  'V',  'B', 'N' },
     }
 }
 
