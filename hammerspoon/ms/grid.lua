@@ -42,7 +42,7 @@ local GRID_LAYOUTS = {
         ['3440x1440'] = '5x2', -- 34" Ultrawide
 
         ['3840x2160'] = '4x2', -- 4K Horizontal
-        ['2560×1440'] = '4x2', -- 1440p/27" Horizontal
+        ['2560x1440'] = '4x2', -- 1440p/27" Horizontal
     },
 
     standard = {
