@@ -4,7 +4,7 @@ local sys = require 'ms.sys'
 
 hs.grid.setMargins(hs.geometry.size(0, 0))
 
-local KEYBOARD_GRIDS = {
+local GRID_KEYBOARD = {
     standard = {
         {  'Z',  'X',  'C',  'V',  'B',  'N' },
         { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
@@ -24,10 +24,10 @@ local KEYBOARD_GRIDS = {
 }
 
 local function select_layout()
-    local grid = KEYBOARD_GRIDS.standard
+    local grid = GRID_KEYBOARD.standard
 
     if sys.using_moonlander_ergodox() then
-        grid = KEYBOARD_GRIDS.moonlander
+        grid = GRID_KEYBOARD.moonlander
     end
 
     hs.grid.HINTS = grid
