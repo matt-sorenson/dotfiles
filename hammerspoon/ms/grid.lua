@@ -34,18 +34,29 @@ local function select_layout()
 end
 
 local GRID_LAYOUTS = {
+    -- If the layout specificed to set_grid does not have a key for the
+    -- resolution it falls back to the one provided in 'default'
+    default = {
+        ['5120x1440'] = '6x2', -- 49" Ultrawide
+        ['3840x1600'] = '5x2', -- 38" Ultrawide
+        ['3440x1440'] = '5x2', -- 34" Ultrawide
+
+        ['3840x2160'] = '4x2', -- 4K Horizontal
+        ['2560×1440'] = '4x2', -- 1440p/27" Horizontal
+    },
+
     standard = {
-        ['5120x1440']   = '6x2', -- 49" Ultrawide
-        ['3840x1600']   = '5x2', -- 38" Ultrawide
-        ['3840x2160']   = '5x2', -- 4K
-        ['3440x1440']   = '6x2', -- 34" Ultrawide
-        ['1440x2560']   = '3x4', -- 27" 9:16 - Vertical
+        ['3840x2160'] = '3x5', -- 4K Vertical
+        ['1440x2560'] = '3x5', -- 1440p/27" Vertical
     },
 
     shift = {
-        ['5120x1440']   = '5x3', -- 49" Ultrawide
+        ['3840x2160'] = '2x4', -- 4K Vertical
+        ['1440x2560'] = '2x4', -- 1440p/27" Vertical
     }
 }
+
+local current_grid_layout = nil
 
 -- For other resolutions, use standard
 for k, v in pairs(GRID_LAYOUTS.standard) do
@@ -54,20 +65,26 @@ for k, v in pairs(GRID_LAYOUTS.standard) do
     end
 end
 
-
 local function set_grid(layout)
+    if current_grid_layout == layout then
+        return
+    end
+
     for screen, dim in pairs(GRID_LAYOUTS[layout]) do
         hs.grid.setGrid(dim, screen)
     end
+
+    for resolution, grid in pairs(GRID_LAYOUTS['default']) do
+        if GRID_LAYOUTS[layout][resolution] == nil then
+            hs.grid.setGrid(grid, resolution)
+        end
+    end
+
+    current_grid_layout = layout
 end
 
 --[[export]] local function show(mod)
     select_layout()
-
-    hs.grid.setGrid('3x5', '2160x3840') -- 4k Vertical
-    hs.grid.setGrid('3x4', '1920x1080') -- 1080 Vertical
-
-    hs.grid.setGrid('4x3', '2560×1440') -- 1440p Horizontal
 
     set_grid(mod or 'standard')
 

@@ -3,15 +3,15 @@ local print = require('ms.logger').logger_fn('init')
 -- This kludges the hs.logger.new to use the ms.logger instead with a wrapper.
 require 'ms.logger.hammerspoon-kludge'
 
-
 hs.notify.show('Hammerspoon', '(Re)loading', '')
 
+-- Used to trigger the reload of the config file from dotfiles update function in shell
 require 'hs.ipc'
+hs.ipc.cliInstall()
+
 require 'ms.helper'
 
 local sys = require 'ms.sys'
-
-hs.ipc.cliInstall()
 
 -- Easy reloading of config file
 hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
@@ -34,7 +34,7 @@ else
     print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
 end
 
--- Initialization creates lots of garbage
+-- Initialization can create a lot of garbage
 sys.gc()
 
 hs.timer.doEvery(hs.timer.hours(1), sys.gc)

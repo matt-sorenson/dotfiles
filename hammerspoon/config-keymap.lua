@@ -5,6 +5,32 @@ local layout   = require 'ms.layout'
 local sys      = require 'ms.sys'
 local work     = require 'ms.work'
 
+local function keybind_caffeine_in_minutes(key, minutes)
+    return {
+        key = key,
+        msg = 'Caffeine on ' .. minutes .. ' Minutes',
+        fn = function() caffeine.timed_on_m(minutes) end
+    }
+end
+
+local function keybind_caffeine_in_hours(key, hours)
+    local message = 'Caffeine on ' .. hours .. ' Hours'
+    if hours == 1 then
+        message = 'Caffeine on 1 Hour'
+    end
+
+    return {
+        key = key,
+        mods = 'shift',
+        msg = message,
+        fn = function() caffeine.timed_on_m(hours * 60) end
+    }
+end
+
+local function keybind_select_app(key, msg, app_name)
+    return { key = key, msg = msg, fn = sys.select_app_fn(app_name) }
+end
+
 return {
     {
         title = 'global',
@@ -84,24 +110,35 @@ return {
 
             '-',
 
-            { key = '1', msg = 'Caffeine on 10 Minutes', fn = function() caffeine.timed_on_m(10) end },
-            { key = '2', msg = 'Caffeine on 20 Minutes', fn = function() caffeine.timed_on_m(20) end },
-            { key = '3', msg = 'Caffeine on 30 Minutes', fn = function() caffeine.timed_on_m(30) end },
-            { key = '4', msg = 'Caffeine on 40 Minutes', fn = function() caffeine.timed_on_m(40) end },
-            { key = '5', msg = 'Caffeine on 50 Minutes', fn = function() caffeine.timed_on_m(50) end },
-            { key = '6', msg = 'Caffeine on 60 Minutes', fn = function() caffeine.timed_on_m(60) end },
-            { key = '7', msg = 'Caffeine on 70 Minutes', fn = function() caffeine.timed_on_m(70) end },
-            { key = '8', msg = 'Caffeine on 80 Minutes', fn = function() caffeine.timed_on_m(80) end },
-            { key = '9', msg = 'Caffeine on 90 Minutes', fn = function() caffeine.timed_on_m(90) end },
-            { key = '0', msg = 'Caffeine on 100 Minutes', fn = function() caffeine.timed_on_m(100) end },
+            keybind_caffeine_in_minutes('1', 10),
+            keybind_caffeine_in_minutes('2', 20),
+            keybind_caffeine_in_minutes('3', 30),
+            keybind_caffeine_in_minutes('4', 40),
+            keybind_caffeine_in_minutes('5', 50),
+            keybind_caffeine_in_minutes('6', 60),
+            keybind_caffeine_in_minutes('7', 70),
+            keybind_caffeine_in_minutes('8', 80),
+            keybind_caffeine_in_minutes('9', 90),
+            keybind_caffeine_in_minutes('0', 100),
 
             '-',
 
-            { key = '1', mods = 'shift', msg = 'Caffeine on 1 Hour',  fn = function() caffeine.timed_on_m(1* 60) end },
-            { key = '2', mods = 'shift', msg = 'Caffeine on 2 Hours', fn = function() caffeine.timed_on_m(2 * 60) end },
-            { key = '3', mods = 'shift', msg = 'Caffeine on 3 Hours', fn = function() caffeine.timed_on_m(3 * 60) end },
-            { key = '4', mods = 'shift', msg = 'Caffeine on 4 Hours', fn = function() caffeine.timed_on_m(4 * 60) end },
-            { key = '5', mods = 'shift', msg = 'Caffeine on 5 Hours', fn = function() caffeine.timed_on_m(5 * 60) end },
+            keybind_caffeine_in_hours('1', 1),
+            keybind_caffeine_in_hours('2', 2),
+            keybind_caffeine_in_hours('3', 3),
+            keybind_caffeine_in_hours('4', 4),
+            keybind_caffeine_in_hours('5', 5),
         },
+
+        {
+            title = 'Applications',
+            key = 'A',
+
+            keybind_select_app('S', 'Slack',         sys.select_app_fn('Slack')),
+            keybind_select_app('V', 'Visual Studio', sys.select_app_fn('Visual Studio Code')),
+            keybind_select_app('F', 'Firefox',       sys.select_app_fn('Firefox')),
+            keybind_select_app('C', 'Chrome',        sys.select_app_fn('Google Chrome')),
+            keybind_select_app('Z', 'Zoom',          sys.select_app_fn('zoom.us')),
+        }
     }
 }
