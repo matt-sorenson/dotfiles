@@ -27,12 +27,8 @@ table.keys = function(t)
 end
 
 --- append all elements of the second table to the first table
-table.append = function(t1, ...)
-    for _, t2 in ipairs({...}) do
-        for _, v in ipairs(t2) do
-            table.insert(t1, v)
-        end
-    end
+table.append = function(t1, t2)
+    table.each(t2, function(v) table.insert(t1, v) end)
 
     return t1
 end
@@ -64,7 +60,7 @@ end
 -- @param fn function to execute on each element, takes one argument, the value stored in the array
 table.ieach = function(t, fn)
     for _, v in ipairs(t) do
-        fn(_, v)
+        fn(v)
     end
 end
 
@@ -125,10 +121,9 @@ table.shallow_copy = function(t)
     return out
 end
 
-local function _deep_copy(t, ref_table, table_refs_to_not_copy, out)
-    if not out then
-        out = {}
-    end
+local function _deep_copy(t, ref_table, table_refs_to_not_copy)
+    local out = {}
+    ref_table[t] = out
 
     for k, v in pairs(t) do
         if 'table' == type(v) then
@@ -138,16 +133,11 @@ local function _deep_copy(t, ref_table, table_refs_to_not_copy, out)
                 out[k] = ref_table[v]
 
                 if not out[k] then
-                    local copy = {}
-                    ref_table[v] = copy
-
-                    _deep_copy(v, ref_table, copy)
-
-                    out[k] = copy
+                    out[k] = _deep_copy(v, ref_table)
                 end
             end
         else
-            ref_table[k] = v
+            out[k] = v
         end
     end
 
@@ -162,14 +152,9 @@ end
 -- @param table_refs_to_not_copy
 --    Any tables in thist list will be copied as references
 table.deep_copy = function(t, table_refs_to_not_copy)
-    out = {}
-    ref_table = {
-        [t] = out
-    }
-
     if not table_refs_to_not_copy then
         table_refs_to_not_copy = {}
     end
 
-    return _deep_copy(t, ref_table, table_refs_to_not_copy, out)
+    return _deep_copy(t, {}, table_refs_to_not_copy)
 end

@@ -94,32 +94,31 @@ local function normalize_mod(mod)
     return hs.utf8.registeredKeys[mod] or mod:upper()
 end
 
+local function dedup_mods(mods, opt)
+    local out = {}
+
+    if mods then
+        for _, v in ipairs(toarray(mods)) do
+            out[normalize_mod(v)] = true
+        end
+    end
+
+    if opt then
+        for _, v in ipairs(toarray(opt)) do
+            out[normalize_mod(v)] = true
+        end
+    end
+
+    return table.keys(out)
+end
+
 local function modal_convert_to_help_msg(config)
-    local required_mods = {}
-    local optional_mods = {}
+    local optional_mods = dedup_mods(config.optional_mods, toarray(config.repeat_on_mods))
+    local required_mods = dedup_mods(config.mods)
 
-    if config.optional_mods then
-        for _, v in ipairs(toarray(config.optional_mods)) do
-            optional_mods[normalize_mod(v)] = true
-        end
-    end
+    required_mods = array_set_remove(required_mods, optional_mods)
 
-    if config.repeat_on_mods then
-        for _, v in ipairs(toarray(config.repeat_on_mods)) do
-            optional_mods[normalize_mod(v)] = true
-        end
-    end
-
-    if config.mods then
-        for _, v in ipairs(toarray(config.mods)) do
-            required_mods[normalize_mod(v)] = true
-        end
-    end
-
-    required_mods = table.keys(required_mods)
-    optional_mods = table.keys(optional_mods)
-
-    local mods_str = table.concat(array_set_remove(required_mods, optional_mods))
+    local mods_str = table.concat(required_mods, '')
     local opt_mods_str = table.concat(optional_mods, '][')
     local key_str = config.key:upper()
 
@@ -135,12 +134,19 @@ end
 
 local function modal_bind(self, config)
     if config.repeat_on_mods then
-        local repeat_on_mods_config = table.shallow_copy(config)
-        repeat_on_mods_config.mods = table.shallow_copy(toarray(config.mods))
+        -- If repeat_on_mods is set then we duplicate the config
+        -- and, modify it to include the mod & hide the help message and
+        -- bind it in the same place as the original config
+        local repeat_on_mods_config = table.deep_copy(config)
+        if not repeat_on_mods_config.mods then
+            repeat_on_mods_config.mods = {}
+        end
+
         table.append(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
         repeat_on_mods_config.repeat_on_mods = nil
         repeat_on_mods_config.skip_clear = true
         repeat_on_mods_config.skip_help_msg = true
+
         modal_bind(self, repeat_on_mods_config)
     end
 
@@ -190,40 +196,38 @@ local function modal_print_help(self)
     local max_msg = 0
 
     table.ieach(self.msgs, function(msg)
-        if ('table' == type(msg)) and (hs.utf8.len(msg.shortcut) > max_shortcut) then
-            max_shortcut = hs.utf8.len(msg.shortcut)
-        end
-
-        if ('table' == type(msg) and (hs.utf8.len(msg.msg) > max_msg)) then
-            max_msg = hs.utf8.len(msg.msg)
+        if 'table' == type(msg) then
+            if hs.utf8.len(msg.shortcut) > max_shortcut then
+                max_shortcut = hs.utf8.len(msg.shortcut)
+            end
+    
+            if hs.utf8.len(msg.msg) > max_msg then
+                max_msg = hs.utf8.len(msg.msg)
+            end
         end
     end)
-
-    max_shortcut = max_shortcut
-
-    seperator_fmt = '%s─'
-    for i=1,max_shortcut do seperator_fmt = seperator_fmt .. '─' end
-    seperator_fmt = seperator_fmt .. '─%s─'
-    for i=1,max_msg do seperator_fmt = seperator_fmt .. '─' end
-    seperator_fmt = seperator_fmt .. '─%s'
 
     formatted_msgs = table.map(self.msgs, function(msg)
         if 'string' == type(msg) then
-            if '─' == msg then
-                return string.format(seperator_fmt, '├', '┼', '┤')
-            end
+            local shortcut = string.rep('─', max_shortcut)
+            local msg = string.rep('─', max_msg)
 
-            return msg
+            return string.format('%s%s%s%s%s', '├', shortcut , '┼', msg, '┤')
         end
 
-        local shortcut = string.rep(' ', math.max(0, max_shortcut - hs.utf8.len(msg.shortcut))) .. msg.shortcut
-        local message = msg.msg .. string.rep(' ', math.max(0, max_msg - hs.utf8.len(msg.msg)))
+        local shortcut_prefix = string.rep(' ', max_shortcut - hs.utf8.len(msg.shortcut))
+        local msg_prefix = string.rep(' ', max_msg - hs.utf8.len(msg.msg)) 
 
-        return string.format('│ %s │ %s │', shortcut, message)
+        local shortcut = shortcut_prefix .. msg.shortcut
+        local message = msg_prefix .. msg.msg
+
+        return string.format('│%s│%s│', shortcut, message)
     end)
 
-    local prepend = string.format(seperator_fmt, '┌', '┬', '┐')
-    local postpend = string.format(seperator_fmt, '└', '┴', '┘')
+    local shortcut = string.rep('─', max_shortcut)
+    local msg = string.rep('─', max_msg)
+    local prepend = string.format('%s%s%s%s%s', '┌', shortcut, '┬', msg, '┐')
+    local postpend = string.format('%s%s%s%s%s', '└', shortcut, '┴', msg, '┘')
 
     modal_alert(prepend .. '\n' .. table.concat(formatted_msgs, '\n') .. '\n' .. postpend)
 end

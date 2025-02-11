@@ -68,11 +68,10 @@ local function table_to_string(t, indent, looked_up)
             end
         else
             if type(v) == 'string' then
-                v = v:gsub('"', '\\"')
-                v = '"' .. v .. '"'
+                v = '"' .. v:gsub('"', '\\"') .. '"'
             end
 
-            out = out .. indent .. k .. ': ' .. v .. ',\n'
+            out = string.format('%s%s%s:%s,\n', out, indent, k, v)
         end
     end
 
