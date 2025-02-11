@@ -22,7 +22,7 @@ local function _layout_score_rule(category, app_name, win_name, rule)
     if category then
         if not rule.categories then
             return -1
-        elseif not hs.fnutils.find(rule.categories, function(e) return e == category end) then
+        elseif not table.find(rule.categories, function(e) return e == category end) then
             return -1
         end
     end
@@ -81,7 +81,7 @@ end
 --[[ export ]] local function _layout_apply(self, category, windows)
     windows = hs.window.allWindows()
 
-    hs.fnutils.ieach(windows, function(window)
+    table.ieach(windows, function(window)
         _layout_apply_to_window(self, category, window)
     end)
 end

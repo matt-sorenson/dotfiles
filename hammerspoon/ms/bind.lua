@@ -10,7 +10,7 @@ local function modal_enter(self)
         current_modal:exit(true)
     end
 
-    hs.fnutils.each(self.saved_binds, function(bind) bind:enable() end)
+    table.each(self.saved_binds, function(bind) bind:enable() end)
 
     self.running = true
     current_modal = self
@@ -18,7 +18,7 @@ local function modal_enter(self)
 end
 
 local function modal_exit(self, skip_default)
-    hs.fnutils.each(self.saved_binds, function(bind) bind:disable() end)
+    table.each(self.saved_binds, function(bind) bind:disable() end)
 
     self.running = false
     current_modal = nil
@@ -135,8 +135,8 @@ end
 
 local function modal_bind(self, config)
     if config.repeat_on_mods then
-        local repeat_on_mods_config = hs.fnutils.copy(config)
-        repeat_on_mods_config.mods = hs.fnutils.copy(toarray(config.mods))
+        local repeat_on_mods_config = table.shallow_copy(config)
+        repeat_on_mods_config.mods = table.shallow_copy(toarray(config.mods))
         table.append(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
         repeat_on_mods_config.repeat_on_mods = nil
         repeat_on_mods_config.skip_clear = true
@@ -189,7 +189,7 @@ local function modal_print_help(self)
     local max_shortcut = 0
     local max_msg = 0
 
-    hs.fnutils.ieach(self.msgs, function(msg)
+    table.ieach(self.msgs, function(msg)
         if ('table' == type(msg)) and (hs.utf8.len(msg.shortcut) > max_shortcut) then
             max_shortcut = hs.utf8.len(msg.shortcut)
         end
@@ -207,7 +207,7 @@ local function modal_print_help(self)
     for i=1,max_msg do seperator_fmt = seperator_fmt .. '─' end
     seperator_fmt = seperator_fmt .. '─%s'
 
-    formatted_msgs = hs.fnutils.map(self.msgs, function(msg)
+    formatted_msgs = table.map(self.msgs, function(msg)
         if 'string' == type(msg) then
             if '─' == msg then
                 return string.format(seperator_fmt, '├', '┼', '┤')

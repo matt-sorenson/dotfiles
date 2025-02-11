@@ -17,11 +17,11 @@ local DEVICE_CONFIG = {
 }
 
 local DEVICE_NAMES = {}
-for k, config in pairs(DEVICE_CONFIG) do
+table.each(DEVICE_CONFIG, function(config)
     if config.device_name then
         DEVICE_NAMES[config.device_name] = true
     end
-end
+end)
 
 local function get_device_config()
     local device = get_device()
@@ -29,7 +29,7 @@ local function get_device_config()
 
     for k, config in pairs(DEVICE_CONFIG) do
         if device_name == config.device_name then
-            return DEVICE_CONFIG.audioengine
+            return config
         end
     end
 

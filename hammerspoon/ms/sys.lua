@@ -13,7 +13,7 @@ end
 
 --[[ export ]] local function find_usb_device_by_name(name)
     name = name:lower()
-    return table.unpack(hs.fnutils.filter(hs.usb.attachedDevices(), function(dev)
+    return table.unpack(table.filter(hs.usb.attachedDevices(), function(dev)
         if dev.productName and dev.productName:lower():match(name) then
             return true
         end
