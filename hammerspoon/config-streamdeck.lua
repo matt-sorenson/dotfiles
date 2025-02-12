@@ -24,12 +24,12 @@ return {
     },
     [4] = {
       on_press = function(self, deck)
-        audio.toggle_mic_mute()
+        audio.toggle_input_mute()
         return true
       end,
 
       get_icon = function(self)
-        if audio.is_mic_muted() then
+        if audio.is_input_muted() then
           return icon.get_icon({ path = 'mic-muted.png' })
         else
           return icon.get_icon({ path = 'mic-unmuted.png' })

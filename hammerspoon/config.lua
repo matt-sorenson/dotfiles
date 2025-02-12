@@ -12,6 +12,24 @@ if not sys.is_work_computer() then
     REMOTE_HOME = 'matt-srv'
 end
 
+local AUDIO_DEVICE_CONFIGS = {
+    audioengine = {
+        device_name = 'Audioengine 2+',
+        name = 'audioengine',
+        min_delta = 7,
+        is_default = true,
+    },
+    builtin = {
+        device_name = 'MacBook Pro Speakers',
+        name = 'builtin',
+        min_delta = 5,
+    },
+    default = {
+        min_delta = 5,
+    },
+}
+audio.init(AUDIO_DEVICE_CONFIGS)
+
 hs.window.animationDuration = 0
 
 local modal = bind.init(require('config-keymap'))
@@ -23,8 +41,6 @@ if REMOTE_HOME then
 end
 
 local function on_device_change()
-    audio.setup_output(audio.device_names.audioengine)
-
     -- On home machine mount NAS shares
     if not sys.is_work_computer() then
         sys.mount_smb_shares(REMOTE_SHARES)
