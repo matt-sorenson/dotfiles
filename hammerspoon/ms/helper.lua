@@ -36,6 +36,7 @@ end
 --- Find the key of a value in a table
 --
 -- Generally expected to be used with arrays, but will work with tables
+-- @return key of the value in the table, or nil if the value is not found
 table.find = function(haystack, needle)
     for k,v in pairs(haystack) do
         if v == needle then

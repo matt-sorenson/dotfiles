@@ -19,8 +19,10 @@ local function hs_log_level_to_log_level(input)
     return 'INFO'
 end
 
+--- We override the hammerspoon logger to use the ms logger here
+-- This means we get the same logging format as all of my custom stuff
 hslog.new = function(system, level)
-    if not string.find(system, 'hs.') and 'hs' ~= system then
+    if not string.find(system, 'hs.') then
         system = 'hs.' .. system
     end
 
