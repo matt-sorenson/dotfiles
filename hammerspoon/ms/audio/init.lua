@@ -38,24 +38,24 @@ end
   devices.get_output_device():setOutputMuted(muted)
 end
 
---[[export]] local function toggle_mute()
-  set_mut(not is_muted())
-end
-
 --[[export]] local function is_muted()
   return devices.get_output_device():outputMuted()
+end
+
+--[[export]] local function toggle_mute()
+  set_mute(not is_muted())
 end
 
 --[[export]] local function set_input_mute(muted)
   devices.get_input_device():setInputMuted(muted)
 end
 
---[[export]] local function toggle_input_mute()
-  set_input_mute(not is_input_muted())
-end
-
 --[[export]] local function is_input_muted()
   return devices.get_input_device():inputMuted()
+end
+
+--[[export]] local function toggle_input_mute()
+  set_input_mute(not is_input_muted())
 end
 
 return {

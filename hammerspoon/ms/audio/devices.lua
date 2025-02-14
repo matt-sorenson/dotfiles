@@ -111,9 +111,7 @@ end
   _config.default = default
 
   if device_config then
-    print('looking for config: ', device_config)
     local default_config_key = table.find(device_config, function(config)
-      print("config: ", config)
       return config.is_default
     end)
 

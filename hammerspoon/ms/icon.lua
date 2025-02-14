@@ -5,30 +5,46 @@ local colors = require "ms.colors"
 
 -- Lots stolen from https://github.com/peterhajas/dotfiles/blob/a717d8fb0e89c787112f78529f97f1314ad70377/hammerspoon/.hammerspoon/
 
-local BUTTON_WIDTH = 96
-local BUTTON_HEIGHT = 96
+local builtin_resolutions = {
+    default = { width = 96, height = 96 },
+    streamdeck_button = { width = 96, height = 96 },
+    streamdeck_encoder = { width = 200, height = 100 },
+}
 
-local shared_canvas = hs.canvas.new({ x = 0, y = 0, w = BUTTON_WIDTH, h = BUTTON_HEIGHT })
+local canvas_cache = {}
+
+local function get_canvas(w, h)
+    local key = string.format("%dx%d", w, h)
+    local canvas = canvas_cache[key]
+
+    if not canvas then
+        print:infof("Creating new canvas for '%s'", key)
+        canvas = hs.canvas.new({ x = 0, y = 0, w = w, h = h })
+        canvas_cache[key] = canvas
+    else
+        print:debugf("Reusing canvas for '%s'", key)
+    end
+
+    return canvas
+end
+
+local function clear_canvas_cache()
+    for _, canvas in pairs(canvas_cache) do
+        canvas:delete()
+    end
+    canvas_cache = {}
+end
 
 local function get_icon_from_canvas(elements, options)
-    local width = options.width or BUTTON_WIDTH
-    local height = options.height or BUTTON_HEIGHT
+    local resolution = builtin_resolutions[options.size or 'default']
+    local width = options.width or resolution.width
+    local height = options.height or resolution.height
 
-    local canvas = shared_canvas
-
-    if width ~= BUTTON_WIDTH or height ~= BUTTON_HEIGHT then
-        canvas = hs.canvas.new({ x = 0, y = 0, w = width, h = height })
-    end
+    local canvas = get_canvas(width, height)
 
     canvas:replaceElements(elements)
 
-    local image = canvas:imageFromCanvas()
-
-    if canvas ~= shared_canvas then
-        canvas:delete()
-    end
-
-    return image
+    return canvas:imageFromCanvas()
 end
 
 local function try_load_image(path)
@@ -83,8 +99,11 @@ local function get_icon_from_file(path, options)
 
     local elements = {}
 
-    local width = options.width or BUTTON_WIDTH
-    local height = options.height or BUTTON_HEIGHT
+    local resolution = builtin_resolutions[options.size or 'default']
+    local width = options.width or resolution.width
+    local height = options.height or resolution.height
+
+    local canvas = get_canvas(width, height)
 
     if not options.skip_background_color then
         table.insert(elements, {
@@ -112,8 +131,9 @@ local function get_icon_from_text(text, options)
     local font_size = options['font_size'] or 70
     local elements = {}
 
-    local width = options.width or BUTTON_WIDTH
-    local height = options.height or BUTTON_HEIGHT
+    local resolution = builtin_resolutions[options.size or 'default']
+    local width = options.width or resolution.width
+    local height = options.height or resolution.height
 
     if not options.skip_background_color then
         table.insert(elements, {
@@ -139,8 +159,9 @@ local function get_icon_from_text(text, options)
 end
 
 local function get_icon_for_color(color, options)
-    local width = options.width or BUTTON_WIDTH
-    local height = options.height or BUTTON_HEIGHT
+    local resolution = builtin_resolutions[options.size or 'default']
+    local width = options.width or resolution.width
+    local height = options.height or resolution.height
 
     local elements = {
         {

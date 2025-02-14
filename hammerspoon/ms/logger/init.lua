@@ -122,25 +122,50 @@ local logger_mt_index = {
                 system_logger(self.system, 'VERBOSE', message, obj)
             end
         end,
+        verbosef = function(self, message, ...)
+            self:verbose(string.format(message, ...))
+        end,
+
         debug = function(self, message, obj)
             if self.log_level <= LOG_LEVEL_ENUM.DEBUG then
                 system_logger(self.system, 'DEBUG', message, obj)
             end
         end,
+        debugf = function(self, message, ...)
+            self:debug(string.format(message, ...))
+        end,
+
         info = function(self, message, obj)
             if self.log_level <= LOG_LEVEL_ENUM.INFO then
                 system_logger(self.system, 'INFO', message, obj)
             end
         end,
-        warn = function(self, message, obj)
-            if self.log_level <= LOG_LEVEL_ENUM.WARN then
-                system_logger(self.system, 'WARN', message, obj)
-            end
+        infof = function(self, message, ...)
+            self:info(string.format(message, ...))
         end,
+
+        warn = function(self, message, obj)
+            local old_color = hs.console.consolePrintColor()
+
+            hs.console.consolePrintColor({ red = 1, green = .5, blue = 0, alpha = 1 })
+            system_logger(self.system, 'WARN', message, obj)
+            hs.console.consolePrintColor(old_color)
+        end,
+        warnf = function(self, message, ...)
+            self:warn(string.format(message, ...))
+        end,
+
         error = function(self, message, obj)
             if self.log_level <= LOG_LEVEL_ENUM.ERROR then
+                local old_color = hs.console.consolePrintColor()
+
+                hs.console.consolePrintColor({ red = 1, green = 0, blue = 0, alpha = 1 })
                 system_logger(self.system, 'ERROR', message, obj)
+                hs.console.consolePrintColor(old_color)
             end
+        end,
+        errorf = function(self, message, ...)
+            self:error(string.format(message, ...))
         end,
 
         set_log_level = function(self, level)
@@ -150,6 +175,7 @@ local logger_mt_index = {
             return get_log_level_name(self.log_level)
         end,
     },
+
     __call = function(self, message, obj)
         self:info(message, obj)
     end,
@@ -187,7 +213,9 @@ print = function(...)
         system_logger('hs', 'INFO', args[1])
     elseif string.find(args[1], '     hotkey:') then
         args[1] = args[1]:sub(22)
-        system_logger('hs:hotkey', 'INFO', args[1])
+        system_logger('hs.hotkey', 'INFO', args[1])
+    elseif string.find(args[1], 'ERROR:   LuaSkin: ') then
+        system_logger('hs.LuaSkin', 'ERROR', args[1]:sub(28))
     else
         sys_print(...)
     end

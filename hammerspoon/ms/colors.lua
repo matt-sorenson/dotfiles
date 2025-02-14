@@ -72,6 +72,4 @@ local function get_colors()
     return colors
 end
 
-local system_colors = get_colors()
-
-return system_colors
+return get_colors()

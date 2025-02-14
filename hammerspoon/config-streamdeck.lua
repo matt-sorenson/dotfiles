@@ -30,9 +30,9 @@ return {
 
       get_icon = function(self)
         if audio.is_input_muted() then
-          return icon.get_icon({ path = 'mic-muted.png' })
+          return icon.get_icon({ path = 'mic-muted.png', size = 'streamdeck_button' })
         else
-          return icon.get_icon({ path = 'mic-unmuted.png' })
+          return icon.get_icon({ path = 'mic-unmuted.png', size = 'streamdeck_button' })
         end
       end,
     },
@@ -43,11 +43,16 @@ return {
       end,
 
       get_icon = function(self)
+        local icon_path = 'speaker-unmuted.png'
+        
         if audio.is_muted() then
-          return icon.get_icon({ path = 'speaker-muted.png' })
-        else
-          return icon.get_icon({ path = 'speaker-unmuted.png' })
+          icon_path = 'speaker-muted.png'
         end
+
+        return icon.get_icon({
+          path = icon_path,
+          size = 'streamdeck_button'
+        })
       end,
     },
   },
@@ -66,13 +71,11 @@ return {
 
       get_screen_image = function(self)
         local volume = audio.get_volume()
-        local volume_icon = icon.get_icon({ text = '🔊' })
 
         return icon.get_icon({
-          text = math.floor(volume),
+          text = string.format('%i', math.floor(volume)),
           font_size = 50,
-          width = volume_icon.width,
-          height = volume_icon.height,
+          size = 'streamdeck_encoder',
         })
       end,
     },
