@@ -83,6 +83,11 @@ local function redraw_button(self, deck, button_idx)
     end
 
     if type(icn) == 'table' then
+        if (icn.width == nil or icn.height == nil) and icn.size == nil then
+            icn = table.deep_copy(icn)
+            icn.size = 'streamdeck_button'
+        end
+
         icn = icon.get_icon(icn)
     end
 
@@ -100,6 +105,11 @@ local function redraw_encoder(self, deck, encoder_idx)
     end
 
     if type(icn) == 'table' then
+        if (icn.width == nil or icn.height == nil) and icn.size == nil then
+            icn = table.deep_copy(icn)
+            icn.size = 'streamdeck_encoder'
+        end
+
         icn = icon.get_icon(icn)
     end
 

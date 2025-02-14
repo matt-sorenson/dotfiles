@@ -1,6 +1,5 @@
 local audio    = require 'ms.audio'
 local colors = require 'ms.colors'
-local icon = require 'ms.icon'
 local ha = require 'ms.home-assistant'
 
 local print = require('ms.logger').logger_fn('config:streamdeck')
@@ -9,7 +8,7 @@ return {
   buttons = {
     [1] = {
       type = 'folder',
-      icon = icon.get_icon({ path = 'home-assistant.png' }),
+      icon = { path = 'home-assistant.png' },
       buttons = {
         [5] = {
           on_press = function(self, deck)
@@ -18,7 +17,9 @@ return {
             print('Tried triggering keylight')
           end,
   
-          icon = { text = '🔆' },
+          icon = {
+            text = '🔆'
+          },
         }
       },
     },
@@ -30,9 +31,9 @@ return {
 
       get_icon = function(self)
         if audio.is_input_muted() then
-          return icon.get_icon({ path = 'mic-muted.png', size = 'streamdeck_button' })
+          return { path = 'mic-muted.png' }
         else
-          return icon.get_icon({ path = 'mic-unmuted.png', size = 'streamdeck_button' })
+          return { path = 'mic-unmuted.png' }
         end
       end,
     },
@@ -43,16 +44,11 @@ return {
       end,
 
       get_icon = function(self)
-        local icon_path = 'speaker-unmuted.png'
-        
         if audio.is_muted() then
-          icon_path = 'speaker-muted.png'
+          return { path = 'speaker-muted.png' }
+        else
+          return { path = 'speaker-unmuted.png' }
         end
-
-        return icon.get_icon({
-          path = icon_path,
-          size = 'streamdeck_button'
-        })
       end,
     },
   },
@@ -72,11 +68,10 @@ return {
       get_screen_image = function(self)
         local volume = audio.get_volume()
 
-        return icon.get_icon({
+        return {
           text = string.format('%i', math.floor(volume)),
-          font_size = 50,
-          size = 'streamdeck_encoder',
-        })
+          font_size = 75,
+        }
       end,
     },
   },
