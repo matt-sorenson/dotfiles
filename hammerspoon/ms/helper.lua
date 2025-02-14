@@ -35,7 +35,29 @@ end
 
 --- Find the key of a value in a table
 --
--- Generally expected to be used with arrays, but will work with tables
+-- @param haystack table to search
+-- @param needle value to search for, or a function that takes a value
+--    and returns true if the value is found
+-- @return key of the value in the table, or nil if the value is not found
+table.ifind = function(haystack, needle)
+    for i, v in ipairs(haystack) do
+        if 'function' == type(needle) then
+            if needle(v) then
+                return i
+            end
+        elseif v == needle then
+            return i
+        end
+    end
+
+    return nil
+end
+
+--- Find the key of a value in a table
+--
+-- @param haystack table to search
+-- @param needle value to search for, or a function that takes a value
+--    and returns true if the value is found
 -- @return key of the value in the table, or nil if the value is not found
 table.find = function(haystack, needle)
     for k, v in pairs(haystack) do

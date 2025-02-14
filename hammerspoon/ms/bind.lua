@@ -76,7 +76,7 @@ local function array_set_remove(t1, t2)
     local out = {}
 
     for _, v in ipairs(t1) do
-        if not table.find(t2, v) then
+        if not table.ifind(t2, v) then
             table.insert(out, v)
         end
     end
