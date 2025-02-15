@@ -209,15 +209,13 @@ end
 print = function(...)
     local args = table.pack(...)
     if string.find(args[1], '-- ') == 1 then
-        args[1] = args[1]:sub(4)
-        system_logger('hs', 'INFO', args[1])
+        system_logger('hs', 'INFO', args[1]:sub(4))
     elseif string.find(args[1], '     hotkey:') then
-        args[1] = args[1]:sub(22)
-        system_logger('hs.hotkey', 'INFO', args[1])
-    elseif string.find(args[1], 'ERROR:   LuaSkin: ') then
+        system_logger('hs.hotkey', 'INFO', args[1]:sub(22))
+    elseif string.find(args[1], 'ERROR:   LuaSkin:') then
         system_logger('hs.LuaSkin', 'ERROR', args[1]:sub(28))
     else
-        sys_print(...)
+        system_logger('unknown', 'INFO', table.concat(args, ' '))
     end
 end
 
