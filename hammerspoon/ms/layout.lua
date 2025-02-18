@@ -155,7 +155,6 @@ local _layout_mt = {
 
         move_window_to_section = _layout_move_window_to_section,
 
-        score = _layout_score,
         get_screen = _layout_get_screen,
     }
 }
