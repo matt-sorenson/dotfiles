@@ -100,7 +100,7 @@ return {
             title = 'Energy',
             key = 'E',
 
-            { key = 'S', msg = 'Check Caffeine Status', fn = caffeine.alert_is_on },
+            { key = 'S', msg = 'Check Caffeine Status', fn = caffeine.alert_status },
             { key = 'T', msg = 'Toggle Caffeine',       fn = caffeine.toggle },
 
             '-',

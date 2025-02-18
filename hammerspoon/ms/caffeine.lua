@@ -66,7 +66,7 @@ local function secondsToHumanReadable(time_in_sec)
 end
 
 --[[export]]
-local function alert_is_on()
+local function alert_status()
     if is_on() then
         if timer then
             hs.alert("Caffeine is Enabled: " .. secondsToHumanReadable(time_remaining()))
@@ -87,5 +87,5 @@ return {
     toggle = function() set(not is_on()) end,
     timed_on_s = timed_on_s,
     timed_on_m = timed_on_m,
-    alert_is_on = alert_is_on
+    alert_status = alert_status
 }
