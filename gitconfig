@@ -17,7 +17,7 @@
     rebase = true
 
 [push]
-    default = simple
+    default = current
 
 [alias]
     # submodule helpers
