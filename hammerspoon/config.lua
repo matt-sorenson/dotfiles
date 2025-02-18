@@ -12,7 +12,7 @@ if not sys.is_work_computer() then
     REMOTE_HOME = 'matt-srv'
 end
 
-local AUDIO_DEVICE_CONFIGS = {
+local _audio_device_configs = {
     audioengine = {
         device_name = 'Audioengine 2+',
         name = 'audioengine',
@@ -28,7 +28,7 @@ local AUDIO_DEVICE_CONFIGS = {
         min_delta = 5,
     },
 }
-audio.init(AUDIO_DEVICE_CONFIGS)
+audio.init(_audio_device_configs)
 
 hs.window.animationDuration = 0
 
