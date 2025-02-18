@@ -165,7 +165,7 @@ local function modal_bind(self, config)
     end
 
     local bind = hs.hotkey.new(config.mods or '', config.key,
-            arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
+        arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
 
     if config.msg and (not config.skip_help_msg) then
         table.insert(self.msgs, modal_convert_to_help_msg(config))
@@ -200,7 +200,7 @@ local function modal_print_help(self)
             if hs.utf8.len(msg.shortcut) > max_shortcut then
                 max_shortcut = hs.utf8.len(msg.shortcut)
             end
-    
+
             if hs.utf8.len(msg.msg) > max_msg then
                 max_msg = hs.utf8.len(msg.msg)
             end
@@ -212,11 +212,11 @@ local function modal_print_help(self)
             local shortcut = string.rep('─', max_shortcut)
             local msg = string.rep('─', max_msg)
 
-            return string.format('%s%s%s%s%s', '├', shortcut , '┼', msg, '┤')
+            return string.format('%s%s%s%s%s', '├', shortcut, '┼', msg, '┤')
         end
 
         local shortcut_prefix = string.rep(' ', max_shortcut - hs.utf8.len(msg.shortcut))
-        local msg_prefix = string.rep(' ', max_msg - hs.utf8.len(msg.msg)) 
+        local msg_prefix = string.rep(' ', max_msg - hs.utf8.len(msg.msg))
 
         local shortcut = shortcut_prefix .. msg.shortcut
         local message = msg_prefix .. msg.msg
@@ -244,7 +244,8 @@ end
 
 local function escape_fn() hs.alert('⎋ - Cancel') end
 
---[[export]] local function modal_new(config, parent)
+--[[export]]
+local function modal_new(config, parent)
     parent = ((parent ~= 'noparent') and (parent or _default_modal)) or nil
 
     local out = {}
@@ -262,8 +263,8 @@ local function escape_fn() hs.alert('⎋ - Cancel') end
             title = nil
         end
 
-        parent:bind({mods = config.mods, key = config.key, msg = title, fn = function() out:enter() end, skip_clear = true })
-        out:bind({ key = 'H',      fn = function() modal_print_help(out) end, skip_clear = true })
+        parent:bind({ mods = config.mods, key = config.key, msg = title, fn = function() out:enter() end, skip_clear = true })
+        out:bind({ key = 'H', fn = function() modal_print_help(out) end, skip_clear = true })
         out:bind({ key = 'escape', fn = escape_fn })
     end
 
@@ -280,7 +281,8 @@ local function escape_fn() hs.alert('⎋ - Cancel') end
     return out;
 end
 
---[[export]] local function init(config)
+--[[export]]
+local function init(config)
     _default_modal = modal_new(config, 'noparent')
     _default_modal.on_enter = function() modal_clear_alert() end
     _default_modal.on_exit = function() end

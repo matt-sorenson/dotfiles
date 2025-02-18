@@ -50,17 +50,17 @@ return {
             { key = '3', msg = '3rd section of screen', fn = layout.move_window_to_section_fn(3) },
             { key = '4', msg = '4rd section of screen', fn = layout.move_window_to_section_fn(4) },
 
-            { key = '1', mods = 'shift', msg = '1st 1/3rd of screen', fn = layout.move_window_fn({   0,   0,   1/3, 1 }) },
-            { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1/3,   0,   1/3, 1 }) },
-            { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2/3,   0,   1/3, 1 }) },
+            { key = '1', mods = 'shift', msg = '1st 1/3rd of screen', fn = layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
+            { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
+            { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
             '-',
 
-            { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({ 0, 0, 1, 1}) },
-            { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window               },
-            { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply                         },
-            { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media')             },
-            { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications')    },
+            { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({ 0, 0, 1, 1 }) },
+            { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window },
+            { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply },
+            { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media') },
+            { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications') },
 
             '-',
 
@@ -68,16 +68,16 @@ return {
 
             '-',
 
-            { key = 'G', msg = 'Grid',                        fn = grid.show, optional_mods = 'shift'          },
-            { key = 'G', mods = 'shift', msg = 'Grid',        fn = grid.show_fn('shift'), skip_help_msg = true },
+            { key = 'G',                 msg = 'Grid', fn = grid.show,             optional_mods = 'shift' },
+            { key = 'G', mods = 'shift', msg = 'Grid', fn = grid.show_fn('shift'), skip_help_msg = true },
         },
 
         {
             title = 'Finder',
             key = 'F',
 
-            { key = 'G', msg = 'Home',      fn = sys.select_app_fn('Finder', sys.who_am_i(), sys.open_finder_fn('~/'))   },
-            { key = 'W', msg = 'Workspace', fn = sys.select_app_fn('Finder', 'ws',           sys.open_finder_fn('~/ws')) },
+            { key = 'G', msg = 'Home',         fn = sys.select_app_fn('Finder', sys.who_am_i(), sys.open_finder_fn('~/')) },
+            { key = 'W', msg = 'Workspace',    fn = sys.select_app_fn('Finder', 'ws', sys.open_finder_fn('~/ws')) },
 
             { key = 'S', msg = 'Mount Shares', fn = function() sys.mount_smb_shares(REMOTE_SHARES) end }
         },
@@ -101,11 +101,11 @@ return {
             key = 'E',
 
             { key = 'S', msg = 'Check Caffeine Status', fn = caffeine.alert_is_on },
-            { key = 'T', msg = 'Toggle Caffeine',       fn = caffeine.toggle      },
+            { key = 'T', msg = 'Toggle Caffeine',       fn = caffeine.toggle },
 
             '-',
 
-            { key = 'O', msg = 'Turn Caffeine On',  fn = caffeine.on  },
+            { key = 'O', msg = 'Turn Caffeine On',  fn = caffeine.on },
             { key = 'F', msg = 'Turn Caffeine Off', fn = caffeine.off },
 
             '-',
@@ -134,11 +134,11 @@ return {
             title = 'Applications',
             key = 'A',
 
-            keybind_select_app('S', 'Slack',         'Slack'),
+            keybind_select_app('S', 'Slack', 'Slack'),
             keybind_select_app('V', 'Visual Studio', 'Visual Studio Code'),
-            keybind_select_app('F', 'Firefox',       'Firefox'),
-            keybind_select_app('C', 'Chrome',        'Google Chrome'),
-            keybind_select_app('Z', 'Zoom',          'zoom.us'),
+            keybind_select_app('F', 'Firefox', 'Firefox'),
+            keybind_select_app('C', 'Chrome', 'Google Chrome'),
+            keybind_select_app('Z', 'Zoom', 'zoom.us'),
         }
     }
 }

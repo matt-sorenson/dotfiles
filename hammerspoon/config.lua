@@ -1,11 +1,11 @@
-local print = require('ms.logger').logger_fn('config')
+local print      = require('ms.logger').logger_fn('config')
 
-local audio = require 'ms.audio'
-local bind  = require 'ms.bind'
+local audio      = require 'ms.audio'
+local bind       = require 'ms.bind'
 local streamdeck = require 'ms.streamdeck'
-local sys   = require 'ms.sys'
+local sys        = require 'ms.sys'
 
-REMOTE_SHARES = {}
+REMOTE_SHARES    = {}
 
 if not sys.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
@@ -37,7 +37,8 @@ local deck = streamdeck.new(require('config-streamdeck'))
 
 if REMOTE_HOME then
     local finder_modal = modal.children['global'].children['finder']
-    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', REMOTE_HOME, sys.open_finder_fn('/Volumes/' .. REMOTE_HOME)) })
+    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', REMOTE_HOME,
+    sys.open_finder_fn('/Volumes/' .. REMOTE_HOME)) })
 end
 
 local function on_device_change()

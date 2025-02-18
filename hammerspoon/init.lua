@@ -14,7 +14,7 @@ require 'ms.helper'
 local sys = require 'ms.sys'
 
 -- Easy reloading of config file
-hs.hotkey.bind({'ctrl', 'cmd'}, 'R', function()
+hs.hotkey.bind({ 'ctrl', 'cmd' }, 'R', function()
     hs.reload()
 end)
 

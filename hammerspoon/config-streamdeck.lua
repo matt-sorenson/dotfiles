@@ -1,8 +1,8 @@
-local audio    = require 'ms.audio'
+local audio  = require 'ms.audio'
 local colors = require 'ms.colors'
-local ha = require 'ms.home-assistant'
+local ha     = require 'ms.home-assistant'
 
-local print = require('ms.logger').logger_fn('config:streamdeck')
+local print  = require('ms.logger').logger_fn('config:streamdeck')
 
 return {
   buttons = {
@@ -16,7 +16,7 @@ return {
             ha.post('matt-office-keylight.toggle')
             print('Tried triggering keylight')
           end,
-  
+
           icon = {
             text = '🔆'
           },
