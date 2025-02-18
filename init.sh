@@ -110,4 +110,3 @@ mkdir -p "${DOTFILES}/tmp"
 pushd "${DOTFILES}"
 git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
 popd
-
