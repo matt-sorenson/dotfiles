@@ -48,7 +48,8 @@ end
     - In home assistant I trigger a script based of the event name and pass the data
       as a variable as needed.
 ]]
---[[ export ]] local function post(event, data, options)
+--[[ export ]]
+local function post(event, data, options)
     if options == nil then
         options = {}
     end

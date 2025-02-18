@@ -5,13 +5,15 @@ local WHO_AM_I = os.getenv('USER')
 -- Use 'is-work' file to determine this to massively simplify it
 local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes(hs.configdir .. "/local/is-work"))
 
---[[ export ]] local function gc()
+--[[ export ]]
+local function gc()
     print("Pre GC: " .. math.floor(collectgarbage("count")) .. 'kb')
     collectgarbage("collect")
     print("Post GC: " .. math.floor(collectgarbage("count")) .. 'kb')
 end
 
---[[ export ]] local function find_usb_device_by_name(name)
+--[[ export ]]
+local function find_usb_device_by_name(name)
     name = name:lower()
     return table.unpack(table.filter(hs.usb.attachedDevices(), function(dev)
         if dev.productName and dev.productName:lower():match(name) then
@@ -20,14 +22,16 @@ end
     end))
 end
 
---[[ export ]] local function mount_smb(host, share)
+--[[ export ]]
+local function mount_smb(host, share)
     local smb_share = 'smb://' .. host .. ':445/' .. share
     local out = hs.osascript.applescript('mount volume "' .. smb_share .. '"')
 
     return out
 end
 
---[[ export ]] local function mount_smb_shares(shares_map)
+--[[ export ]]
+local function mount_smb_shares(shares_map)
     for host, shares in pairs(shares_map) do
         for _, share in ipairs(shares) do
             mount_smb(host, share)
@@ -35,7 +39,8 @@ end
     end
 end
 
---[[ export ]] local function select_app(app_name, win_name, new_window)
+--[[ export ]]
+local function select_app(app_name, win_name, new_window)
     local app = hs.appfinder.appFromName(app_name)
     if not app then
         hs.application.open(app_name)
@@ -82,7 +87,8 @@ local function app_window_names_match(window, app_name, win_name)
     return true
 end
 
---[[ export ]] local function toggle_select_app_fn(app_name, win_name, new_window)
+--[[ export ]]
+local function toggle_select_app_fn(app_name, win_name, new_window)
     local prev_window = nil;
 
     return function()
@@ -106,14 +112,15 @@ end
     end
 end
 
---[[ export ]] local function ls(dir)
+--[[ export ]]
+local function ls(dir)
     local _, iter = hs.fs.dir(dir)
     local contents = {}
 
     repeat
         local filename = iter:next()
 
-        if(filename and ('..' ~= filename) and ('.' ~= filename)) then
+        if (filename and ('..' ~= filename) and ('.' ~= filename)) then
             table.insert(contents, filename)
         end
     until filename == nil
@@ -122,35 +129,42 @@ end
     return contents
 end
 
---[[ export]] local function get_resource_path(local_path)
-return hs.configdir .. '/resources/' .. local_path
+--[[ export]]
+local function get_resource_path(local_path)
+    return hs.configdir .. '/resources/' .. local_path
 end
 
---[[ export ]] local function ls_resource_path(local_path)
+--[[ export ]]
+local function ls_resource_path(local_path)
     return ls(get_resource_path(local_path))
 end
 
---[[ export ]] local function open_finder_fn(path)
+--[[ export ]]
+local function open_finder_fn(path)
     return function()
         hs.execute('open ' .. (path or '~'))
     end
 end
 
---[[ export ]] local function select_app_fn(app_name, win_name, new_window)
+--[[ export ]]
+local function select_app_fn(app_name, win_name, new_window)
     return function() select_app(app_name, win_name, new_window) end
 end
 
---[[ export ]] local function trigger_system_key_fn(key)
+--[[ export ]]
+local function trigger_system_key_fn(key)
     return function()
         hs.eventtap.event.newSystemKeyEvent(key, true):post()
     end
 end
 
---[[ export ]] local function using_moonlander_ergodox()
+--[[ export ]]
+local function using_moonlander_ergodox()
     return find_usb_device_by_name('ErgoDox') or find_usb_device_by_name('Moonlander Mark I')
 end
 
---[[ export ]] local function get_current_window_size()
+--[[ export ]]
+local function get_current_window_size()
     local size = hs.window.focusedWindow():size()
 
     local msg = string.format("Window Size: %dx%d", size.w, size.h)
@@ -158,7 +172,8 @@ end
     hs.alert(msg, { textFont = 'Berkeley Mono' }, 3)
 end
 
---[[ export ]] local function do_file_hs_local(filename)
+--[[ export ]]
+local function do_file_hs_local(filename)
     local file = hs.fs.pathToAbsolute(hs.configdir .. "/local/" .. filename)
     if not file then
         error("Could not find file: " .. filename)

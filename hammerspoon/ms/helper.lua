@@ -12,7 +12,7 @@ function toarray(input)
         return input
     end
 
-    return {input}
+    return { input }
 end
 
 --- this function returns a list of all the keys in a table

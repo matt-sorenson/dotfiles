@@ -48,7 +48,8 @@ local function _layout_score_rule(category, app_name, win_name, rule)
     return score
 end
 
---[[ export ]]  local function _layout_apply_to_window(self, category, window)
+--[[ export ]]
+local function _layout_apply_to_window(self, category, window)
     window = window or hs.window.focusedWindow()
 
     local app_name = window:application():name():lower()
@@ -78,7 +79,8 @@ end
     end
 end
 
---[[ export ]] local function _layout_apply(self, category, windows)
+--[[ export ]]
+local function _layout_apply(self, category, windows)
     windows = hs.window.allWindows()
 
     table.ieach(windows, function(window)
@@ -86,11 +88,13 @@ end
     end)
 end
 
---[[ export ]] local function _layout_get_screen(self, index)
+--[[ export ]]
+local function _layout_get_screen(self, index)
     return self:layout()[index].screen
 end
 
---[[ export ]] local function _layout_move_window_to_section(self, window, section_n)
+--[[ export ]]
+local function _layout_move_window_to_section(self, window, section_n)
     local sections = self:sections()
 
     if sections and sections[section_n] then
@@ -256,19 +260,23 @@ end
 
 local current_config = get_config()
 
---[[ export ]] local function apply(category, windows)
+--[[ export ]]
+local function apply(category, windows)
     current_config:apply(category, windows)
 end
 
---[[ export ]] local function apply_to_window(category, window)
+--[[ export ]]
+local function apply_to_window(category, window)
     current_config:apply_to_window(category, window)
 end
 
---[[ export ]] local function move_window_to_section(window, section)
+--[[ export ]]
+local function move_window_to_section(window, section)
     current_config:move_window_to_section(window, section)
 end
 
---[[ export ]] local function move_window_fn(rect, screen_n)
+--[[ export ]]
+local function move_window_fn(rect, screen_n)
     return function()
         local screen = current_config:get_screen(screen_n or 1)
         move_window(hs.window.focusedWindow(), rect, screen)

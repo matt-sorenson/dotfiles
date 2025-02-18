@@ -6,20 +6,20 @@ hs.grid.setMargins(hs.geometry.size(0, 0))
 
 local GRID_KEYBOARD = {
     standard = {
-        {  'Z',  'X',  'C',  'V',  'B',  'N' },
+        { 'Z',  'X',  'C',  'V',  'B',  'N' },
         { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
-        {  '1',  '2',  '3',  '4',  '5',  '6' },
-        {  'Q',  'W',  'E',  'R',  'T',  'Y' },
-        {  'A',  'S',  'D',  'F',  'G',  'H' },
+        { '1',  '2',  '3',  '4',  '5',  '6' },
+        { 'Q',  'W',  'E',  'R',  'T',  'Y' },
+        { 'A',  'S',  'D',  'F',  'G',  'H' },
     },
 
     -- While this looks really odd, for 49" ultrawide want 6x2 grid
     moonlander = {
         { 'F1', 'F3', 'F4', 'F5', 'F6', 'F7' },
-        {  '1',  '2',  '3',  '4',  '5', '=' },
-        {  'Q',  'W',  'E',  'R',  'T', 'HOME' },
-        {  'A',  'S',  'D',  'F',  'G', 'H' },
-        {  'Z',  'X',  'C',  'V',  'B', 'N' },
+        { '1',  '2',  '3',  '4',  '5',  '=' },
+        { 'Q',  'W',  'E',  'R',  'T',  'HOME' },
+        { 'A',  'S',  'D',  'F',  'G',  'H' },
+        { 'Z',  'X',  'C',  'V',  'B',  'N' },
     }
 }
 
@@ -83,7 +83,8 @@ local function set_grid(layout)
     current_grid_layout = layout
 end
 
---[[export]] local function show(mod)
+--[[export]]
+local function show(mod)
     select_layout()
 
     set_grid(mod or 'standard')

@@ -51,45 +51,6 @@ local function try_load_image(path)
     return hs.image.imageFromPath(sys.get_resource_path('icons/' .. path))
 end
 
-local EXTENSIONS_TO_TRY = { '.png', '.svg' }
-
---[[
-# Icon Options
-
-- `path` - path to the icon file
-- `text` - text to render as an icon
-
-## All icon type options
-- `background_color`
-- `skip_background_color` -- Don't draw a background color
-
-- `width`
-- `height`
-
-## Options specific to `text` icons
-- `text_color`
-- `font`
-- `font_size`
-]]
-
--- if this returns nil should probably `try_load_image('error.png')` to make
--- it visually clear that the icon is missing
-local function load_icon_from_file(path)
-    local image = try_load_image(path)
-    if path then
-        return image
-    end
-
-    for _, ext in pairs(EXTENSIONS_TO_TRY) do
-        image = try_load_image(path .. ext)
-        if image then
-            return image
-        end
-    end
-
-    print("failed to load icon: " .. path)
-end
-
 local function get_icon_from_file(path, options)
     local image = try_load_image(path)
 
@@ -125,7 +86,7 @@ local function get_icon_from_file(path, options)
 end
 
 local function get_icon_from_text(text, options)
-    local options = options or { }
+    local options = options or {}
     local text_color = options.text_color or colors.off_white
     local font = options['font'] or ".AppleSystemUIFont"
     local font_size = options['font_size'] or 70
@@ -175,7 +136,34 @@ local function get_icon_for_color(color, options)
     return get_icon_from_canvas(elements, options)
 end
 
---[[ export ]] local function get_icon(options)
+--[[
+# Icon Options
+
+- `path` - path to the icon file
+- `text` - text to render as an icon
+- `color` - color to render as an icon
+- `canvas` - a table of canvas elements to render as an icon
+
+## All icon type options
+- `background_color`
+- `skip_background_color` -- Don't draw a background color
+
+- `width`
+- `height`
+
+## Options specific to `text` icons
+- `text_color`
+- `font`
+- `font_size`
+
+## Options specific to `colors` icons
+- `color` - the color to render
+
+## Options specific to `canvas` icons
+- `canvas` - the canvas elements to render (as an array)
+]]
+--[[ export ]]
+local function get_icon(options)
     if type(options) == 'string' then
         options = { text = options }
     end
@@ -189,10 +177,12 @@ end
     elseif options.canvas then
         return get_icon_from_canvas(options.canvas, options)
     else
-        print('You must provide either a path or text to get_icon')
+        print('You must provide either a path, text, color or canvas to get_icon')
     end
 end
 
 return {
-    get_icon = get_icon
+    get_icon = get_icon,
+
+    clear_canvas_cache = clear_canvas_cache,
 }

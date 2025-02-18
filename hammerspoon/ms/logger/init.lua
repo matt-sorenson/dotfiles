@@ -32,7 +32,8 @@ local function get_log_level_name(level)
     error("invalid log level provided: " .. level)
 end
 
---[[ export ]] local function set_log_level(level)
+--[[ export ]]
+local function set_log_level(level)
     _system_log_level = log_level_to_num(level)
 end
 
@@ -197,7 +198,8 @@ local logger_mt_index = {
         2025-01-15 11:04:00: [ERROR:init] error test
     ```
 ]]
---[[ export ]] local function logger_fn(system)
+--[[ export ]]
+local function logger_fn(system)
     local out = {
         system = system,
         log_level = _system_log_level,
@@ -206,7 +208,7 @@ local logger_mt_index = {
     return out
 end
 
--- Kludge some of the default hammerspoon logging into this system 
+-- Kludge some of the default hammerspoon logging into this system
 print = function(...)
     local args = table.pack(...)
     if string.find(args[1], '-- ') == 1 then
@@ -221,8 +223,8 @@ print = function(...)
 end
 
 return {
-  set_log_level = set_log_level,
-  get_log_level = get_log_level,
+    set_log_level = set_log_level,
+    get_log_level = get_log_level,
 
-  logger_fn = logger_fn,
+    logger_fn = logger_fn,
 }

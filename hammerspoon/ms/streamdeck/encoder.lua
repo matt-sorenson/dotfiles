@@ -17,8 +17,8 @@ local PER_ENCODER_SCREEN_HEIGHT = SCREEN_HEIGHT
 local DEFAULT_COLOR = colors.black
 
 local blank_encoder_screen_image = icon.get_icon({
-  color = DEFAULT_COLOR,
-  size = 'streamdeck_encoder',
+    color = DEFAULT_COLOR,
+    size = 'streamdeck_encoder',
 })
 
 local encoder_mt = {
@@ -37,8 +37,8 @@ local encoder_mt = {
         ]]
         get_screen_image = function(self) return blank_encoder_screen_image end,
 
-        get_screen_width = function (self) return PER_ENCODER_SCREEN_WIDTH end,
-        get_screen_height = function (self) return PER_ENCODER_SCREEN_HEIGHT end,
+        get_screen_width = function(self) return PER_ENCODER_SCREEN_WIDTH end,
+        get_screen_height = function(self) return PER_ENCODER_SCREEN_HEIGHT end,
 
         --[[
           returns
@@ -52,7 +52,8 @@ local encoder_mt = {
     }
 }
 
---[[ export ]] local function encoder_new(config, deck_frame, encoder_idx)
+--[[ export ]]
+local function encoder_new(config, deck_frame, encoder_idx)
     local out = {}
     setmetatable(out, encoder_mt)
 
@@ -85,5 +86,5 @@ local encoder_mt = {
 end
 
 return {
-  new = encoder_new,
+    new = encoder_new,
 }

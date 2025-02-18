@@ -2,11 +2,13 @@ local print = require('ms.logger').logger_fn('ms.caffeine')
 
 local timer
 
---[[export]] local function is_on()
+--[[export]]
+local function is_on()
     return hs.caffeinate.get('displayIdle')
 end
 
---[[export]] local function set(enabled)
+--[[export]]
+local function set(enabled)
     if timer then
         timer:stop();
         timer = nil
@@ -15,20 +17,24 @@ end
     hs.caffeinate.set('displayIdle', enabled)
 end
 
---[[export]] local function off()
+--[[export]]
+local function off()
     set(false)
 end
 
---[[export]] local function on()
+--[[export]]
+local function on()
     set(true)
 end
 
---[[export]] local function timed_on_s(time_in_sec)
+--[[export]]
+local function timed_on_s(time_in_sec)
     on()
     timer = hs.timer.doAfter(time_in_sec, off)
 end
 
---[[export]] local function timed_on_m(time_in_min)
+--[[export]]
+local function timed_on_m(time_in_min)
     timed_on_s(hs.timer.minutes(time_in_min))
 end
 
@@ -59,7 +65,8 @@ local function secondsToHumanReadable(time_in_sec)
     return string.format("%ds", time_in_sec)
 end
 
---[[export]] local function alert_is_on()
+--[[export]]
+local function alert_is_on()
     if is_on() then
         if timer then
             hs.alert("Caffeine is Enabled: " .. secondsToHumanReadable(time_remaining()))

@@ -34,7 +34,8 @@ local button_mt = {
     }
 }
 
---[[ export ]] local function button_new(config, frame, button_idx)
+--[[ export ]]
+local function button_new(config, frame, button_idx)
     local out = {}
     setmetatable(out, button_mt)
 
