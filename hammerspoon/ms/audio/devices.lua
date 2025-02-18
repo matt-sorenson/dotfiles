@@ -95,6 +95,8 @@ local function shutdown()
   input_device = nil
 end
 
+local _config = {}
+
 --[[export]] local function init(device_config)
   shutdown()
 
@@ -147,7 +149,7 @@ hs.audiodevice.watcher.setCallback(function(arg)
   local device_change_events = { 'dIn', 'dOut', 'sOut' }
 
   if table.find(device_change_events, arg) then
-    init(device_config)
+    init(_config)
   end
 end)
 

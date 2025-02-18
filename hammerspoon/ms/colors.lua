@@ -38,9 +38,9 @@ local function get_colors()
     colors.windowBackgroundColor = system_colors.windowBackgroundColor
     colors.windowFrameTextColor = system_colors.windowFrameTextColor
 
-    colors.tintColor = systemOrangeColor
-    colors.systemBackgroundColor = windowBackgroundColor
-    colors.systemTextColor = textColorlabelColor
+    colors.tintColor = colors.systemOrangeColor
+    colors.systemBackgroundColor = colors.windowBackgroundColor
+    colors.systemTextColor = colors.textColorlabelColor
 
     colors.systemBlueColor = system_colors.systemBlueColor
     colors.systemBrownColor = system_colors.systemBrownColor

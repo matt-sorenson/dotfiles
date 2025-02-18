@@ -257,11 +257,11 @@ end
 local current_config = get_config()
 
 --[[ export ]] local function apply(category, windows)
-    current_config:apply(categories, windows)
+    current_config:apply(category, windows)
 end
 
 --[[ export ]] local function apply_to_window(category, window)
-    current_config:apply_to_window(categories, window)
+    current_config:apply_to_window(category, window)
 end
 
 --[[ export ]] local function move_window_to_section(window, section)
@@ -278,7 +278,7 @@ end
 return {
     apply = apply,
     apply_fn = function(categories, windows)
-        return function() apply(layout_name, windows) end
+        return function() apply(categories, windows) end
     end,
     apply_to_window = apply_to_window,
 

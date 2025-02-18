@@ -3,7 +3,7 @@ local print = require('ms.logger').logger_fn('ms.bind')
 -- only log errors from within the hs.hotkey module
 hs.hotkey.setLogLevel('error')
 
-local current_modal, default_modal
+local current_modal, _default_modal
 
 local function modal_enter(self)
     if current_modal and (current_modal ~= self) then
@@ -66,7 +66,7 @@ local function modal_bind_fn_wrapper(self, fn, skip_clear)
     end
 
     if fn.repeat_fn then
-        out.repeat_fn = modal_bind_fn_wrapper_fn(self, fn.repeat_fn, truu)
+        out.repeat_fn = modal_bind_fn_wrapper_fn(self, fn.repeat_fn, true)
     end
 
     return out
@@ -207,7 +207,7 @@ local function modal_print_help(self)
         end
     end)
 
-    formatted_msgs = table.map(self.msgs, function(msg)
+    local formatted_msgs = table.map(self.msgs, function(msg)
         if 'string' == type(msg) then
             local shortcut = string.rep('─', max_shortcut)
             local msg = string.rep('─', max_msg)
@@ -243,18 +243,6 @@ modal_mt.__index.help_seperator = function(self)
 end
 
 local function escape_fn() hs.alert('⎋ - Cancel') end
-
-local function create_modal(config, parent)
-    local modal = bind.new(parent, config.mods, config.key)
-
-    for _, v in ipairs(config) do
-        if v.title then
-            create_modal(v, modal)
-        else
-            modal:bind(v)
-        end
-    end
-end
 
 --[[export]] local function modal_new(config, parent)
     parent = ((parent ~= 'noparent') and (parent or _default_modal)) or nil

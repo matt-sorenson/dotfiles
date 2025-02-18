@@ -16,8 +16,10 @@ local function log_level_to_num(level)
     return LOG_LEVEL_ENUM[level]
 end
 
+local _system_log_level = log_level_to_num('INFO')
+
 local function get_log_level()
-    return system_log_level
+    return _system_log_level
 end
 
 local function get_log_level_name(level)
@@ -30,9 +32,8 @@ local function get_log_level_name(level)
     error("invalid log level provided: " .. level)
 end
 
-local system_log_level = log_level_to_num('INFO')
 --[[ export ]] local function set_log_level(level)
-    system_log_level = log_level_to_num(level)
+    _system_log_level = log_level_to_num(level)
 end
 
 local table_shallow_copy = function(t)
@@ -54,7 +55,7 @@ local function table_to_string(t, indent, looked_up)
         indent = ''
     end
 
-    out = '{\n'
+    local out = '{\n'
 
     for k, v in pairs(t) do
         if type(v) == 'table' then
@@ -91,7 +92,7 @@ local function format_header(system, level, min_sys_length)
 end
 
 local function system_logger(system, level, message, obj)
-    if log_level_to_num(level) < system_log_level then
+    if log_level_to_num(level) < _system_log_level then
         return
     end
 
@@ -199,7 +200,7 @@ local logger_mt_index = {
 --[[ export ]] local function logger_fn(system)
     local out = {
         system = system,
-        log_level = system_log_level,
+        log_level = _system_log_level,
     }
     setmetatable(out, logger_mt_index)
     return out
@@ -221,6 +222,7 @@ end
 
 return {
   set_log_level = set_log_level,
+  get_log_level = get_log_level,
 
   logger_fn = logger_fn,
 }

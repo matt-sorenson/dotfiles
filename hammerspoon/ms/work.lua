@@ -1,6 +1,6 @@
 local print = require('ms.logger').logger_fn('ms.work')
 
---[[ export ]] function get_random_team_member(team_name)
+--[[ export ]] local function get_random_team_member(team_name)
     local TEAMMATE_FILENAME = hs.fs.pathToAbsolute("~/.dotfiles/local/" .. team_name)
 
     if nil == hs.fs.attributes(TEAMMATE_FILENAME) then

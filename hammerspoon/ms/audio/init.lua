@@ -74,11 +74,11 @@ return {
   toggle_input_mute = toggle_input_mute,
   is_input_muted = is_input_muted,
 
-  add_input_watcher_callback = add_input_watcher_callback,
-  remove_input_watcher_callback = remove_input_watcher_callback,
+  add_input_watcher_callback = devices.add_input_watcher_callback,
+  remove_input_watcher_callback = devices.remove_input_watcher_callback,
 
-  add_output_watcher_callback = add_output_watcher_callback,
-  remove_output_watcher_callback = remove_output_watcher_callback,
+  add_output_watcher_callback = devices.add_output_watcher_callback,
+  remove_output_watcher_callback = devices.remove_output_watcher_callback,
 
   init = devices.init
 }

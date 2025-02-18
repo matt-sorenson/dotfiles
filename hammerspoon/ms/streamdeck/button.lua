@@ -13,8 +13,8 @@ local DEFAULT_COLOR = colors.black
 
 local blank_button_image = icon.get_icon({
     color = DEFAULT_COLOR,
-    width = PER_ENCODER_SCREEN_WIDTH,
-    height = PER_ENCODER_SCREEN_HEIGHT,
+    width = BUTTON_WIDTH,
+    height = BUTTON_HEIGHT,
 })
 
 local button_mt = {

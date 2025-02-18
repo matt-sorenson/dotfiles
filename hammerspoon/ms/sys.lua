@@ -161,7 +161,7 @@ end
 --[[ export ]] local function do_file_hs_local(filename)
     local file = hs.fs.pathToAbsolute(hs.configdir .. "/local/" .. filename)
     if not file then
-        return error("Could not find file: " .. filename)
+        error("Could not find file: " .. filename)
     end
 
     local fn, err = loadfile(file)

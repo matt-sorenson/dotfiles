@@ -47,11 +47,11 @@ hslog.new = function(system, level)
     local wrapper = mslog.logger_fn(system)
 
     return {
-        v = function(msg) wrapper:verbose(message) end,
-        d = function(msg) wrapper:debug(message) end,
-        i = function(msg) wrapper:info(message) end,
-        w = function(msg) wrapper:warn(message) end,
-        e = function(msg) wrapper:error(message) end,
+        v = function(msg) wrapper:verbose(msg) end,
+        d = function(msg) wrapper:debug(msg) end,
+        i = function(msg) wrapper:info(msg) end,
+        w = function(msg) wrapper:warn(msg) end,
+        e = function(msg) wrapper:error(msg) end,
 
         vf = function(...) wrapper:verbosef(...) end,
         df = function(...) wrapper:debugf(...) end,

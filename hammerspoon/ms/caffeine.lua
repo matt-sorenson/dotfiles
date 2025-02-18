@@ -32,7 +32,7 @@ end
     timed_on_s(hs.timer.minutes(time_in_min))
 end
 
-function time_remaining()
+local function time_remaining()
     if timer then
         return timer:nextTrigger()
     end
@@ -40,7 +40,7 @@ function time_remaining()
     return 0
 end
 
-function secondsToHumanReadable(time_in_sec)
+local function secondsToHumanReadable(time_in_sec)
     local minutes = math.floor(time_in_sec / 60)
     local hours = math.floor(minutes / 60)
 
