@@ -1,6 +1,8 @@
 {
-  "Lua.diagnostics.globals": [
-    "hs",
-    "toarray"
-  ]
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "Lua.diagnostics.globals": [
+        "hs",
+        "toarray"
+    ]
 }

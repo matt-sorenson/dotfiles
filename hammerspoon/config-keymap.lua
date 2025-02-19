@@ -1,9 +1,13 @@
-local audio    = require 'ms.audio'
-local caffeine = require 'ms.caffeine'
-local grid     = require 'ms.grid'
-local layout   = require 'ms.layout'
-local sys      = require 'ms.sys'
-local work     = require 'ms.work'
+local print = require('ms.logger').logger_fn('config-keymap')
+
+local audio     = require 'ms.audio'
+local caffeine  = require 'ms.caffeine'
+local grid      = require 'ms.grid'
+local layout    = require 'ms.layout'
+local sys       = require 'ms.sys'
+local work      = require 'ms.work'
+local workspace = require 'ms.workspace'
+
 
 local function keybind_caffeine_in_minutes(key, minutes)
     return {
@@ -54,6 +58,8 @@ return {
             { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
             { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
+            { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = layout.resize_window_fn(1920, 1080) },
+
             '-',
 
             { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({ 0, 0, 1, 1 }) },
@@ -70,6 +76,8 @@ return {
 
             { key = 'G',                 msg = 'Grid', fn = grid.show,             optional_mods = 'shift' },
             { key = 'G', mods = 'shift', msg = 'Grid', fn = grid.show_fn('shift'), skip_help_msg = true },
+
+            { key = 'Z', msg = 'Start focused Zoom meeting', fn = workspace.zoom_meeting },
         },
 
         {

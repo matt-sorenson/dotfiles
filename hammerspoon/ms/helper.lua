@@ -103,7 +103,7 @@ table.filter = function(t, fn)
 
     for k, v in pairs(t) do
         if fn(v) then
-            out[k] = v
+            table.insert(out, v)
         end
     end
 

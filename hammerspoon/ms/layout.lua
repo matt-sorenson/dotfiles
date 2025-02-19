@@ -5,7 +5,28 @@ local sys = require 'ms.sys'
 local function move_window(window, rect, screen)
     screen = screen or window:screen()
 
-    window:setFrame(screen:fromUnitRect(rect))
+    local frame
+    if rect[1] > 1 or rect[2] > 0 or rect[3] > 1 or rect[4] > 1 then
+        frame = rect
+    else
+        frame = {
+            x = rect[1] * screen:frame().w,
+            y = rect[2] * screen:frame().h,
+            w = rect[3] * screen:frame().w,
+            h = rect[4] * screen:frame().h,
+        }
+    end
+
+    window:setFrame(frame)
+end
+
+local function resize_window(window, width, height)
+    local frame = window:frame()
+
+    frame.w = width
+    frame.h = height
+
+    window:setFrame(frame)
 end
 
 local function _layout_score_str_tbl(array, str)
@@ -282,6 +303,13 @@ local function move_window_fn(rect, screen_n)
     end
 end
 
+--[[ export]]
+local function resize_window_fn(width, height)
+    return function()
+        resize_window(hs.window.focusedWindow(), width, height)
+    end
+end
+
 return {
     apply = apply,
     apply_fn = function(categories, windows)
@@ -293,5 +321,8 @@ return {
     move_window_to_section = move_window_to_section,
     move_window_to_section_fn = function(section)
         return function() move_window_to_section(hs.window.focusedWindow(), section) end
-    end
+    end,
+
+    resize_window = resize_window,
+    resize_window_fn = resize_window_fn,
 }
