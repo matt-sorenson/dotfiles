@@ -110,7 +110,7 @@ end
 local _config = {}
 
 --[[export]]
-local function init(device_config)
+local function init(device_config, set_default_output)
     shutdown()
 
     _config = device_config or _config
@@ -125,16 +125,18 @@ local function init(device_config)
 
     _config.default = default
 
-    if device_config then
-        local default_config_key = table.find(device_config, function(config)
-            return config.is_default
-        end)
+    if set_default_output or set_default_output == nil then
+        if device_config then
+            local default_config_key = table.find(device_config, function(config)
+                return config.is_default
+            end)
 
-        if default_config_key then
-            local default_config = device_config[default_config_key]
-            get_output_device_by_name(default_config.device_name):setDefaultOutputDevice()
-        else
-            print('no default config found')
+            if default_config_key then
+                local default_config = device_config[default_config_key]
+                get_output_device_by_name(default_config.device_name):setDefaultOutputDevice()
+            else
+                print('no default config found')
+            end
         end
     end
 

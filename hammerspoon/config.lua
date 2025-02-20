@@ -28,7 +28,6 @@ local _audio_device_configs = {
         min_delta = 5,
     },
 }
-audio.init(_audio_device_configs)
 
 hs.window.animationDuration = 0
 
@@ -46,9 +45,12 @@ local function on_device_change()
     if not sys.is_work_computer() then
         sys.mount_smb_shares(REMOTE_SHARES)
     end
+
+    audio.init(_audio_device_configs, false)
 end
 
 on_device_change()
+audio.init(_audio_device_configs)
 
 hs.caffeinate.watcher.new(on_device_change):start()
 hs.usb.watcher.new(on_device_change):start()
