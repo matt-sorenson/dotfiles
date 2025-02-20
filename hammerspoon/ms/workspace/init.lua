@@ -1,5 +1,7 @@
-local print = require('ms.logger').logger_fn('ms.workspace.init')
+local print = require('ms.logger').print_fn('ms.workspace.init')
 
+-- Apple doesn't like others messing with workspace creation so 
+-- we sleep to allow the hacky way to interact with workspaces to work.
 local function sleep()
     local one_second_in_useconds = 1000000
     hs.timer.usleep(one_second_in_useconds)
@@ -56,6 +58,8 @@ end
 --[[export]]
 -- Currently broket
 local function move_window_to_workspace(window, workspace_id)
+    print:warn('move_window_to_workspace is broken')
+
     local success, error = hs.spaces.moveWindowToSpace(window, workspace_id)
 
     if not success then
@@ -125,6 +129,8 @@ local function zoom_meeting()
     end
 
     -- Zoom is last so it's focused
+    -- move_window_to_workspace is broken, consider checking if there are
+    -- no windows or only `Zoom Workplace` open and closing the app and re-launching
     local zoom = launchOrGetApp('us.zoom.xos')
     if zoom ~= nil then
         table.each(zoom:allWindows(), function(window)

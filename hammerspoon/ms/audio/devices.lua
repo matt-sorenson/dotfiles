@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('ms.audio.devices')
+local print = require('ms.logger').print_fn('ms.audio.devices')
 
 local config = {}
 

@@ -1,8 +1,7 @@
-local audio  = require 'ms.audio'
-local colors = require 'ms.colors'
-local ha     = require 'ms.home-assistant'
+local print  = require('ms.logger').print_fn('config:streamdeck')
 
-local print  = require('ms.logger').logger_fn('config:streamdeck')
+local audio  = require 'ms.audio'
+local ha     = require 'ms.home-assistant'
 
 return {
   buttons = {

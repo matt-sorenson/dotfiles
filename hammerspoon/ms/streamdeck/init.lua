@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('ms.streamdeck.init')
+local print = require('ms.logger').print_fn('ms.streamdeck.init')
 
 local deck_frame = require 'ms.streamdeck.deck_frame'
 

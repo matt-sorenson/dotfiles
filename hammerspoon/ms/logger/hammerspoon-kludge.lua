@@ -44,7 +44,7 @@ hslog.new = function(system, level)
         system = 'hs.' .. system
     end
 
-    local wrapper = mslog.logger_fn(system)
+    local wrapper = mslog.print_fn(system)
 
     return {
         v = function(msg) wrapper:verbose(msg) end,

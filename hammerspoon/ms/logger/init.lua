@@ -1,4 +1,5 @@
-local sys_print = print
+local hs_print = print
+
 
 local LOG_LEVEL_ENUM = {
     VERBOSE = 0,
@@ -92,6 +93,10 @@ local function format_header(system, level, min_sys_length)
     return out
 end
 
+local function print_to_console(msg)
+    hs_print(msg)
+end
+
 local function system_logger(system, level, message, obj)
     if log_level_to_num(level) < _system_log_level then
         return
@@ -111,9 +116,9 @@ local function system_logger(system, level, message, obj)
             obj_str = tostring(obj)
         end
 
-        sys_print(header .. message .. '\n' .. obj_str)
+        print_to_console(header .. message .. '\n' .. obj_str)
     else
-        sys_print(header .. message)
+        print_to_console(header .. message)
     end
 end
 
@@ -186,7 +191,7 @@ local logger_mt_index = {
 --[[
     Suggested usage:
     ```lua
-        local print = require('ms.logger').logger_fn('init')
+        local print = require('ms.logger').print_fn('init')
 
         print('test')
         print:error('error test')
@@ -199,7 +204,7 @@ local logger_mt_index = {
     ```
 ]]
 --[[ export ]]
-local function logger_fn(system)
+local function print_fn(system)
     local out = {
         system = system,
         log_level = _system_log_level,
@@ -219,7 +224,7 @@ print = function(...)
             system_logger('hs.hotkey', 'INFO', args[1]:sub(22))
             return
         elseif string.find(args[1], 'ERROR:   LuaSkin:') then
-            system_logger('hs.LuaSkin', 'ERROR', args[1]:sub(28))
+            system_logger('LuaSkin', 'ERROR', args[1]:sub(28))
             return
         end
     end
@@ -229,9 +234,16 @@ print = function(...)
     system_logger('unknown', 'INFO', message)
 end
 
+printf = function(...)
+    local message = string.format(...)
+    system_logger('unknown', 'INFO', message)
+end
+
 return {
     set_log_level = set_log_level,
     get_log_level = get_log_level,
 
-    logger_fn = logger_fn,
+    print_fn = print_fn,
+
+    hs_print = hs_print
 }

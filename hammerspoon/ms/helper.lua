@@ -1,5 +1,3 @@
-local print = require('ms.logger').logger_fn('ms.helper')
-
 -- I end up looking up how to clear the console each time cause I forget about
 -- `Console` on the end of the method name.
 hs.console.clear = hs.console.clearConsole

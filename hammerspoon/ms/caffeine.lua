@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('ms.caffeine')
+local print = require('ms.logger').print_fn('ms.caffeine')
 
 local timer
 

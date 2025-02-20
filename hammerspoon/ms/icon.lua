@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('ms.icon')
+local print = require('ms.logger').print_fn('ms.icon')
 
 local sys = require 'ms.sys'
 local colors = require "ms.colors"

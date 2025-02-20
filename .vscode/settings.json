@@ -3,6 +3,7 @@
     "editor.insertSpaces": true,
     "Lua.diagnostics.globals": [
         "hs",
-        "toarray"
+        "toarray",
+        "printf"
     ]
 }

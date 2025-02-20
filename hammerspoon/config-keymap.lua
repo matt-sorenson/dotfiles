@@ -1,4 +1,4 @@
-local print = require('ms.logger').logger_fn('config-keymap')
+local print = require('ms.logger').print_fn('config-keymap')
 
 local audio     = require 'ms.audio'
 local caffeine  = require 'ms.caffeine'
