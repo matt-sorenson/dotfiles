@@ -38,14 +38,6 @@ local function set_log_level(level)
     _system_log_level = log_level_to_num(level)
 end
 
-local table_shallow_copy = function(t)
-    local copy = {}
-    for k, v in pairs(t) do
-        copy[k] = v
-    end
-    return copy
-end
-
 local INDENT = '  '
 
 local function table_to_string(t, indent, looked_up)
@@ -64,7 +56,7 @@ local function table_to_string(t, indent, looked_up)
             if looked_up[v] then
                 out = out .. indent .. k .. ': <circular>,\n'
             else
-                local tmp_looked_up = table_shallow_copy(looked_up)
+                local tmp_looked_up = table.shallow_copy(looked_up)
                 tmp_looked_up[v] = true
 
                 out = out .. indent .. k .. ': ' .. table_to_string(v, indent .. INDENT, tmp_looked_up) .. ',\n'

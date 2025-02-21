@@ -213,9 +213,7 @@ end
 
 local function exit(self, deck)
     -- Stop and delete all timers
-    for _, timer in pairs(self.timers) do
-        timer:stop()
-    end
+    table.ieach(self.timers, function(timer) timer:stop() end)
     self.timers = {}
 
     self:on_exit(deck)

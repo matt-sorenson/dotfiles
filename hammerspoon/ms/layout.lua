@@ -2,6 +2,7 @@ local print = require('ms.logger').print_fn('ms.layout')
 
 local sys = require 'ms.sys'
 
+--[[ export]]
 local function move_window(window, rect, screen)
     screen = screen or window:screen()
 
@@ -20,6 +21,7 @@ local function move_window(window, rect, screen)
     window:setFrame(frame)
 end
 
+--[[ export ]]
 local function resize_window(window, width, height)
     local frame = window:frame()
 
@@ -69,7 +71,7 @@ local function _layout_score_rule(category, app_name, win_name, rule)
     return score
 end
 
---[[ export ]]
+--[[ export:layout_mt ]]
 local function _layout_apply_to_window(self, category, window)
     window = window or hs.window.focusedWindow()
 
@@ -100,7 +102,7 @@ local function _layout_apply_to_window(self, category, window)
     end
 end
 
---[[ export ]]
+--[[ export:layout_mt ]]
 local function _layout_apply(self, category, windows)
     windows = hs.window.allWindows()
 
@@ -109,12 +111,12 @@ local function _layout_apply(self, category, windows)
     end)
 end
 
---[[ export ]]
+--[[ export:layout_mt ]]
 local function _layout_get_screen(self, index)
     return self:layout()[index].screen
 end
 
---[[ export ]]
+--[[ export:layout_mt ]]
 local function _layout_move_window_to_section(self, window, section_n)
     local sections = self:sections()
 
@@ -231,16 +233,17 @@ local function load_screen_configurations()
 end
 
 local function filter_configs(screen_configs)
+    if not sys.is_work_computer() then
+        print("Filtering out work layouts.")
+        screen_configs = table.filter(screen_configs, function(v) return not v:is_work_computer() end)
+    else
+        print("filtering out non-work layouts.")
+        screen_configs = table.filter(screen_configs, function(v) return v:is_work_computer() end)
+    end
+
     if #screen_configs > 1 then
         print("Multiple screen layouts found, filtering out fallback layouts.")
         screen_configs = table.filter(screen_configs, function(v) return not v:is_fallback() end)
-    end
-
-    -- Work computers will only be filtered out from non-work computers
-    -- in the case there are multiple matching layouts available.
-    if #screen_configs > 1 and sys.is_work_computer() then
-        print("Multiple screen layouts found, on work computer, filtering out non-work layouts.")
-        return table.filter(screen_configs, function(v) return v:is_work_computer() end)
     end
 
     return screen_configs
@@ -299,6 +302,7 @@ return {
     end,
     apply_to_window = apply_to_window,
 
+    move_window = move_window,
     move_window_fn = move_window_fn,
     move_window_to_section = move_window_to_section,
     move_window_to_section_fn = function(section)

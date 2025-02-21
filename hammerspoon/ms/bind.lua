@@ -73,15 +73,7 @@ local function modal_bind_fn_wrapper(self, fn, skip_clear)
 end
 
 local function array_set_remove(t1, t2)
-    local out = {}
-
-    for _, v in ipairs(t1) do
-        if not table.ifind(t2, v) then
-            table.insert(out, v)
-        end
-    end
-
-    return out
+    return table.filter(t1, function(v) return not table.ifind(t2, v) end)
 end
 
 local function normalize_mod(mod)
@@ -98,15 +90,11 @@ local function dedup_mods(mods, opt)
     local out = {}
 
     if mods then
-        for _, v in ipairs(toarray(mods)) do
-            out[normalize_mod(v)] = true
-        end
+        table.each(toarray(mods), function(v) out[normalize_mod(v)] = true end)
     end
 
     if opt then
-        for _, v in ipairs(toarray(opt)) do
-            out[normalize_mod(v)] = true
-        end
+        table.each(toarray(opt), function(v) out[normalize_mod(v)] = true end)
     end
 
     return table.keys(out)

@@ -29,9 +29,8 @@ local function get_canvas(w, h)
 end
 
 local function clear_canvas_cache()
-    for _, canvas in pairs(canvas_cache) do
-        canvas:delete()
-    end
+    table.each(canvas_cache, function(canvas) canvas:delete() end)
+
     canvas_cache = {}
 end
 

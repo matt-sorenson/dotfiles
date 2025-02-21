@@ -33,9 +33,7 @@ end
 --[[ export ]]
 local function mount_smb_shares(shares_map)
     for host, shares in pairs(shares_map) do
-        for _, share in ipairs(shares) do
-            mount_smb(host, share)
-        end
+        table.ieach(shares, function(share) mount_smb(host, share) end)
     end
 end
 
