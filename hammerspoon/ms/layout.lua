@@ -195,7 +195,7 @@ local function _layout_new(input, name)
 
     -- If an expected screen is missing then don't load the layout
     if not _layout_init_screens(self) then
-        print:error("'" .. name .. "' screens not found")
+        print:debug("'" .. name .. "' screens not found")
         return nil
     end
 

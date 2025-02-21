@@ -44,7 +44,10 @@ hslog.new = function(system, level)
         system = 'hs.' .. system
     end
 
+    system = string.gsub(system, '^hs:', 'hs.')
+
     local wrapper = mslog.print_fn(system)
+    wrapper:set_log_level(hs_log_level_to_log_level(level))
 
     return {
         v = function(msg) wrapper:verbose(msg) end,
