@@ -102,8 +102,15 @@ local function system_logger(system, level, message, obj)
         return
     end
 
+    if 'table' == type(message) and obj == nil then
+        obj = message
+        message = '<Debug OBJ Dump>:'
+    end
+
     if nil == message then
         message = '<nil>'
+    elseif type(message) ~= 'string' then
+        message = tostring(message)
     end
 
     local header = format_header(system, level, 9)
