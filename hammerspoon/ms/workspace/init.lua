@@ -65,6 +65,8 @@ local function move_window_to_workspace(window, workspace_id)
     if not success then
         print:error("Failed to move window to workspace: " .. error)
     end
+
+    return success, error
 end
 
 --[[export]]
@@ -135,6 +137,8 @@ local function zoom_meeting()
     if zoom ~= nil then
         table.each(zoom:allWindows(), function(window)
             print('moving window to workspace: ' .. new_workspace_id, window)
+
+            -- drop any errors on the floor
             move_window_to_workspace(window, new_workspace_id)
             window:focus()
         end)

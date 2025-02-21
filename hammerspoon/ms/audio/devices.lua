@@ -135,7 +135,7 @@ local function init(device_config, set_default_output)
                 local default_config = device_config[default_config_key]
                 get_output_device_by_name(default_config.device_name):setDefaultOutputDevice()
             else
-                print('no default config found')
+                print:warn('no default config found')
             end
         end
     end

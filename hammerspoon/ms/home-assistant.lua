@@ -75,11 +75,11 @@ local function post(event, data, options)
 
     if not callback then
         callback = function(status, body, headers)
-            local message =
-                "HA event: " .. tostring(event) ..
-                "\nstatus: " .. tostring(status)
-
-            print(message)
+            print({
+                status = status,
+                body = body,
+                headers = headers,
+            })
         end
     end
 

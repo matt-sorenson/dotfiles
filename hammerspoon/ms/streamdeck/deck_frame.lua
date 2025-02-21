@@ -286,7 +286,10 @@ local function deck_frame_new(config, parent)
     -- Overwrite any provided button 1 with a 'pop' button
     if parent then
         if config.buttons[1] and config.buttons[1] ~= 'pop' then
-            print("Provided a button '1' when parent frame exists, this will be overwritten by the 'pop' button")
+            print:warn(
+                "Provided a button '1' when parent frame exists, " ..
+                "this will be overwritten by the 'pop' button"
+            )
         end
 
         out.buttons[1] = button.new({

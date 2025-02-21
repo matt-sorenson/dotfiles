@@ -38,7 +38,7 @@ local function modal_bind_fn_wrapper_fn(self, fn, skip_clear)
                 informativeText = ''
             }):send()
 
-            print(msg)
+            print:error(msg)
         end
 
         if not skip_clear then

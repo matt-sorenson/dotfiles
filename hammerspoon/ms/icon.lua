@@ -177,7 +177,7 @@ local function get_icon(options)
     elseif options.canvas then
         return get_icon_from_canvas(options.canvas, options)
     else
-        print('You must provide either a path, text, color or canvas to get_icon')
+        print:error('You must provide either a path, text, color or canvas to get_icon')
     end
 end
 

@@ -7,9 +7,9 @@ local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes(hs.configdir .. "/local/is-wor
 
 --[[ export ]]
 local function gc()
-    print("Pre GC: " .. math.floor(collectgarbage("count")) .. 'kb')
+    print:debug("Pre GC: " .. math.floor(collectgarbage("count")) .. 'kb')
     collectgarbage("collect")
-    print("Post GC: " .. math.floor(collectgarbage("count")) .. 'kb')
+    print:debug("Post GC: " .. math.floor(collectgarbage("count")) .. 'kb')
 end
 
 --[[ export ]]

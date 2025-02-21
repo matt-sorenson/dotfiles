@@ -193,7 +193,7 @@ local function _layout_new(input, name)
 
     -- If an expected screen is missing then don't load the layout
     if not _layout_init_screens(self) then
-        print("'" .. name .. "' screens not found")
+        print:error("'" .. name .. "' screens not found")
         return nil
     end
 
@@ -233,32 +233,14 @@ end
 local function filter_configs(screen_configs)
     if #screen_configs > 1 then
         print("Multiple screen layouts found, filtering out fallback layouts.")
-        local tmp = screen_configs
-        screen_configs = {}
-
-        for _, v in ipairs(tmp) do
-            if true ~= v:is_fallback() then
-                table.insert(screen_configs, v)
-            else
-                print("['" .. v:name() .. "]' excluded fallback")
-            end
-        end
+        screen_configs = table.filter(screen_configs, function(v) return not v:is_fallback() end)
     end
 
-    if #screen_configs > 1 then
-        if sys.is_work_computer() then
-            print("Multiple screen layouts found, on work computer, filtering out non-work layouts.")
-            local tmp = screen_configs
-            screen_configs = {}
-
-            for _, v in ipairs(tmp) do
-                if true == v:is_work_computer() then
-                    table.insert(screen_configs, v)
-                else
-                    print("['" .. v:name() .. "]' excluded non-work computer")
-                end
-            end
-        end
+    -- Work computers will only be filtered out from non-work computers
+    -- in the case there are multiple matching layouts available.
+    if #screen_configs > 1 and sys.is_work_computer() then
+        print("Multiple screen layouts found, on work computer, filtering out non-work layouts.")
+        return table.filter(screen_configs, function(v) return v:is_work_computer() end)
     end
 
     return screen_configs
