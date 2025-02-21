@@ -34,7 +34,7 @@ else
         subTitle = 'Failed to (re)load',
         informativeText = ''
     }):withdrawAfter(0):send()
-    print("--- Failed to load ms.init ---\n" .. msg .. "\n--- ---")
+    print:error("Failed to load ms.init", msg)
 end
 
 -- Initialization can create a lot of garbage
