@@ -4,21 +4,7 @@ local sys = require 'ms.sys'
 
 --[[ export]]
 local function move_window(window, rect, screen)
-    screen = screen or window:screen()
-
-    local frame
-    if rect[1] > 1 or rect[2] > 0 or rect[3] > 1 or rect[4] > 1 then
-        frame = rect
-    else
-        frame = {
-            x = rect[1] * screen:frame().w,
-            y = rect[2] * screen:frame().h,
-            w = rect[3] * screen:frame().w,
-            h = rect[4] * screen:frame().h,
-        }
-    end
-
-    window:setFrame(frame)
+    window:move(rect, screen or window:screen())
 end
 
 --[[ export ]]
