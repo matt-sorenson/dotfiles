@@ -13,7 +13,7 @@ local function log_level_to_num(level)
     if type(level) == 'number' then
         return level
     end
-    return LOG_LEVEL_ENUM[level]
+    return LOG_LEVEL_ENUM[string.upper(level)]
 end
 
 local _system_log_level = log_level_to_num('INFO')
@@ -90,10 +90,6 @@ local function print_to_console(msg)
 end
 
 local function system_logger(system, level, message, obj)
-    if log_level_to_num(level) < _system_log_level then
-        return
-    end
-
     if 'table' == type(message) and obj == nil then
         obj = message
         message = '<Debug OBJ Dump>:'
