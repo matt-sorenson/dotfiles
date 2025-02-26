@@ -28,7 +28,7 @@ local function get_trigger_url(event, options)
         webhook_id = options.webhook_id
     end
 
-    return host .. '/api/events/' .. webhook_id
+    return host .. '/api/webhook/' .. webhook_id
 end
 
 --[[
@@ -75,7 +75,7 @@ local function post(event, data, options)
 
     if not callback then
         callback = function(status, body, headers)
-            print({
+            print:debug({
                 status = status,
                 body = body,
                 headers = headers,
@@ -83,7 +83,7 @@ local function post(event, data, options)
         end
     end
 
-    print("HA POST", { url = url, body = body, headers = headers })
+    print:debug("HA POST", { url = url, body = body, headers = headers })
 
     hs.http.asyncPost(url, body, headers, callback)
 end

@@ -9,15 +9,22 @@ return {
       type = 'folder',
       icon = { path = 'home-assistant.png' },
       buttons = {
-        [5] = {
+        [4] = {
           on_press = function(self, deck)
-            print('Trying to trigger keylight')
-            ha.post('matt-office-keylight.toggle')
-            print('Tried triggering keylight')
+            ha.post('matt-office-sunlight:toggle')
           end,
 
           icon = {
             text = '🔆'
+          },
+        },
+        [8] = {
+          on_press = function(self, deck)
+            ha.post('matt-office-keylight:toggle')
+          end,
+
+          icon = {
+            text = '🔑',
           },
         }
       },
