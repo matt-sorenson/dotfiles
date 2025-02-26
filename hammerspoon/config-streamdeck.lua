@@ -1,4 +1,4 @@
-local print  = require('ms.logger').print_fn('config:streamdeck')
+local print  = require('ms.logger').new('config:streamdeck')
 
 local audio  = require 'ms.audio'
 local ha     = require 'ms.home-assistant'

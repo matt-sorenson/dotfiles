@@ -1,5 +1,5 @@
 local hslog = require('hs.logger')
-local mslog = require('ms.logger')
+local mslog = require('ms.logger.logger')
 
 local function hs_log_level_to_log_level(input)
     if 'nothing' == input or 0 == input then
@@ -46,7 +46,7 @@ hslog.new = function(system, level)
 
     system = string.gsub(system, '^hs:', 'hs.')
 
-    local wrapper = mslog.print_fn(system)
+    local wrapper = mslog.new(system)
     wrapper:set_log_level(hs_log_level_to_log_level(level))
 
     return {

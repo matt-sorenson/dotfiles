@@ -190,7 +190,7 @@ local _logger_mt_index = {
 --[[
     Suggested usage:
     ```lua
-        local print = require('ms.logger').print_fn('init')
+        local print = require('ms.logger').new('init')
 
         print('test')
         print:error('error test')

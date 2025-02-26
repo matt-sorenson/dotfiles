@@ -1,4 +1,4 @@
-local print = require('ms.logger').print_fn('ms.layout')
+local print = require('ms.logger').new('ms.layout')
 
 local sys = require 'ms.sys'
 

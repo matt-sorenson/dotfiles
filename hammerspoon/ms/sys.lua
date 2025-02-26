@@ -1,4 +1,4 @@
-local print = require('ms.logger').print_fn('ms.sys')
+local print = require('ms.logger').new('ms.sys')
 
 local WHO_AM_I = os.getenv('USER')
 

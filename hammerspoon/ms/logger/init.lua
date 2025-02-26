@@ -32,7 +32,7 @@ return {
     set_log_level = logger.set_log_level,
     get_log_level = logger.get_log_level,
 
-    print_fn = logger.new,
+    new = logger.new,
 
     hs_print = logger.hs_print
 }

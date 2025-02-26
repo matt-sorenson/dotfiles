@@ -1,4 +1,4 @@
-local print = require('ms.logger').print_fn('ms.workspace.init')
+local print = require('ms.logger').new('ms.workspace.init')
 
 -- Apple doesn't like others messing with workspace creation so 
 -- we sleep to allow the hacky way to interact with workspaces to work.

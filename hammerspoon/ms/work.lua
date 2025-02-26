@@ -1,4 +1,4 @@
-local print = require('ms.logger').print_fn('ms.work')
+local print = require('ms.logger').new('ms.work')
 
 --[[ export ]]
 local function get_random_team_member(team_name)

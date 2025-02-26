@@ -1,4 +1,4 @@
-local print = require('ms.logger').print_fn('ms.grid')
+local print = require('ms.logger').new('ms.grid')
 
 local sys = require 'ms.sys'
 
