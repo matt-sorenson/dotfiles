@@ -75,7 +75,8 @@ local function post(event, data, options)
 
     if not callback then
         callback = function(status, body, headers)
-            print:debug({
+            print:debug("Home Assistant Response", {
+                event = event,
                 status = status,
                 body = body,
                 headers = headers,
