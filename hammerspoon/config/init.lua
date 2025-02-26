@@ -31,8 +31,8 @@ local _audio_device_configs = {
 
 hs.window.animationDuration = 0
 
-local modal = bind.init(require('config-keymap'))
-local deck = streamdeck.new(require('config-streamdeck'))
+local modal = bind.init(require('config.keymap'))
+local deck = streamdeck.new(require('config.streamdeck'))
 
 if REMOTE_HOME then
     local finder_modal = modal.children['global'].children['finder']
