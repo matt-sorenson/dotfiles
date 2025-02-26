@@ -2,6 +2,7 @@ local print  = require('ms.logger').new('config:streamdeck')
 
 local audio  = require 'ms.audio'
 local ha     = require 'ms.home-assistant'
+local colors = require 'ms.colors'
 
 return {
   buttons = {
@@ -13,22 +14,51 @@ return {
           on_press = function(self, deck)
             ha.post('matt-office-sunlight:toggle')
           end,
-
+    
           icon = {
-            text = '🔆'
+            {
+              text = '🔆',
+            },
+            {
+              text = 'sunlamp',
+              font_size = 20,
+              text_alignment = 'center',
+              frame = {
+                x = 0,
+                y = 96-30,
+                w = 96,
+                h = 22,
+              },
+              background_color = { red = 0, green = 0, blue = 0, alpha = .5 },
+            },
           },
         },
         [8] = {
           on_press = function(self, deck)
             ha.post('matt-office-keylight:toggle')
           end,
-
+    
           icon = {
-            text = '🔑',
+            {
+              text = '🔑',
+            },
+            {
+              text = 'keylight',
+              font_size = 20,
+              text_alignment = 'center',
+              frame = {
+                x = 0,
+                y = 96-30,
+                w = 96,
+                h = 22,
+              },
+              background_color = { red = 0, green = 0, blue = 0, alpha = .5 },
+            },
           },
-        }
+        },
       },
     },
+
     [4] = {
       on_press = function(self, deck)
         audio.toggle_input_mute()
@@ -74,10 +104,7 @@ return {
       get_screen_image = function(self)
         local volume = audio.get_volume()
 
-        return {
-          text = string.format('%i', math.floor(volume)),
-          font_size = 75,
-        }
+        return { text = string.format('%i', math.floor(volume)) }
       end,
     },
   },

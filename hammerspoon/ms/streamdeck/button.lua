@@ -1,7 +1,7 @@
 local print = require('ms.logger').new('ms.streamdeck.button')
 
 local colors = require 'ms.colors'
-local icon = require 'ms.icon'
+local sys_get_icon = require 'ms.icon'
 
 --[[
   A button represents a single button on the stream deck
@@ -11,7 +11,7 @@ local BUTTON_HEIGHT = 96
 local BUTTON_WIDTH = 96
 local DEFAULT_COLOR = colors.black
 
-local blank_button_image = icon.get_icon({
+local blank_button_image = sys_get_icon({
     color = DEFAULT_COLOR,
     width = BUTTON_WIDTH,
     height = BUTTON_HEIGHT,
@@ -56,12 +56,7 @@ local function button_new(config, frame, button_idx)
     if config.icon then
         local icn
 
-        if type(config.icon) == 'userdata' then
-            -- 'userdata' here means it's an `hs.image`
-            icn = config.icon
-        else
-            icn = icon.get_icon(config.icon)
-        end
+        icn = config.icon
 
         out.get_icon = function(self) return icn end
     else

@@ -1,7 +1,6 @@
 local print = require('ms.logger').new('ms.streamdeck.deck_frame')
 
-local colors = require 'ms.colors'
-local icon = require 'ms.icon'
+local sys_get_icon = require 'ms.icon'
 
 local button = require 'ms.streamdeck.button'
 local encoder = require 'ms.streamdeck.encoder'
@@ -27,8 +26,8 @@ local encoder = require 'ms.streamdeck.encoder'
         on_release = function(self, deck) end,
 
         -- If `icon` is provided it will be used, otherwise falls back to `get_icon()`
-        -- get_icon should return either an `hs.image` or a table for `ms.icon.get_icon()`
-        icon = `hs.image` or input table for `ms.icon.get_icon()`
+        -- get_icon should return either an `hs.image` or a table for `ms.sys_get_icon()`
+        icon = `hs.image` or input table for `ms.sys_get_icon()`
         get_icon = function(self) end,
 
         -- If refresh_rate is provided then it is used, otherwise falls back to
@@ -78,17 +77,16 @@ local function redraw_button(self, deck, button_idx)
 
     if self.buttons[button_idx] then
         icn = self.buttons[button_idx]:get_icon()
+
+        if type(icn) == 'table' then
+            if (not icn.width or not icn.height) and not icn.size then
+                icn.size = 'streamdeck_button'
+            end
+    
+            icn = sys_get_icon(icn)
+        end
     else
         icn = noop_button:get_icon()
-    end
-
-    if type(icn) == 'table' then
-        if (icn.width == nil or icn.height == nil) and icn.size == nil then
-            icn = table.deep_copy(icn)
-            icn.size = 'streamdeck_button'
-        end
-
-        icn = icon.get_icon(icn)
     end
 
     deck:setButtonImage(button_idx, icn)
@@ -100,17 +98,14 @@ local function redraw_encoder(self, deck, encoder_idx)
 
     if self.encoders[encoder_idx] then
         icn = self.encoders[encoder_idx]:get_screen_image()
-    else
-        icn = noop_encoder:get_screen_image()
-    end
 
-    if type(icn) == 'table' then
-        if (icn.width == nil or icn.height == nil) and icn.size == nil then
-            icn = table.deep_copy(icn)
+        if type(icn) == 'table' and (not icn.width or not icn.height ) and not icn.size then
             icn.size = 'streamdeck_encoder'
         end
 
-        icn = icon.get_icon(icn)
+        icn = sys_get_icon(icn)
+    else
+        icn = noop_encoder:get_screen_image()
     end
 
     deck:setScreenImage(encoder_idx, icn)
@@ -236,12 +231,14 @@ local deck_frame_mt = {
     }
 }
 
-local up_icon = icon.get_icon({
+local up_icon = sys_get_icon({
     text = '⏎',
 
     -- Have the return icon point up to be similar to browser/file explorer 'up' icon
     -- Last translate is off a bit to make it look more visually centered
     transform = hs.canvas.matrix.translate(48, 48):scale(-1, 1):rotate(90):translate(-48, -43),
+
+    size = 'streamdeck_button',
 })
 
 local function deck_frame_new(config, parent)
@@ -262,7 +259,7 @@ local function deck_frame_new(config, parent)
                 elseif btn.get_icon then
                     get_icon = btn.get_icon
                 else
-                    get_icon = function(self) return icon.get_icon({ text = '📁' }) end
+                    get_icon = function(self) return sys_get_icon({ text = '📁' }) end
                 end
 
                 out.buttons[i] = button.new({

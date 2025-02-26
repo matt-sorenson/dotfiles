@@ -204,6 +204,10 @@ local _logger_mt_index = {
 ]]
 --[[ export ]]
 local function _logger_new(system, log_level)
+    if log_level then
+        log_level = log_level_to_num(log_level)
+    end
+
     log_level = log_level or _system_log_level
 
     local out = {

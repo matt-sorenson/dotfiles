@@ -1,7 +1,7 @@
 local print = require('ms.logger').new('ms.streamdeck.encoder')
 
 local colors = require 'ms.colors'
-local icon = require 'ms.icon'
+local sys_get_icon = require 'ms.icon'
 
 --[[
   Represents a single encoder on the stream deck
@@ -16,7 +16,7 @@ local PER_ENCODER_SCREEN_HEIGHT = SCREEN_HEIGHT
 
 local DEFAULT_COLOR = colors.black
 
-local blank_encoder_screen_image = icon.get_icon({
+local blank_encoder_screen_image = sys_get_icon({
     color = DEFAULT_COLOR,
     size = 'streamdeck_encoder',
 })
