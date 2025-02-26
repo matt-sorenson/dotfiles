@@ -8,12 +8,8 @@ local ha_config = sys.do_file_hs_local('config-home-assistant.lua')
     For a given event type if a trigger_id is set then it will be used as the
     webhook_id for the event. If not then the default webhook_id will be used.
 ]]
-if not ha_config.trigger_ids then
-    ha_config.trigger_ids = {}
-end
-
-if not ha_config.log_ignore then
-    ha_config.log_ignore = {}
+if not ha_config.event_webhook_id then
+    ha_config.event_webhook_id = {}
 end
 
 local function get_trigger_url(event, options)
@@ -24,7 +20,9 @@ local function get_trigger_url(event, options)
         host = options.host
     end
 
-    if options.webhook_id then
+    if ha_config.event_webhook_id[event] then
+        webhook_id = ha_config.event_webhook_id[event]
+    elseif options.webhook_id then
         webhook_id = options.webhook_id
     end
 
