@@ -1,5 +1,3 @@
-
-local colors = require 'ms.colors'
 local ha = require 'ms.home-assistant'
 
 local helpers = require 'config.streamdeck.helpers'

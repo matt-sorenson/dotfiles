@@ -1,4 +1,4 @@
-local print      = require('ms.logger').new('config')
+local print      = require('ms.logger').new('config.init')
 
 local audio      = require 'ms.audio'
 local bind       = require 'ms.bind'

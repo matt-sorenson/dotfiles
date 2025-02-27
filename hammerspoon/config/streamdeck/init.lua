@@ -1,4 +1,4 @@
-local print  = require('ms.logger').new('config:streamdeck:init')
+local print  = require('ms.logger').new('config.streamdeck.init')
 
 local audio  = require 'ms.audio'
 
