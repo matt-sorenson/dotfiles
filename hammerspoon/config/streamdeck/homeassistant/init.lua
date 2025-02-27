@@ -1,15 +1,16 @@
 
+local colors = require 'ms.colors'
 local ha = require 'ms.home-assistant'
 
 local helpers = require 'config.streamdeck.helpers'
 
 return {
     type = 'folder',
-    icon = { path = 'home-assistant.png' },
+    icon = helpers.button_icon('home-assistant.png'),
     buttons = {
         [2] = {
             type = 'folder',
-            icon = { path = 'mdi-roller-shade-open.png' },
+            icon = helpers.button_icon('mdi-roller-shade-open.png'),
             buttons = {
                 [2] = {
                     on_press = function(self, deck)
@@ -31,7 +32,15 @@ return {
                         ha.post('matt-office-sheer-shades:home')
                     end,
 
-                    icon = helpers.button_icon_label('mdi-roller-shade-home.png', 'Sheer', 'top'),
+                    icon = {
+                        helpers.button_icon('mdi-roller-shade-home.png'),
+                        helpers.button_label('Sheer', 'top'),
+                        {
+                            color = { red = 0, green = 0, blue = 0, alpha = 0.5 },
+                            frame = { x = 0, y = 96-30, w = 96, h = 30 },
+                        },
+                        helpers.button_label('Home', 'bottom'),
+                    }
                 },
                 [4] = {
                     on_press = function(self, deck)

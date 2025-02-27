@@ -13,12 +13,12 @@ local function button_label(message, valign)
         font_size = 20,
         text_alignment = 'center',
         frame = frame,
-        background_color = { red = 0, green = 0, blue = 0, alpha = 1 },
+        background_color = { red = 0, green = 0, blue = 0, alpha = .75 },
     }
 end
 
 local function button_icon(path)
-    local frame = { x = 7, y = 7, w = 82, h = 82 }
+    local frame = { x = 10, y = 10, w = 76, h = 76 }
     return { path = path, frame = frame }
 end
 
