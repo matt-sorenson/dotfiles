@@ -256,7 +256,7 @@ local function modal_new(config, parent)
         out:bind({ key = 'escape', fn = escape_fn })
     end
 
-    for _, v in ipairs(config) do
+    table.ieach(config, function(v)
         if '-' == v then
             out:help_seperator()
         elseif v.title then
@@ -264,7 +264,7 @@ local function modal_new(config, parent)
         else
             out:bind(v)
         end
-    end
+    end)
 
     return out;
 end

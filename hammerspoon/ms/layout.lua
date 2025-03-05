@@ -18,13 +18,7 @@ local function resize_window(window, width, height)
 end
 
 local function _layout_score_str_tbl(array, str)
-    for _, v in ipairs(array) do
-        if str:match(v:lower()) then
-            return true
-        end
-    end
-
-    return false
+    return nil ~= table.find(array, function(e) return str:match(e:lower()) end)
 end
 
 local function _layout_score_rule(category, app_name, win_name, rule)
@@ -68,8 +62,8 @@ local function _layout_apply_to_window(self, category, window)
     local win_name = window:title():lower()
 
     local top_score, rule, screen = -1, nil, nil
-    for i, layout in ipairs(self:layout()) do
-        for j, curr_rule in ipairs(layout) do
+    table.ieach(self:layout(), function(layout)
+        table.ieach(layout, function(curr_rule)
             local score = _layout_score_rule(category, app_name, win_name, curr_rule)
 
             if score > top_score then
@@ -77,8 +71,8 @@ local function _layout_apply_to_window(self, category, window)
                 rule = curr_rule
                 screen = layout.screen
             end
-        end
-    end
+        end)
+    end)
 
     if rule then
         if rule.section then
@@ -130,7 +124,7 @@ local function _layout_lookup_screen(needles)
 end
 
 local function _layout_init_screens(self)
-    for i, v in ipairs(self:layout()) do
+    for _, v in ipairs(self:layout()) do
         local screen = _layout_lookup_screen(v.screen)
         if not screen then
             return false
@@ -143,8 +137,8 @@ local function _layout_init_screens(self)
 end
 
 local function _layout_init_layout(self)
-    for _, screen in ipairs(self:layout()) do
-        for _, rule in ipairs(screen) do
+    table.ieach(self:layout(), function(screen)
+        table.ieach(screen, function(rule)
             if rule.app then
                 rule.app = toarray(rule.app)
             end
@@ -159,8 +153,8 @@ local function _layout_init_layout(self)
                     function(e) e:lower() end
                 )
             end
-        end
-    end
+        end)
+    end)
 end
 
 local _layout_mt = {
@@ -209,7 +203,7 @@ local function load_screen_configurations()
     local screen_configs = {}
     local layout_files = sys.ls_resource_path('/layouts')
 
-    for _, filename in pairs(layout_files) do
+    table.each(layout_files, function(filename)
         if filename:match('.lua$') then
             local name = filename:gsub('.lua$', '')
             local require_str = 'resources.layouts.' .. name
@@ -219,7 +213,7 @@ local function load_screen_configurations()
                 table.insert(screen_configs, layout)
             end
         end
-    end
+    end)
 
     return screen_configs
 end

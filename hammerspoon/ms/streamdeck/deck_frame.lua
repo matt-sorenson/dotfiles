@@ -61,6 +61,7 @@ local encoder = require 'ms.streamdeck.encoder'
 local function redraw(self, deck)
     local button_columns, button_rows = deck:buttonLayout()
     local button_count = button_columns * button_rows
+
     for i = 1, button_count do
         self:redraw_button(deck, i)
     end
