@@ -3,9 +3,9 @@ return {
         { -- Primary Screen
             screen = {'3840x1600', '3440x1440'},
 
-            { app = {'Code', 'VSCodium', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1, categories = 'primary' },
+            { app = {'Code', 'VSCodium', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1 },
 
-            { app = {'Chrome'},  section = 2, categories = 'primary' },
+            { app = {'Chrome'},  section = 2 },
         },
         {
             screen = { 'DELL G2725D', '1440x2560' },

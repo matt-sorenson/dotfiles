@@ -31,7 +31,10 @@ local function _layout_score_rule(category, app_name, win_name, rule)
     if category then
         if not rule.categories then
             return -1
-        elseif not table.find(rule.categories, function(e) return e == category end) then
+        end
+
+        category = category:lower()
+        if not table.find(rule.categories, function(e) return e == category end) then
             return -1
         end
     end
@@ -151,7 +154,10 @@ local function _layout_init_layout(self)
             end
 
             if rule.categories then
-                rule.categories = toarray(rule.categories)
+                rule.categories = table.map(
+                    toarray(rule.categories),
+                    function(e) e:lower() end
+                )
             end
         end
     end
