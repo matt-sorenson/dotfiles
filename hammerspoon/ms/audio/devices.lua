@@ -1,6 +1,6 @@
 local print = require('ms.logger').new('ms.audio.devices')
 
-local config = {}
+local _config = {}
 
 local output_device
 local input_device
@@ -9,13 +9,15 @@ local output_watcher_callbacks = {}
 local input_watcher_callbacks = {}
 
 local function get_config(device)
-    table.each(config, function(config)
-        if output_device:name(config.device_name) then
-            return config
-        end
+    local _, config = table.find(_config, function(v)
+        return device:name() == v.device_name
     end)
 
-    return config.default
+    if config then
+        return config
+    else
+        return _config.default
+    end
 end
 
 --[[export]]
@@ -29,29 +31,26 @@ local function get_input_config()
 end
 
 --[[export]]
+local function get_config_by_name(name)
+    return _config[name]
+end
+
+--[[export]]
 local function get_input_device_by_name(name)
-    local config = table.find(config, function(config)
-        return config.name == name
-    end)
-
-    if config then
-        name = config.device_name
+    if _config[name] then
+        return hs.audiodevice.findInputByName(_config[name].device_name)
+    else
+        return hs.audiodevice.findInputByName(name)
     end
-
-    return hs.audiodevice.findInputByName(name)
 end
 
 --[[export]]
 local function get_output_device_by_name(name)
-    local config = table.find(config, function(config)
-        return config.name == name
-    end)
-
-    if config then
-        name = config.device_name
+    if _config[name] then
+        return hs.audiodevice.findOutputByName(_config[name].device_name)
+    else
+        return hs.audiodevice.findOutputByName(name)
     end
-
-    return hs.audiodevice.findOutputByName(name)
 end
 
 --[[export]]
@@ -107,13 +106,13 @@ local function shutdown()
     input_device = nil
 end
 
-local _config = {}
-
 --[[export]]
 local function init(device_config, set_default_output)
     shutdown()
 
-    _config = device_config or _config
+    if device_config then
+        _config = device_config
+    end
 
     local default = _config.default or {}
     _config.default = nil
@@ -164,12 +163,13 @@ hs.audiodevice.watcher.setCallback(function(arg)
     local device_change_events = { 'dIn', 'dOut', 'sOut' }
 
     if table.find(device_change_events, arg) then
-        init(_config)
+        init()
     end
 end)
 
 return {
     init = init,
+    get_config_by_name = get_config_by_name,
 
     get_input_device = get_input_device,
     get_input_device_by_name = get_input_device_by_name,
