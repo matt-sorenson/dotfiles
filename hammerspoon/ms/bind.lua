@@ -83,6 +83,7 @@ local function normalize_mod(mod)
         mod = 'ctrl'
     end
 
+    -- registeredKeys maps the string to a symbol, like 'alt' -> '⌥'
     return hs.utf8.registeredKeys[mod] or mod:upper()
 end
 
