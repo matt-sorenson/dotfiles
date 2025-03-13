@@ -36,15 +36,15 @@ end
 -- @param haystack table to search
 -- @param needle value to search for, or a function that takes a value
 --    and returns true if the value is found
--- @return key of the value in the table, or nil if the value is not found
+-- @return the key, value pair as 2 values, or nil if the value is not found
 table.ifind = function(haystack, needle)
     for i, v in ipairs(haystack) do
         if 'function' == type(needle) then
             if needle(v) then
-                return i
+                return i, v
             end
         elseif v == needle then
-            return i
+            return i, v
         end
     end
 
