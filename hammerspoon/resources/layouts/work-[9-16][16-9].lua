@@ -6,6 +6,9 @@ return {
             { app = {'Code', 'VSCodium', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1 },
 
             { app = {'Chrome'},  section = 2 },
+
+            { app = 'zoom.us', center = true, categories = 'communications' },
+            { app = {'okta', 'AWS VPN Client'}, center = true },
         },
         {
             screen = { 'DELL G2725D', '1440x2560' },
