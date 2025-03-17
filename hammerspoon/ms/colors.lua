@@ -63,7 +63,7 @@ local function get_monokai_colors()
     colors.off_white = nil
 
     colors.white = rgb(214, 214, 214)
-    colors.black = rgb(46, 46, 46)
+    colors.black = rgb(39, 40, 34)
 
     colors.red = rgb(255, 97, 61)
     colors.blue = rgb(120, 220, 232)
@@ -76,4 +76,17 @@ local function get_monokai_colors()
     return colors
 end
 
-return get_monokai_colors()
+local out = {
+    default = get_colors(),
+    monokai = get_monokai_colors(),
+}
+
+out.streamdeck = out.monokai
+
+local mt = {
+    __index = function() return out.default end,
+}
+
+setmetatable(out, mt)
+
+return out

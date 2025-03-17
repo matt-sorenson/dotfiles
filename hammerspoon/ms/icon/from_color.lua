@@ -1,6 +1,6 @@
 local print = require('ms.logger').new('ms.icon.from_color')
 
-local colors = require 'ms.colors'
+local colors = require('ms.colors').streamdeck
 
 local function get_canvas_from_color(color, options)
     if not color then

@@ -1,6 +1,6 @@
 local print = require('ms.logger').new('ms.streamdeck.encoder')
 
-local colors = require 'ms.colors'
+local colors = require('ms.colors').streamdeck
 local sys_get_icon = require 'ms.icon'
 
 --[[

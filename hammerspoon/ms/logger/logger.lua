@@ -1,5 +1,5 @@
 local hs_print = print
-local colors = require 'ms.colors'
+local colors = require('ms.colors').monokai
 
 local LOG_LEVEL_ENUM = {
     VERBOSE = 0,

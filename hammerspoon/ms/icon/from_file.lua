@@ -1,6 +1,6 @@
 local print = require('ms.logger').new('ms.icon')
 
-local colors = require 'ms.colors'
+local colors = require('ms.colors').streamdeck
 local sys = require 'ms.sys'
 
 local function try_load_image(path)
