@@ -1,78 +1,79 @@
-local print = require('ms.logger').new('ms.colors')
+--- Take in a RGBA pair and convert to a normalized color. Inputs should be
+--- between 0 and 255, output will be between 0 and 1.
+local function rgba(r, g, b, a)
+    r = r / 255
+    g = g / 255
+    b = b / 255
+    a = a / 255
+
+    return { red = r, green = g, blue = b, alpha = a }
+end
+
+local function rgb(r, g, b)
+    return rgba(r, g, b, 255)
+end
 
 local function get_colors()
     local system_colors = hs.drawing.color.lists().System
 
-    local colors = {}
+    local colors = {
+        -- magenta is used as 'missing' color as it's bright and obvious
+        missing = rgb(255, 0, 255),
 
-    colors.alternateSelectedControlTextColor = system_colors.alternateSelectedControlTextColor
-    colors.alternatingContentBackgroundColor = system_colors.alternatingContentBackgroundColor
-    colors.controlAccentColor = system_colors.controlAccentColor
-    colors.controlBackgroundColor = system_colors.controlBackgroundColor
-    colors.controlColor = system_colors.controlColor
-    colors.controlTextColor = system_colors.controlTextColor
-    colors.disabledControlTextColor = system_colors.disabledControlTextColor
-    colors.findHighlightColor = system_colors.findHighlightColor
-    colors.gridColor = system_colors.gridColor
-    colors.headerTextColor = system_colors.headerTextColor
-    colors.keyboardFocusIndicatorColor = system_colors.keyboardFocusIndicatorColor
-    colors.labelColor = system_colors.labelColor
-    colors.linkColor = system_colors.linkColor
-    colors.placeholderTextColor = system_colors.placeholderTextColor
-    colors.quaternaryLabelColor = system_colors.quaternaryLabelColor
-    colors.secondaryLabelColor = system_colors.secondaryLabelColor
-    colors.selectedContentBackgroundColor = system_colors.selectedContentBackgroundColor
-    colors.selectedControlColor = system_colors.selectedControlColor
-    colors.selectedControlTextColor = system_colors.selectedControlTextColor
-    colors.selectedMenuItemTextColor = system_colors.selectedMenuItemTextColor
-    colors.selectedTextBackgroundColor = system_colors.selectedTextBackgroundColor
-    colors.selectedTextColor = system_colors.selectedTextColor
-    colors.separatorColor = system_colors.separatorColor
-    colors.tertiaryLabelColor = system_colors.tertiaryLabelColor
-    colors.textBackgroundColor = system_colors.textBackgroundColor
-    colors.textColor = system_colors.textColor
-    colors.underPageBackgroundColor = system_colors.underPageBackgroundColor
-    colors.unemphasizedSelectedContentBackgroundColor = system_colors.unemphasizedSelectedContentBackgroundColor
-    colors.unemphasizedSelectedTextBackgroundColor = system_colors.unemphasizedSelectedTextBackgroundColor
-    colors.unemphasizedSelectedTextColor = system_colors.unemphasizedSelectedTextColor
-    colors.windowBackgroundColor = system_colors.windowBackgroundColor
-    colors.windowFrameTextColor = system_colors.windowFrameTextColor
+        off_white = rgb(250, 248, 245),
+        white = rgb(255, 255, 255),
+        black = rgb(0, 0, 0),
 
-    colors.tintColor = colors.systemOrangeColor
-    colors.systemBackgroundColor = colors.windowBackgroundColor
-    colors.systemTextColor = colors.textColorlabelColor
+        red = rgb(255, 0, 0),
+        blue = rgb(0, 0, 255),
+        green = rgb(0, 255, 0),
 
-    colors.systemBlueColor = system_colors.systemBlueColor
-    colors.systemBrownColor = system_colors.systemBrownColor
-    colors.systemGrayColor = system_colors.systemGrayColor
-    colors.systemGreenColor = system_colors.systemGreenColor
-    colors.systemIndigoColor = system_colors.systemIndigoColor
-    colors.systemOrangeColor = system_colors.systemOrangeColor
-    colors.systemPinkColor = system_colors.systemPinkColor
-    colors.systemPurpleColor = system_colors.systemPurpleColor
-    colors.systemRedColor = system_colors.systemRedColor
-    colors.systemTealColor = system_colors.systemTealColor
-    colors.systemYellowColor = system_colors.systemYellowColor
+        brown = rgb(222, 184, 135),
+        gray = rgb(211, 211, 211),
+        indigo = rgb(75, 0, 130),
+        orange = rgb(255, 165, 0),
+        pink = rgb(255, 192, 203),
+        purple = rgb(221, 160, 221),
+        teal = rgb(0, 128, 128),
+        yellow = rgb(255, 255, 0),
+    }
 
-    -- magenta is used as 'missing' color as it's bright and obvious
-    colors.missing = {  r = 1, g = 0, b = 1, a = 1 }
+    local mt = {
+        __index = function(self, key)
+            if key == 'grey' then
+                return self.gray
+            elseif key == 'off_white' then
+                return self.white
+            else
+                -- Doing this so that we can use colors in the logger
+                require('ms.logger').new('ms.colors')('Missing color: ' .. key)
+                return colors.missing
+            end
+        end
+    }
 
-    colors.off_white = { red = .98, green = .97, blue = .96, alpha = 1 }
-    colors.white = { red = 1, green = 1, blue = 1, alpha = 1 }
-    colors.black = { red = 0, green = 0, blue = 0, alpha = 1 }
-    colors.blue = system_colors.systemBlueColor
-    colors.brown = system_colors.systemBrownColor
-    colors.gray = system_colors.systemGrayColor
-    colors.green = system_colors.systemGreenColor
-    colors.indigo = system_colors.systemIndigoColor
-    colors.orange = system_colors.systemOrangeColor
-    colors.pink = system_colors.systemPinkColor
-    colors.purple = system_colors.systemPurpleColor
-    colors.red = system_colors.systemRedColor
-    colors.teal = system_colors.systemTealColor
-    colors.yellow = system_colors.systemYellowColor
+    setmetatable(colors, mt)
 
     return colors
 end
 
-return get_colors()
+local function get_monokai_colors()
+    local colors = get_colors()
+
+    colors.off_white = nil
+
+    colors.white = rgb(214, 214, 214)
+    colors.black = rgb(46, 46, 46)
+
+    colors.red = rgb(255, 97, 61)
+    colors.blue = rgb(120, 220, 232)
+    colors.green = rgb(169, 220, 118)
+
+    colors.orange = rgb(252, 152, 103)
+    colors.purple = rgb(171, 157, 242)
+    colors.yellow = rgb(255, 216, 102)
+
+    return colors
+end
+
+return get_monokai_colors()

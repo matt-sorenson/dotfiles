@@ -1,4 +1,7 @@
 require 'ms.helper'
+local console = require 'ms.console'
+
+console.setTheme()
 
 local print = require('ms.logger').new('init')
 
@@ -6,9 +9,6 @@ local print = require('ms.logger').new('init')
 require 'ms.logger.hammerspoon-kludge'
 
 hs.notify.show('Hammerspoon', '(Re)loading', '')
-
--- Set default console font
-hs.console.consoleFont('Berkeley Mono')
 
 -- Used to trigger the reload of the config file from dotfiles update function in shell
 require 'hs.ipc'

@@ -109,6 +109,9 @@ table.filter = function(t, fn)
     return out
 end
 
+-- Map a function over a table
+-- @param t table to map over
+-- @param fn function to execute on each element, takes one argument, the value in the table
 table.map = function(t, fn)
     local out = {}
 

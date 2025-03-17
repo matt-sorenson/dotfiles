@@ -1,4 +1,5 @@
 local hs_print = print
+local colors = require 'ms.colors'
 
 local LOG_LEVEL_ENUM = {
     VERBOSE = 0,
@@ -117,6 +118,14 @@ local function system_logger(system, level, message, obj)
     end
 end
 
+local function system_logger_color(color, system, level, message, obj)
+    local old_color = hs.console.consolePrintColor()
+
+    hs.console.consolePrintColor(color)
+    system_logger(system, level, message, obj)
+    hs.console.consolePrintColor(old_color)
+end
+
 local _logger_mt_index = {
     __index = {
         verbose = function(self, message, obj)
@@ -147,11 +156,9 @@ local _logger_mt_index = {
         end,
 
         warn = function(self, message, obj)
-            local old_color = hs.console.consolePrintColor()
-
-            hs.console.consolePrintColor({ red = 1, green = .5, blue = 0, alpha = 1 })
-            system_logger(self.system, 'WARN', message, obj)
-            hs.console.consolePrintColor(old_color)
+            if self.log_level <= LOG_LEVEL_ENUM.WARN then
+                system_logger_color(colors.orange, self.system, 'WARN', message, obj)
+            end
         end,
         warnf = function(self, message, ...)
             self:warn(string.format(message, ...))
@@ -159,11 +166,7 @@ local _logger_mt_index = {
 
         error = function(self, message, obj)
             if self.log_level <= LOG_LEVEL_ENUM.ERROR then
-                local old_color = hs.console.consolePrintColor()
-
-                hs.console.consolePrintColor({ red = 1, green = 0, blue = 0, alpha = 1 })
-                system_logger(self.system, 'ERROR', message, obj)
-                hs.console.consolePrintColor(old_color)
+                system_logger_color(colors.red, self.system, 'ERROR', message, obj)
             end
         end,
         errorf = function(self, message, ...)

@@ -83,11 +83,20 @@ local function set_grid(layout)
     current_grid_layout = layout
 end
 
+---
+-- Setup the grid and show it
+-- @param mod
+--   Key into GRID_LAYOUTS to use. If nil, or the key isn't found in GRID_LAYOUTS
+--   then 'standard' is used. Called mod as it's mainly used for keybinds.
 --[[export]]
 local function show(mod)
     select_layout()
 
-    set_grid(mod or 'standard')
+    if mod == nil or GRID_LAYOUTS[mod] == nil then
+        mod = 'standard'
+    end
+
+    set_grid(mod)
 
     hs.grid.show()
 end
