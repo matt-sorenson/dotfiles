@@ -1,5 +1,6 @@
 local print  = require('ms.logger').new('config.streamdeck.init')
 
+local colors = require('ms.colors').streamdeck
 local audio  = require 'ms.audio'
 
 local helpers = require 'config.streamdeck.helpers'
@@ -53,7 +54,10 @@ return {
             get_screen_image = function(self)
                 local volume = audio.get_volume()
 
-                return { text = string.format('%i', math.floor(volume)) }
+                return {
+                    { color = colors.black, size = 'streamdeck_encoder' },
+                    { text = string.format('%i', math.floor(volume)) },
+                }
             end,
         },
     },

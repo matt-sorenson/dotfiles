@@ -1,3 +1,5 @@
+local colors = require('ms.colors').streamdeck
+
 local function button_label(message, valign)
     valign = valign or 'bottom'
 
@@ -17,14 +19,26 @@ local function button_label(message, valign)
     }
 end
 
-local function button_icon(path)
+local function button_icon_helper(path)
     local frame = { x = 10, y = 10, w = 76, h = 76 }
     return { path = path, frame = frame }
 end
 
+local function button_color(color)
+    return { color = color, size = 'streamdeck' }
+end
+
+local function button_icon(path)
+    return {
+        button_color(colors.black),
+        button_icon_helper(path),
+    }
+end
+
 local function button_icon_label(path, message, valign)
     return {
-        button_icon(path),
+        button_color(colors.black),
+        button_icon_helper(path),
         button_label(message, valign),
     }
 end

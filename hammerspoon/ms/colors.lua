@@ -81,8 +81,6 @@ local out = {
     monokai = get_monokai_colors(),
 }
 
-out.streamdeck = out.monokai
-
 local mt = {
     __index = function() return out.default end,
 }
