@@ -1,5 +1,7 @@
 local print = require('ms.logger').new('ms.icon')
 
+local streamdeck_colors = require('ms.colors').streamdeck
+
 local get_canvas_from_color = require 'ms.icon.from_color'
 local get_canvas_from_text = require 'ms.icon.from_text'
 local get_canvas_from_file = require 'ms.icon.from_file'
@@ -45,6 +47,11 @@ local function get_icon(options)
         local size = options.size
         options = { options }
         options.size = size
+    end
+
+    -- Fill in the full size of the button as black
+    if options.size == 'streamdeck_button' or options.size == 'streamdeck_encoder' then
+        table.insert(options, 1, { color = streamdeck_colors.black, size = options.size })
     end
 
     local elements = {}

@@ -52,12 +52,7 @@ return {
             end,
 
             get_screen_image = function(self)
-                local volume = audio.get_volume()
-
-                return {
-                    { color = colors.black, size = 'streamdeck_encoder' },
-                    { text = string.format('%i', math.floor(volume)) },
-                }
+                return { text = string.format('%i', math.floor(audio.get_volume())) }
             end,
         },
     },

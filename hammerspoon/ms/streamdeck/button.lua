@@ -7,15 +7,7 @@ local sys_get_icon = require 'ms.icon'
   A button represents a single button on the stream deck
 ]]
 
-local BUTTON_HEIGHT = 96
-local BUTTON_WIDTH = 96
-local DEFAULT_COLOR = colors.black
-
-local blank_button_image = sys_get_icon({
-    color = DEFAULT_COLOR,
-    width = BUTTON_WIDTH,
-    height = BUTTON_HEIGHT,
-})
+local blank_button_image = sys_get_icon({size = 'streamdeck_button'})
 
 local button_mt = {
     __index = {

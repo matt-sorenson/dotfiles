@@ -19,26 +19,15 @@ local function button_label(message, valign)
     }
 end
 
-local function button_icon_helper(path)
+local function button_icon(path)
     local frame = { x = 10, y = 10, w = 76, h = 76 }
     return { path = path, frame = frame }
 end
 
-local function button_color(color)
-    return { color = color, size = 'streamdeck' }
-end
-
-local function button_icon(path)
-    return {
-        button_color(colors.black),
-        button_icon_helper(path),
-    }
-end
 
 local function button_icon_label(path, message, valign)
     return {
-        button_color(colors.black),
-        button_icon_helper(path),
+        button_icon(path),
         button_label(message, valign),
     }
 end

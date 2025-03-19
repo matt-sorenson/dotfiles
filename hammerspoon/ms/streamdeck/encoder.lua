@@ -17,7 +17,6 @@ local PER_ENCODER_SCREEN_HEIGHT = SCREEN_HEIGHT
 local DEFAULT_COLOR = colors.black
 
 local blank_encoder_screen_image = sys_get_icon({
-    color = DEFAULT_COLOR,
     size = 'streamdeck_encoder',
 })
 
