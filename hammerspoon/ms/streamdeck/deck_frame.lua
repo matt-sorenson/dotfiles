@@ -307,7 +307,7 @@ local function deck_frame_new(config, parent)
     return out
 end
 
-local function deck_frame_new(config)
+local function init(config)
     local out = deck_frame_new(config)
 
     hs.streamdeck.init(function(connected, deck)
@@ -321,5 +321,5 @@ local function deck_frame_new(config)
 end
 
 return {
-    new = deck_frame_new,
+    new = init,
 }

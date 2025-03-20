@@ -2,10 +2,8 @@ local print = require('ms.logger').new('config.keymap')
 
 local audio     = require 'ms.audio'
 local caffeine  = require 'ms.caffeine'
-local grid      = require 'ms.grid'
-local layout    = require 'ms.layout'
+local window    = require 'ms.window'
 local sys       = require 'ms.sys'
-local work      = require 'ms.work'
 local workspace = require 'ms.workspace'
 
 
@@ -51,24 +49,24 @@ return {
             title = 'Window',
             key = 'W',
 
-            { key = '1', msg = '1st section of screen', fn = layout.move_window_to_section_fn(1) },
-            { key = '2', msg = '2nd section of screen', fn = layout.move_window_to_section_fn(2) },
-            { key = '3', msg = '3rd section of screen', fn = layout.move_window_to_section_fn(3) },
-            { key = '4', msg = '4rd section of screen', fn = layout.move_window_to_section_fn(4) },
+            { key = '1', msg = '1st section of screen', fn = window.layout.move_window_to_section_fn(1) },
+            { key = '2', msg = '2nd section of screen', fn = window.layout.move_window_to_section_fn(2) },
+            { key = '3', msg = '3rd section of screen', fn = window.layout.move_window_to_section_fn(3) },
+            { key = '4', msg = '4rd section of screen', fn = window.layout.move_window_to_section_fn(4) },
 
-            { key = '1', mods = 'shift', msg = '1st 1/3rd of screen', fn = layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
-            { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
-            { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
+            { key = '1', mods = 'shift', msg = '1st 1/3rd of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
+            { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
+            { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
-            { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = layout.resize_window_fn(1920, 1080) },
+            { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
 
             '-',
 
-            { key = 'F', msg = 'Maximize',                    fn = layout.move_window_fn({ 0, 0, 1, 1 }) },
-            { key = 'R', msg = 'Apply layout to window',      fn = layout.apply_to_window },
-            { key = 'T', msg = 'Apply Default Layout',        fn = layout.apply },
-            { key = 'E', msg = 'Apply Media Layout',          fn = layout.apply_fn('Media') },
-            { key = 'C', msg = 'Apply Communications Layout', fn = layout.apply_fn('Communications') },
+            { key = 'F', msg = 'Maximize',                    fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
+            { key = 'R', msg = 'Apply layout to window',      fn = window.layout.apply_to_window },
+            { key = 'T', msg = 'Apply Default Layout',        fn = window.layout.apply },
+            { key = 'E', msg = 'Apply Media Layout',          fn = window.layout.apply_fn('Media') },
+            { key = 'C', msg = 'Apply Communications Layout', fn = window.layout.apply_fn('Communications') },
 
             '-',
 
@@ -76,8 +74,8 @@ return {
 
             '-',
 
-            { key = 'G',                 msg = 'Grid', fn = grid.show,             optional_mods = 'shift' },
-            { key = 'G', mods = 'shift', msg = 'Grid', fn = grid.show_fn('shift'), skip_help_msg = true },
+            { key = 'G',                 msg = 'Grid', fn = window.grid.show,             optional_mods = 'shift' },
+            { key = 'G', mods = 'shift', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help_msg = true },
 
             { key = 'Z', msg = 'Start focused Zoom meeting', fn = workspace.zoom_meeting },
         },
