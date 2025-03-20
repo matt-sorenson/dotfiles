@@ -2,23 +2,53 @@ local print = require('ms.logger').new('ms.home-assistant')
 
 local sys = require 'ms.sys'
 
-local ha_config = sys.do_file_hs_local('config-home-assistant.lua')
+local function get_ha_config()
+    local success, result = pcall(function()
+        return sys.do_file_hs_local('config-home-assistant.lua')
+    end)
 
---[[
-    For a given event type if a trigger_id is set then it will be used as the
-    webhook_id for the event. If not then the default webhook_id will be used.
-]]
-if not ha_config.event_webhook_id then
-    ha_config.event_webhook_id = {}
+    if not success then
+        print:error("Failed to load config-home-assistant", result)
+
+        result = {}
+    elseif 'table' ~= type(result) then
+        print:error("config-home-assistant.lua did not return a table")
+
+        result = {}
+    end
+
+    --[[
+        For a given event type if a trigger_id is set then it will be used as the
+        webhook_id for the event. If not then the default webhook_id will be used.
+    ]]
+    if not result.event_webhook_id then
+        result.event_webhook_id = {}
+    end
+
+    return result
+end
+
+local ha_config = get_ha_config()
+
+local function verify_config()
+    local success = true
+
+    if not ha_config.host then
+        print:error("Home Assistant host not set")
+        success = false
+    end
+
+    if not ha_config.webhook_id and 0 == #ha_config.event_webhook_id then
+        print:error("Home Assistant webhook_id not set")
+        success = false
+    end
+
+    return success
 end
 
 local function get_trigger_url(event, options)
-    local host = ha_config.host
+    local host = options.host or ha_config.host
     local webhook_id = ha_config.webhook_id
-
-    if options.host then
-        host = options.host
-    end
 
     if ha_config.event_webhook_id[event] then
         webhook_id = ha_config.event_webhook_id[event]
@@ -48,6 +78,10 @@ end
 ]]
 --[[ export ]]
 local function post(event, data, options)
+    if not verify_config() then
+        return
+    end
+
     if options == nil then
         options = {}
     end
