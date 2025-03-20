@@ -105,8 +105,8 @@ local _get_icon_mt = {
     __index = {
         clear_canvas_cache = get_canvas_from_canvas.clear_canvas_cache,
     },
-    __call = function(self, elements, width, height)
-        return get_icon(elements, width, height)
+    __call = function(self, elements)
+        return get_icon(elements)
     end,
 }
 
