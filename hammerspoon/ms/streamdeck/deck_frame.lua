@@ -112,7 +112,7 @@ local function redraw_encoder(self, deck, encoder_idx)
     deck:setScreenImage(encoder_idx, icn)
 end
 
-function button_callback(self, deck, button, pressed)
+local function button_callback(self, deck, button, pressed)
     local result
     if self.buttons[button] then
         if pressed then
@@ -307,7 +307,7 @@ local function deck_frame_new(config, parent)
     return out
 end
 
-function init(config)
+local function deck_frame_new(config)
     local out = deck_frame_new(config)
 
     hs.streamdeck.init(function(connected, deck)
@@ -321,5 +321,5 @@ function init(config)
 end
 
 return {
-    new = init,
+    new = deck_frame_new,
 }
