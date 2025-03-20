@@ -43,9 +43,9 @@ return {
         [4] = {
             on_turn = function(self, deck, direction)
                 if direction == 'left' then
-                    audio.update_volume(-7)
+                    audio.decrease_volume()
                 else
-                    audio.update_volume(7)
+                    audio.increase_volume()
                 end
 
                 return true
