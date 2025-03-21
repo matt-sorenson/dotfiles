@@ -4,7 +4,16 @@ local devices = require('ms.audio.devices')
 
 --[[export]]
 local function get_volume()
-    return devices.get_output_device():outputVolume()
+    local result, value = pcall(function()
+        return devices.get_output_device():outputVolume()
+    end)
+
+    if not result or 'number' ~= type(value) then
+        print:error('Error getting volume', value)
+        return 0
+    end
+
+    return value
 end
 
 --[[export]]
