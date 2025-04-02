@@ -1,4 +1,4 @@
-colors = require('ms.colors').monokai
+local colors = require('ms.colors').monokai
 
 local circle = nil
 local timer = nil
