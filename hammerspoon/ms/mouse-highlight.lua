@@ -2,6 +2,7 @@ local colors = require('ms.colors').monokai
 
 local circle = nil
 local timer = nil
+local eventtap = nil
 
 local stroke_color = colors.green
 local fill_color = table.shallow_copy(colors.green)
@@ -17,6 +18,11 @@ local function mouse_highlight()
         timer = nil
     end
 
+    if eventtap then
+        eventtap:stop()
+        eventtap = nil
+    end
+
     local mouse_pos = hs.mouse.getAbsolutePosition()
     circle = hs.drawing.circle(
         hs.geometry.rect(mouse_pos.x - 30, mouse_pos.y - 30, 60,  60)
@@ -30,7 +36,29 @@ local function mouse_highlight()
     timer = hs.timer.doAfter(1, function()
         circle:delete()
         circle = nil
+        eventtap:stop()
+        eventtap = nil
+        timer:stop()
+        timer = nil
     end)
+
+    eventtap = hs.eventtap.new(
+        {hs.eventtap.event.types.mouseMoved},
+        function(event)
+            if 'mouseMoved' ~= event:getType() then
+                return
+            elseif not circle then
+                return
+            end
+
+            local mouse_pos = hs.mouse.getAbsolutePosition()
+            circle:setFrame(
+                hs.geometry.rect(mouse_pos.x - 30, mouse_pos.y - 30, 60,  60)
+            )
+        end
+    )
+
+    eventtap:start()
 end
 
 return mouse_highlight
