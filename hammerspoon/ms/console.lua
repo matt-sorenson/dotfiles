@@ -1,6 +1,6 @@
 local colors = require('ms.colors').monokai
 
-local function setTheme() 
+local function setTheme()
     -- Set default console font
     hs.console.consoleFont('Berkeley Mono')
 

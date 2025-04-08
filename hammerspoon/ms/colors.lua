@@ -1,12 +1,35 @@
+local _color_mt = {
+    __index = {
+        clone = function(self)
+            return table.shallow_copy(self)
+        end,
+
+        clone_with_alpha = function(self, alpha)
+            local out = self:clone()
+            out.alpha = alpha
+
+            return out
+        end,
+    }
+}
+
 --- Take in a RGBA pair and convert to a normalized color. Inputs should be
 --- between 0 and 255, output will be between 0 and 1.
 local function rgba(r, g, b, a)
-    r = r / 255
-    g = g / 255
-    b = b / 255
-    a = a / 255
+    if a == nil then
+        a = 255
+    end
 
-    return { red = r, green = g, blue = b, alpha = a }
+    local out = {
+        red = r / 255,
+        green = g / 255,
+        blue = b / 255,
+        alpha = a / 255
+    }
+
+    setmetatable(out, _color_mt)
+
+    return out
 end
 
 local function rgb(r, g, b)
@@ -40,7 +63,11 @@ local function get_colors()
 
     local mt = {
         __index = function(self, key)
-            if key == 'grey' then
+            if key == 'rgb' then
+                return rgb
+            elseif key == 'rgba' then
+                return rgba
+            elseif key == 'grey' then
                 return self.gray
             elseif key == 'off_white' then
                 return self.white

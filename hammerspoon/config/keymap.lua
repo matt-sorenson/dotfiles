@@ -41,7 +41,7 @@ return {
         skip_help_msg = true,
 
         -- defeat attempts to block paste
-        { key = 'V', msg = 'key event paste', fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end },
+        { key = 'V', msg = "'key event' paste", fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end },
 
         { key = 'B', msg = 'Find mouse', fn = require('ms.mouse-highlight') },
 
