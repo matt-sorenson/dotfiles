@@ -33,12 +33,20 @@ local function mouse_highlight()
     circle:show()
 
     timer = hs.timer.doAfter(1, function()
-        circle:delete()
-        circle = nil
-        eventtap:stop()
-        eventtap = nil
-        timer:stop()
-        timer = nil
+        if circle then
+            circle:delete()
+            circle = nil
+        end
+
+        if eventtap then
+            eventtap:stop()
+            eventtap = nil
+        end
+
+        if timer then
+            timer:stop()
+            timer = nil
+        end
     end)
 
     eventtap = hs.eventtap.new(
