@@ -1,6 +1,7 @@
 local print = require('ms.logger').new('ms.layout')
 
 local sys = require 'ms.sys'
+local fs = require 'ms.fs'
 
 --[[ export]]
 local function move_window(window, rect, screen)
@@ -219,7 +220,7 @@ end
 
 local function load_screen_configurations()
     local screen_configs = {}
-    local layout_files = sys.ls_resource_path('/layouts')
+    local layout_files = fs.ls_resource_path('/layouts')
 
     table.each(layout_files, function(filename)
         if filename:match('.lua$') then

@@ -2,6 +2,7 @@ local print = require('ms.logger').new('config.keymap')
 
 local audio     = require 'ms.audio'
 local caffeine  = require 'ms.caffeine'
+local fs        = require 'ms.fs'
 local window    = require 'ms.window'
 local sys       = require 'ms.sys'
 local workspace = require 'ms.workspace'
@@ -87,7 +88,7 @@ return {
             { key = 'G', msg = 'Home',         fn = sys.select_app_fn('Finder', sys.who_am_i(), sys.open_finder_fn('~/')) },
             { key = 'W', msg = 'Workspace',    fn = sys.select_app_fn('Finder', 'ws', sys.open_finder_fn('~/ws')) },
 
-            { key = 'S', msg = 'Mount Shares', fn = function() sys.mount_smb_shares(REMOTE_SHARES) end }
+            { key = 'S', msg = 'Mount Shares', fn = function() fs.samba.mount_shares(REMOTE_SHARES) end }
         },
 
         {

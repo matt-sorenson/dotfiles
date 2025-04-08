@@ -1,10 +1,11 @@
 local print = require('ms.logger').new('ms.home-assistant')
 
 local sys = require 'ms.sys'
+local fs = require 'ms.fs'
 
 local function get_ha_config()
     local success, result = pcall(function()
-        return sys.do_file_hs_local('config-home-assistant.lua')
+        return fs.do_file_hs_local('config-home-assistant.lua')
     end)
 
     if not success then

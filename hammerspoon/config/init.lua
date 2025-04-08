@@ -2,6 +2,7 @@ local print      = require('ms.logger').new('config.init')
 
 local audio      = require 'ms.audio'
 local bind       = require 'ms.bind'
+local fs         = require 'ms.fs'
 local streamdeck = require 'ms.streamdeck'
 local sys        = require 'ms.sys'
 
@@ -43,7 +44,7 @@ end
 local function on_device_change()
     -- On home machine mount NAS shares
     if not sys.is_work_computer() then
-        sys.mount_smb_shares(REMOTE_SHARES)
+        fs.samba.mount_shares(REMOTE_SHARES)
     end
 
     audio.init(_audio_device_configs, false)
