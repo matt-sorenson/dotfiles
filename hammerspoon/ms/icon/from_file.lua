@@ -1,10 +1,10 @@
 local print = require('ms.logger').new('ms.icon')
 
 local colors = require('ms.colors').streamdeck
-local ls = require 'ms.sys'
+local fs = require 'ms.fs'
 
 local function try_load_image(path)
-    return hs.image.imageFromPath(ls.get_resource_path('icons/' .. path))
+    return hs.image.imageFromPath(fs.get_resource_path('icons/' .. path))
 end
 
 local function get_canvas_from_file(path, options)
