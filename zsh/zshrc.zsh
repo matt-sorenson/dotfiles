@@ -1,7 +1,7 @@
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-AT_WORK=0
+AT_WORK=$([[ -f "${DOTFILES}/local/is-work" ]] && echo 1 || echo 0)
 
 if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
