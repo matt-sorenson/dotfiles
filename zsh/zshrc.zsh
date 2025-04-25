@@ -9,10 +9,6 @@ fi
 
 source "${DOTFILES}/zsh/update.zsh"
 
-if [ -f "${HOME}/.zprezto/init.zsh" ]; then
-    source "${HOME}/.zprezto/init.zsh"
-fi
-
 source "${DOTFILES}/zsh/aliases.zsh"
 
 if [ -d "${HOME}/.nvm" ]; then
@@ -61,13 +57,11 @@ setopt interactive_comments # treat comments as comments in interactive shell
 setopt clobber              # Allow `>` to truncate files
 setopt multios              # Perform implicit tees or cats when multiple redirections are attempted
 
-unsetopt beep               # Disable 'pc speaker' beep
+unsetopt beep               # Disable "pc speaker" beep
 
 auto-check-for-update
 
 ssh-add --apple-load-keychain
-
-prompt ender
 
 if type rbenv > /dev/null ; then
     eval "$(rbenv init -)"
@@ -88,3 +82,5 @@ fi
 if [ -f "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
     source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
+
+source "${DOTFILES}/zsh/ender.zsh-theme"
