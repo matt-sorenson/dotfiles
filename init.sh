@@ -68,6 +68,7 @@ safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
 
 print-header green "Setting up prezto"
 safe-git-clone "https://github.com/sorin-ionescu/prezto.git" "${HOME}/.zprezto"
+safe-git-clone "https://github.com/Aloxaf/fzf-tab" "${HOME}/.fzf-tab"
 safe-set-link "${HOME}/.zprezto/modules/prompt/functions/prompt_ender_setup" "${DOTFILES}/zsh/ender.zsh-theme"
 safe-set-link "${HOME}/.zpreztorc" "${DOTFILES}/zpreztorc.zsh"
 

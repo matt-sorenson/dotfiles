@@ -59,6 +59,9 @@ return {
             { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
             { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
+            { key = '1', mods = {'cmd', 'shift'}, msg = '1st 1/2rd of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 2, 1 }) },
+            { key = '2', mods = {'cmd', 'shift'}, msg = '2nd 1/2rd of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
+
             { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
 
             '-',

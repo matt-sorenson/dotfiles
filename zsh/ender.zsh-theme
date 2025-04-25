@@ -6,37 +6,51 @@ pmodload 'helper'
 # Define variables.
 _prompt_ender_current_bg='NONE'
 _prompt_ender_start_time=$SECONDS
+_prompt_ender_seperator=''
+
+function prompt_ender_bg_color() {
+    print -n "%K{$1}"
+}
+
+function prompt_ender_fg_color() {
+    print -n "%F{$1}"
+}
 
 function prompt_ender_start_segment() {
-    local bg fg
-    [[ -n "$1" ]] && bg="%K{$1}" || bg="%k"
-    [[ -n "$2" ]] && fg="%F{$2}" || fg="%f"
+    prompt_ender_bg_color "$1"
     if [[ "$_prompt_ender_current_bg" != 'NONE' && "$1" != "$_prompt_ender_current_bg" ]]; then
-        print -n " $bg%F{$_prompt_ender_current_bg}$fg "
+        prompt_ender_fg_color $_prompt_ender_current_bg
+        print -n "$_prompt_ender_seperator "
     else
-        print -n "$bg$fg "
+        print -n " "
     fi
+
+    prompt_ender_fg_color "$2"
     _prompt_ender_current_bg="$1"
-    [[ -n "$3" ]] && print -n "$3"
+}
+
+function prompt_ender_segment_print() {
+    prompt_ender_start_segment "$1" "$2"
+
+    print -n "$3 "
 }
 
 function prompt_ender_end_segment() {
     if [[ -n "$_prompt_ender_current_bg" ]]; then
-        print -n " %k%F{$_prompt_ender_current_bg}"
-    else
-        print -n "%k"
+        prompt_ender_fg_color $_prompt_ender_current_bg
+        print -n " %k"
     fi
-    print -n "%f"
-    _prompt_ender_current_bg=''
+    print -n "%k%f"
+    _prompt_ender_current_bg='NONE'
 }
 
 function prompt_ender_seg_last_call_status() {
     local EXIT_STATUS=$1
 
     if [[ $EXIT_STATUS == 0 ]]; then
-        prompt_ender_start_segment green black '✓'
+        prompt_ender_segment_print green black '✓'
     else
-        prompt_ender_start_segment red black '✘'
+        prompt_ender_segment_print red black '✘'
     fi
 }
 
@@ -44,35 +58,35 @@ function prompt_ender_seg_security() {
     if is-function prompt-security-str; then
         local sec_prompt="$(prompt-security-str)"
         if [ -n "${sec_prompt}" ]; then
-        prompt_ender_start_segment red black "${sec_prompt}"
+        prompt_ender_segment_print red black "${sec_prompt}"
         fi
     fi
 }
 
 function prompt_ender_seg_history() {
-    prompt_ender_start_segment white black '$[HISTCMD-1]'
+    prompt_ender_segment_print white black '$[HISTCMD-1]'
 }
 
 function prompt_ender_seg_hostname() {
-    prompt_ender_start_segment black default '%m%f'
+    prompt_ender_segment_print black default '%m'
 }
 
 function prompt_ender_seg_dir() {
     if [[ `pwd` =~ "$WORKSPACE_ROOT_DIR/([^/]*)(.*)" ]]; then
-        prompt_ender_start_segment cyan black "$match[1]"
-        prompt_ender_start_segment blue black "${match[2]#?}"
+        prompt_ender_segment_print cyan black "$match[1]"
+        prompt_ender_segment_print blue black "${match[2]#?}"
     else
-        prompt_ender_start_segment blue black '%~'
+        prompt_ender_segment_print blue black '%~'
     fi
 }
 
 function prompt_ender_seg_SEA_time() {
-    prompt_ender_start_segment black default '$(TZ=America/Los_Angeles date +"%H:%M:%S")'
+    prompt_ender_segment_print black default '$(TZ=America/Los_Angeles date +"%H:%M:%S")'
 }
 
 function prompt_ender_seg_git_info() {
     if [[ -n "$git_info" ]]; then
-        prompt_ender_start_segment green black '${(e)git_info[ref]}${(e)git_info[status]}'
+        prompt_ender_segment_print green black '${(e)git_info[ref]}${(e)git_info[status]}'
     fi
 }
 
@@ -82,7 +96,7 @@ function prompt_ender_seg_is_root() {
         0) SU_PROMPT='#' ;;
         *) SU_PROMPT='λ' ;;
     esac
-    prompt_ender_start_segment white black $SU_PROMPT
+    prompt_ender_segment_print white black $SU_PROMPT
 }
 
 function prompt_ender_build_prompt1() {
@@ -108,20 +122,31 @@ function prompt_ender_build_prompt2() {
 
 function prompt_ender_print_elapsed_time() {
     local end_time=$(( SECONDS - _prompt_ender_start_time ))
-    local hours minutes seconds remainder
+    local hours minutes seconds _remain_enderder
+
+    local color='green'
+    local msg=''
 
     if (( end_time >= 3600 )); then
         hours=$(( end_time / 3600 ))
         remainder=$(( end_time % 3600 ))
         minutes=$(( remainder / 60 ))
         seconds=$(( remainder % 60 ))
-        print -P "%B%F{red}>>> elapsed time ${hours}h${minutes}m${seconds}s%b"
+
+        color='red'
+        msg="${hours}h${minutes}m${seconds}s"
     elif (( end_time >= 60 )); then
         minutes=$(( end_time / 60 ))
         seconds=$(( end_time % 60 ))
-        print -P "%B%F{yellow}>>> elapsed time ${minutes}m${seconds}s%b"
-    elif (( end_time > 10 )); then
-        print -P "%B%F{green}>>> elapsed time ${end_time}s%b"
+        color='yellow'
+        msg="${minutes}m${seconds}s"
+    elif (( end_time >= 5 )); then
+        color='green'
+        msg="${end_time}"
+    fi
+
+    if [[ "${msg}" != '' ]]; then
+        print -P "%B%F{$color}>>> elapsed time ${msg}s%b"
     fi
 }
 

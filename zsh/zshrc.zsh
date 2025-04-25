@@ -9,7 +9,13 @@ fi
 
 source "${DOTFILES}/zsh/update.zsh"
 
-source "${HOME}/.zprezto/init.zsh"
+if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
+    source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
+fi
+
+if [ -f "${HOME}/.zprezto/init.zsh" ]; then
+    source "${HOME}/.zprezto/init.zsh"
+fi
 
 source "${DOTFILES}/zsh/aliases.zsh"
 
@@ -64,6 +70,7 @@ unsetopt beep               # Disable 'pc speaker' beep
 auto-check-for-update
 
 ssh-add --apple-load-keychain
+
 prompt ender
 
 if type rbenv > /dev/null ; then
@@ -73,5 +80,7 @@ fi
 if type direnv > /dev/null ; then
     eval "$(direnv hook zsh)"
 fi
+
+bindkey -e
 
 compinit -i
