@@ -66,9 +66,10 @@ DOTFILES="${HOME}/.dotfiles"
 
 safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
 
-print-header green "Setting up prezto"
-
+print-header green "Setting up fzf-tab"
 safe-git-clone "https://github.com/Aloxaf/fzf-tab" "${HOME}/.fzf-tab"
+
+print-header green "Setting up zsh-syntax-highlighting"
 safe-git-clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${HOME}/.zsh-syntax-highlighting"
 
 if [[ "${OSTYPE}" =~ "darwin" ]]; then
