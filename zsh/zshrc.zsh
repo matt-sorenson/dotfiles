@@ -9,10 +9,6 @@ fi
 
 source "${DOTFILES}/zsh/update.zsh"
 
-if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
-    source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
-fi
-
 if [ -f "${HOME}/.zprezto/init.zsh" ]; then
     source "${HOME}/.zprezto/init.zsh"
 fi
@@ -84,3 +80,11 @@ fi
 bindkey -e
 
 compinit -i
+
+if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
+    source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
+fi
+
+if [ -f "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+    source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
