@@ -111,3 +111,7 @@ mkdir -p "${DOTFILES}/tmp"
 pushd "${DOTFILES}"
 git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
 popd
+
+print-header green "Setting up doomemacs"
+safe-git-clone "https://github.com/doomemacs/doomemacs" ~/.config/emacs
+~/.config/emacs/bin/doom install
