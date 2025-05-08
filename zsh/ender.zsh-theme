@@ -81,27 +81,27 @@ function prompt_ender_seg_SEA_time() {
 }
 
 function prompt_ender_seg_git_info() {
-  local bg ref
-  local is_dirty() {
-    test -n "$(git status --porcelain --ignore-submodules)"
-  }
-  ref="$(echo $vcs_info_msg_0_)"
-  if [[ -n "$ref" ]]; then
-    if is_dirty; then
-      bg=yellow
-      _ref="${ref} $prompt_ender_plus_minus"
-    else
-      bg=green
-      ref="${ref} "
-    fi
-    if [[ "${ref/.../}" == "$ref" ]]; then
-      ref="$_prompt_ender_vcs_branch $ref"
-    else
-      ref="$_prompt_ender_vcs_detached ${_prompt_ender_vcs_cross/.../}"
-    fi
+    local bg ref
+    local is_dirty() {
+        test -n "$(git status --porcelain --ignore-submodules)"
+    }
+    ref="$(echo $vcs_info_msg_0_)"
+    if [[ -n "$ref" ]]; then
+        if is_dirty; then
+            bg=yellow
+            _ref="${ref} $prompt_ender_plus_minus"
+        else
+            bg=green
+            ref="${ref} "
+        fi
+        if [[ "${ref/.../}" == "$ref" ]]; then
+            ref="$_prompt_ender_vcs_branch $ref"
+        else
+            ref="$_prompt_ender_vcs_detached ${_prompt_ender_vcs_cross/.../}"
+        fi
 
-    prompt_ender_segment_print $bg black "$ref"
-  fi
+        prompt_ender_segment_print $bg black "$ref"
+    fi
 }
 
 function prompt_ender_seg_is_root() {
