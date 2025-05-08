@@ -40,7 +40,8 @@ function prompt_ender_start_segment() {
 function prompt_ender_segment_print() {
     prompt_ender_start_segment "$1" "$2"
 
-    print -n "$3 "
+    # Remove trailing spaces from the input string to avoid duplicates.
+    print -n "${3%%[[:space:]]##} "
 }
 
 function prompt_ender_end_segment() {
