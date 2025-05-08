@@ -189,7 +189,7 @@ function prompt_ender_preexec() {
         # If instead you want to show the marker only if there are untracked
         # files in $PWD, use:
         #[[ -n $(git ls-files --others --exclude-standard) ]] ; then
-        hook_com[staged]+='T'
+        hook_com[staged]+='?'
     fi
 }
 
@@ -218,7 +218,7 @@ function +vi-git-stash() {
 
   if [[ -s ${hook_com[base]}/.git/refs/stash ]] ; then
     stashes=$(git stash list 2>/dev/null | wc -l | tr -d ' ')
-    hook_com[misc]+=" (STASH=${stashes})"
+    hook_com[misc]+="(S=${stashes})"
   fi
 }
 
@@ -241,8 +241,8 @@ function prompt_ender_setup() {
     zstyle ':vcs_info:git*:*' get-revision true
     zstyle ':vcs_info:git*:*' check-for-changes true
 
-    zstyle ':vcs_info:*' stagedstr "${_prompt_ender_plus}"
-    zstyle ':vcs_info:*' unstagedstr 'M'
+    zstyle ':vcs_info:*' stagedstr "S"
+    zstyle ':vcs_info:*' unstagedstr '*'
     zstyle ':vcs_info:*' actionformats '%b|%a'
     zstyle ':vcs_info:*' formats '%b %c%u%m'
     zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-st
