@@ -56,7 +56,7 @@ safe-git-clone(){
 
 print-header(){
     local color="$fg_bold[${1}]"
-    local header="================================================================================"
+    local header="${(pl:80::=:)}"
     shift
     local message="${@}"
     echo "$color${header}\n= ${message}\n${header}$reset_color"

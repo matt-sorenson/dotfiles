@@ -1,7 +1,7 @@
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-AT_WORK=$([[ -f "${DOTFILES}/local/is-work" ]] && echo 1 || echo 0)
+export AT_WORK=$([[ -f "${DOTFILES}/local/is-work" ]] && echo 1 || echo 0)
 
 if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
@@ -19,6 +19,10 @@ fi
 
 if [ -d "${DOTFILES}/zsh/completion" ]; then
     fpath=("${DOTFILES}/zsh/completion" $fpath)
+fi
+
+if [ -d "${DOTFILES}/local/zsh/completion" ]; then
+    fpath=("${DOTFILES}/local/zsh/completion" $fpath)
 fi
 
 if [[ "$OSTYPE" == darwin* ]]; then

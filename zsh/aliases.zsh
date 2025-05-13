@@ -3,6 +3,19 @@ alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
+# Usefull for scripts to print a highlighted message
+# `print-header ${color} ${message}`
+# `print-header green  "Process Success"`
+# `print-header yellow "Process Warning"`
+# `print-header red    "Process Failed"`
+print-header(){
+    local color="${fg_bold[${1}]}"
+    local header="${(pl:80::=:)}"
+    shift
+    local message="${@}"
+    echo "$color${header}\n= ${message}\n${header}$reset_color"
+}
+
 ws() {
     cd "$WORKSPACE_ROOT_DIR/$1"
 }
@@ -30,7 +43,7 @@ clang-format-ri() {
 check-formulas() {
     local -A visited_formulas
 
-    echo "Searching for formulas not depended on by other formulas..."
+    print-header green "Searching for formulas not depended on by other formulas..."
 
     for formula in $(brew list); do
         if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
@@ -44,25 +57,12 @@ check-formulas() {
     done
 }
 
-# Usefull for scripts to print a highlighted message
-# `print-header ${color} ${message}`
-# `print-header green  "Process Success"`
-# `print-header yellow "Process Warning"`
-# `print-header red    "Process Failed"`
-print-header(){
-    local color="${fg_bold[${1}]}"
-    local header="================================================================================"
-    shift
-    local message="${@}"
-    echo "$color${header}\n= ${message}\n${header}$reset_color"
-}
-
 if type jq > /dev/null; then
     function jwt_print () {
         local jwt=$1;
         if [ -z "${jwt}" ]; then
             if ! type pbpaste > /dev/null; then
-                echo "ERROR: pbpaste not found. Must pass a JWT as an argument.";
+                print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument.";
                 return 1;
             fi;
             jwt=$(pbpaste);

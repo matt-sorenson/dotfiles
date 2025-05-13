@@ -21,6 +21,11 @@ add-to-path "${HOME}/.config/yarn/global/node_modules/.bin"
 add-to-path "/opt/homebrew/opt/postgresql@12/bin/"
 add-to-path "${HOME}/.config/emacs/bin"
 
+if [ -d "${HOME}/Library/pnpm" ]; then
+  export PNPM_HOME="${HOME}/Library/pnpm"
+fi
+add-to-path "${HOME}/Library/pnpm"
+
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
 
