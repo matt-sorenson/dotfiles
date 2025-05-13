@@ -1,41 +1,46 @@
 autoload -Uz colors && colors
 
 dot-check-for-update-git() {
-    local dir="$1"
-    local QUIET="$2"
+    local dir="${1}"
+    local QUIET="${2}"
     local OUT=0
 
     if [[ -d "${dir}" ]]; then
-        if [[ -d "${dir}/.git" ]] then
+        if [[ -d "${dir}/.git" ]]; then
             print-header green "Updating ${dir}"
 
             pushd "${dir}" > /dev/null
 
             git fetch
-            local BRANCH_STATUS="$(git status | grep -i "your branch is")"
-            if grep "and can be fast-forwarded" <<< "${BRANCH_STATUS}" &> /dev/null; then
-                local BRANCH="$(perl -pe "s|Your branch is behind '(.*?)' by \d* commit(s){0,1}, and can be fast-forwarded.|\1|" <<< "${BRANCH_STATUS}")"
 
-                if [[ -n "${BRANCH// }" ]]; then
-                    git merge "$BRANCH"
+            local BRANCH="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
+            if [[ -n "${BRANCH}" ]]; then
+                if git merge-base --is-ancestor HEAD "${BRANCH}"; then
+                    git merge "${BRANCH}"
+                elif ! git merge-base --is-ancestor "${BRANCH}" HEAD; then
+                    print-header red "Local branch has diverged from upstream: ${dir}"
+                    OUT=1
                 fi
+            else
+                print-header yellow "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
             fi
 
-            if ! git status | grep "Your branch is up[ -]to[ -]date" > /dev/null; then
-                print-header red "Repo could not automaticly merge: ${dir}"
+            if ! git status | grep -q "Your branch is up[ -]to[ -]date"; then
+                print-header red "Repo could not automatically merge or is not clean: ${dir}"
                 OUT=1
             fi
 
             popd > /dev/null
-        elif [[ "$QUIET" -ne 1 ]]; then
+        elif [[ "${QUIET}" -ne 1 ]]; then
             print-header yellow "Directory not a git repo: ${dir}"
         fi
-    elif [[ "$QUIET" -ne 1 ]]; then
+    elif [[ "${QUIET}" -ne 1 ]]; then
         print-header yellow "Missing Directory: ${dir}"
     fi
 
     return $OUT
 }
+
 
 dot-check-for-update() {
     local -a REPOS_TO_UPDATE
@@ -77,10 +82,10 @@ dot-check-for-update() {
         fi
     fi
 
-    if type ~/.config/emacs/bin/doom >> /dev/null; then
+    if type "${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}" >> /dev/null; then
         print-header green "Updating doom emacs."
 
-        if ! ~/.config/emacs/bin/doom upgrade; then
+        if ! "${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}" upgrade; then
             print-header red "failed to upgrade doom emacs."
             OUT=1
         fi
@@ -89,7 +94,7 @@ dot-check-for-update() {
     if [[ $OUT -eq 0 ]]; then
         local UPDATE_FILENAME="${DOTFILES}/tmp/dotfile-update"
         local CURRENT_TIME=$(date +%s)
-        echo $CURRENT_TIME >! "${UPDATE_FILENAME}"
+        echo "${CURRENT_TIME}" >! "${UPDATE_FILENAME}"
     fi
 
     return $OUT
@@ -110,7 +115,7 @@ auto-check-for-update() {
     if [[ $LAST_UPDATE -lt $DAY_AGO ]]; then
         read -q "RUN_UPDATE?It's been a while, update dotfiles? "
         echo '' # read -q doesn't output a newline
-        if [ 'y' = "$RUN_UPDATE" ]; then
+        if [[ "${RUN_UPDATE:l}" == "y" ]]; then
             dot-check-for-update;
         fi
     fi
