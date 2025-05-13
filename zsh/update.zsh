@@ -25,8 +25,29 @@ dot-check-for-update-git() {
                 print-header yellow "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
             fi
 
-            if ! git status | grep -q "Your branch is up[ -]to[ -]date"; then
-                print-header red "Repo could not automatically merge or is not clean: ${dir}"
+            if ! git diff --quiet --ignore-submodules HEAD; then
+                print-header red "Uncommitted changes in: ${dir}"
+                OUT=1
+            fi
+
+            # Check if branch is behind or has diverged (but NOT just ahead)
+            local behind_ahead
+            behind_ahead=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+
+            if [[ $? -eq 0 ]]; then
+                local ahead=$(echo $behind_ahead | awk '{print $1}')
+                local behind=$(echo $behind_ahead | awk '{print $2}')
+
+                if (( behind > 0 && ahead > 0 )); then
+                    print-header red "Branch has diverged from upstream: ${dir}"
+                    OUT=1
+                elif (( behind > 0 )); then
+                    print-header red "Branch is behind upstream: ${dir}"
+                    OUT=1
+                fi
+                # Note: ahead only (ahead > 0, behind == 0) is ignored
+            else
+                print-header yellow "Unable to compare with upstream for: ${dir}"
                 OUT=1
             fi
 
@@ -40,7 +61,6 @@ dot-check-for-update-git() {
 
     return $OUT
 }
-
 
 dot-check-for-update() {
     local -a REPOS_TO_UPDATE
