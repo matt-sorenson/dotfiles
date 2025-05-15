@@ -1,0 +1,73 @@
+#!/usr/bin/env zsh
+
+# video-downloader: download a video or list of URLs via youtube-dl
+# Usage:
+#   video-downloader <url_or_file>
+
+set -euo pipefail
+
+# Function to process a single URL
+process_url() {
+  local url="$1"
+  local done_file="$2"
+
+  # Initialize done file if needed
+  if [[ ! -f "$done_file" ]]; then
+    touch "$done_file"
+  fi
+
+  # Skip if already processed
+  if grep -Fxq "$url" "$done_file"; then
+    echo "[SKIP] $url already processed."
+    return
+  fi
+
+  # Download
+  echo "[DOWNLOAD] $url"
+  if "${ytdl_cmd[@]}" "$url"; then
+    echo "$url" >>| "$done_file"
+    echo "[OK] $url recorded in $done_file"
+  else
+    echo "[ERROR] Failed to download $url"
+  fi
+}
+
+# Main entrypoint
+main() {
+  local input
+  local ytdl_cmd
+  local base
+  local done_file
+
+  if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 <URL or file containing URLs>"
+    exit 1
+  fi
+
+  input="$1"
+  ytdl_cmd=(youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]')
+
+  if [[ $input == http* ]]; then
+    # Direct URL
+    "${ytdl_cmd[@]}" "$input"
+  else
+    # Local file: read URLs line by line
+    if [[ ! -f "$input" ]]; then
+      echo "Error: File '$input' not found."
+      exit 1
+    fi
+
+    # Determine .done filename (basename + .done)
+    base="$(basename -- "$input")"
+    done_file="${PWD}/${base}.done"
+
+    while IFS= read -r url; do
+      # Skip empty or comment lines
+      [[ -z $url || $url == \#* ]] && continue
+      process_url "$url" "$done_file"
+    done < "$input"
+  fi
+}
+
+# Invoke main with all script arguments
+main "$@"
