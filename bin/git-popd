@@ -1,0 +1,38 @@
+#!/usr/bin/env zsh
+
+# help
+if [[ $1 == "-h" || $1 == "--help" ]]; then
+cat <<EOF
+Usage: git-popd [-h|--help]
+
+  -h, --help           Show this help message and exit
+EOF
+return 0
+fi
+
+# find repo root
+local repo_root
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
+    || { echo "Not a git repository." >&2; return 1; }
+
+local stack_file="$repo_root/.ms-popd-stack"
+if [[ ! -s $stack_file ]]; then
+    echo "No branches in stack" >&2
+    return 1
+fi
+
+# read last entry
+local target_branch
+target_branch=$(tail -n 1 "$stack_file")
+
+# remove last line
+local tmp_file
+tmp_file=$(mktemp) || { echo "Failed to create temp file." >&2; return 1; }
+sed '$d' "$stack_file" >| "$tmp_file"
+mv "$tmp_file" "$stack_file"
+
+# if now empty, delete it
+[[ ! -s $stack_file ]] && rm -f "$stack_file"
+
+# checkout
+git checkout "$target_branch"

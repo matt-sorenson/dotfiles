@@ -1,0 +1,49 @@
+#!/usr/bin/env zsh
+
+local create_new_branch=
+
+# help
+if [[ $1 == "-h" || $1 == "--help" ]]; then
+cat <<EOF
+Usage: git-pushd [-h|--help] [-b] <new-branch>
+
+  -h, --help           Show this help message and exit
+  -b                   Pass -b to 'git checkout' (i.e. create new branch)
+EOF
+return 0
+fi
+
+# parse -b flag
+if [[ $1 == "-b" ]]; then
+create_new_branch="-b"
+shift
+fi
+
+if [[ -z $1 ]]; then
+echo "Usage: git-pushd [-b] <new-branch>" >&2
+return 1
+fi
+
+# find repo root
+local repo_root
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
+|| { echo "Not a git repository." >&2; return 1; }
+
+# get current branch
+local current_branch
+current_branch=$(git rev-parse --abbrev-ref HEAD) \
+|| { echo "Failed to determine current branch." >&2; return 1; }
+
+# if user asked to pushd into the same branch, do nothing
+if [[ "$1" == "$current_branch" ]]; then
+return 0
+fi
+
+local stack_file="$repo_root/.ms-popd-stack"
+
+# ensure stack exists, then push current branch
+mkdir -p "$(dirname "$stack_file")"
+echo "$current_branch" >>| "$stack_file"
+
+# checkout new branch (with or without -b)
+git checkout $create_new_branch "$1"

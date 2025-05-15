@@ -1,0 +1,25 @@
+#!/usr/bin/env zsh
+
+if [[ $1 == "-h" || $1 == "--help" ]]; then
+    cat <<EOF
+Usage: git-dirs [-h|--help]
+
+  -h, --help           Show this help message and exit
+
+Display the saved branch stack (oldest at the top, newest at the bottom).
+EOF
+    return 0
+fi
+
+  # find repo root
+local repo_root
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
+    || { echo "Not a git repository." >&2; return 1; }
+
+local stack_file="$repo_root/.ms-popd-stack"
+if [[ ! -s $stack_file ]]; then
+    echo "Branch stack is empty." >&2
+    return 1
+fi
+
+nl -ba "$stack_file"
