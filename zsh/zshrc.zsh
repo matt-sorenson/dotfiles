@@ -23,6 +23,15 @@ fi
 
 if [ -d "${DOTFILES}/local/zsh/completion" ]; then
     fpath=("${DOTFILES}/local/zsh/completion" $fpath)
+
+fi
+
+# this file may have been recreated by brew updates.
+if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
+    print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
+    echo "this is the git autocomplete provided by git, deleting this to" \
+        "fallback to the one provided by zsh"
+  rm -f /opt/homebrew/share/zsh/site-functions/_git
 fi
 
 if [[ "$OSTYPE" == darwin* ]]; then

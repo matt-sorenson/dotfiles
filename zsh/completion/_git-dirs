@@ -1,0 +1,2 @@
+#compdef git-dirs
+#description show your current git branch stack
