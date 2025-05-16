@@ -96,10 +96,12 @@ local function _layout_apply_to_window(self, category, window)
             self:move_window_to_section(window, rule.section)
         elseif rule.center then
             center_window(window, screen)
+        elseif 'function' == type(rule.rect) then
+            move_window(window, rule.rect(window), screen)
         elseif rule.rect then
             move_window(window, rule.rect, screen)
         else
-            error("layout:apply_to_window requires the rule to have either rect or section.")
+            error("layout:apply_to_window requires the rule to have one of rect, section, or center.")
         end
     end
 end
