@@ -1,8 +1,8 @@
 export DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
 
-if [ -f "$DOTFILES/local/zsh/zshenv.zsh" ]; then
-    source "$DOTFILES/local/zsh/zshenv.zsh"
+if [ -f "${DOTFILES}/local/zsh/zshenv.zsh" ]; then
+    source "${DOTFILES}/local/zsh/zshenv.zsh"
 fi
 
 source "${DOTFILES}/zsh/path.zsh"
