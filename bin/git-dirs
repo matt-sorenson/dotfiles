@@ -1,10 +1,32 @@
 #!/usr/bin/env zsh
 
-if [[ $1 == "-h" || $1 == "--help" ]]; then
+local show_usage=false
+local clear_stack=false
+# Help check
+while (( $# )); do
+    case "$1" in
+        --clear|-c)
+            clear_stack=true
+            shift 1
+            ;;
+        --help|-h)
+            show_usage=true
+            shift 1
+            ;;
+        *)
+            print-header red "Unknown option '$1'"
+            return 1
+            ;;
+    esac
+done
+
+# Show usage help
+if [[ $show_usage == true ]]; then
     cat <<EOF
 Usage: git-dirs [-h|--help]
 
-  -h, --help           Show this help message and exit
+  -c, --clear           Clear the branch stack
+  -h, --help            Show this help message and exit
 
 Display the saved branch stack (oldest at the top, newest at the bottom).
 EOF
@@ -17,9 +39,14 @@ repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
     || { echo "Not a git repository." >&2; return 1; }
 
 local stack_file="$repo_root/.ms-popd-stack"
-if [[ ! -s $stack_file ]]; then
-    echo "Branch stack is empty." >&2
-    return 1
+if [[ $clear_stack == true ]]; then
+    # clear the stack
+    rm -f "$stack_file"
+    echo "Cleared branch stack."
+else
+    if [[ ! -s $stack_file ]]; then
+        echo "Branch stack is empty." >&2
+    else
+        nl -ba "$stack_file"
+    fi
 fi
-
-nl -ba "$stack_file"

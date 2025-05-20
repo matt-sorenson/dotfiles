@@ -23,7 +23,6 @@ fi
 
 if [ -d "${DOTFILES}/local/zsh/completion" ]; then
     fpath=("${DOTFILES}/local/zsh/completion" $fpath)
-
 fi
 
 # this file may have been recreated by brew updates.

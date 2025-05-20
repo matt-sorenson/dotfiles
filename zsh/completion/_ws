@@ -1,4 +1,4 @@
-#compdef ws
+#compdef ws wscode
 
 #typeset -A opt_args
 
