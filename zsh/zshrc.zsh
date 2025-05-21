@@ -17,23 +17,18 @@ if [ -d "${HOME}/.nvm" ]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
 
-if [ -d "${DOTFILES}/zsh/completion" ]; then
-    fpath=("${DOTFILES}/zsh/completion" $fpath)
-fi
-
-if [ -d "${DOTFILES}/local/zsh/completion" ]; then
-    fpath=("${DOTFILES}/local/zsh/completion" $fpath)
-fi
-
-# this file may have been recreated by brew updates.
-if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
-    print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
-    echo "this is the git autocomplete provided by git, deleting this to" \
-        "fallback to the one provided by zsh"
-  rm -f /opt/homebrew/share/zsh/site-functions/_git
-fi
+add-to-fpath "${DOTFILES}/zsh/completion"
+add-to-fpath "${DOTFILES}/local/zsh/completion"
 
 if [[ "$OSTYPE" == darwin* ]]; then
+    # this file may have been recreated by brew updates.
+    if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
+        print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
+        echo "this is the git autocomplete provided by git, deleting this to" \
+            "fallback to the one provided by zsh"
+        rm -f /opt/homebrew/share/zsh/site-functions/_git
+    fi
+
     export CLICOLOR=1
     export LSCOLORS=GxFxCxDxBxegedabagaced
 fi

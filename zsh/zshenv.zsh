@@ -8,6 +8,7 @@ fi
 source "${DOTFILES}/zsh/path.zsh"
 
 if [[ "$OSTYPE" == darwin* ]]; then
+    export HOMEBREW_NO_ANALYTICS=1
     export BROWSER='open'
 fi
 
@@ -31,7 +32,6 @@ if [[ ! -d "$TMPDIR" ]]; then
 fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
-export HOMEBREW_NO_ANALYTICS=1
 
 if [ -f "${HOME}/.cargo/env" ]; then
     source "${HOME}/.cargo/env"
