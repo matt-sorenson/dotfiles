@@ -98,6 +98,8 @@ else
     if [ -z ${DOTFILES_LOCAL_GIT_REPO} ]; then
         print-header green "DOTFILES_LOCAL_GIT_REPO not defined, creating default $LOCAL_DOTFILES"
         mkdir -p "${LOCAL_DOTFILES}"
+        mkdir -p "${LOCAL_DOTFILES}/bin"
+        mkdir -p "${LOCAL_DOTFILES}/zsh"
     else
         print-header green "checking out ${LOCAL_DOTFILES} from ${DOTFILES_LOCAL_GIT_REPO}"
         safe-git-clone "${DOTFILES_LOCAL_GIT_REPO}" "${LOCAL_DOTFILES}"
