@@ -3,31 +3,13 @@ alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
-# Usefull for scripts to print a highlighted message
-# `print-header ${color} ${message}`
-# `print-header green  "Process Success"`
-# `print-header yellow "Process Warning"`
-# `print-header red    "Process Failed"`
-function print-header(){
-    local color="${fg_bold[${1}]}"
-    local header="${(pl:80::=:)}"
-    shift
-    local message="${@}"
-    echo "$color${header}\n= ${message}\n${header}$reset_color"
-}
-
-function ws() {
-    cd "$WORKSPACE_ROOT_DIR/$1"
-}
-
-function wscode() {
-    code "$WORKSPACE_ROOT_DIR/$1"
-}
+function ws()     { pushd "${WORKSPACE_ROOT_DIR}/${1}" }
+function wscode() { code  "${WORKSPACE_ROOT_DIR}/${1}" }
 
 # Helper function cause I can never remember the syntax
 function is-function() {
     typeset -f "$1" > /dev/null
-    return $?
+    return
 }
 
 # Recursivly format '.cpp', '.h', '.inl' files in place.
@@ -37,29 +19,9 @@ function clang-format-ri() {
     find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
 }
 
-# Finds brew formulas that aren't depended on by any other packages and asks
-# for each if they should be deleted. This is useful for cleaning up unused
-# dependencies cause brew is really bad at that.
-function check-formulas() {
-    local -A visited_formulas
-
-    print-header green "Searching for formulas not depended on by other formulas..."
-
-    for formula in $(brew list); do
-        if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
-            read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
-            visited_formulas[$formula]=1
-            if [[ "${input}" == "Y" ]]; then
-                brew remove "${formula}"
-                check_formulas $(brew deps --1 --installed "${formula}")
-            fi
-        fi
-    done
-}
-
 if type jq > /dev/null; then
     function jwt_print () {
-        local jwt=$1;
+        local jwt="${1}";
         if [ -z "${jwt}" ]; then
             if ! type pbpaste > /dev/null; then
                 print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument.";

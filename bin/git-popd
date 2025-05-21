@@ -1,7 +1,16 @@
 #!/usr/bin/env zsh
 
-# help
-if [[ $1 == "-h" || $1 == "--help" ]]; then
+local show_usage=false
+# Help check
+for arg in "$@"; do
+    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+        show_usage=true
+        break
+    fi
+done
+
+# Show usage help
+if [[ $show_usage == true ]]; then
     cat <<EOF
 Usage: git-popd [-h|--help]
 

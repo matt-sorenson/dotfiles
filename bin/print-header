@@ -1,5 +1,27 @@
 #!/usr/bin/env zsh
 
+function _print-header-usage() {
+    echo "Usage: print-header [-h|--help] <color> <message>"
+    echo "Options:"
+    echo "  -h, --help          Show this help message and exit"
+    echo "  <color>             The color of the header (e.g., red, green, blue)"
+    echo "  <message>           The message to display in the header"
+}
+
+local show_usage=false
+# Help check
+for arg in "$@"; do
+    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+        show_usage=true
+        break
+    fi
+done
+
+if [[ $show_usage == true || $# -lt 2 ]]; then
+    _print-header-usage
+    [[ $show_usage == true ]]; return;
+fi
+
 local color="$fg_bold[${1}]"
 local header="${(pl:80::=:)}"
 shift

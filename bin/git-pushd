@@ -1,27 +1,40 @@
 #!/usr/bin/env zsh
 
-local create_new_branch=
-
-# help
-if [[ $1 == "-h" || $1 == "--help" ]]; then
-cat <<EOF
+function _git-pushd-usage() {
+    cat <<EOF
 Usage: git-pushd [-h|--help] [-b] <new-branch>
 
   -h, --help           Show this help message and exit
   -b                   Pass -b to 'git checkout' (i.e. create new branch)
 EOF
-return 0
+}
+
+local create_new_branch=
+
+local show_usage=false
+# Help check
+for arg in "$@"; do
+    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+        show_usage=true
+        break
+    fi
+done
+
+# Show usage help
+if [[ $show_usage == true ]]; then
+    _git-pushd-usage
+    return 0
 fi
 
 # parse -b flag
 if [[ $1 == "-b" ]]; then
-create_new_branch="-b"
-shift
+    create_new_branch="-b"
+    shift
 fi
 
 if [[ -z $1 ]]; then
-echo "Usage: git-pushd [-b] <new-branch>" >&2
-return 1
+    _git-pushd-usage
+    return 1
 fi
 
 # find repo root

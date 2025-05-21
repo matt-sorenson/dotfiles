@@ -1,0 +1,39 @@
+#!/usr/bin/env zsh
+
+local show_usage=false
+# Help check
+for arg in "$@"; do
+    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+        show_usage=true
+        break
+    fi
+done
+
+# Show usage help
+if [[ $show_usage == true ]]; then
+    echo "Usage: brew-find-leafs [-h|--help]"
+    echo ""
+    echo "Finds brew formulas that aren't depended on by any other packages and asks"
+    echo "for each if they should be deleted. This is useful for cleaning up unused"
+    echo "dependencies cause brew is really bad at that."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help          Show this help message and exit"
+    echo "Find all brew formulas that are not depended on by other formulas."
+    return
+fi
+
+local -A visited_formulas
+
+print-header green "Searching for formulas not depended on by other formulas..."
+
+for formula in $(brew list); do
+    if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
+        read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
+        visited_formulas[$formula]=1
+        if [[ "${input}" == "Y" ]]; then
+            brew remove "${formula}"
+            check_formulas $(brew deps --1 --installed "${formula}")
+        fi
+    fi
+done
