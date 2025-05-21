@@ -22,7 +22,8 @@ function dot-check-for-update-git() {
                     out=1
                 fi
             else
-                print-header yellow "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+                echo "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+                return 0
             fi
 
             if ! git diff --quiet --ignore-submodules HEAD; then
