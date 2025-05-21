@@ -1,4 +1,4 @@
-add-to-path() {
+function add-to-path() {
     if [ -d "${1}" ] && [[ ! "${PATH}" =~ "(^|:)${1}(:|$)" ]]; then
         PATH="${1}:${PATH}"
     fi

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Function to process a single URL
-process_url() {
+function process_url() {
   local url="$1"
   local done_file="$2"
 
@@ -33,7 +33,7 @@ process_url() {
 }
 
 # Main entrypoint
-main() {
+function main() {
   local input
   local ytdl_cmd
   local base

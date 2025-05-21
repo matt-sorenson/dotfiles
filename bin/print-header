@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+local color="$fg_bold[${1}]"
+local header="${(pl:80::=:)}"
+shift
+local message="${@}"
+echo "$color${header}\n= ${message}\n${header}$reset_color"

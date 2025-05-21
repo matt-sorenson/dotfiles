@@ -1,6 +1,6 @@
 autoload -Uz colors && colors
 
-dot-check-for-update-git() {
+function dot-check-for-update-git() {
     local dir="${1}"
     local QUIET="${2}"
     local OUT=0
@@ -62,7 +62,7 @@ dot-check-for-update-git() {
     return $OUT
 }
 
-dot-check-for-update() {
+function dot-check-for-update() {
     local -a REPOS_TO_UPDATE
     REPOS_TO_UPDATE=( "${DOTFILES}" "${HOME}/.fzf-tab" "${HOME}/.zsh-syntax-highlighting" )
     local OUT=0
@@ -120,7 +120,7 @@ dot-check-for-update() {
     return $OUT
 }
 
-auto-check-for-update() {
+function auto-check-for-update() {
     local FIFTEEN_HOURS_IN_SECONDS=$((60 * 60 * 15))
     local CURRENT_TIME=$(date +%s)
     local DAY_AGO=$(($CURRENT_TIME - $FIFTEEN_HOURS_IN_SECONDS))

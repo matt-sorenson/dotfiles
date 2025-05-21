@@ -8,7 +8,7 @@ alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 # `print-header green  "Process Success"`
 # `print-header yellow "Process Warning"`
 # `print-header red    "Process Failed"`
-print-header(){
+function print-header(){
     local color="${fg_bold[${1}]}"
     local header="${(pl:80::=:)}"
     shift
@@ -16,22 +16,22 @@ print-header(){
     echo "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
-ws() {
+function ws() {
     cd "$WORKSPACE_ROOT_DIR/$1"
 }
 
-wscode() {
+function wscode() {
     code "$WORKSPACE_ROOT_DIR/$1"
 }
 
 # Helper function cause I can never remember the syntax
-is-function() {
+function is-function() {
     typeset -f "$1" > /dev/null
     return $?
 }
 
 # Recursivly format '.cpp', '.h', '.inl' files in place.
-clang-format-ri() {
+function clang-format-ri() {
     local srcpath="${1}"
     shift
     find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
@@ -40,7 +40,7 @@ clang-format-ri() {
 # Finds brew formulas that aren't depended on by any other packages and asks
 # for each if they should be deleted. This is useful for cleaning up unused
 # dependencies cause brew is really bad at that.
-check-formulas() {
+function check-formulas() {
     local -A visited_formulas
 
     print-header green "Searching for formulas not depended on by other formulas..."

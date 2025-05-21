@@ -12,14 +12,14 @@
 
 autoload -Uz colors && colors
 
-backup-file() {
+function backup-file() {
     if [ -f "${1}" ]; then
         mv "${1}" "${1}.bak"
         echo "${1} backed up to ${1}.bak"
     fi
 }
 
-safe-set-link() {
+function safe-set-link() {
     local dest="${1}"
     local src="${2}"
 
@@ -33,7 +33,7 @@ safe-set-link() {
     ln -s "${src}" "${dest}"
 }
 
-safe-git-clone(){
+function safe-git-clone(){
     local url="${1}"
     local dest="${2}"
 
@@ -54,7 +54,7 @@ safe-git-clone(){
     git clone --recursive "${url}" "${dest}"
 }
 
-print-header(){
+function print-header(){
     local color="$fg_bold[${1}]"
     local header="${(pl:80::=:)}"
     shift
