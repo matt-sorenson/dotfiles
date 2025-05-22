@@ -64,6 +64,11 @@ auto-dot-check-for-update 15 # check for updates every 15 hours
 
 bindkey -e
 
+if [ -d "${HOME}/.nvm" ]; then
+    # This loads nvm bash_completion
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+fi
+
 compinit -i
 
 if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
