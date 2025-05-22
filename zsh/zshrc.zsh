@@ -7,8 +7,6 @@ if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
 
-source "${DOTFILES}/zsh/update.zsh"
-
 source "${DOTFILES}/zsh/aliases.zsh"
 
 add-to-fpath "${DOTFILES}/zsh/completion"
@@ -62,7 +60,7 @@ setopt multios              # Perform implicit tees or cats when multiple redire
 
 unsetopt beep               # Disable "pc speaker" beep
 
-auto-check-for-update
+auto-dot-check-for-update 15 # check for updates every 15 hours
 
 bindkey -e
 

@@ -42,3 +42,25 @@ if type jq > /dev/null; then
         echo "${jwt}" | jq -R 'split(".") | .[2]'
     }
 fi
+
+function auto-dot-check-for-update() {
+    local hours="${1:-15}"
+    local time_limit_in_seconds=$(( 60 * 60 * hours ))
+    local current_time=$(date +%s)
+    local cuttoff_time=$(($current_time - $time_limit_in_seconds))
+
+    # If the file doesn't exist we treat it as if it was last updated at the epoch
+    local last_update=0
+    local update_filename="${DOTFILES}/tmp/dotfile-update"
+    if [[ -f "${update_filename}" ]]; then
+        last_update=$(cat "${update_filename}")
+    fi
+
+    if [[ $last_update -lt $cuttoff_time ]]; then
+        read -q "RUN_UPDATE?It's been a while, update dotfiles? "
+        echo '' # read -q doesn't output a newline
+        if [[ "${RUN_UPDATE:l}" == "y" ]]; then
+            dot-check-for-update;
+        fi
+    fi
+}

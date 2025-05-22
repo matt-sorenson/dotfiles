@@ -1,0 +1,251 @@
+#!/usr/bin/env zsh
+
+function _dot-check-for-update-git() {
+    local quiet=false
+    local dir=
+
+    while (( $# )); do
+        case $1 in
+            -q|--quiet)
+                quiet=true
+                shift
+                ;;
+            -*)
+                print-header red "❌ Called _dot-check-for-update-git with unknown option '$1'\n" >&2
+                return 1
+                ;;
+            *)
+                if [[ -z $dir ]]; then
+                    dir=$1
+                    shift
+                else
+                    print-header red "❌ Called _dot-check-for-update-git with unexpected argument '$1'\n" >&2
+                    _usage-dot-check-for-update-git >&2
+                    return 1
+                fi
+                ;;
+        esac
+    done
+
+    if [[ -z $dir ]]; then
+        print-header red "❌ Called _dot-check-for-update-git without a directory"
+        return 1
+    fi
+
+    if [[ ! -d "${dir}" ]]; then
+        print-header yellow "⚠️ Missing Directory: ${dir}"
+        return 0
+    elif [[ ! -d "${dir}/.git" ]]; then
+        [[ $quiet == false ]] && print-header yellow "⚠️ Directory not a git repo: ${dir}"
+        return 0
+    fi
+
+    print-header green "Updating ${dir}"
+
+    pushd "${dir}" > /dev/null
+
+    git fetch
+
+    local branch="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
+    if [[ -n "${branch}" ]]; then
+        if git merge-base --is-ancestor HEAD "${branch}"; then
+            git merge "${branch}"
+        elif ! git merge-base --is-ancestor "${branch}" HEAD; then
+            print-header red "❌ Local branch has diverged from upstream: ${dir}"
+            popd > /dev/null
+            return 1
+        fi
+    else
+        echo "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+        popd > /dev/null
+        return 0
+    fi
+
+    git diff --quiet --ignore-submodules HEAD || {
+        print-header red "❌ Uncommitted changes in: ${dir}"
+        popd > /dev/null
+        return 1
+    }
+
+    # Check if branch is behind or has diverged (but NOT just ahead)
+    local behind_ahead
+    behind_ahead=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+
+    if [[ $? -eq 0 ]]; then
+        local ahead=$(echo $behind_ahead | awk '{print $1}')
+        local behind=$(echo $behind_ahead | awk '{print $2}')
+
+        if (( behind > 0 && ahead > 0 )); then
+            print-header red "❌ Branch has diverged from upstream: ${dir}"
+            popd > /dev/null
+            return 1
+        elif (( behind > 0 )); then
+            print-header red "❌ Branch is behind upstream: ${dir}"
+            popd > /dev/null
+            return 1
+        fi
+        # Note: ahead only (ahead > 0, behind == 0) is ignored
+    else
+        print-header yellow "⚠️ Unable to compare with upstream for: ${dir}"
+        popd > /dev/null
+        return 1
+    fi
+
+    popd > /dev/null
+
+    return 0
+}
+
+function _main-usage() {
+    echo "dot-check-for-update [-h|--help][-g|--git][-l|--local][-h|--hs][-b|--brew][-d|--doom]"
+    echo ""
+    echo "If no flags are provided then it's treated as if all flags are set."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help          Show this help message and exit"
+    echo "  -g, --git           Update git repositories"
+    echo "  -l, --local         Update local scripts"
+    echo "  -h, --hs            Reload hammerspoon"
+    echo "  -b, --brew          Update brew"
+    echo "  -d, --doom          Update doom emacs"
+
+    exit $1
+}
+
+function main() {
+    local -A flags=(
+        git     false
+        local   false
+        hs      false
+        brew    false
+        doom    false
+        local   false
+    )
+
+    while (( $# )); do
+        case $1 in
+            -h|--help)
+                _main-usage 0
+                ;;
+            -g|--git)
+                flags[git]=true
+                shift
+                ;;
+            -l|--local)
+                flags[local]=true
+                shift
+                ;;
+            -h|--hs)
+                flags[hs]=true
+                shift
+                ;;
+            -b|--brew)
+                flags[brew]=true
+                shift
+                ;;
+            -d|--doom)
+                flags[doom]=true
+                shift
+                ;;
+            -*)
+                print-header red "❌ Unknown option '$1'"
+                _main-usage 1
+                ;;
+            *)
+                print-header red "❌ Unknown argument '$1'"
+                _main-usage 1
+        esac
+    done
+
+    local all_false=true
+    local all_true=true
+    for key in "${(@k)flags}"; do
+    if [[ ${flags[$key]} == true ]]; then
+        all_false=false
+        break
+    elif [[ ${flags[$key]} == false ]]; then
+        all_true=false
+        break
+    fi
+    done
+
+    if [[ $all_false == true ]]; then
+        for key in "${(@k)flags}"; do
+            flags[$key]=true
+        done
+        all_true=true
+    fi
+
+    local -a repos_to_update
+    repos_to_update=( "${DOTFILES}" "${HOME}/.fzf-tab" "${HOME}/.zsh-syntax-highlighting" )
+
+    # We use this instead of exiting early so that we can try to update
+    # everything even if one fails 
+    local out=0
+
+    if [[ ${flags[git]} == true ]]; then
+        for dir in $repos_to_update; do
+            if ! _dot-check-for-update-git "$dir"; then
+                out=1
+            fi
+        done
+
+        if ! _dot-check-for-update-git "${DOTFILES}/local" -q; then
+            out=1
+        fi
+    fi
+
+    if [[ ${flags[hs]} == true ]]; then
+        # If hammerspoon exists we may have updated the config while updating
+        # the dotfiles, so we need to reload it.
+        if type "hs" >> /dev/null; then
+            print-header green "Reloading hammerspoon"
+            hs -c "hs.reload()"
+        fi
+    fi
+
+    if [[ ${flags[brew]} == true ]] && type "brew" >> /dev/null; then
+        print-header green "Updating brew."
+
+        if brew update; then
+            if ! brew upgrade; then
+                print-header red "❌ Failed to upgrade brew."
+                out=1
+            fi
+        else
+            print-header red "❌ Failed to update brew."
+            out=1
+        fi
+    fi
+
+    # You can specify a local update function in your "$DOTFILES/local/zsh"
+    # files or in $DOTFILES/local/bin
+    if [[ ${flags[local]} == true ]] && type "dot-check-for-update-local" >> /dev/null; then
+        if ! dot-check-for-update-local; then
+            out=1
+        fi
+    fi
+
+    if [[ ${flags[doom]} == true ]]; then
+        if type "${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}" >> /dev/null; then
+            print-header green "Updating doom emacs."
+
+            if ! "${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}" upgrade; then
+                print-header red "❌ failed to upgrade doom emacs."
+                out=1
+            fi
+        fi
+    fi
+
+    # Only update the timestamp if all updates were successful & we didn't
+    # skip any updates
+    if [[ $out -eq 0 && $all_true == true ]]; then
+        local update_filename="${DOTFILES}/tmp/dotfile-update"
+        local current_time=$(date +%s)
+        echo "${current_time}" >! "${update_filename}"
+    fi
+
+    return $out
+}
+
+main $@
