@@ -1,3 +1,5 @@
+autoload -Uz colors && colors
+
 export DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
 
@@ -35,4 +37,14 @@ TMPPREFIX="${TMPDIR%/}/zsh"
 
 if [ -f "${HOME}/.cargo/env" ]; then
     source "${HOME}/.cargo/env"
+fi
+
+if [ -d "${HOME}/.nvm" ]; then
+    export NVM_DIR="${HOME}/.nvm"
+    [ -s "${NVM_DIR}/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
+
+if type rbenv > /dev/null ; then
+    eval "$(rbenv init -)"
 fi

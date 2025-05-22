@@ -1,5 +1,3 @@
-autoload -Uz colors && colors
-
 function dot-check-for-update-git() {
     local dir="${1}"
     local quiet="${2}"

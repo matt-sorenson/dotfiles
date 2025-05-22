@@ -11,12 +11,6 @@ source "${DOTFILES}/zsh/update.zsh"
 
 source "${DOTFILES}/zsh/aliases.zsh"
 
-if [ -d "${HOME}/.nvm" ]; then
-    export NVM_DIR="${HOME}/.nvm"
-    [ -s "${NVM_DIR}/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
-
 add-to-fpath "${DOTFILES}/zsh/completion"
 add-to-fpath "${DOTFILES}/local/zsh/completion"
 
@@ -31,6 +25,8 @@ if [[ "$OSTYPE" == darwin* ]]; then
 
     export CLICOLOR=1
     export LSCOLORS=GxFxCxDxBxegedabagaced
+
+    ssh-add --apple-load-keychain
 fi
 
 COMPLETION_WAITING_DOTS="true"
@@ -67,16 +63,6 @@ setopt multios              # Perform implicit tees or cats when multiple redire
 unsetopt beep               # Disable "pc speaker" beep
 
 auto-check-for-update
-
-ssh-add --apple-load-keychain
-
-if type rbenv > /dev/null ; then
-    eval "$(rbenv init -)"
-fi
-
-if type direnv > /dev/null ; then
-    eval "$(direnv hook zsh)"
-fi
 
 bindkey -e
 
