@@ -72,3 +72,5 @@ fi
 if type rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
+
+source "${DOTFILES}/zsh/aws.zsh"

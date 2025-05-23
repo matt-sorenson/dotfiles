@@ -9,6 +9,7 @@ fi
 
 source "${DOTFILES}/zsh/aliases.zsh"
 
+# These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
 add-to-fpath "${DOTFILES}/zsh/completion"
 add-to-fpath "${DOTFILES}/local/zsh/completion"
 
@@ -69,7 +70,7 @@ if [ -d "${HOME}/.nvm" ]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
 
-compinit -i
+autoload -U compinit && compinit -i
 
 if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
     source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
@@ -78,5 +79,8 @@ fi
 if [ -f "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
     source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
+
+# This has some arrays/maps that are used for auto-completion
+source "${DOTFILES}/zsh/completion-helper.zsh"
 
 source "${DOTFILES}/zsh/ender.zsh-theme"
