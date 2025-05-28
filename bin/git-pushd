@@ -1,62 +1,73 @@
-#!/usr/bin/env zsh
+#!/bin/sh
 
-function _git-pushd-usage() {
+# If there's no print-header available, define a simple fallback.
+# It drops the first argument (e.g. color) and prints the rest.
+if ! command -v print-header >/dev/null 2>&1; then
+    print_header() {
+        shift
+        printf '%s\n' "$*"
+    }
+else
+    print_header() {
+        print-header "$@"
+    }
+fi
+
+_git_pushd_usage() {
     cat <<EOF
 Usage: git-pushd [-h|--help] [-b] <new-branch>
 
   -h, --help           Show this help message and exit
   -b                   Pass -b to 'git checkout' (i.e. create new branch)
 EOF
+    exit "$1"
 }
 
-local create_new_branch=
+create_new_branch=
 
-local show_usage=false
 # Help check
 for arg in "$@"; do
-    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
-        show_usage=true
-        break
-    fi
+    case "$arg" in
+        -h|--help)
+            _git_pushd_usage 0
+            ;;
+    esac
 done
 
-# Show usage help
-if [[ $show_usage == true ]]; then
-    _git-pushd-usage
-    return 0
-fi
-
 # parse -b flag
-if [[ $1 == "-b" ]]; then
+if [ "$1" = "-b" ]; then
     create_new_branch="-b"
     shift
 fi
 
-if [[ -z $1 ]]; then
-    _git-pushd-usage
-    return 1
+if [ -z "$1" ]; then
+    _git_pushd_usage 1
 fi
+
+new_branch=$1
 
 # find repo root
-local repo_root
-repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
-|| { echo "Not a git repository." >&2; return 1; }
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    printf 'Not a git repository.\n' >&2
+    exit 1
+}
 
 # get current branch
-local current_branch
-current_branch=$(git rev-parse --abbrev-ref HEAD) \
-|| { echo "Failed to determine current branch." >&2; return 1; }
+current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || {
+    printf 'Failed to determine current branch.\n' >&2
+    exit 1
+}
 
 # if user asked to pushd into the same branch, do nothing
-if [[ "$1" == "$current_branch" ]]; then
-return 0
+if [ "$new_branch" = "$current_branch" ]; then
+    exit 0
 fi
 
-local stack_file="$repo_root/.ms-popd-stack"
+stack_file=$repo_root/.ms-popd-stack
 
 # ensure stack exists, then push current branch
 mkdir -p "$(dirname "$stack_file")"
-echo "$current_branch" >>| "$stack_file"
+printf '%s\n' "$current_branch" >> "$stack_file"
 
 # checkout new branch (with or without -b)
-git checkout $create_new_branch "$1"
+git checkout $create_new_branch "$new_branch"

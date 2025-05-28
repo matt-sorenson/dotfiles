@@ -10,7 +10,20 @@
 #     should be stored in works cloud) then just use the `./local.${HOSTNAME}`
 #     directory
 
+do_brew=false
+if [[ "$OSTYPE" == darwin* ]]; then
+    do_brew=true
+fi
+
 autoload -Uz colors && colors
+
+function print-header(){
+    local color="$fg_bold[${1}]"
+    local header="${(pl:80::=:)}"
+    shift
+    local message="${@}"
+    echo "$color${header}\n= ${message}\n${header}$reset_color"
+}
 
 function backup-file() {
     if [ -f "${1}" ]; then
@@ -40,9 +53,16 @@ function safe-git-clone(){
     # if the destination exists check to see if one of it's remotes is the given URL
     # if so skip cloning
     if [ -d "${dest}" ]; then
-        pushd "${dest}"
-        local RESULT_COUNT=`git remote -v  | grep "${url}" | wc -l`
-        popd
+        pushd "${dest}" || {
+            print-header red "❌ failed to validate existing git repo at ${dest}"
+            return 1
+        }
+        local RESULT_COUNT
+        RESULT_COUNT=$(git remote -v  | grep "${url}" | wc -l)
+        popd || {
+            print-header red "❌ failed to pop directory stack after checking existing git repo at ${dest}"
+            return 1
+        }
 
         if [ $((RESULT_COUNT)) -ge 0 ]; then
             return
@@ -54,13 +74,17 @@ function safe-git-clone(){
     git clone --recursive "${url}" "${dest}"
 }
 
-function print-header(){
-    local color="$fg_bold[${1}]"
-    local header="${(pl:80::=:)}"
-    shift
-    local message="${@}"
-    echo "$color${header}\n= ${message}\n${header}$reset_color"
-}
+if [[ $do_brew == true ]] && ! type brew &>/dev/null; then
+    print-header green "Installing Homebrew"
+
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    print-header green "installing items from brew"
+    brew install awscli docker docker-compose emacs fzf git the_silver_searcher zsh
+
+    # These are mostly there for doomemacs but useful in general
+    brew install shellcheck ripgrep pandoc
+fi
 
 DOTFILES="${HOME}/.dotfiles"
 
@@ -71,6 +95,9 @@ safe-git-clone "https://github.com/Aloxaf/fzf-tab" "${HOME}/.fzf-tab"
 
 print-header green "Setting up zsh-syntax-highlighting"
 safe-git-clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${HOME}/.zsh-syntax-highlighting"
+
+# Lets source zshenv so that we can use it's setup instead of duplicating it here
+source "${DOTFILES}/zsh/zshenv.zsh"
 
 if [[ "${OSTYPE}" =~ "darwin" ]]; then
     print-header blue "Setting up macOS specific files"
@@ -90,7 +117,7 @@ print-header green "Setting up misc dotfiles"
 safe-set-link "${HOME}/.gitconfig" "${DOTFILES}/gitconfig"
 safe-set-link "${HOME}/.tmux.conf" "${DOTFILES}/tmux.conf"
 
-local LOCAL_DOTFILES="${DOTFILES}/local.$(hostname -s)"
+LOCAL_DOTFILES="${DOTFILES}/local.$(hostname -s)"
 
 if [ -d "${LOCAL_DOTFILES}" ]; then
     print-header green "${LOCAL_DOTFILES} already exists, skipping creation"
@@ -108,12 +135,31 @@ fi
 
 safe-set-link "${DOTFILES}/local" "${LOCAL_DOTFILES}"
 
-mkdir -p "${DOTFILES}/tmp"
+if ! mkdir -p "${DOTFILES}/tmp"; then
+    print-header red "❌ Failed to create ${DOTFILES}/tmp directory"
+fi
 
-pushd "${DOTFILES}"
-git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
-popd
+curr_dir="${PWD}"
+if cd "${DOTFILES}" >> /dev/null; then
+    git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
+    cd "${curr_dir}" >> /dev/null || {
+        print-header red "❌ Failed to pop directory stack after setting git email"
+        exit 1
+    }
+else
+    print-header red "❌ Failed to change directory to ${DOTFILES}"
+    echo "this shouldn't happen, but if the folder does exist (which we just created it),"
+    echo "then you can try running 'git config --local user.email \"\${GIT_EMAIL}\"' manually"
+    echo "continuing anyways as this isn't a critical error"
+fi
 
 print-header green "Setting up doomemacs"
+
+if ! command -v emacs >/dev/null 2>&1; then
+    print-header yellow "emacs not found, consider installing it"
+fi
+
+mkdir -p "${HOME}/.config"
 safe-git-clone "https://github.com/doomemacs/doomemacs" ~/.config/emacs
-~/.config/emacs/bin/doom install
+safe-set-link "${HOME}/.config/doom" "${DOTFILES}/doom"
+exec "${HOME}/.config/emacs/bin/doom" install
