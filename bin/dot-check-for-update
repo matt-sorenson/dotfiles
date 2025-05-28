@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+## This script depends on stuff in zshenv so can't easily be converted to POSIX sh.
+
 function _dot_check_for_update_git() {
     local quiet=false
     local dir=
@@ -200,7 +202,7 @@ if [[ ${flags[git]} == true ]]; then
 fi
 
 if [[ ${flags[brew]} == true ]]; then
-    if [[ type "brew" >> /dev/null; ]]; then
+    if type "brew" >> /dev/null; then
         print-header green "Updating brew."
 
         if brew update; then
