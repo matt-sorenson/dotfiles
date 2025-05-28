@@ -3,14 +3,9 @@ alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
-function ws()     { pushd "${WORKSPACE_ROOT_DIR}/${1}" }
-function wscode() { code  "${WORKSPACE_ROOT_DIR}/${1}" }
-
-# Helper function cause I can never remember the syntax
-function is-function() {
-    typeset -f "$1" > /dev/null
-    return
-}
+function wsls()   { ls "$@" "${WORKSPACE_ROOT_DIR}" }
+function ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
+function wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
 
 # Recursivly format '.cpp', '.h', '.inl' files in place.
 function clang-format-ri() {
