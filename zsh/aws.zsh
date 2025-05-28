@@ -1,17 +1,17 @@
 # This is not a seperate script but a function because it sets environment variables
 function aws-signon() {
-    _aws-signon-usage() {
-        echo "Usage: aws-signon [-f | --force] [-h | --help] [ -p <profile> | --profile <profile> | <profile> ]"
-        echo "Options:"
-        echo "  -f, --force                         Force login even if already signed in"
-        echo "  -h, --help                          Show this help message"
-        echo "  -p <profile>, --profile <profile>   AWS profile to sign into"
-        echo "  <profile>                           AWS profile to sign into"
-        echo "Examples:"
-        echo "  aws-signon -f dev"
-        echo "  aws-signon dev"
-        echo "  aws-signon -p dev"
-    }
+    local aws_signon_usage="Usage: aws-signon [-f|--force] [-h|--help] [ -p <profile> | --profile <profile> | <profile> ]
+
+Options:
+  -f, --force                         Force login even if already signed in
+  -h, --help                          Show this help message
+  -p <profile>, --profile <profile>   AWS profile to sign into
+  <profile>                           AWS profile to sign into
+
+Examples:
+  aws-signon -f dev
+  aws-signon dev
+  aws-signon -p dev"
 
     local force=false
     local profile
@@ -19,7 +19,7 @@ function aws-signon() {
     while [[ $# -gt 0 ]]; do
         case "${1}" in
             -h|--help)
-                _aws-signon-usage
+                printf '%b\n' "$aws_signon_usage"
                 return 0
                 ;;
             -f|--force)
@@ -29,7 +29,7 @@ function aws-signon() {
             -p|--profile)
                 if [[ -n "$profile" ]]; then
                     print-header red "❌ Profile passed in multiple times!"
-                    _aws-signon-usage
+                    printf '%b\n' "$aws_signon_usage"
                     return 1
                 fi
 
@@ -38,13 +38,13 @@ function aws-signon() {
                 ;;
             -*)
                 print-header red "❌ Unknown option: ${1}"
-                _aws-signon-usage
+                printf '%b\n' "$aws_signon_usage"
                 return 1
                 ;;
             *)
                 if [[ -n "$profile" ]]; then
                     print-header red "❌ Profile passed in multiple times!"
-                    _aws-signon-usage
+                    printf '%b\n' "$aws_signon_usage"
                     return 1
                 fi
 
@@ -55,20 +55,20 @@ function aws-signon() {
     done
 
     if [[ -z "${profile}" ]]; then
-        _aws-signon-usage
+        printf '%b\n' "$aws_signon_usage"
         return 1
     fi
 
     print-header green "🔐 Signing into AWS: ${profile}"
 
-    local EXIT_CODE=0
+    local exit_code=0
     if [[ "${force}" == false ]]; then
         aws sts get-caller-identity --profile "${profile}" &> /dev/null
-        local EXIT_CODE="$?"
+        local exit_code="$?"
     fi
 
     export AWS_PROFILE="${profile}"
-    if [[ "${EXIT_CODE}" != "0" || "${force}" == true ]]; then
+    if [[ "${exit_code}" != "0" || "${force}" == true ]]; then
         if [[ "${force}" == false ]]; then
             echo "not signed in, attempting SSO login for '${profile}'..."
         fi
