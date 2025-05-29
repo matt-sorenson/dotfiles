@@ -22,7 +22,7 @@ end
 
 return {
     layout = {
-        { -- Primary Screen
+        { -- Primary Horizontal Screen
             screen = {'3840x1600', '3440x1440'},
 
             { app = {'Code', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1 },
@@ -33,8 +33,10 @@ return {
 
             { app = 'zoom.us', resize_center = { 1280, 960 }, categories = 'communications' },
             { app = {'okta', 'AWS VPN Client'}, center = true },
+
+            { window = 'Hammerspoon Console', rect = { 11 / 16, 1/10, 4/16, 4/5 } }
         },
-        {
+        { -- Side Vertical Screen
             screen = { 'DELL G2725D', '1440x2560' },
 
             { app = {'Firefox', 'Music'}, section = 3, categories = 'media' },

@@ -49,7 +49,13 @@ local resize_and_center_window = function(window, width, height, screen)
 end
 
 local function _layout_score_str_tbl(array, str)
-    return nil ~= table.find(array, function(e) return str:match(e:lower()) end)
+    return nil ~= table.find(array, function(e)
+        if '' == e then
+            return str == e
+        else
+            return str:match(e:lower())
+        end
+    end)
 end
 
 local function _layout_score_rule(category, app_name, win_name, rule)
