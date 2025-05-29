@@ -34,6 +34,20 @@ local function center_window(window, screen)
     window:move(rect, screen)
 end
 
+local resize_and_center_window = function(window, width, height, screen)
+    screen = screen or window:screen()
+
+    local screen_rect = screen:frame()
+    local rect = {
+        screen_rect.x + (screen_rect.w - width) / 2,
+        screen_rect.y + (screen_rect.h - height) / 2,
+        width,
+        height,
+    }
+
+    window:move(rect, screen)
+end
+
 local function _layout_score_str_tbl(array, str)
     return nil ~= table.find(array, function(e) return str:match(e:lower()) end)
 end
@@ -96,6 +110,8 @@ local function _layout_apply_to_window(self, category, window)
             self:move_window_to_section(window, rule.section)
         elseif rule.center then
             center_window(window, screen)
+        elseif rule.resize_center then
+            resize_and_center_window(window, rule.resize_center[1], rule.resize_center[2], screen)
         elseif 'function' == type(rule.rect) then
             move_window(window, rule.rect(window), screen)
         elseif rule.rect then
@@ -326,4 +342,6 @@ return {
 
     resize_window = resize_window,
     resize_window_fn = resize_window_fn,
+
+    resize_and_center_window = resize_and_center_window,
 }

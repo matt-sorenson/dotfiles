@@ -26,10 +26,12 @@ return {
             screen = {'3840x1600', '3440x1440'},
 
             { app = {'Code', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1 },
+            -- TablePlus "New Workspace" window
+            { app = 'TablePlus', window = '', resize_center = { 898, 556 } },
 
             { app = {'Chrome'},  section = 2 },
 
-            { app = 'zoom.us', center = true, categories = 'communications' },
+            { app = 'zoom.us', resize_center = { 1280, 960 }, categories = 'communications' },
             { app = {'okta', 'AWS VPN Client'}, center = true },
         },
         {
