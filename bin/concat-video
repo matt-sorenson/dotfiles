@@ -1,0 +1,143 @@
+#! /usr/bin/env zsh
+
+# Uses extglob & string replacement which isn't POSIX sh compatible so just use zsh.
+
+_usage() {
+    printf "Usage: concat-video [OPTIONS]
+
+Required:
+  -f, --file FILENAME        filename to base concat off of
+
+Options:
+  -o, --output <EXTENSION>   output file extension (default: .m4v)
+  -c, --crop w:h:x:y         crop to dimensions w:h:x:y
+  -t, --trim <SECONDS>       trim intro from 2nd,3rd... in seconds (default: 0)
+  -h, --help                 show this help and exit
+"
+    exit "${1:-0}"
+}
+
+# Defaults
+output_ext='.m4v'
+trim=0
+crop=''
+crop_given=false
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -f|--file)
+            filename="${2}"
+            shift 2
+            ;;
+        -o|--output)
+            output_ext="${2}"
+            shift 2
+            ;;
+        -c|--crop)
+            crop="${2}"
+            crop_given=true
+            shift 2
+            ;;
+        -t|--trim)
+            trim="${2}"
+            shift 2
+            ;;
+        -h|--help)
+            _usage 0
+            ;;
+        -*)
+            printf 'Unknown option: %s\n' "${1}" >&2
+            _usage 1
+            ;;
+        *)
+            printf 'Unknown argument: %s\n' "${1}" >&2
+            _usage 1
+            ;;
+    esac
+done
+# ---- end parsing ----
+
+# Ensure required
+[ -z "$filename" ] && {
+    printf 'Error: --file is required\n' >&2
+    _usage 1
+}
+
+# Derive basename and directory
+base=$(basename -- "$filename")
+dir=$(dirname -- "$filename")
+cd "$dir" || exit 1
+dir=$(pwd)
+cd - >/dev/null 2>&1 || exit 1
+
+# Validate filename format
+if ! echo "$base" | grep -Eq '^(.*?) *pt\.?([0-9]+)(\..*)$'; then
+    printf 'Could not parse filename for part: %s\n' "$filename" >&2
+    exit 1
+fi
+
+# Extract prefix
+prefix=$(printf '%s' "$base" | sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/')
+
+# Prepare output
+outdir="$dir/converted"
+mkdir -p "$outdir"
+final_filename="$outdir/${prefix}${output_ext}"
+
+# Gather & sort parts
+files_partlist=
+for f in "${prefix}"*; do
+  case "$f" in
+    *pt.?([0-9]).*) n="${f##*pt.}"; n="${n%%.*}" ;;
+    *) continue ;;
+  esac
+  files_partlist="${files_partlist}${n} $f"$'\n'
+done
+# sort numerically, extract filenames:
+files=$(printf '%s' "$files_partlist" | sort -n | cut -d' ' -f2-)
+
+# Build ffmpeg inputs
+cmd="ffmpeg"
+i=0
+for f in $files; do
+    cmd="$cmd -i \"${f//\"/\\\"}\""
+done
+
+# Build filter_complex
+filter_complex=''
+for f in $files; do
+    start_trim=0
+    [ "$i" -ne 0 ] && start_trim=$trim
+
+    filter_complex="${filter_complex}[$i:v]setpts=PTS-STARTPTS,trim=start=$start_trim"
+    [ "$crop_given" = true ] && filter_complex="${filter_complex},crop=$crop"
+    filter_complex="${filter_complex}[v$i]; "
+
+    filter_complex="${filter_complex}[$i:a]asetpts=PTS-STARTPTS"
+    [ "$start_trim" -gt 0 ] && filter_complex="${filter_complex},atrim=start=$start_trim"
+    filter_complex="${filter_complex}[a$i]; "
+
+    i=$((i + 1))
+done
+
+# Concatenate streams
+concat_inputs=''
+for j in $(seq 0 $((i - 1))); do
+    concat_inputs="${concat_inputs}[v$j][a$j]"
+done
+filter_complex="$filter_complex${concat_inputs}concat=n=$i:v=1:a=1[out]"
+
+# Final ffmpeg command
+cmd="$cmd -filter_complex \"$filter_complex\" \
+    -c:v libx264 -crf 15 -preset veryslow \
+    -map \"[out]\" \"$final_filename\""
+
+# Execute!
+eval "$cmd"
+status=$?
+if [ $status -ne 0 ]; then
+    printf 'ffmpeg failed with exit code %d\n' "$status" >&2
+    exit $status
+fi
+
+printf 'Successfully created %s\n' "$final_filename"
