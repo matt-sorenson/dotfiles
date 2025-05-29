@@ -13,7 +13,7 @@ else
     }
 fi
 
-_git_dirs_usage() {
+_usage() {
     cat <<EOF
 Usage: git-dirs [-h|--help]
 
@@ -35,11 +35,11 @@ while [ "$#" -gt 0 ]; do
             shift
             ;;
         -h|--help)
-            _git_dirs_usage 0
+            _usage 0
             ;;
         *)
             print_header red "Unknown option: $1"
-            _git_dirs_usage 1
+            _usage 1
             ;;
     esac
 done

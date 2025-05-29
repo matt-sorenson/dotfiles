@@ -1,12 +1,13 @@
 #!/bin/sh
 
 # Print usage information
-print_header_usage() {
-    printf '%s\n' "Usage: print-header [-h|--help] <color> <message>" \
-                   "Options:" \
-                   "  -h, --help          Show this help message and exit" \
-                   "  <color>             The color of the header (e.g., red, green, blue)" \
-                   "  <message>           The message to display in the header"
+_usage() {
+    printf '%s\n' "Usage: print-header [-h|--help] <color> <message>
+
+Options:
+  -h, --help          Show this help message and exit
+  <color>             The color of the header (e.g., red, green, blue)
+  <message>           The message to display in the header"
 
     exit "$1"
 }
@@ -41,7 +42,7 @@ make_header_line() {
 while [ $# -gt 0 ]; do
     case "$1" in
         -h|--help)
-            print_header_usage 0
+            _usage 0
             ;;
         --)
             shift
@@ -49,7 +50,7 @@ while [ $# -gt 0 ]; do
             ;;
         -*)
             echo "Unknown option: $1" >&2
-            print_header_usage 1
+            _usage 1
             ;;
         *)
             break

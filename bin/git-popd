@@ -11,7 +11,7 @@ else
     alias print_header=print-header
 fi
 
-_git_popd_usage() {
+_usage() {
     cat <<EOF
 Usage: git-popd [-h|--help]
 
@@ -26,7 +26,7 @@ EOF
 # Help check
 for arg in "$@"; do
     if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
-        _git_popd_usage 0
+        _usage 0
     fi
 done
 

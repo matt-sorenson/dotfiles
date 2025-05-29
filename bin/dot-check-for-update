@@ -98,7 +98,7 @@ function _dot_check_for_update_git() {
     return 0
 }
 
-function _dot_check_for_files_usage() {
+function _usage() {
     echo "dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]"
     echo ""
     echo "If no flags are provided then it's treated as if all flags are set."
@@ -125,7 +125,7 @@ flags=(
 while (( $# )); do
     case $1 in
         -h|--help)
-            _dot_check_for_files_usage 0
+            _usage 0
             ;;
         -g|--git)
             flags[git]=true
@@ -145,11 +145,11 @@ while (( $# )); do
             ;;
         -*)
             print-header red "❌ Unknown option '$1'"
-            _dot_check_for_files_usage 1
+            _usage 1
             ;;
         *)
             print-header red "❌ Unknown argument '$1'"
-            _dot_check_for_files_usage 1
+            _usage 1
     esac
 done
 

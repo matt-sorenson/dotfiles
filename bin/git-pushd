@@ -13,7 +13,7 @@ else
     }
 fi
 
-_git_pushd_usage() {
+_usage() {
     cat <<EOF
 Usage: git-pushd [-h|--help] [-b] <new-branch>
 
@@ -29,7 +29,7 @@ create_new_branch=
 for arg in "$@"; do
     case "$arg" in
         -h|--help)
-            _git_pushd_usage 0
+            _usage 0
             ;;
     esac
 done
@@ -41,7 +41,7 @@ if [ "$1" = "-b" ]; then
 fi
 
 if [ -z "$1" ]; then
-    _git_pushd_usage 1
+    _usage 1
 fi
 
 new_branch=$1
