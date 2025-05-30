@@ -1,6 +1,41 @@
 #!/usr/bin/env zsh
 
-## This script depends on stuff in zshenv so can't easily be converted to POSIX sh.
+## This script depends on DOTFILES being set to the path of the dotfiles repo.
+
+_dot_git_header() {
+    local color="$1"
+    local dir="$2"
+    shift 2
+
+    case $dir in
+    "$HOME")
+        # exactly $HOME → "~"
+        dir='~'
+        ;;
+    "$HOME"/*)
+        # starts with $HOME/ → "~/…"
+        dir="~${dir#$HOME}"
+        ;;
+    *)
+        # anything else → unchanged
+        dir="$dir"
+        ;;
+    esac
+
+    local msg="$@"
+    print-header -i 2 "$color" "${dir}: ${msg}" >&2
+}
+
+_dot_git_warn() {
+    local dir="$1"
+    shift
+
+    _dot_git_header yellow "$dir" "⚠️ $@"
+}
+
+_dot_git_error() {
+    _dot_git_header red "❌ $@"
+}
 
 function _dot_check_for_update_git() {
     local quiet=false
@@ -13,7 +48,7 @@ function _dot_check_for_update_git() {
                 shift
                 ;;
             -*)
-                print-header red "❌ Called _dot_check_for_update_git with unknown option '$1'\n" >&2
+                _dot_git_error "${dir}" "Called _dot_check_for_update_git with unknown option '$1'"
                 return 1
                 ;;
             *)
@@ -21,8 +56,7 @@ function _dot_check_for_update_git() {
                     dir=$1
                     shift
                 else
-                    print-header red "❌ Called _dot_check_for_update_git with unexpected argument '$1'\n" >&2
-                    _usage-dot-check-for-update-git >&2
+                    _dot_git_error "${dir}" "Called _dot_check_for_update_git with unexpected argument '$1'"
                     return 1
                 fi
                 ;;
@@ -30,19 +64,19 @@ function _dot_check_for_update_git() {
     done
 
     if [[ -z $dir ]]; then
-        print-header red "❌ Called _dot_check_for_update_git without a directory"
+        _dot_git_error "${dir}" "Called _dot_check_for_update_git without a directory"
         return 1
     fi
 
     if [[ ! -d "${dir}" ]]; then
-        print-header yellow "⚠️ Missing Directory: ${dir}"
+        _dot_git_warn "${dir}" "Missing Directory"
         return 0
     elif [[ ! -d "${dir}/.git" ]]; then
-        [[ $quiet == false ]] && print-header yellow "⚠️ Directory not a git repo: ${dir}"
+        [[ $quiet == false ]] && _dot_git_warn "${dir}" "Directory not a git repo"
         return 0
     fi
 
-    print-header green "Updating ${dir}"
+    print-header green "${dir}: Updating Repo"
 
     pushd "${dir}" > /dev/null
 
@@ -53,18 +87,18 @@ function _dot_check_for_update_git() {
         if git merge-base --is-ancestor HEAD "${branch}"; then
             git merge "${branch}"
         elif ! git merge-base --is-ancestor "${branch}" HEAD; then
-            print-header red "❌ Local branch has diverged from upstream: ${dir}"
+            _dot_git_error "${dir}" "Local branch has diverged from upstream"
             popd > /dev/null
             return 1
         fi
     else
-        echo "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+        printf '%s\n' "No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
         popd > /dev/null
         return 0
     fi
 
     git diff --quiet --ignore-submodules HEAD || {
-        print-header red "❌ Uncommitted changes in: ${dir}"
+        _dot_git_error "${dir}" "Uncommitted changes found"
         popd > /dev/null
         return 1
     }
@@ -74,21 +108,23 @@ function _dot_check_for_update_git() {
     behind_ahead=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
 
     if [[ $? -eq 0 ]]; then
-        local ahead=$(echo $behind_ahead | awk '{print $1}')
-        local behind=$(echo $behind_ahead | awk '{print $2}')
+        local ahead=$(printf '%s\n' "$behind_ahead" | awk '{print $1}')
+        local behind=$(printf '%s\n' "$behind_ahead" | awk '{print $2}')
 
         if (( behind > 0 && ahead > 0 )); then
-            print-header red "❌ Branch has diverged from upstream: ${dir}"
+            _dot_git_error "${dir}" "Branch has diverged from upstream"
             popd > /dev/null
             return 1
         elif (( behind > 0 )); then
-            print-header red "❌ Branch is behind upstream: ${dir}"
+            _dot_git_error "${dir}" "Branch is behind upstream by ${behind} commits"
             popd > /dev/null
             return 1
+        elif (( ahead > 0 )); then
+            printf '%s\n' "${dir}: Branch is ahead of upstream by ${ahead} commits"
         fi
         # Note: ahead only (ahead > 0, behind == 0) is ignored
     else
-        print-header yellow "⚠️ Unable to compare with upstream for: ${dir}"
+        _dot_git_warn "${dir}" "Unable to compare with upstream for"
         popd > /dev/null
         return 1
     fi
@@ -99,18 +135,27 @@ function _dot_check_for_update_git() {
 }
 
 function _usage() {
-    echo "dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]"
-    echo ""
-    echo "If no flags are provided then it's treated as if all flags are set."
-    echo ""
-    echo "Options:"
-    echo "  -h, --help          Show this help message and exit"
-    echo "  -g, --git           Update git repositories"
-    echo "  -l, --local         Update local scripts"
-    echo "  -b, --brew          Update brew"
-    echo "  -d, --doom          Update doom emacs"
+    printf "%s" \
+"dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
+
+If no flags are provided then it's treated as if all flags are set.
+
+Options:
+  -h, --help          Show this help message and exit
+  -g, --git           Update git repositories
+  -l, --local         Update local scripts
+  -b, --brew          Update brew
+  -d, --doom          Update doom emacs
+"
 
     exit $1
+}
+
+_dot_error() {
+    local section="$1"
+    shift
+    local msg="$@"
+    print-header -i 2 red "❌ ${section}: ${msg}" >&2
 }
 
 typeset -A flags
@@ -122,6 +167,17 @@ flags=(
     "local"   false
 )
 
+no_flags=(
+    "git"     false
+    "local"   false
+    "brew"    false
+    "doom"    false
+    "local"   false
+)
+
+typeset -A no_flags
+specified_flag=false
+
 while (( $# )); do
     case $1 in
         -h|--help)
@@ -129,18 +185,38 @@ while (( $# )); do
             ;;
         -g|--git)
             flags[git]=true
+            specified_flag=true
             shift
             ;;
         -l|--local)
             flags[local]=true
+            specified_flag=true
             shift
             ;;
         -b|--brew)
             flags[brew]=true
+            specified_flag=true
             shift
             ;;
         -d|--doom)
             flags[doom]=true
+            specified_flag=true
+            shift
+            ;;
+        --no-git)
+            no_flags[git]=true
+            shift
+            ;;
+        --no-local)
+            no_flags[local]=true
+            shift
+            ;;
+        --no-brew)
+            no_flags[brew]=true
+            shift
+            ;;
+        --no-doom)
+            no_flags[doom]=true
             shift
             ;;
         -*)
@@ -165,7 +241,11 @@ done
 
 if [[ $all_false == true ]]; then
     for key in "${(@k)flags}"; do
-        flags[$key]=true
+        if [[ ${no_flags[$key]} == true ]]; then
+            flags[$key]=false
+        else
+            flags[$key]=true
+        fi
     done
 
     all_true=true
@@ -175,19 +255,23 @@ local -a repos_to_update
 repos_to_update=( "${HOME}/.fzf-tab" "${HOME}/.zsh-syntax-highlighting" )
 
 # We use this instead of exiting early so that we can try to update
-# everything even if one fails 
+# everything even if one fails
 out=0
 
 if [[ ${flags[git]} == true ]]; then
-    if _dot_check_for_update_git "${DOTFILES}"; then
-        # If hammerspoon exists we may have updated the config while updating
-        # the dotfiles, so we need to reload it.
-        if type "hs" >> /dev/null; then
-            print-header green "Reloading hammerspoon"
-            hs -c "hs.reload()"
+    if [[ -d "${DOTFILES}" ]]; then
+        if _dot_check_for_update_git "${DOTFILES}"; then
+            # If hammerspoon exists we may have updated the config while updating
+            # the dotfiles, so we need to reload it.
+            if type "hs" >> /dev/null; then
+                print-header green "Reloading hammerspoon"
+                hs -c "hs.reload()"
+            fi
+        else
+            out=1
         fi
     else
-        out=1
+        print-header yellow "⚠️ ${DOTFILES} does not exist, skipping dotfiles update."
     fi
 
     for dir in $repos_to_update; do
@@ -196,8 +280,12 @@ if [[ ${flags[git]} == true ]]; then
         fi
     done
 
-    if ! _dot_check_for_update_git "${DOTFILES}/local" -q; then
-        out=1
+    if [[ ${flags[local]} == true && -d "${DOTFILES}/local" ]]; then
+        if ! _dot_check_for_update_git "${DOTFILES}/local" -q; then
+            out=1
+        fi
+    elif [[ ${flags[local]} == true && all_false == false ]]; then
+        print-header yellow "⚠️ ${DOTFILES}/local does not exist, skipping local update."
     fi
 fi
 
@@ -207,17 +295,24 @@ if [[ ${flags[brew]} == true ]]; then
 
         if brew update; then
             if ! brew upgrade; then
-                print-header red "❌ Failed to upgrade brew."
+                _dot_error "brew" "Failed to upgrade."
                 out=1
             fi
         else
-            print-header red "❌ Failed to update brew."
+            _dot_error "brew" "Failed to update."
             out=1
         fi
     else
-        local color=$([[ $all_false == false ]] && echo 'red' || echo 'yellow')
-        local icon=$([[ $all_false == false ]] && echo '❌' || echo '⚠️')
-        print-header $color "$icon brew is not installed, skipping brew update."
+        local color icon
+        if [[ $specified_flag == false ]]; then
+            color="red"
+            icon="❌"
+            out=1
+        else
+            color="yellow"
+            icon="⚠️"
+        fi
+        print-header -i 2 "$color" "$icon brew: \`brew\` is not installed."
     fi
 fi
 
@@ -235,7 +330,7 @@ if [[ ${flags[doom]} == true ]]; then
         print-header green "Updating doom emacs."
 
         if ! "${doomemacs_bin}" upgrade --aot --force --color; then
-            print-header red "❌ failed to upgrade doom emacs."
+            _dot_error "doom emacs" "failed to upgrade."
             out=1
         fi
     fi
