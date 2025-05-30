@@ -14,37 +14,80 @@ else
 fi
 
 _usage() {
-    printf "Usage: git-pushd [-h|--help] [-b] <branch>
+    printf "Usage: git-pushd [-h|--help] [-b <branch> | <branch>]
 
-  -h, --help           Show this help message and exit
-  -b                   Pass -b to 'git checkout' (i.e. create new branch)
+Arguments:
+    <Branch>    The branch to check out.
+
+Options:
+  -b <branch>   Create a new branch and check it out.
+  -h, --help    Show this help message and exit
+
+any flag from `git checkout` that doesn't take a value can be passed in as an
+option (unless the value is passed in as part of the same argument, ie \`--conflict=<style>\`).
+
+The only un-named argument can be the branch name (if -b is not used). If
+multiple positional arguments are provided then the command will fail.
 "
 
     exit "$1"
 }
 
+branch_provided=0
 create_new_branch=
+arguments=""
 
 # Help check
-for arg in "$@"; do
-    case "$arg" in
+while [ $# -gt 0 ]; do
+    case "$1" in
         -h|--help)
             _usage 0
+            ;;
+        -b|--branch)
+            if [ -z "$new_branch" ]; then
+                new_branch="$2"
+                branch_provided=1
+            else
+                print_header red "Unknown argument: $arg"
+                printf "a branch has already been provided.\n"
+                _usage 1
+            fi
+
+            arguments="$arguments $1 $2"
+            shift 2
+            ;;
+        --*)
+            arguments="$arguments $1"
+            shift
+            ;;
+        -[!-]*)
+            arguments="$arguments $1"
+            shift
+            done
+            ;;
+        --)
+            arguments="$arguments $@"
+            break
+            ;;
+        *)
+            if [ -z "$new_branch" ]; then
+                new_branch="$1"
+                branch_provided=1
+                arguments="$arguments $1"
+            else
+                print_header red "Unknown argument: $1"
+                printf "a branch has already been provided.\n"
+                _usage 1
+            fi
             ;;
     esac
 done
 
-# parse -b flag
-if [ "$1" = "-b" ]; then
-    create_new_branch="-b"
-    shift
-fi
-
-if [ "$#" -ne 1 ]; then
+if [ -z "$new_branch" ]; then
+    print_header red "No branch specified."
+    printf "Please provide a branch name to check out.\n"
     _usage 1
 fi
-
-new_branch=$1
 
 # find repo root
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
@@ -70,4 +113,5 @@ mkdir -p "$(dirname "$stack_file")"
 printf '%s\n' "$current_branch" >> "$stack_file"
 
 # checkout new branch (with or without -b)
-git checkout $create_new_branch "$new_branch"
+
+git checkout ${arguments}
