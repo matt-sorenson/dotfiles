@@ -1,39 +1,67 @@
 #!/usr/bin/env zsh
 
-local show_usage=false
-# Help check
-for arg in "$@"; do
-    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
-        show_usage=true
-        break
-    fi
+_usage() {
+    printf "Usage: brew-find-leafs [-h|--help]
+
+Finds brew formulas that aren't depended on by any other packages.
+This is useful for cleaning up unused dependencies.
+
+Options:
+  -h, --help   Show this help message and exit
+  -r, --remove Ask to remove formulas that are not depended on by other formulas
+  -q, --quiet  Suppress most output, only show the forumulas that would be removed
+
+There is explicitly not a -f or --force option as this script can't tell if you
+manually installed a formula or if it was installed as a dependency.
+"
+
+    exit "$1"
+}
+
+flag_remove=false
+flag_quiet=false
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            _usage 0
+            ;;
+        -r|--remove)
+            flag_remove=true
+            ;;
+        -q|--quiet)
+            quiet=true
+            ;;
+        *)
+            print-header red "Unknown option: $1"
+            _usage 1
+            ;;
+    esac
+    shift
 done
 
-# Show usage help
-if [[ $show_usage == true ]]; then
-    echo "Usage: brew-find-leafs [-h|--help]"
-    echo ""
-    echo "Finds brew formulas that aren't depended on by any other packages and asks"
-    echo "for each if they should be deleted. This is useful for cleaning up unused"
-    echo "dependencies cause brew is really bad at that."
-    echo ""
-    echo "Options:"
-    echo "  -h, --help          Show this help message and exit"
-    echo "Find all brew formulas that are not depended on by other formulas."
-    return
+if [[ $flag_quiet == true && flag_remove == true ]]; then
+    echo "Error: Cannot use --quiet and --remove together."
+    exit 1
 fi
 
-local -A visited_formulas
+typeset -A visited_formulas
 
-print-header green "Searching for formulas not depended on by other formulas..."
+if [[ $flag_quiet == false ]]; then
+    print-header green "Searching for formulas not depended on by other formulas..."
+fi
 
 for formula in $(brew list); do
     if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
-        read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
         visited_formulas[$formula]=1
-        if [[ "${input}" == "Y" ]]; then
-            brew remove "${formula}"
-            check_formulas $(brew deps --1 --installed "${formula}")
+        if [[ $flag_remove == true ]]; then
+            read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
+            if [[ "${input}" == "Y" ]]; then
+                brew remove "${formula}"
+                check_formulas $(brew deps --1 --installed "${formula}")
+            fi
+        else
+            printf "${formula}\n"
         fi
     fi
 done
