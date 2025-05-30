@@ -14,12 +14,12 @@ else
 fi
 
 _usage() {
-    cat <<EOF
-Usage: git-pushd [-h|--help] [-b] <new-branch>
+    printf "Usage: git-pushd [-h|--help] [-b] <branch>
 
   -h, --help           Show this help message and exit
   -b                   Pass -b to 'git checkout' (i.e. create new branch)
-EOF
+"
+
     exit "$1"
 }
 
@@ -40,7 +40,7 @@ if [ "$1" = "-b" ]; then
     shift
 fi
 
-if [ -z "$1" ]; then
+if [ "$#" -ne 1 ]; then
     _usage 1
 fi
 

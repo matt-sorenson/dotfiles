@@ -12,13 +12,13 @@ else
 fi
 
 _usage() {
-    cat <<EOF
-Usage: git-popd [-h|--help]
-
-  -h, --help           Show this help message and exit
+    printf "Usage: git-popd [-h|--help]
 
 This script checks out the last branch checked out with git-pushd and pops it from the stack.
-EOF
+
+  -h, --help           Show this help message and exit
+"
+
     exit "$1"
 }
 

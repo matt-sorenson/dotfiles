@@ -2,7 +2,7 @@
 
 # Print usage information
 _usage() {
-    printf '%s' "Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
+    printf "Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
 
 Arguments:
   <color>                        The color of the header (e.g., red, green, blue)
@@ -19,6 +19,7 @@ Options:
   -h, --help                     Show this help message and exit
   -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)
 "
+
     exit "$1"
 }
 

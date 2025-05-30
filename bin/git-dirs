@@ -14,14 +14,14 @@ else
 fi
 
 _usage() {
-    cat <<EOF
-Usage: git-dirs [-h|--help]
+    printf "Usage: git-dirs [-h|--help]
+
+Display the saved branch stack (oldest at the top, newest at the bottom).
 
   -c, --clear           Clear the branch stack
   -h, --help            Show this help message and exit
+"
 
-Display the saved branch stack (oldest at the top, newest at the bottom).
-EOF
     exit "$1"
 }
 

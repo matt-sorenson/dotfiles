@@ -134,11 +134,8 @@ function _dot_check_for_update_git() {
     return 0
 }
 
-function _usage() {
-    printf "%s" \
-"dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
-
-If no flags are provided then it's treated as if all flags are set.
+_usage() {
+    printf "dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
 
 Options:
   -h, --help          Show this help message and exit
@@ -146,6 +143,8 @@ Options:
   -l, --local         Update local scripts
   -b, --brew          Update brew
   -d, --doom          Update doom emacs
+
+If no flags are provided then it's treated as if all flags are set.
 "
 
     exit $1
