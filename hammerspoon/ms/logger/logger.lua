@@ -41,41 +41,6 @@ end
 
 local INDENT = '  '
 
-local function table_to_string(t, indent, looked_up)
-    if not looked_up then
-        looked_up = {}
-    end
-
-    if not indent then
-        indent = ''
-    end
-
-    local out = '{\n'
-
-    for k, v in pairs(t) do
-        if type(v) == 'table' then
-            if looked_up[v] then
-                out = out .. indent .. k .. ': <circular>,\n'
-            else
-                local tmp_looked_up = table.shallow_copy(looked_up)
-                tmp_looked_up[v] = true
-
-                out = out .. indent .. k .. ': ' .. table_to_string(v, indent .. INDENT, tmp_looked_up) .. ',\n'
-            end
-        else
-            if type(v) == 'string' then
-                v = '"' .. v:gsub('"', '\\"') .. '"'
-            end
-
-            out = string.format('%s%s%s:%s,\n', out, indent, k, v)
-        end
-    end
-
-    indent = indent:sub(1, -3)
-
-    return out .. indent .. '}'
-end
-
 local function format_header(system, level, min_sys_length)
     local out = '[' .. level .. ':' .. system .. '] '
 
@@ -107,7 +72,7 @@ local function system_logger(system, level, message, obj)
         local obj_str
 
         if type(obj) == 'table' then
-            obj_str = table_to_string(obj)
+            obj_str = table.tostring(obj)
         else
             obj_str = tostring(obj)
         end

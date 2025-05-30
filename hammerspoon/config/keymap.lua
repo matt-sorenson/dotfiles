@@ -5,8 +5,26 @@ local caffeine  = require 'ms.caffeine'
 local fs        = require 'ms.fs'
 local window    = require 'ms.window'
 local sys       = require 'ms.sys'
+local work      = require 'ms.work'
 local workspace = require 'ms.workspace'
 
+work.init()
+local pr_hotkeys = {
+    title = 'Team PR Targets',
+    key = 'T',
+}
+for team, hotkey in pairs(work.get_pr_hotkey_map()) do
+    table.insert(pr_hotkeys, {
+        key = hotkey,
+        msg = 'Random ' .. team .. ' member',
+        fn = work.get_random_team_member_fn(team)
+    })
+end
+
+-- If there are no PR hotkeys then remove the table so we don't have an empty sub-section
+if #pr_hotkeys == 0 then
+    pr_hotkeys = nil
+end
 
 local function keybind_caffeine_in_minutes(key, minutes)
     return {
@@ -34,17 +52,12 @@ local function keybind_select_app(key, msg, app_name)
     return { key = key, msg = msg, fn = sys.select_app_fn(app_name) }
 end
 
-return {
+local config = {
     {
         title = 'global',
         mods = { 'ctrl', 'cmd' },
         key = 'B',
         skip_help_msg = true,
-
-        -- defeat attempts to block paste
-        { key = 'V', msg = "'key event' paste", fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end },
-
-        { key = 'B', msg = 'Find mouse', fn = require('ms.mouse-highlight') },
 
         {
             title = 'Window',
@@ -55,18 +68,18 @@ return {
             { key = '3', msg = '3rd section of screen', fn = window.layout.move_window_to_section_fn(3) },
             { key = '4', msg = '4rd section of screen', fn = window.layout.move_window_to_section_fn(4) },
 
-            { key = '1', mods = 'shift', msg = '1st 1/3rd of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
-            { key = '2', mods = 'shift', msg = '2nd 1/3rd of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
-            { key = '3', mods = 'shift', msg = '3rd 1/3rd of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
+            { key = '1', mods = 'shift', msg = '1st 1/3 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
+            { key = '2', mods = 'shift', msg = '2nd 1/3 of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
+            { key = '3', mods = 'shift', msg = '3rd 1/3 of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
-            { key = '1', mods = {'cmd', 'shift'}, msg = '1st 1/2rd of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 2, 1 }) },
-            { key = '2', mods = {'cmd', 'shift'}, msg = '2nd 1/2rd of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
+            { key = '1', mods = {'cmd', 'shift'}, msg = '1st 1/2 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 2, 1 }) },
+            { key = '2', mods = {'cmd', 'shift'}, msg = '2nd 1/2 of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
 
             { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
+            { key = 'F', msg = 'Maximize',                    fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
 
             '-',
 
-            { key = 'F', msg = 'Maximize',                    fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
             { key = 'R', msg = 'Apply layout to window',      fn = window.layout.apply_to_window },
             { key = 'T', msg = 'Apply Default Layout',        fn = window.layout.apply },
             { key = 'E', msg = 'Apply Media Layout',          fn = window.layout.apply_fn('Media') },
@@ -74,12 +87,14 @@ return {
 
             '-',
 
-            { key = 'S', msg = 'Get current window size', fn = sys.get_current_window_size },
+            { key = 'G',                 msg = 'Grid', fn = window.grid.show,             optional_mods = 'shift' },
+            { key = 'G', mods = 'shift', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help_msg = true },
 
             '-',
 
-            { key = 'G',                 msg = 'Grid', fn = window.grid.show,             optional_mods = 'shift' },
-            { key = 'G', mods = 'shift', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help_msg = true },
+            { key = 'S', msg = 'Get current window size', fn = sys.get_current_window_size },
+
+            '-',
 
             { key = 'Z', msg = 'Start focused Zoom meeting', fn = workspace.zoom_meeting },
         },
@@ -151,6 +166,20 @@ return {
             keybind_select_app('F', 'Firefox', 'Firefox'),
             keybind_select_app('C', 'Chrome', 'Google Chrome'),
             keybind_select_app('Z', 'Zoom', 'zoom.us'),
-        }
+        },
+
+        '-',
+
+        -- defeat attempts to block paste
+        { key = 'V', msg = "'key event' paste", fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end },
+        { key = 'B', msg = 'Find mouse', fn = require('ms.mouse-highlight') },
+
+        '-',
+
+        pr_hotkeys,
     }
 }
+
+table.compact(config)
+
+return config

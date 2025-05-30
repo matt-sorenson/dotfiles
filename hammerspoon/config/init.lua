@@ -43,7 +43,7 @@ end
 
 local function on_device_change()
     -- On home machine mount NAS shares
-    if not sys.is_work_computer() then
+    if #REMOTE_SHARES > 0 then
         fs.samba.mount_shares(REMOTE_SHARES)
     end
 

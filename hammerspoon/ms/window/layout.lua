@@ -244,13 +244,13 @@ end
 
 local function load_screen_configurations()
     local screen_configs = {}
-    local layout_files = fs.ls_resource_path('/layouts')
+    local layout_files = fs.ls(fs.get_resource_path() .. '/layouts')
 
     table.each(layout_files, function(filename)
         if filename:match('.lua$') then
             local name = filename:gsub('.lua$', '')
-            local require_str = 'resources.layouts.' .. name
-            local layout = _layout_new(require(require_str), name)
+            local file = '/layouts/' .. filename
+            local layout = _layout_new(fs.do_file_resources(file), name)
 
             if layout ~= nil then
                 table.insert(screen_configs, layout)
@@ -292,27 +292,25 @@ local function get_config()
     return screen_configs[1]
 end
 
-local current_config = get_config()
-
 --[[ export ]]
 local function apply(category, windows)
-    current_config:apply(category, windows)
+    get_config():apply(category, windows)
 end
 
 --[[ export ]]
 local function apply_to_window(category, window)
-    current_config:apply_to_window(category, window)
+    get_config():apply_to_window(category, window)
 end
 
 --[[ export ]]
 local function move_window_to_section(window, section)
-    current_config:move_window_to_section(window, section)
+    get_config():move_window_to_section(window, section)
 end
 
 --[[ export ]]
 local function move_window_fn(rect, screen_n)
     return function()
-        local screen = current_config:get_screen(screen_n or 1)
+        local screen = get_config():get_screen(screen_n or 1)
         move_window(hs.window.focusedWindow(), rect, screen)
     end
 end

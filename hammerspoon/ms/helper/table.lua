@@ -172,3 +172,64 @@ table.deep_copy = function(t, table_refs_to_not_copy)
 
     return _deep_copy(t, {}, table_refs_to_not_copy)
 end
+
+--- Removes non-nil values from an array, in place
+--
+-- example table.compact({1, nil, 3}) would result in {1, 3}
+--
+-- @param t table to compact
+-- @return the compacted table (same referance as input)
+table.compact = function(t)
+    for i = #t, 1, -1 do
+        if t[i] == nil then
+            table.remove(t, i)
+        end
+    end
+
+    return t
+end
+
+--- Convert a table to a string representation
+-- 
+-- In cases of circular references the inner reference will be replaced with
+-- the literal "'<circular>'".
+--
+-- @param t table to convert
+-- @param indent the starting indentation to use, defaults to ''
+-- @param looked_up a table of tables that have already been looked up, used to prevent circular references
+-- @return a string representation of the table
+table.tostring = function(t, indent, looked_up)
+    if not looked_up then
+        looked_up = {}
+    end
+    looked_up[t] = true
+
+    if not indent then
+        indent = ''
+    end
+
+    local out = '{\n'
+    for k, v in pairs(t) do
+        if type(v) == 'table' then
+            if looked_up[v] then
+                out = out .. indent .. k .. ': \'<circular>\',\n'
+            else
+                local tmp_looked_up = table.shallow_copy(looked_up)
+                tmp_looked_up[v] = true
+
+                out = out .. indent .. k .. ': ' .. table.tostring(v, indent .. INDENT, tmp_looked_up) .. ',\n'
+            end
+        else
+            if type(v) == 'string' then
+                v = '"' .. v:gsub('"', '\\"') .. '"'
+            end
+
+            out = string.format('%s%s%s:%s,\n', out, indent, k, v)
+        end
+    end
+
+    indent = indent:sub(1, -3)
+
+    return out .. indent .. '}'
+end
+

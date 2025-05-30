@@ -57,6 +57,27 @@ return {
             }
         },
 
+        [3] = {
+            on_press = function(self, deck)
+                ha.post('matt-office:start-day')
+            end,
+
+            icon = {
+                { text = '📅' },
+                helpers.button_label('start day'),
+            },
+        },
+        [7] = {
+            on_press = function(self, deck)
+                ha.post('matt-office:end-day')
+            end,
+
+            icon = {
+                { text = '📅' },
+                helpers.button_label('end day'),
+            },
+        },
+
         [4] = {
             on_press = function(self, deck)
                 ha.post('matt-office-sunlight:toggle')

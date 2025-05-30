@@ -5,7 +5,7 @@ local fs = require 'ms.fs'
 
 local function get_ha_config()
     local success, result = pcall(function()
-        return fs.do_file_hs_local('config-home-assistant.lua')
+        return fs.do_file_local('config-home-assistant.lua')
     end)
 
     if not success then
