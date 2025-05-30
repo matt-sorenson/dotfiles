@@ -2,14 +2,64 @@
 
 # Print usage information
 _usage() {
-    printf '%s\n' "Usage: print-header [-h|--help] <color> <message>
+    printf '%s' "Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
+
+Arguments:
+  <color>                        The color of the header (e.g., red, green, blue)
+  <message>                      The message to display in the header
+
+If an unknown color is specified, no color will be applied.
+<color> can be one any pair of (black, red, green, yellow, blue, magenta, cyan, white)
+and (bgblack, bgred, bggreen, bgyellow, bgblue, bgmagenta, bgcyan, bgwhite).
+
+Only the first color/bgcolor specified will be used as a color.
+Later colors will be treated as part of the message.
 
 Options:
-  -h, --help          Show this help message and exit
-  <color>             The color of the header (e.g., red, green, blue)
-  <message>           The message to display in the header"
-
+  -h, --help                     Show this help message and exit
+  -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)
+"
     exit "$1"
+}
+
+is_text_color() {
+    # Normalize to lowercase
+    color=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+
+    case "$color" in
+        black|red|green|yellow|blue|magenta|cyan|white) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+is_bg_color() {
+    # Normalize to lowercase
+    color=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+
+    case "$color" in
+        bgblack|bgred|bggreen|bgyellow|bgblue|bgmagenta|bgcyan|bgwhite) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+is_color() {
+    # Normalize to lowercase
+    color=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+
+    case "$color" in
+        "\\033"*)
+            return 0
+            ;;
+        *)
+            if is_text_color "$color"; then
+                return 0
+            elif is_bg_color "$color"; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+    esac
 }
 
 # Map color names to ANSI escape codes
@@ -18,15 +68,24 @@ case_insensitive_color() {
     color=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
 
     case "$color" in
-        black)  printf '\033[1;30m' ;;
-        red)    printf '\033[1;31m' ;;
-        green)  printf '\033[1;32m' ;;
-        yellow) printf '\033[1;33m' ;;
-        blue)   printf '\033[1;34m' ;;
-        magenta)printf '\033[1;35m' ;;
-        cyan)   printf '\033[1;36m' ;;
-        white)  printf '\033[1;37m' ;;
-        *)      printf '' ;;  # Unknown color: no coloring
+        "\\033"*) printf '%b' "$color" ;;
+        black)    printf '\033[1;30m' ;;
+        red)      printf '\033[1;31m' ;;
+        green)    printf '\033[1;32m' ;;
+        yellow)   printf '\033[1;33m' ;;
+        blue)     printf '\033[1;34m' ;;
+        magenta)  printf '\033[1;35m' ;;
+        cyan)     printf '\033[1;36m' ;;
+        white)    printf '\033[1;37m' ;;
+        bgblack)  printf '\033[1;40m' ;;
+        bgred)    printf '\033[1;41m' ;;
+        bggreen)  printf '\033[1;42m' ;;
+        bgyellow) printf '\033[1;43m' ;;
+        bgblue)   printf '\033[1;44m' ;;
+        bgmagenta)printf '\033[1;45m' ;;
+        bgcyan)   printf '\033[1;46m' ;;
+        bgwhite)  printf '\033[1;47m' ;;
+        *)        printf '' ;;  # Unknown color: no coloring
     esac
 }
 
@@ -36,7 +95,18 @@ make_header_line() {
     printf '%*s' "$1" '' | tr ' ' '='
 }
 
+make_indent_space() {
+    # printf '%*s' pads spaces; tr converts spaces to '='
+    printf '%*s' "$1" ''
+}
+
 # --- main script starts here ---
+
+indent=0
+text_color_set=0
+bg_color_set=0
+color_code=""
+message=""
 
 # Parse options
 while [ $# -gt 0 ]; do
@@ -44,33 +114,79 @@ while [ $# -gt 0 ]; do
         -h|--help)
             _usage 0
             ;;
-        --)
-            shift
-            break
+        -i|--indent)
+            indent="$2"
+            shift 2
             ;;
         -*)
             echo "Unknown option: $1" >&2
             _usage 1
             ;;
         *)
-            break
+            was_color=0
+            if is_color "$1"; then
+                if is_text_color "$1"; then
+                    if [ "$text_color_set" -eq 0 ]; then
+                        color_code="$color_code$(case_insensitive_color "$1")"
+                        text_color_set=1
+                        was_color=1
+                    fi
+                elif is_bg_color "$1"; then
+                    if [ "$bg_color_set" -eq 0 ]; then
+                        color_code="$color_code$(case_insensitive_color "$1")"
+                        bg_color_set=1
+                        was_color=1
+                    fi
+                else
+                    color_code="$color_code$(case_insensitive_color "$1")"
+                    was_color=1
+                fi
+            fi
+            
+            if [ "$was_color" -eq 0 ]; then
+                if [ -n "$message" ]; then
+                    message="$message $1"
+                else
+                    message="$1"
+                fi
+            fi
+            shift
             ;;
     esac
 done
 
-# First argument is the color name
-color_code=$(case_insensitive_color "$1")
-# Shift off the color argument
-shift
+msglen=${#message}
+header_length=80
+if [ "$msglen" -gt 80 ]; then
+    header_length=$((msglen + 3))
+fi
+
 # Reset code
 reset_code=$(printf '\033[0m')
-# Build header line of width 80
-header_line=$(make_header_line 80)
+header_line=$(make_header_line $((header_length - indent)))
+# Build indent space
+indent_space=$(make_indent_space "$indent")
 # Remaining arguments form the message
-message=$*
+
+if [ -z "$color_code" ]; then
+    # If no color is set then don't reset the color.
+    reset_code=''
+fi
+
+# This pads the message to fill the header
+maxlen=$(( header_length - indent - 2 ))
+if [ "$msglen" -lt "$maxlen" ]; then
+    pad=$(( maxlen - msglen ))
+    # printf '%*s' N '' generates N spaces
+    message_padding="$(printf '%*s' "$pad" '')"
+fi
 
 # Print the colored header, message, and footer
 # Using printf to handle newlines reliably
-printf '%s%s\n%s %s\n%s%s\n' "$color_code" "$header_line" "= " "$message" "$header_line" "$reset_code"
+# reset/set the color code on each line for consistency.
+printf '%s\n%s\n%s\n' \
+    "$indent_space$color_code$header_line$reset_code" \
+    "$indent_space$color_code= $message$message_padding$reset_code" \
+    "$indent_space$color_code$header_line$reset_code"
 
 exit 0
