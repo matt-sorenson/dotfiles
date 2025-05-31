@@ -28,8 +28,10 @@ if (( $#commands[(i)lesspipe(|.sh)] )); then
     export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
 fi
 
-if [[ ! -d "$TMPDIR" ]]; then
+if [[ -z "$TMPDIR" ]]; then
     export TMPDIR="/tmp/$LOGNAME"
+fi
+if [[ ! -d "$TMPDIR" ]]; then
     mkdir -p -m 700 "$TMPDIR"
 fi
 
@@ -40,33 +42,43 @@ if [ -f "${HOME}/.cargo/env" ]; then
 fi
 
 # Lazy load nvm to speed up shell startup time, though the first call to
-# npm/node/nvm/pnpm will be slower.
+# npm/node/nvm/pnpm/npx will be slower.
 if [ -d "${HOME}/.nvm" ]; then
-  function _lazy_load_nvm() {
-    unset -f npm node nvm pnpm
-    export NVM_DIR=~/.nvm
-    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-  }
+    function _lazy_load_nvm() {
+      unset -f corepack npm node nvm pnpm npx _lazy_load_nvm
+      export NVM_DIR="${HOME}/.nvm"
+      [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
+    }
 
-  function npm() {
-    _lazy_load_nvm
-    npm $@
-  }
+    function npm() {
+        _lazy_load_nvm
+        npm $@
+    }
 
-  function node() {
-    _lazy_load_nvm
-    node $@
-  }
+    function npx() {
+        _lazy_load_nvm
+        npx $@
+    }
 
-  function nvm() {
-    _lazy_load_nvm
-    nvm $@
-  }
+    function node() {
+        _lazy_load_nvm
+        node $@
+    }
 
-  function pnpm() {
-    _lazy_load_nvm
-    pnpm $@
-  }
+    function nvm() {
+        _lazy_load_nvm
+        nvm $@
+    }
+
+    function corepack() {
+        _lazy_load_nvm
+        corepack $@
+    }
+
+    function pnpm() {
+        _lazy_load_nvm
+        pnpm $@
+    }
 fi
 
 if type rbenv > /dev/null ; then
