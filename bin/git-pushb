@@ -14,7 +14,7 @@ else
 fi
 
 _usage() {
-    printf "Usage: git-pushd [-h|--help] [-b <branch> | <branch>]
+    printf "Usage: git-pushb [-h|--help] [-b <branch> | <branch>]
 
 Arguments:
     <Branch>    The branch to check out.
@@ -101,7 +101,7 @@ current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || {
     exit 1
 }
 
-# if user asked to pushd into the same branch, do nothing
+# if user asked to pushb into the same branch, do nothing
 if [ "$new_branch" = "$current_branch" ]; then
     exit 0
 fi

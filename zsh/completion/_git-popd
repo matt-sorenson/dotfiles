@@ -1,4 +1,0 @@
-#compdef git-popd
-#description pop the last branch off your git stack and check it out
-
-# this is empty cause it only exists to add the description to the git <tab> autocomplete

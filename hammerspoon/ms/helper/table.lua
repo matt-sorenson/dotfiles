@@ -189,6 +189,8 @@ table.compact = function(t)
     return t
 end
 
+local INDENT = '  '
+
 --- Convert a table to a string representation
 -- 
 -- In cases of circular references the inner reference will be replaced with
@@ -215,8 +217,6 @@ table.tostring = function(t, indent, looked_up)
                 out = out .. indent .. k .. ': \'<circular>\',\n'
             else
                 local tmp_looked_up = table.shallow_copy(looked_up)
-                tmp_looked_up[v] = true
-
                 out = out .. indent .. k .. ': ' .. table.tostring(v, indent .. INDENT, tmp_looked_up) .. ',\n'
             end
         else

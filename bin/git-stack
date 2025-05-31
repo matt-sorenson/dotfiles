@@ -14,7 +14,7 @@ else
 fi
 
 _usage() {
-    printf "Usage: git-dirs [-h|--help]
+    printf "Usage: git-stack [-h|--help]
 
 Display the saved branch stack (oldest at the top, newest at the bottom).
 

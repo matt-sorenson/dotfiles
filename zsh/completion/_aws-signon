@@ -1,19 +1,9 @@
 #compdef aws-signon
 
-local state
 typeset -A opt_args
 
-_arguments -s \
+_arguments \
     '(-f --force)'{-f,--force}'[force login even if already signed in]' \
     '(-h --help)'{-h,--help}'[show help message]' \
-    '(-p --profile)'{-p,--profile}'[AWS profile to sign into]:profile:->profile' \
-    '*:profile:->profile'
-
-case $state in
-    profile)
-        # get profiles one per line, turn into array
-        local -a profiles
-        profiles=("${(@f)$(aws configure list-profiles)}")
-        _describe 'AWS profile' profiles
-        ;;
-esac
+    '1:profile:(${_dot_cdk_profiles})' \
+    && return 0

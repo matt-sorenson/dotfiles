@@ -74,6 +74,14 @@ autoload -U compinit && compinit -i
 
 if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
     source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
+
+    # Don't sort the completions for aws-signon (keep them in dev, staging, prod order)
+    zstyle ':completion:*:aws-signon:*' sort false
+
+    # set list-colors to enable filename colorizing
+    zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+    zstyle ':completion:*:descriptions' format '[%n:%d]'
 fi
 
 if [ -f "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then

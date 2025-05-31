@@ -12,9 +12,9 @@ else
 fi
 
 _usage() {
-    printf "Usage: git-popd [-h|--help]
+    printf "Usage: git-popb [-h|--help]
 
-This script checks out the last branch checked out with git-pushd and pops it from the stack.
+This script checks out the last branch checked out with git-pushb and pops it from the stack.
 
   -h, --help           Show this help message and exit
 "

@@ -1,4 +1,0 @@
-#compdef git-dirs
-#description show your current git branch stack
-
-# this is empty cause it only exists to add the description to the git <tab> autocomplete

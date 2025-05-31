@@ -39,8 +39,6 @@ local function set_log_level(level)
     _system_log_level = log_level_to_num(level)
 end
 
-local INDENT = '  '
-
 local function format_header(system, level, min_sys_length)
     local out = '[' .. level .. ':' .. system .. '] '
 

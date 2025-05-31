@@ -1,17 +1,16 @@
 # This is not a seperate script but a function because it sets environment variables
 function aws-signon() {
-    local _usage="Usage: aws-signon [-f|--force] [-h|--help] [ -p <profile> | --profile <profile> | <profile> ]
+    local _usage="Usage: aws-signon [-f|--force] [-h|--help] <profile>
 
 Options:
   -f, --force                         Force login even if already signed in
   -h, --help                          Show this help message
-  -p <profile>, --profile <profile>   AWS profile to sign into
   <profile>                           AWS profile to sign into
 
 Examples:
   aws-signon -f dev
   aws-signon dev
-  aws-signon -p dev"
+"
 
     local force=false
     local profile
@@ -19,32 +18,22 @@ Examples:
     while [[ $# -gt 0 ]]; do
         case "${1}" in
             -h|--help)
-                printf '%b\n' "$_usage"
+                printf '%s' "$_usage"
                 return 0
                 ;;
             -f|--force)
                 force=true
                 shift
                 ;;
-            -p|--profile)
-                if [[ -n "$profile" ]]; then
-                    print-header red "❌ Profile passed in multiple times!"
-                    printf '%s\n' "$_usage"
-                    return 1
-                fi
-
-                profile="${2}"
-                shift 2
-                ;;
             -*)
                 print-header red "❌ Unknown option: ${1}"
-                printf '%s\n' "$_usage"
+                printf '%s' "$_usage"
                 return 1
                 ;;
             *)
                 if [[ -n "$profile" ]]; then
                     print-header red "❌ Profile passed in multiple times!"
-                    printf '%s\n' "$_usage"
+                    printf '%s' "$_usage"
                     return 1
                 fi
 
@@ -55,7 +44,7 @@ Examples:
     done
 
     if [[ -z "${profile}" ]]; then
-        printf '%s\n' "$_usage"
+        printf '%s' "$_usage"
         return 1
     fi
 
