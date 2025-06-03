@@ -63,7 +63,6 @@ while [ $# -gt 0 ]; do
         -[!-]*)
             arguments="$arguments $1"
             shift
-            done
             ;;
         --)
             arguments="$arguments $@"
