@@ -76,14 +76,15 @@ local config = {
             { key = '2', mods = {'cmd', 'shift'}, msg = '2nd 1/2 of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
 
             { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
-            { key = 'F', msg = 'Maximize',                    fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
+            { key = 'F', msg = 'Maximize',                        fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
+            { key = 'C', msg = 'Center',                          fn = window.layout.center_window_fn() },
 
             '-',
 
             { key = 'R', msg = 'Apply layout to window',      fn = window.layout.apply_to_window },
             { key = 'T', msg = 'Apply Default Layout',        fn = window.layout.apply },
-            { key = 'E', msg = 'Apply Media Layout',          fn = window.layout.apply_fn('Media') },
-            { key = 'C', msg = 'Apply Communications Layout', fn = window.layout.apply_fn('Communications') },
+            { key = 'E', msg = 'Apply Media Layout',          fn = window.layout.apply_fn('media') },
+            { key = 'B', msg = 'Apply Communications Layout', fn = window.layout.apply_fn('communications') },
 
             '-',
 
