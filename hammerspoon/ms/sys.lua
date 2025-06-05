@@ -1,9 +1,7 @@
 local print = require('ms.logger').new('ms.sys')
+local fs = require('ms.fs')
 
 local WHO_AM_I = os.getenv('USER')
-
--- Use 'is-work' file to determine this to massively simplify it
-local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes(hs.configdir .. "/local/is-work"))
 
 --[[ export ]]
 local function gc()
@@ -127,6 +125,9 @@ local function get_current_window_size()
 
     hs.alert(msg)
 end
+
+-- Use 'is-work' file to determine this to massively simplify it
+local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes(fs.get_local_path("is-work")))
 
 return {
     find_usb_device_by_name = find_usb_device_by_name,
