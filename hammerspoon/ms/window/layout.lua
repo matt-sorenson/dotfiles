@@ -65,6 +65,7 @@ local function _layout_score_rule(category, app_name, win_name, rule)
         end
 
         category = category:lower()
+        -- categories are converted at loading time to a list of lowercased names.
         if not table.find(rule.categories, function(e) return e == category end) then
             return -1
         end
@@ -193,7 +194,7 @@ local function _layout_init_layout(self)
             if rule.categories then
                 rule.categories = table.map(
                     toarray(rule.categories),
-                    function(e) e:lower() end
+                    function(e) return e:lower() end
                 )
             end
         end)
@@ -329,8 +330,8 @@ end
 
 return {
     apply = apply,
-    apply_fn = function(categories, windows)
-        return function() apply(categories, windows) end
+    apply_fn = function(categories)
+        return function() apply(categories) end
     end,
     apply_to_window = apply_to_window,
 
