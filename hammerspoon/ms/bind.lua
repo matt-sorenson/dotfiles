@@ -5,6 +5,24 @@ hs.hotkey.setLogLevel('error')
 
 local current_modal, _default_modal
 
+local function parse_key(input)
+    local stripped = input:gsub("%s+", "")
+    local mods = {}
+    do
+        local inside = stripped:match("%[(.-)%]")
+        if inside then
+            for token in inside:gmatch("([^,]+)") do
+                table.insert(mods, token:lower())
+            end
+        end
+    end
+
+    return {
+        mods = mods,
+        key = stripped:gsub("%b[]", ""):upper(),
+    }
+end
+
 local function modal_enter(self)
     if current_modal and (current_modal ~= self) then
         current_modal:exit(true)
@@ -102,14 +120,16 @@ local function dedup_mods(mods, opt)
 end
 
 local function modal_convert_to_help_msg(config)
-    local optional_mods = dedup_mods(config.optional_mods, toarray(config.repeat_on_mods))
-    local required_mods = dedup_mods(config.mods)
+    local parsed_key = parse_key(config.key)
+
+    local optional_mods = dedup_mods(config.optional_mods)
+    local required_mods = dedup_mods(parsed_key.mods)
 
     required_mods = array_set_remove(required_mods, optional_mods)
 
     local mods_str = table.concat(required_mods, '')
     local opt_mods_str = table.concat(optional_mods, '][')
-    local key_str = config.key:upper()
+    local key_str = parsed_key.key
 
     if 0 ~= #opt_mods_str then
         opt_mods_str = '[' .. opt_mods_str .. ']'
@@ -153,7 +173,8 @@ local function modal_bind(self, config)
         arg_repeat_fn = nil
     end
 
-    local bind = hs.hotkey.new(config.mods or '', config.key,
+    local parsed_key = parse_key(config.key)
+    local bind = hs.hotkey.new(parsed_key.mods, parsed_key.key,
         arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
 
     if config.msg and (not config.skip_help_msg) then
@@ -252,7 +273,7 @@ local function modal_new(config, parent)
             title = nil
         end
 
-        parent:bind({ mods = config.mods, key = config.key, msg = title, fn = function() out:enter() end, skip_clear = true })
+        parent:bind({ key = config.key, msg = title, fn = function() out:enter() end, skip_clear = true })
         out:bind({ key = 'H', fn = function() modal_print_help(out) end, skip_clear = true })
         out:bind({ key = 'escape', fn = escape_fn })
     end

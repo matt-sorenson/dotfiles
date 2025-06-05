@@ -41,8 +41,7 @@ local function keybind_caffeine_in_hours(key, hours)
     end
 
     return {
-        key = key,
-        mods = 'shift',
+        key = '[shift] ' .. key,
         msg = message,
         fn = function() caffeine.timed_on_m(hours * 60) end
     }
@@ -55,8 +54,7 @@ end
 local config = {
     {
         title = 'global',
-        mods = { 'ctrl', 'cmd' },
-        key = 'B',
+        key = '[ctrl,cmd] B',
         skip_help_msg = true,
 
         {
@@ -68,16 +66,16 @@ local config = {
             { key = '3', msg = '3rd section of screen', fn = window.layout.move_window_to_section_fn(3) },
             { key = '4', msg = '4rd section of screen', fn = window.layout.move_window_to_section_fn(4) },
 
-            { key = '1', mods = 'shift', msg = '1st 1/3 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
-            { key = '2', mods = 'shift', msg = '2nd 1/3 of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
-            { key = '3', mods = 'shift', msg = '3rd 1/3 of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
+            { key = '[shift] 1', msg = '1st 1/3 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
+            { key = '[shift] 2', msg = '2nd 1/3 of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
+            { key = '[shift] 3', msg = '3rd 1/3 of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
-            { key = '1', mods = {'cmd', 'shift'}, msg = '1st 1/2 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 2, 1 }) },
-            { key = '2', mods = {'cmd', 'shift'}, msg = '2nd 1/2 of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
+            { key = '[cmd,shift] 1', msg = '1st 1/2 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 2, 1 }) },
+            { key = '[cmd,shift] 2', msg = '2nd 1/2 of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
 
-            { key = '5', mods = 'shift', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
-            { key = 'F', msg = 'Maximize',                        fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
-            { key = 'C', msg = 'Center',                          fn = window.layout.center_window_fn() },
+            { key = '[shift] 5', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
+            { key = 'F',         msg = 'Maximize',        fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
+            { key = 'C',         msg = 'Center',          fn = window.layout.center_window_fn() },
 
             '-',
 
@@ -88,8 +86,8 @@ local config = {
 
             '-',
 
-            { key = 'G',                 msg = 'Grid', fn = window.grid.show,             optional_mods = 'shift' },
-            { key = 'G', mods = 'shift', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help_msg = true },
+            { key = 'G',         msg = 'Grid', fn = window.grid.show,             optional_mods = 'shift' },
+            { key = '[shift] G', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help_msg = true },
 
             '-',
 
