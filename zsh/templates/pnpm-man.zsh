@@ -53,9 +53,9 @@ function _usage() {
 
 Options:
   --git-clean              Clean untracked/ignored files from repo
-  -c, --clean              Basic clean of the pnpm workspace
+  -c, --clean              Basic clean of the workspace
   -n, --nuke               clean:nuke, cleanup lots more of the environment
-  -i, --install            Install pnpm dependencies
+  -i, --install            Install dependencies
   -b, --build              Build
   -m, --migration          Run migrations & Update zapatos schema
   -u, --unit-test          Run unit tests
@@ -266,10 +266,9 @@ if [[ ${flags[nuke]} == true ]]; then
         _error "NUKE_CMD is not set. Check top of script to configure."
     fi
 
-    print-header green "🧹 pnpm clean:nuke"
+    print-header green "🧹 Nuke"
     eval ${NUKE_CMD} || {
-        print-header magenta "❌ Clean nuke failed: ${NUKE_CMD}"
-        echo "Continuing... the clean:nuke step fails if run twice in a row. Maybe that's it"
+        _error "Clean nuke failed: ${NUKE_CMD}"
     }
 fi
 
@@ -278,7 +277,7 @@ if [[ ${flags[clean]} == true && ${flags[nuke]} == false && ${flags[git_clean]} 
         _error "CLEAN_CMD is not set. Check top of script to configure."
     fi
 
-    print-header green "🧹 pnpm clean"
+    print-header green "🧹 Clean"
     eval ${CLEAN_CMD} || _error "Clean failed: ${CLEAN_CMD}"
 fi
 
@@ -287,7 +286,7 @@ if [[ ${flags[install]} == true ]]; then
         _error "INSTALL_CMD is not set. Check top of script to configure."
     fi
 
-    print-header green "pnpm install"
+    print-header green "Installing dependencies"
     eval ${INSTALL_CMD} || _error "Install failed: ${INSTALL_CMD}"
 fi
 
@@ -319,7 +318,7 @@ if [[ ${flags[migration]} == true ]]; then
         _error "MIGRATIONS_CMD is not set. Check top of script to configure."
     fi
 
-    print-header green "run-migration"
+    print-header green "DB Migration"
     cd "${repo_dir}/${MIGRATIONS_SUBDIR}" > /dev/null
     eval ${MIGRATIONS_CMD} || _error "Migration failed: ${MIGRATIONS_CMD}"
     cd "${repo_dir}" > /dev/null
@@ -330,7 +329,7 @@ if [[ ${flags[build]} == true ]]; then
         _error "BUILD_CMD is not set. Check top of script to configure."
     fi
 
-    print-header green "pnpm tsc"
+    print-header green "Building Project"
     eval ${BUILD_CMD} || _error "Build failed: ${BUILD_CMD}"
 fi
 
@@ -347,7 +346,7 @@ if [[ ${flags[unit_test]} == true ]]; then
         fi
     fi
 
-    print-header green "pnpm test"
+    print-header green "Unit Tests"
     eval ${UNIT_TESTS_CMD} || _error "Tests failed: ${UNIT_TESTS_CMD}"
 fi
 
@@ -363,7 +362,7 @@ if [[ ${flags[integration_test]} == true ]]; then
             print-header yellow "INTEGRATION_TESTS_CMD missing, skipping."
         fi
     else
-        print-header green "pnpm test"
+        print-header green "Integration Tests"
         eval ${INTEGRATION_TESTS_CMD} || _error "Tests failed: ${INTEGRATION_TESTS_CMD}"
     fi
 fi
