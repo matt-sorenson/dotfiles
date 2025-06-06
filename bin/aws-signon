@@ -13,6 +13,7 @@ Options:
 Examples:
   aws-signon -f dev
   aws-signon dev
+  aws-signon dev -f
 "
 
     exit "${1:-0}"
@@ -22,16 +23,16 @@ _error() {
     local help=0
     local parts=()
 
-    # scan every argument
-    for arg in "$@"; do
-        case "${arg}" in
+    while (( $# )); do
+        case "${1}" in
             -h|--help)
                 help=1
                 ;;
             *)
-                parts+=("$arg")
+                parts+=("$1")
                 ;;
         esac
+        shift
     done
 
     print-header red "❌ ${parts[*]}"

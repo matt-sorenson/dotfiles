@@ -34,7 +34,10 @@ _dot_git_warn() {
 }
 
 _dot_git_error() {
-    _dot_git_header red "❌ $@"
+    local dir="$1"
+    shift
+
+    _dot_git_header red "$dir" "❌ $@"
 }
 
 function _dot_check_for_update_git() {
@@ -76,7 +79,7 @@ function _dot_check_for_update_git() {
         return 0
     fi
 
-    print-header green "${dir}: Updating Repo"
+    _dot_git_header green "$dir" "$@"
 
     pushd "${dir}" > /dev/null
 
@@ -253,7 +256,7 @@ if (( all_false )); then
     done
 
     all_true=1
-elif (( specified_no_flag ))
+elif (( specified_no_flag )); then
     for key in "${(@k)flags}"; do
         if (( no_flags[$key] && flags[$key] )); then
             _error -h "Specified flag --no-$key but also specified -$key or --$key, please choose one."

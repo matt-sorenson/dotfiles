@@ -54,7 +54,8 @@ function prompt_ender_end_segment() {
 }
 
 function prompt_ender_seg_last_call_status() {
-    if (( $1 )); then
+    local exit_code=$1
+    if (( exit_code )); then
         prompt_ender_segment_print red black '✘'
     else
         prompt_ender_segment_print green black '✓'
@@ -111,10 +112,7 @@ function prompt_ender_seg_is_root() {
 }
 
 function prompt_ender_build_prompt1() {
-    local LAST_CALL_EXIT_STATUS=$?
-    _prompt_ender_current_bg="NONE"
-
-    prompt_ender_seg_last_call_status $LAST_CALL_EXIT_STATUS
+    prompt_ender_seg_last_call_status $1
     # History Size
     prompt_ender_segment_print white black "%h"
     # Hostname
@@ -134,35 +132,37 @@ function prompt_ender_build_prompt2() {
 
 function prompt_ender_print_elapsed_time() {
     local end_time=$(( SECONDS - _prompt_ender_start_time ))
-    local hours minutes seconds _remain_enderder
 
     local color="green"
     local msg=""
 
     if (( end_time >= 3600 )); then
-        hours=$(( end_time / 3600 ))
-        remainder=$(( end_time % 3600 ))
-        minutes=$(( remainder / 60 ))
-        seconds=$(( remainder % 60 ))
+        local hours=$(( end_time / 3600 ))
+        local remainder=$(( end_time % 3600 ))
+        local minutes=$(( remainder / 60 ))
+        local seconds=$(( remainder % 60 ))
 
         color='red'
         msg="${hours}h${minutes}m${seconds}s"
     elif (( end_time >= 60 )); then
-        minutes=$(( end_time / 60 ))
-        seconds=$(( end_time % 60 ))
+        local minutes=$(( end_time / 60 ))
+        local seconds=$(( end_time % 60 ))
         color='yellow'
         msg="${minutes}m${seconds}s"
     elif (( end_time >= 5 )); then
         color='green'
-        msg="${end_time}"
+        msg="${end_time}s"
     fi
 
-    if [[ "${msg}" != "" ]]; then
-        print -P "%B%F{$color}>>> elapsed time ${msg}s%b"
+    if [ -n "${msg}" ]; then
+        print -P "%B%F{$color}>>> elapsed time ${msg}%b"
     fi
 }
 
 function prompt_ender_precmd() {
+    local exit_code=$?
+    _prompt_ender_current_bg="NONE"
+
     setopt LOCAL_OPTIONS
     unsetopt XTRACE KSH_ARRAYS
 
@@ -171,7 +171,7 @@ function prompt_ender_precmd() {
     # Calculate and print the elapsed time.
     prompt_ender_print_elapsed_time
 
-    PROMPT="${(e)$(prompt_ender_build_prompt1)}
+    PROMPT="${(e)$(prompt_ender_build_prompt1 $exit_code)}
 ${(e)$(prompt_ender_build_prompt2)} "
 }
 

@@ -58,10 +58,10 @@ done
 # ---- end parsing ----
 
 # Ensure required
-[ -z "$filename" ] && {
+if [ -z "$filename" ]; then
     printf 'Error: --file is required\n' >&2
     _usage 1
-}
+fi
 
 # Derive basename and directory
 base=$(basename -- "$filename")

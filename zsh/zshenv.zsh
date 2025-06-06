@@ -12,6 +12,10 @@ source "${DOTFILES}/zsh/path.zsh"
 if [[ "$OSTYPE" == darwin* ]]; then
     export HOMEBREW_NO_ANALYTICS=1
     export BROWSER='open'
+
+    if ! command -v brew >/dev/null 2>&1; then
+        eval "$(brew shellenv)"
+    fi
 fi
 
 export EDITOR='emacs'

@@ -69,9 +69,8 @@ _error() {
     local help=0
     local parts=()
 
-    # scan every argument
-    for arg in "$@"; do
-        case "${arg}" in
+    while (( $# )); doo
+        case "${1}" in
             -h|--help)
                 help=1
                 ;;
@@ -79,6 +78,7 @@ _error() {
                 parts+=("$arg")
                 ;;
         esac
+        shift
     done
 
     print-header red "❌ ${parts[*]}"
