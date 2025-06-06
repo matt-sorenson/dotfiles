@@ -51,20 +51,26 @@ local function keybind_select_app(key, msg, app_name)
     return { key = key, msg = msg, fn = sys.select_app_fn(app_name) }
 end
 
+local function layout_has_sections_fn(section)
+    return function()
+        return not window.layout.current_layout_has_section(section)
+    end
+end
+
 local config = {
     {
         title = 'global',
         key = '[ctrl,cmd] B',
-        skip_help_msg = true,
+        skip_help = true,
 
         {
             title = 'Window',
             key = 'W',
 
-            { key = '1', msg = '1st section of screen', fn = window.layout.move_window_to_section_fn(1) },
-            { key = '2', msg = '2nd section of screen', fn = window.layout.move_window_to_section_fn(2) },
-            { key = '3', msg = '3rd section of screen', fn = window.layout.move_window_to_section_fn(3) },
-            { key = '4', msg = '4rd section of screen', fn = window.layout.move_window_to_section_fn(4) },
+            { key = '1', msg = '1st section of screen', fn = window.layout.move_window_to_section_fn(1), skip_help = layout_has_sections_fn(1) },
+            { key = '2', msg = '2nd section of screen', fn = window.layout.move_window_to_section_fn(2), skip_help = layout_has_sections_fn(2) },
+            { key = '3', msg = '3rd section of screen', fn = window.layout.move_window_to_section_fn(3), skip_help = layout_has_sections_fn(3) },
+            { key = '4', msg = '4rd section of screen', fn = window.layout.move_window_to_section_fn(4), skip_help = layout_has_sections_fn(4) },
 
             { key = '[shift] 1', msg = '1st 1/3 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
             { key = '[shift] 2', msg = '2nd 1/3 of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
@@ -87,7 +93,7 @@ local config = {
             '-',
 
             { key = 'G',         msg = 'Grid', fn = window.grid.show,             optional_mods = 'shift' },
-            { key = '[shift] G', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help_msg = true },
+            { key = '[shift] G', msg = 'Grid', fn = window.grid.show_fn('shift'), skip_help = true },
 
             '-',
 

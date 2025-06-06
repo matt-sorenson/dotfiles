@@ -236,7 +236,7 @@ local function _layout_new(input, name)
         return nil
     end
 
-    print("'" .. name .. "' layout fits")
+    print:debug("'" .. name .. "' layout fits")
 
     setmetatable(self, _layout_mt)
 
@@ -264,15 +264,15 @@ end
 
 local function filter_configs(screen_configs)
     if not sys.is_work_computer() then
-        print("Filtering out work layouts.")
+        print:debug("Filtering out work layouts.")
         screen_configs = table.filter(screen_configs, function(v) return not v:is_work_computer() end)
     else
-        print("filtering out non-work layouts.")
+        print:debug("filtering out non-work layouts.")
         screen_configs = table.filter(screen_configs, function(v) return v:is_work_computer() end)
     end
 
     if #screen_configs > 1 then
-        print("Multiple screen layouts found, filtering out fallback layouts.")
+        print:debug("Multiple screen layouts found, filtering out fallback layouts.")
         screen_configs = table.filter(screen_configs, function(v) return not v:is_fallback() end)
     end
 
@@ -327,6 +327,16 @@ end
 local function center_window_fn()
     return function() center_window(hs.window.focusedWindow()) end
 end
+-- [[ export]]
+local function current_layout_has_section(section_n)
+    local sections = get_config():sections()
+
+    if sections and nil ~= sections[section_n] then
+        return true
+    end
+
+    return false
+end
 
 return {
     apply = apply,
@@ -349,4 +359,9 @@ return {
     resize_window_fn = resize_window_fn,
 
     resize_and_center_window = resize_and_center_window,
+
+    current_layout_has_section = current_layout_has_section,
+    current_layout_has_section_fn = function(section)
+        return function() return current_layout_has_section(section) end
+    end,
 }

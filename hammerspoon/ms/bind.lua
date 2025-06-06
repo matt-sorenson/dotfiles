@@ -137,7 +137,8 @@ local function modal_convert_to_help_msg(config)
 
     return {
         shortcut = opt_mods_str .. mods_str .. key_str,
-        msg = config.msg
+        msg = config.msg,
+        skip_help = config.skip_help,
     }
 end
 
@@ -154,7 +155,7 @@ local function modal_bind(self, config)
         table.append(repeat_on_mods_config.mods, toarray(config.repeat_on_mods))
         repeat_on_mods_config.repeat_on_mods = nil
         repeat_on_mods_config.skip_clear = true
-        repeat_on_mods_config.skip_help_msg = true
+        repeat_on_mods_config.skip_help = true
 
         modal_bind(self, repeat_on_mods_config)
     end
@@ -177,7 +178,7 @@ local function modal_bind(self, config)
     local bind = hs.hotkey.new(parsed_key.mods, parsed_key.key,
         arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
 
-    if config.msg and (not config.skip_help_msg) then
+    if config.msg then
         table.insert(self.msgs, modal_convert_to_help_msg(config))
     end
 
@@ -205,7 +206,17 @@ local function modal_print_help(self)
     local max_shortcut = 0
     local max_msg = 0
 
-    table.ieach(self.msgs, function(msg)
+    local messages = table.filter(self.msgs, function(msg)
+        if type(msg.skip_help) == 'boolean' then
+            return not msg.skip_help
+        elseif type(msg.skip_help) == 'function' then
+            return not msg.skip_help()
+        else
+            return true
+        end
+    end)
+
+    table.ieach(messages, function(msg)
         if 'table' == type(msg) then
             if hs.utf8.len(msg.shortcut) > max_shortcut then
                 max_shortcut = hs.utf8.len(msg.shortcut)
@@ -217,7 +228,7 @@ local function modal_print_help(self)
         end
     end)
 
-    local formatted_msgs = table.map(self.msgs, function(msg)
+    local formatted_msgs = table.map(messages, function(msg)
         if 'string' == type(msg) then
             local shortcut = string.rep('─', max_shortcut)
             local msg = string.rep('─', max_msg)
@@ -269,7 +280,7 @@ local function modal_new(config, parent)
 
     if parent then
         local title = config.title
-        if config.skip_help_msg then
+        if config.skip_help then
             title = nil
         end
 
