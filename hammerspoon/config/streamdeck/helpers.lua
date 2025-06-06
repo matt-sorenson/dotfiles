@@ -1,5 +1,3 @@
-local colors = require('ms.colors').streamdeck
-
 local function button_label(message, valign)
     valign = valign or 'bottom'
 

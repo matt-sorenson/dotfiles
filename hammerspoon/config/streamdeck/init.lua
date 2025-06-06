@@ -1,6 +1,5 @@
 local print  = require('ms.logger').new('config.streamdeck.init')
 
-local colors = require('ms.colors').streamdeck
 local audio  = require 'ms.audio'
 
 local helpers = require 'config.streamdeck.helpers'
