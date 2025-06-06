@@ -44,38 +44,38 @@ fi
 # Lazy load nvm to speed up shell startup time, though the first call to
 # npm/node/nvm/pnpm/npx will be slower.
 if [ -d "${HOME}/.nvm" ]; then
-    function _lazy_load_nvm() {
+    _lazy_load_nvm() {
       unset -f corepack npm node nvm pnpm npx _lazy_load_nvm
       export NVM_DIR="${HOME}/.nvm"
       [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
     }
 
-    function npm() {
+    npm() {
         _lazy_load_nvm
         npm $@
     }
 
-    function npx() {
+    npx() {
         _lazy_load_nvm
         npx $@
     }
 
-    function node() {
+    node() {
         _lazy_load_nvm
         node $@
     }
 
-    function nvm() {
+    nvm() {
         _lazy_load_nvm
         nvm $@
     }
 
-    function corepack() {
+    corepack() {
         _lazy_load_nvm
         corepack $@
     }
 
-    function pnpm() {
+    pnpm() {
         _lazy_load_nvm
         pnpm $@
     }

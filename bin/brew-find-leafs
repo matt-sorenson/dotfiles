@@ -18,43 +18,44 @@ manually installed a formula or if it was installed as a dependency.
     exit "$1"
 }
 
-flag_remove=false
-flag_quiet=false
+flag_remove=0
+flag_quiet=0
 
-while [ $# -gt 0 ]; do
+while (( $# )); do
     case "$1" in
         -h|--help)
             _usage 0
             ;;
         -r|--remove)
-            flag_remove=true
+            flag_remove=1
+            shift 1
             ;;
         -q|--quiet)
-            quiet=true
+            quiet=1
+            shift 1
             ;;
         *)
             print-header red "Unknown option: $1"
             _usage 1
             ;;
     esac
-    shift
 done
 
-if [[ $flag_quiet == true && flag_remove == true ]]; then
+if (( flag_quiet && flag_remove )); then
     echo "Error: Cannot use --quiet and --remove together."
     exit 1
 fi
 
 typeset -A visited_formulas
 
-if [[ $flag_quiet == false ]]; then
+if (( ! flag_quiet )); then
     print-header green "Searching for formulas not depended on by other formulas..."
 fi
 
 for formula in $(brew list); do
     if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
         visited_formulas[$formula]=1
-        if [[ $flag_remove == true ]]; then
+        if (( flag_remove )); then
             read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
             if [[ "${input}" == "Y" ]]; then
                 brew remove "${formula}"

@@ -21,9 +21,9 @@ Options:
 output_ext='.m4v'
 trim=0
 crop=''
-crop_given=false
+crop_given=0
 
-while [ $# -gt 0 ]; do
+while (( $# )); do
     case "$1" in
         -f|--file)
             filename="${2}"
@@ -35,7 +35,7 @@ while [ $# -gt 0 ]; do
             ;;
         -c|--crop)
             crop="${2}"
-            crop_given=true
+            crop_given=1
             shift 2
             ;;
         -t|--trim)
@@ -106,15 +106,14 @@ done
 # Build filter_complex
 filter_complex=''
 for f in $files; do
-    start_trim=0
-    [ "$i" -ne 0 ] && start_trim=$trim
+    start_trim=$(( i ? trim : 0 ))
 
     filter_complex="${filter_complex}[$i:v]setpts=PTS-STARTPTS,trim=start=$start_trim"
-    [ "$crop_given" = true ] && filter_complex="${filter_complex},crop=$crop"
+    (( crop_given )) && filter_complex="${filter_complex},crop=$crop"
     filter_complex="${filter_complex}[v$i]; "
 
     filter_complex="${filter_complex}[$i:a]asetpts=PTS-STARTPTS"
-    [ "$start_trim" -gt 0 ] && filter_complex="${filter_complex},atrim=start=$start_trim"
+    ((start_trim )) && filter_complex="${filter_complex},atrim=start=$start_trim"
     filter_complex="${filter_complex}[a$i]; "
 
     i=$((i + 1))

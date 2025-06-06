@@ -3,19 +3,19 @@ alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
-function wsls()   { ls "$@" "${WORKSPACE_ROOT_DIR}" }
-function ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
-function wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
+wsls()   { ls "$@" "${WORKSPACE_ROOT_DIR}" }
+ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
+wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
 
 # Recursivly format '.cpp', '.h', '.inl' files in place.
-function clang-format-ri() {
+clang-format-ri() {
     local srcpath="${1}"
     shift
     find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
 }
 
 if type jq > /dev/null; then
-    function jwt_print () {
+    jwt_print () {
         local jwt="${1}";
         if [ -z "${jwt}" ]; then
             if ! type pbpaste > /dev/null; then
@@ -38,7 +38,7 @@ if type jq > /dev/null; then
     }
 fi
 
-function auto-dot-check-for-update() {
+auto-dot-check-for-update() {
     local hours="${1:-15}"
     local time_limit_in_seconds=$(( 60 * 60 * hours ))
     local current_time=$(date +%s)

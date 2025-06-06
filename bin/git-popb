@@ -22,12 +22,17 @@ This script checks out the last branch checked out with git-pushb and pops it fr
     exit "$1"
 }
 
-
 # Help check
 for arg in "$@"; do
-    if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
-        _usage 0
-    fi
+    case "$arg" in
+        -h|--help)
+            _usage 0
+            ;;
+        *)
+            print_header red "Unknown argument: $arg"
+            _usage 1
+            ;;
+    esac
 done
 
 # find repo root

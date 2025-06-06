@@ -54,12 +54,10 @@ function prompt_ender_end_segment() {
 }
 
 function prompt_ender_seg_last_call_status() {
-    local EXIT_STATUS=$1
-
-    if [[ $EXIT_STATUS == 0 ]]; then
-        prompt_ender_segment_print green black '✓'
-    else
+    if (( $1 )); then
         prompt_ender_segment_print red black '✘'
+    else
+        prompt_ender_segment_print green black '✓'
     fi
 }
 
@@ -69,6 +67,7 @@ function prompt_ender_seg_dir() {
 
     if [[ "$working_dir" = "${WORKSPACE_ROOT_DIR}"/* ]]; then
         if [[ "${working_dir#${WORKSPACE_ROOT_DIR}}" =~ '/([^/]+)(.*)' ]]; then
+            prompt_ender_segment_print yellow black "ws"
             prompt_ender_segment_print cyan black "$match[1]"
             msg="${match[2]#?}"
         fi
@@ -83,12 +82,9 @@ function prompt_ender_seg_SEA_time() {
 
 function prompt_ender_seg_git_info() {
     local bg ref
-    local is_dirty() {
-        test -n "$(git status --porcelain --ignore-submodules)"
-    }
     ref="$(echo $vcs_info_msg_0_)"
     if [[ -n "$ref" ]]; then
-        if is_dirty; then
+        if [[ -n "$(git status --porcelain --ignore-submodules)" ]]; then
             bg=yellow
             _ref="${ref} $prompt_ender_plus_minus"
         else

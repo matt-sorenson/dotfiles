@@ -28,7 +28,7 @@ add-to-path() {
     return 0
 }
 
-function add-to-fpath() {
+add-to-fpath() {
     local dir="$1"
 
     # Make sure an argument was provided
