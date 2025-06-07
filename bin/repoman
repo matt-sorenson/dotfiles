@@ -1,38 +1,29 @@
 #!/usr/bin/env zsh
 
+# This is not a POSIX sh script as it depends on the environment being setup
+# in .zshenv.
+
 set -euo pipefail
-autoload -Uz colors && colors
 
-DB_CONTAINER_ID=
+CMD_STR=${CMD_STR:-repoman}
 
-# These will change for every repo
-DEFAULT_REPO=
-CMD_STR=
+# DB_CONTAINER_ID=
 
-# These variables should be changed for individual use cases and are expected to
-# change between different repos.
-# Commands like --git-clean are the same between repos so are not exposed here.
-CLEAN_CMD=
-NUKE_CMD=
-INSTALL_CMD=
-BUILD_CMD=
-MIGRATIONS_SUBDIR=
-DB_UP_CMD=
-MIGRATIONS_CMD=
-UNIT_TESTS_CMD=
-INTEGRATION_TESTS_CMD=
+# # These will change for every repo
+# DEFAULT_REPO=
 
-if 0; then
-    CLEAN_CMD="make clean"
-    NUKE_CMD="make nuke"
-    INSTALL_CMD="make install"
-    BUILD_CMD="make build"
-    MIGRATIONS_SUBDIR="migrations"
-    DB_UP_CMD=''
-    MIGRATIONS_CMD=''
-    UNIT_TESTS_CMD="make unit-test"
-    INTEGRATION_TESTS_CMD="make integration-test"
-fi
+# # These variables should be changed for individual use cases and are expected to
+# # change between different repos.
+# # Commands like --git-clean are the same between repos so are not exposed here.
+# CLEAN_CMD=
+# NUKE_CMD=
+# INSTALL_CMD=
+# BUILD_CMD=
+# MIGRATIONS_SUBDIR=
+# DB_UP_CMD=
+# MIGRATIONS_CMD=
+# UNIT_TESTS_CMD=
+# INTEGRATION_TESTS_CMD=
 
 function _usage() {
     local default_repo_str=""
@@ -69,7 +60,7 @@ _error() {
     local help=0
     local parts=()
 
-    while (( $# )); doo
+    while (( $# )); do
         case "${1}" in
             -h|--help)
                 help=1
@@ -95,8 +86,9 @@ local repo_dir
 local repo="${DEFAULT_REPO}"
 local -A flags
 flags=(
-    aws_signon          0
     path                0
+
+    aws_signon          0
     clean               0
     nuke                0
     git_clean           0
@@ -328,10 +320,10 @@ if (( flags[unit_test] )); then
         else
             print-header yellow "UNIT_TESTS_CMD missing, skipping."
         fi
+    else
+        print-header green "unit tests: ${UNIT_TESTS_CMD}"
+        eval ${UNIT_TESTS_CMD} || _error "Tests failed: ${UNIT_TESTS_CMD}"
     fi
-
-    print-header green "unit tests: ${UNIT_TESTS_CMD}"
-    eval ${UNIT_TESTS_CMD} || _error "Tests failed: ${UNIT_TESTS_CMD}"
 fi
 
 if (( flags[integration_test] )); then
