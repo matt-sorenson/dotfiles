@@ -1,7 +1,7 @@
 #compdef pnpm-man
 
 _arguments -C \
-    '--git-clean'{--git-clean}'[Clean untracked/ignored files from repo]' \
+    '--git-clean[Clean untracked/ignored files from repo]' \
     '(-c --clean)'{-c,--clean}'[Clean]' \
     '(-n --nuke)'{-n,--nuke}'[Clean up development environment, db, docker, etc...]' \
     '(-i --install)'{-i,--install}'[Install]' \

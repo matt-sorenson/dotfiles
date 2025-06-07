@@ -1,3 +1,5 @@
+autoload -U compinit && compinit -i
+
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
@@ -69,8 +71,6 @@ if [[ -d "${HOME}/.nvm" ]]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
 
-autoload -U compinit && compinit -i
-
 if [[ -r "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]]; then
     source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
 
@@ -82,6 +82,8 @@ if [[ -r "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]]; then
 
     zstyle ':completion:*:descriptions' format '[%n:%d]'
 fi
+
+compinit -i
 
 if [[ -r "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"

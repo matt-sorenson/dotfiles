@@ -10,7 +10,7 @@ aws-signon() {
                 # Ignore any other optoins, we don't care in this function
                 ;;
             *)
-                AWS_PROFILE="${profile}"
+                AWS_PROFILE="${arg}"
                 break
                 ;;
         esac
