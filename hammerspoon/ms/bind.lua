@@ -161,22 +161,21 @@ local function modal_bind(self, config)
     end
 
     local fn = modal_bind_fn_wrapper(self, config.fn, config.skip_clear)
+    local parsed_key = parse_key(config.key)
+    local args = {
+        parsed_key.mods,
+        parsed_key.key
+    }
 
-    local arg_msg = config.msg
-    local arg_pressed_fn = fn.pressed_fn
-    local arg_release_fn = fn.release_fn
-    local arg_repeat_fn = fn.repeat_fn
-
-    if not arg_msg then
-        arg_msg = fn.pressed_fn
-        arg_pressed_fn = fn.arg_release_fn
-        arg_release_fn = fn.repeat_fn
-        arg_repeat_fn = nil
+    if config.msg then
+        table.insert(args, config.msg)
     end
 
-    local parsed_key = parse_key(config.key)
-    local bind = hs.hotkey.new(parsed_key.mods, parsed_key.key,
-        arg_msg, arg_pressed_fn, arg_release_fn, arg_repeat_fn)
+    table.insert(args, fn.pressed_fn)
+    table.insert(args, fn.release_fn)
+    table.insert(args, fn.repeat_fn)
+
+    local bind = hs.hotkey.new(table.unpack(args))
 
     if config.msg then
         table.insert(self.msgs, modal_convert_to_help_msg(config))
