@@ -3,7 +3,7 @@ autoload -Uz colors && colors
 export DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
 
-if [ -f "${DOTFILES}/local/zsh/zshenv.zsh" ]; then
+if [[ -r "${DOTFILES}/local/zsh/zshenv.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshenv.zsh"
 fi
 
@@ -41,13 +41,13 @@ fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
 
-if [ -f "${HOME}/.cargo/env" ]; then
+if [[ -r "${HOME}/.cargo/env" ]]; then
     source "${HOME}/.cargo/env"
 fi
 
 # Lazy load nvm to speed up shell startup time, though the first call to
 # npm/node/nvm/pnpm/npx will be slower.
-if [ -d "${HOME}/.nvm" ]; then
+if [[ -d "${HOME}/.nvm" ]]; then
     _lazy_load_nvm() {
       unset -f corepack npm node nvm pnpm npx _lazy_load_nvm
       export NVM_DIR="${HOME}/.nvm"

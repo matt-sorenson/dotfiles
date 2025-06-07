@@ -3,7 +3,7 @@ source "${DOTFILES}/zsh/path.zsh"
 
 export AT_WORK=$([[ -f "${DOTFILES}/local/is-work" ]] && echo 1 || echo 0)
 
-if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
+if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
 
@@ -64,14 +64,14 @@ auto-dot-check-for-update 15 # check for updates every 15 hours
 
 bindkey -e
 
-if [ -d "${HOME}/.nvm" ]; then
+if [[ -d "${HOME}/.nvm" ]]; then
     # This loads nvm bash_completion
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
 
 autoload -U compinit && compinit -i
 
-if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
+if [[ -r "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]]; then
     source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
 
     # Don't sort the completions for aws-signon (keep them in dev, staging, prod order)
@@ -83,7 +83,7 @@ if [ -f "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]; then
     zstyle ':completion:*:descriptions' format '[%n:%d]'
 fi
 
-if [ -f "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+if [[ -r "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 

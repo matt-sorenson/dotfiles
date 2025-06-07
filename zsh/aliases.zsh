@@ -17,7 +17,7 @@ clang-format-ri() {
 if type jq > /dev/null; then
     jwt_print () {
         local jwt="${1}";
-        if [ -z "${jwt}" ]; then
+        if [[ -z "${jwt}" ]]; then
             if ! type pbpaste > /dev/null; then
                 print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument.";
                 return 1;

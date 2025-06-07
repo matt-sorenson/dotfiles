@@ -1,5 +1,7 @@
 #! /usr/bin/env zsh
 
+set -euo pipefail
+
 # Expect the following variables to be set:
 # GIT_EMAIL
 #   email to use for git commits
@@ -26,7 +28,7 @@ function print-header(){
 }
 
 function backup-file() {
-    if [ -f "${1}" ]; then
+    if [[ -f "${1}" ]]; then
         mv "${1}" "${1}.bak"
         echo "${1} backed up to ${1}.bak"
     fi
@@ -37,7 +39,7 @@ function safe-set-link() {
     local src="${2}"
 
     # safe-set-link is idempotent
-    if [ "${dest}" -ef "${src}" ]; then
+    if [[ "${dest}" -ef "${src}" ]]; then
         return
     fi
 
@@ -52,7 +54,7 @@ function safe-git-clone(){
 
     # if the destination exists check to see if one of it's remotes is the given URL
     # if so skip cloning
-    if [ -d "${dest}" ]; then
+    if [[ -d "${dest}" ]]; then
         pushd "${dest}" || {
             print-header red "❌ failed to validate existing git repo at ${dest}"
             return 1
@@ -64,7 +66,7 @@ function safe-git-clone(){
             return 1
         }
 
-        if [ $((RESULT_COUNT)) -ge 0 ]; then
+        if (( RESULT_COUNT >= 0 )); then
             return
         fi
     fi
@@ -118,10 +120,10 @@ safe-set-link "${HOME}/.tmux.conf" "${DOTFILES}/tmux.conf"
 
 LOCAL_DOTFILES="${DOTFILES}/local.$(hostname -s)"
 
-if [ -d "${LOCAL_DOTFILES}" ]; then
+if [[ -d "${LOCAL_DOTFILES}" ]]; then
     print-header green "${LOCAL_DOTFILES} already exists, skipping creation"
 else
-    if [ -z ${DOTFILES_LOCAL_GIT_REPO} ]; then
+    if [[ -z ${DOTFILES_LOCAL_GIT_REPO} ]]; then
         print-header green "DOTFILES_LOCAL_GIT_REPO not defined, creating default $LOCAL_DOTFILES"
         mkdir -p "${LOCAL_DOTFILES}"
         mkdir -p "${LOCAL_DOTFILES}/bin"

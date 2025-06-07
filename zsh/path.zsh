@@ -60,7 +60,7 @@ add-to-fpath() {
 }
 
 # osx /etc/zprofile borks the path so fix it...
-if [ -x /usr/libexec/path_helper ]; then
+if [[ -x /usr/libexec/path_helper ]]; then
     path=()
     eval `/usr/libexec/path_helper -s`
 fi
@@ -73,7 +73,7 @@ add-to-path "${HOME}/bin"
 add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.config/emacs/bin"
 
-if [ -d "${HOME}/Library/pnpm" ]; then
+if [[ -d "${HOME}/Library/pnpm" ]]; then
   export PNPM_HOME="${HOME}/Library/pnpm"
 fi
 add-to-path "${HOME}/Library/pnpm"

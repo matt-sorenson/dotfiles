@@ -58,7 +58,7 @@ done
 # ---- end parsing ----
 
 # Ensure required
-if [ -z "$filename" ]; then
+if [[ -z "$filename" ]]; then
     printf 'Error: --file is required\n' >&2
     _usage 1
 fi
@@ -134,7 +134,7 @@ cmd="$cmd -filter_complex \"$filter_complex\" \
 # Execute!
 eval "$cmd"
 status=$?
-if [ $status -ne 0 ]; then
+if (( status )); then
     printf 'ffmpeg failed with exit code %d\n' "$status" >&2
     exit $status
 fi

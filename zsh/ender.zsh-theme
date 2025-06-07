@@ -154,7 +154,7 @@ function prompt_ender_print_elapsed_time() {
         msg="${end_time}s"
     fi
 
-    if [ -n "${msg}" ]; then
+    if [[ -n "${msg}" ]]; then
         print -P "%B%F{$color}>>> elapsed time ${msg}%b"
     fi
 }
