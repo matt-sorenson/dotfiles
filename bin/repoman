@@ -34,7 +34,7 @@ Extra options for repoman:
     fi
 
     local default_repo_str=""
-    if [[ -z "${DOT_DEFAULT_REPO}" ]]; then
+    if [[ -n "${DOT_DEFAULT_REPO}" ]]; then
         default_repo_str=" (default: ${DOT_DEFAULT_REPO})"
     fi
 
@@ -89,26 +89,23 @@ _error() {
     exit 1
 }
 
-local repo_dir
-local repo="${DOT_DEFAULT_REPO}"
-local -A opts
-opts=(
-    path                0
-
+typeset -A opts=(
+    path                ""
+    repo                "${DOT_DEFAULT_REPO}"
     help                0
     verbose             0
 
     aws_signon          0
     clean               0
     nuke                0
-    git-clean           0
+    git_clean           0
     install             0
     build               0
-    db-up               0
+    db_up               0
     migration           0
     test                0
     unit_test           0
-    integration-test    0
+    integration_test    0
 
     clean_cmd               ""
     nuke_cmd                ""
@@ -131,25 +128,17 @@ while (( $# )); do
         -v|--verbose)
             opts[verbose]=1
             ;;
-        --)
-            shift
-            break
-            ;;
         --clean|-c) opts[clean]=1 ;;
         --install|-i) opts[install]=1 ;;
         --build|-b) opts[build]=1 ;;
-        --db-up|-d) opts[db-up]=1 ;;
+        --db-up|-d) opts[db_up]=1 ;;
         --migration|-m)
             opts[migration]=1;
             opts[aws_signon]=1
             ;;
-        --|-u) opts[unit_test]=1 ;;
+        --unit-test|-u) opts[unit_test]=1 ;;
         --integration-test) opts[integration_test]=1 ;;
-        --test|-t)
-            opts[test]=1
-            opts[unit_test]=1;
-            opts[integration_test]=1
-            ;;
+        --test|-t) opts[test]=1 ;;
         --git-clean)
             opts[git-clean]=1
             opts[clean]=1
@@ -163,7 +152,7 @@ while (( $# )); do
                 _error -h "missing argument for $1"
             fi
 
-            repo="$2"
+            opts[repo]="$2"
             shift
             ;;
         --path|-p)
@@ -171,8 +160,7 @@ while (( $# )); do
                 _error -h "missing argument for $1"
             fi
 
-            repo_dir="$2"
-            opts[path]=1
+            opts[path]="$2"
             shift
             ;;
         --calling-name)
@@ -277,19 +265,15 @@ while (( $# )); do
                         ;;
                     i) opts[install]=1 ;;
                     b) opts[build]=1 ;;
-                    d) opts[db-up]=1 ;;
+                    d) opts[db_up]=1 ;;
                     m)
                         opts[migration]=1
                         opts[aws_signon]=1
                         ;;
                     u) opts[unit_test]=1 ;;
-                    t)
-                        opts[test]=1
-                        opts[unit_test]=1
-                        opts[integration-test]=1
-                        ;;
+                    t) opts[test]=1;;
                     *)
-                        _error -h "Unknown option: -${opt}"
+                        _error -h "Unknown option: -${arg}"
                         ;;
                 esac
             done
@@ -310,7 +294,10 @@ if (( opts[help] )); then
     _usage 0
 fi
 
-if (( ! opts[path] )); then
+repo_dir=
+if [[ -n "$opts[path]" ]]; then
+    repo_dir="${opts[path]}"
+else
     if [[ -z "${WORKSPACE_ROOT_DIR}" ]]; then
         echo "Error: WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
         if [[ -z "${DOT_DEFAULT_REPO}" ]]; then
@@ -318,7 +305,7 @@ if (( ! opts[path] )); then
         fi
         _usage 1
     fi
-    repo_dir="${WORKSPACE_ROOT_DIR}/${repo}"
+    repo_dir="${WORKSPACE_ROOT_DIR}/${opts[repo]}"
 fi
 
 if [[ ! -d "${repo_dir}" ]]; then
@@ -335,6 +322,11 @@ done
 
 if (( ! any_set )); then
     _error -h "You must specify at least one option"
+fi
+
+if (( opts[test] )); then
+    opts[unit_test]=1;
+    opts[integration_test]=1
 fi
 
 # Logic overrides
@@ -354,9 +346,9 @@ if (( opts[clean] && opts[unit_test] )); then
     fi
 fi
 
-if (( opts[nuke] && ! opts[db-up] && opts[migration] )); then
+if (( opts[nuke] && ! opts[db_up] && opts[migration] )); then
     print-header yellow "[override] ⚠️ Adding db-up: nuke + migration requires db-up"
-    opts[db-up]=1
+    opts[db_up]=1
 fi
 
 cd "${repo_dir}" > /dev/null
@@ -396,7 +388,7 @@ if (( opts[aws_signon] )); then
     aws-signon dev || _error "aws-signon failed"
 fi
 
-if (( opts[db-up] )); then
+if (( opts[db_up] )); then
     if [[ -z "${opts[db_up_cmd]}" ]]; then
         _error "db-up-cmd is not set."
     fi
@@ -453,7 +445,7 @@ if (( opts[unit_test] )); then
     fi
 fi
 
-if (( opts[integration-test] )); then
+if (( opts[integration_test] )); then
     if [[ -z "${opts[integration_tests_cmd]}" ]]; then
         # passing in -t/--test sets the integration-test flag, but shouldn't
         # fail if integration-test-cmd is not set. If `test` is not set that
