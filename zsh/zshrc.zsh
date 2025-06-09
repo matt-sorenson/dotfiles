@@ -53,6 +53,10 @@ setopt pushd_to_home        # Push to home when no directories in stack
 
 unsetopt pushd_silent       # Print the new directory stack after pushd or popd.
 
+# when a trap is set in a function it will be restored when the function exits.
+setopt local_traps
+setopt local_options
+
 # Random settings
 setopt complete_in_word     # Leave cursor when using completions
 setopt extended_glob        # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc. (An initial unquoted ‘~’ always produces named directory expansion.)

@@ -2,6 +2,9 @@
 #compdef clang-format-ri
 
 function(){
+    emulate -L
+    set -euo pipefail
+
     if ! command -v clang-format > /dev/null; then
         print-header red "ERROR: clang-format not found. Please install clang-format to use this script."
         return 1
@@ -67,7 +70,6 @@ Options:
     if (( ${#filters[@]} )); then
         unset 'filters[-1]'
     fi
-
 
     find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$@" {} \;
 } "$@"
