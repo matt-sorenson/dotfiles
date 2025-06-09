@@ -12,8 +12,8 @@ fi
 source "${DOTFILES}/zsh/aliases.zsh"
 
 # These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
-add-to-fpath "${DOTFILES}/zsh/completion"
-add-to-fpath "${DOTFILES}/local/zsh/completion"
+add-to-fpath "${DOTFILES}/zsh/completions"
+add-to-fpath "${DOTFILES}/local/zsh/completions"
 
 if [[ "$OSTYPE" == darwin* ]]; then
     # this file may have been recreated by brew updates.
