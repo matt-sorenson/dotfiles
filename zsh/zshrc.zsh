@@ -72,24 +72,22 @@ if [[ -d "${HOME}/.nvm" ]]; then
 fi
 
 if [[ -r "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]]; then
-    source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
-
     # Don't sort the completions for aws-signon (keep them in dev, staging, prod order)
     zstyle ':completion:*:aws-signon:*' sort false
 
     # set list-colors to enable filename colorizing
-    zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-    zstyle ':completion:*:descriptions' format '[%n:%d]'
+    source "${HOME}/.fzf-tab/fzf-tab.plugin.zsh"
 fi
+
+# This has some arrays/maps that are used for auto-completion
+source "${DOTFILES}/zsh/completion-helper.zsh"
 
 compinit -i
 
 if [[ -r "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
-
-# This has some arrays/maps that are used for auto-completion
-source "${DOTFILES}/zsh/completion-helper.zsh"
 
 source "${DOTFILES}/zsh/ender.zsh-theme"

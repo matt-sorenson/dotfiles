@@ -1,3 +1,5 @@
+# These aliases are sourced in zshrc.zsh, so only available in interactive shells.
+
 alias less='less -XF'
 alias vi=vim
 
