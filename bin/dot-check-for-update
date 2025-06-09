@@ -4,8 +4,10 @@
 
 _dot_git_header() {
     local color="$1"
-    local dir="$2"
-    shift 2
+    local prepend="$2"
+    local dir="$3"
+    local indent="$4"
+    shift 4
 
     case $dir in
     "$HOME")
@@ -23,26 +25,21 @@ _dot_git_header() {
     esac
 
     local msg="$@"
-    print-header -i 2 "$color" "${dir}: ${msg}" >&2
+    print-header -i $indent "$color" "${dir}: ${prepend}${msg}" >&2
 }
 
 _dot_git_warn() {
-    local dir="$1"
-    shift
-
-    _dot_git_header yellow "$dir" "⚠️ $@"
+    _dot_git_header yellow "⚠️ " "$@"
 }
 
 _dot_git_error() {
-    local dir="$1"
-    shift
-
-    _dot_git_header red "$dir" "❌ $@"
+    _dot_git_header red "❌" "$@"
 }
 
 function _dot_check_for_update_git() {
     local quiet=0
     local dir=
+    local indent=0
 
     while (( $# )); do
         case $1 in
@@ -50,8 +47,16 @@ function _dot_check_for_update_git() {
                 quiet=1
                 shift
                 ;;
+            -i|--indent)
+                if (( $# < 2 )); then
+                    _dot_git_error "${dir}" $indent "Expected an indent value after '$1'"
+                    return 1
+                fi
+                indent="$2"
+                shift 2
+                ;;
             -*)
-                _dot_git_error "${dir}" "Called _dot_check_for_update_git with unknown option '$1'"
+                _dot_git_error "${dir}" $indent "Called _dot_check_for_update_git with unknown option '$1'"
                 return 1
                 ;;
             *)
@@ -59,7 +64,7 @@ function _dot_check_for_update_git() {
                     dir=$1
                     shift
                 else
-                    _dot_git_error "${dir}" "Called _dot_check_for_update_git with unexpected argument '$1'"
+                    _dot_git_error "${dir}" $indent "Called _dot_check_for_update_git with unexpected argument '$1'"
                     return 1
                 fi
                 ;;
@@ -67,19 +72,19 @@ function _dot_check_for_update_git() {
     done
 
     if [[ -z $dir ]]; then
-        _dot_git_error "${dir}" "Called _dot_check_for_update_git without a directory"
+        _dot_git_error "${dir}" $indent "Called _dot_check_for_update_git without a directory"
         return 1
     fi
 
     if [[ ! -d "${dir}" ]]; then
-        _dot_git_warn "${dir}" "Missing Directory"
+        _dot_git_warn "${dir}" $indent "Missing Directory"
         return 0
     elif [[ ! -d "${dir}/.git" ]]; then
-        (( quiet )) && _dot_git_warn "${dir}" "Directory not a git repo"
+        (( quiet )) && _dot_git_warn "${dir}"  "Directory not a git repo"
         return 0
     fi
 
-    _dot_git_header green "$dir" "$@"
+    _dot_git_header green "" "$dir" $indent "$@"
 
     pushd "${dir}" > /dev/null
 
@@ -90,7 +95,7 @@ function _dot_check_for_update_git() {
         if git merge-base --is-ancestor HEAD "${branch}"; then
             git merge "${branch}"
         elif ! git merge-base --is-ancestor "${branch}" HEAD; then
-            _dot_git_error "${dir}" "Local branch has diverged from upstream"
+            _dot_git_error "${dir}" $indent "Local branch has diverged from upstream"
             popd > /dev/null
             return 1
         fi
@@ -101,7 +106,7 @@ function _dot_check_for_update_git() {
     fi
 
     git diff --quiet --ignore-submodules HEAD || {
-        _dot_git_error "${dir}" "Uncommitted changes found"
+        _dot_git_error "${dir}" $indent "Uncommitted changes found"
         popd > /dev/null
         return 1
     }
@@ -115,11 +120,11 @@ function _dot_check_for_update_git() {
         local behind=$(printf '%s\n' "$behind_ahead" | awk '{print $2}')
 
         if (( behind > 0 && ahead > 0 )); then
-            _dot_git_error "${dir}" "Branch has diverged from upstream"
+            _dot_git_error "${dir}" $indent "Branch has diverged from upstream"
             popd > /dev/null
             return 1
         elif (( behind > 0 )); then
-            _dot_git_error "${dir}" "Branch is behind upstream by ${behind} commits"
+            _dot_git_error "${dir}" $indent "Branch is behind upstream by ${behind} commits"
             popd > /dev/null
             return 1
         elif (( ahead > 0 )); then
@@ -127,7 +132,7 @@ function _dot_check_for_update_git() {
         fi
         # Note: ahead only (ahead > 0, behind == 0) is ignored
     else
-        _dot_git_warn "${dir}" "Unable to compare with upstream for"
+        _dot_git_warn "${dir}" $indent "Unable to compare with upstream for"
         popd > /dev/null
         return 1
     fi
@@ -272,8 +277,9 @@ repos_to_update=( "${HOME}/.fzf-tab" "${HOME}/.zsh-syntax-highlighting" )
 out=0
 
 if (( flags[git] )); then
+    print-header green "Updating git repositories."
     if [[ -d "${DOTFILES}" ]]; then
-        if _dot_check_for_update_git "${DOTFILES}"; then
+        if _dot_check_for_update_git -i 2 "${DOTFILES}"; then
             # If hammerspoon exists we may have updated the config while updating
             # the dotfiles, so we need to reload it.
             if command -v "hs" > /dev/null; then
@@ -288,13 +294,13 @@ if (( flags[git] )); then
     fi
 
     for dir in $repos_to_update; do
-        if ! _dot_check_for_update_git "$dir"; then
+        if ! _dot_check_for_update_git -i 2 "$dir"; then
             out=1
         fi
     done
 
     if (( flags[local] )) && [[ -d "${DOTFILES}/local" ]]; then
-        if ! _dot_check_for_update_git "${DOTFILES}/local" -q; then
+        if ! _dot_check_for_update_git -i 2 "${DOTFILES}/local" -q; then
             out=1
         fi
     elif (( flags[local] && ! all_false )); then
