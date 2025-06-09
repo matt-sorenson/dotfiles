@@ -87,7 +87,7 @@ function prompt_ender_seg_git_info() {
     if [[ -n "$ref" ]]; then
         if [[ -n "$(git status --porcelain --ignore-submodules)" ]]; then
             bg=yellow
-            _ref="${ref} $prompt_ender_plus_minus"
+            _ref="${ref} $_prompt_ender_plus_minus"
         else
             bg=green
             ref="${ref} "
