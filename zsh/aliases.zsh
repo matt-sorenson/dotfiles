@@ -7,18 +7,20 @@ wsls()   { ls "$@" "${WORKSPACE_ROOT_DIR}" }
 ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
 wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
 
-# Recursivly format '.cpp', '.h', '.inl' files in place.
-clang-format-ri() {
-    local srcpath="${1}"
-    shift
-    find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
-}
+if command -v clang-format > /dev/null; then
+    # Recursivly format '.cpp', '.h', '.inl' files in place.
+    clang-format-ri() {
+        local srcpath="${1}"
+        shift
+        find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
+    }
+fi
 
-if type jq > /dev/null; then
+if command -v jq > /dev/null; then
     jwt_print () {
         local jwt="${1}";
         if [[ -z "${jwt}" ]]; then
-            if ! type pbpaste > /dev/null; then
+            if ! command -v pbpaste > /dev/null; then
                 print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument.";
                 return 1;
             fi;
@@ -51,7 +53,7 @@ auto-dot-check-for-update() {
         last_update=$(cat "${update_filename}")
     fi
 
-    if [[ $last_update -lt $cuttoff_time ]]; then
+    if (( last_update < cuttoff_time )); then
         read -q "RUN_UPDATE?It's been a while, update dotfiles? "
         echo '' # read -q doesn't output a newline
         if [[ "${RUN_UPDATE:l}" == "y" ]]; then

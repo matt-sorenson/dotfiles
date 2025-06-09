@@ -2,6 +2,8 @@
 
 # Uses extglob & string replacement which isn't POSIX sh compatible so just use zsh.
 
+set -euo pipefail
+
 _usage() {
     printf "Usage: concat-video [OPTIONS]
 

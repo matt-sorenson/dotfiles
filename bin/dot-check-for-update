@@ -276,7 +276,7 @@ if (( flags[git] )); then
         if _dot_check_for_update_git "${DOTFILES}"; then
             # If hammerspoon exists we may have updated the config while updating
             # the dotfiles, so we need to reload it.
-            if type "hs" >> /dev/null; then
+            if command -v "hs" > /dev/null; then
                 print-header green "Reloading hammerspoon"
                 hs -c "hs.reload()"
             fi
@@ -303,7 +303,7 @@ if (( flags[git] )); then
 fi
 
 if (( flags[brew] )); then
-    if type "brew" >> /dev/null; then
+    if command -v "brew" > /dev/null; then
         print-header green "Updating brew."
 
         if brew update; then
@@ -331,7 +331,7 @@ fi
 
 # You can specify a local update function in your "$DOTFILES/local/zsh"
 # files or in $DOTFILES/local/bin
-if (( flags[local] )) && type "dot-check-for-update-local" >> /dev/null; then
+if (( flags[local] )) && command -v "dot-check-for-update-local" > /dev/null; then
     if ! dot-check-for-update-local; then
         out=1
     fi
@@ -339,7 +339,7 @@ fi
 
 if (( flags[doom] )); then
     local doomemacs_bin="${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}"
-    if type "${doomemacs_bin}" >> /dev/null; then
+    if command -v "${doomemacs_bin}" > /dev/null; then
         print-header green "Updating doom emacs."
 
         if ! "${doomemacs_bin}" upgrade --aot --force --color; then

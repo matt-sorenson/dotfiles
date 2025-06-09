@@ -68,7 +68,7 @@ bindkey -e
 
 if [[ -d "${HOME}/.nvm" ]]; then
     # This loads nvm bash_completion
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 fi
 
 if [[ -r "${HOME}/.fzf-tab/fzf-tab.plugin.zsh" ]]; then

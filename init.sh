@@ -76,7 +76,7 @@ function safe-git-clone(){
     git clone --recursive "${url}" "${dest}"
 }
 
-if [[ $do_brew == true ]] && ! type brew &>/dev/null; then
+if [[ $do_brew == true ]] && ! command -v brew &> /dev/null; then
     print-header green "Installing Homebrew"
 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -141,9 +141,9 @@ if ! mkdir -p "${DOTFILES}/tmp"; then
 fi
 
 curr_dir="${PWD}"
-if cd "${DOTFILES}" >> /dev/null; then
+if cd "${DOTFILES}" &> /dev/null; then
     git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
-    cd "${curr_dir}" >> /dev/null || {
+    cd "${curr_dir}" &> /dev/null || {
         print-header red "❌ Failed to pop directory stack after setting git email"
         exit 1
     }
@@ -156,7 +156,7 @@ fi
 
 print-header green "Setting up doomemacs"
 
-if ! command -v emacs >/dev/null 2>&1; then
+if ! command -v emacs > /dev/null 2>&1; then
     print-header yellow "emacs not found, consider installing it"
 fi
 

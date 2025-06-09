@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+set -euo pipefail
+
 _usage() {
     printf "Usage: brew-find-leafs [-h|--help]
 
@@ -56,13 +58,13 @@ for formula in $(brew list); do
     if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
         visited_formulas[$formula]=1
         if (( flag_remove )); then
-            read "input?${formula} is not depended on by other formulas. Remove? [Y/n] "
-            if [[ "${input}" == "Y" ]]; then
+            read -q "input?'${formula}' is not depended on by other formulas. Remove? [Y/n] "
+            if [[ "${input}" == "y" ]]; then
                 brew remove "${formula}"
                 check_formulas $(brew deps --1 --installed "${formula}")
             fi
         else
-            printf "${formula}\n"
+            printf "%s\n" "${formula}"
         fi
     fi
 done
