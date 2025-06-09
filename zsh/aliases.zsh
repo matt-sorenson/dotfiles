@@ -9,39 +9,6 @@ wsls()   { ls "$@" "${WORKSPACE_ROOT_DIR}" }
 ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
 wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
 
-if command -v clang-format > /dev/null; then
-    # Recursivly format '.cpp', '.h', '.inl' files in place.
-    clang-format-ri() {
-        local srcpath="${1}"
-        shift
-        find "${srcpath}" -type f \( -iname \*.cpp -o -iname \*.h -o -iname \*.inl \) -exec clang-format -i -style=file "$@" {} \;
-    }
-fi
-
-if command -v jq > /dev/null; then
-    jwt_print () {
-        local jwt="${1}";
-        if [[ -z "${jwt}" ]]; then
-            if ! command -v pbpaste > /dev/null; then
-                print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument.";
-                return 1;
-            fi;
-            jwt=$(pbpaste);
-        fi;
-        echo "JWT> ${jwt}";
-        echo "Header:";
-        echo "${jwt}" | jq -R 'split(".") | .[0] | @base64d | fromjson';
-        echo "Payload:";
-        echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson';
-        echo -n "Issued at: ";
-        echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .iat | todate';
-        echo -n "Expire at: ";
-        echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .exp | todate';
-        echo -n "Sig: ";
-        echo "${jwt}" | jq -R 'split(".") | .[2]'
-    }
-fi
-
 auto-dot-check-for-update() {
     local hours="${1:-15}"
     local time_limit_in_seconds=$(( 60 * 60 * hours ))
@@ -63,3 +30,9 @@ auto-dot-check-for-update() {
         fi
     fi
 }
+
+add-to-fpath "${DOTFILES}/bin"
+add-to-fpath "${DOTFILES}/local/bin"
+
+autoload clang-format-ri
+autoload jwt-print

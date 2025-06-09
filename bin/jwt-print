@@ -1,0 +1,62 @@
+#!/usr/bin/env zsh
+#compdef jwt-print
+
+set -uo pipefail
+
+if ! command -v jq > /dev/null; then
+    print-header red "ERROR: jq not found. Please install jq to use this script."
+    return 1
+fi
+
+local jwt="${1:-}"
+if [[ -z "${jwt}" ]]; then
+    if ! command -v pbpaste > /dev/null; then
+        print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument."
+        return 1
+    fi
+    jwt=$(pbpaste)
+fi
+
+local header="$(   echo "${jwt}" | jq -R 'split(".") | .[0] | @base64d | fromjson')"  2> /dev/null
+local payload="$(  echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson')" 2> /dev/null
+local issued_at="$(echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .iat | todate')" 2> /dev/null
+local expire_at="$(echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .exp | todate')" 2> /dev/null
+local sig="$(      echo "${jwt}" | jq -R 'split(".") | .[2]')" 2> /dev/null
+
+if [[ -z "${expire_at}" ]]; then
+    expire_at="[[Does not expire]]"
+fi
+
+local errors=()
+
+if [[ -z "${header}" ]]; then
+    errors+=("Header is empty or invalid.")
+fi
+if [[ -z "${payload}" ]]; then
+    errors+=("Payload is empty or invalid.")
+fi
+if [[ -z "${issued_at}" ]]; then
+    errors+=("Issued at is empty or invalid.")
+fi
+if [[ -z "${sig}" || "${sig}" == 'null' ]]; then
+    print-header yellow "WARNING: Signature is empty or invalid. This may be a non-signed JWT."
+fi
+
+if (( ${#errors[@]} > 0 )); then
+    print-header red "ERROR: JWT parsing failed: '${jwt}'"
+    for error in "${errors[@]}"; do
+        echo "- ${error}"
+    done
+    return 1
+fi
+
+print-header green "JWT> '${jwt}'"
+printf "Header:
+%s
+Payload:
+%s
+Issued at: %s
+Expire at: %s
+Sig: %s\n" "${header}" "${payload}" "${issued_at}" "${expire_at}" "${sig}"
+
+return 0
