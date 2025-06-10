@@ -1,0 +1,148 @@
+#!/usr/bin/env zsh
+#compdef dot-check-for-update-git
+
+function() {
+    local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
+
+Options:
+  -h, --help            Show this help message
+  -q, --quiet           Suppress some warnings.
+  -i, --indent <indent> Set the indent level for headers messages (default: 0)
+
+If no flags are provided then it's treated as if all flags are set.
+"
+
+    local quiet=0
+    local indent=0
+    local dir=
+
+    while (( $# )); do
+        case $1 in
+            -h|--help)
+                printf "%s" "$_usage"
+                return 0
+                ;;
+            -q|--quiet)
+                quiet=1
+                shift
+                ;;
+            -i|--indent)
+                if (( $# < 2 )); then
+                    print-header red -i $indent "${log_dir}: ❌ Expected an indent value after '$1'"
+                    printf "%s" "$_usage"
+                    return 1
+                fi
+                indent="$2"
+                shift 2
+                ;;
+            -*)
+                print-header red -i $indent "${log_dir}: ❌ Called dot-check-for-update with unknown option '$1'"
+                printf "%s" "$_usage"
+                return 1
+                ;;
+            *)
+                if [[ -z $dir ]]; then
+                    dir=$1
+                    shift
+                else
+                    print-header red -i $indent "${log_dir}: ❌ Called dot-check-for-update with unexpected argument '$1'"
+                    printf "%s" "$_usage"
+                    return 1
+                fi
+                ;;
+        esac
+    done
+
+    if [[ -z $dir ]]; then
+        print-header red -i $indent "${log_dir}: ❌ Called dot-check-for-update without a directory"
+        return 1
+    fi
+
+    local log_dir
+    case $dir in
+    "$HOME")
+        # exactly $HOME → "~"
+        log_dir='~'
+        ;;
+    "$HOME"/*)
+        # starts with $HOME/ → "~/…"
+        log_dir="~${dir#$HOME}"
+        ;;
+    *)
+        # anything else → unchanged
+        dir="$dir"
+        ;;
+    esac
+
+    if [[ ! -d "${dir}" ]]; then
+        print-header yellow -i $indent "${log_dir}: ⚠️ Missing Directory"
+        return 0
+    elif [[ ! -d "${dir}/.git" ]]; then
+        (( quiet )) && print-header yellow -i $indent "${log_dir}: ⚠️ Directory not a git repo"
+        return 0
+    fi
+
+    print-header green -i $indent "${log_dir}: $@"
+
+    pushd "${dir}" > /dev/null
+
+    local remotes=(${(f)"$(git remote)"})
+    if (( ${#remotes} == 0 )); then
+        if (( ! quiet )); then
+            print-header yellow -i $indent "${log_dir}: ⚠️ No git remote found, skipping update"
+        fi
+        popd > /dev/null
+        return 0
+    fi
+
+    git fetch
+
+    local branch="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
+    if [[ -n "${branch}" ]]; then
+        if git merge-base --is-ancestor HEAD "${branch}"; then
+            git merge "${branch}"
+        elif ! git merge-base --is-ancestor "${branch}" HEAD; then
+            print-header red -i $indent "${log_dir}: ❌ Local branch has diverged from upstream"
+            popd > /dev/null
+            return 1
+        fi
+    else
+        print-header red -i $indent "${log_dir}: ❌ No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+        popd > /dev/null
+        return 0
+    fi
+
+    git diff --quiet --ignore-submodules HEAD || {
+        print-header red -i $indent "${log_dir}: ❌ Uncommitted changes found"
+        popd > /dev/null
+        return 1
+    }
+
+    # Check if branch is behind or has diverged (but NOT just ahead)
+    local behind_ahead=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+
+    if (( ! $? )); then
+        local ahead=$(printf '%s\n' "$behind_ahead" | awk '{print $1}')
+        local behind=$(printf '%s\n' "$behind_ahead" | awk '{print $2}')
+
+        if (( behind > 0 && ahead > 0 )); then
+            print-header red -i $indent "${log_dir}: ❌ Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
+            popd > /dev/null
+            return 1
+        elif (( behind > 0 )); then
+            print-header red -i $indent "${log_dir}: ❌ Branch is behind upstream by ${behind} commits"
+            popd > /dev/null
+            return 1
+        elif (( ahead > 0 )); then
+            printf '%s\n' "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
+        fi
+    else
+        print-header yellow -i $indent "${log_dir}: ⚠️ Unable to compare with upstream for"
+        popd > /dev/null
+        return 1
+    fi
+
+    popd > /dev/null
+
+    return 0
+} "$@"

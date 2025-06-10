@@ -34,4 +34,11 @@ auto-dot-check-for-update() {
 add-to-fpath "${DOTFILES}/bin"
 add-to-fpath "${DOTFILES}/local/bin"
 
-autoload clang-format-ri jwt-print git-popb git-pushb git-stack
+autoload \
+    clang-format-ri \
+    jwt-print \
+    git-popb \
+    git-pushb \
+    git-stack \
+    dot-check-for-update \
+    dot-check-for-update-git
