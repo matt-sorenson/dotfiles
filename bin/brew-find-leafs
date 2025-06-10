@@ -1,9 +1,13 @@
 #!/usr/bin/env zsh
+#compdef brew-find-leafs
 
-set -euo pipefail
+function() {
+    set -euo pipefail
 
-_usage() {
-    print "Usage: brew-find-leafs [-h|--help]
+    local flag_remove=0
+    local flag_quiet=0
+
+    local _usage="Usage: brew-find-leafs [-h|--help]
 
 Finds brew formulas that aren't depended on by any other packages.
 This is useful for cleaning up unused dependencies.
@@ -16,54 +20,51 @@ Options:
 There is explicitly not a -f or --force option as this script can't tell if you
 manually installed a formula or if it was installed as a dependency."
 
-    exit "$1"
-}
+    while (( $# )); do
+        case "$1" in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            -r|--remove)
+                flag_remove=1
+                shift 1
+                ;;
+            -q|--quiet)
+                quiet=1
+                shift 1
+                ;;
+            *)
+                print-header red "Unknown option: $1"
+                print "$_usage"
+                return 1
+                ;;
+        esac
+    done
 
-flag_remove=0
-flag_quiet=0
-
-while (( $# )); do
-    case "$1" in
-        -h|--help)
-            _usage 0
-            ;;
-        -r|--remove)
-            flag_remove=1
-            shift 1
-            ;;
-        -q|--quiet)
-            quiet=1
-            shift 1
-            ;;
-        *)
-            print-header red "Unknown option: $1"
-            _usage 1
-            ;;
-    esac
-done
-
-if (( flag_quiet && flag_remove )); then
-    echo "Error: Cannot use --quiet and --remove together."
-    exit 1
-fi
-
-typeset -A visited_formulas
-
-if (( ! flag_quiet )); then
-    print-header green "Searching for formulas not depended on by other formulas..."
-fi
-
-for formula in $(brew list); do
-    if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
-        visited_formulas[$formula]=1
-        if (( flag_remove )); then
-            read -q "input?'${formula}' is not depended on by other formulas. Remove? [Y/n] "
-            if [[ "${input}" == "y" ]]; then
-                brew remove "${formula}"
-                check_formulas $(brew deps --1 --installed "${formula}")
-            fi
-        else
-            print "${formula}"
-        fi
+    if (( flag_quiet && flag_remove )); then
+        echo "Error: Cannot use --quiet and --remove together."
+        exit 1
     fi
-done
+
+    local -A visited_formulas
+
+    if (( ! flag_quiet )); then
+        print-header green "Searching for formulas not depended on by other formulas..."
+    fi
+
+    for formula in $(brew list); do
+        if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
+            visited_formulas[$formula]=1
+            if (( flag_remove )); then
+                read -q "input?'${formula}' is not depended on by other formulas. Remove? [Y/n] "
+                if [[ "${input}" == "y" ]]; then
+                    brew remove "${formula}"
+                    check_formulas $(brew deps --1 --installed "${formula}")
+                fi
+            else
+                print "${formula}"
+            fi
+        fi
+    done
+} "$@"

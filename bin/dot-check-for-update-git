@@ -23,37 +23,36 @@ If no flags are provided then it's treated as if all flags are set."
                 ;;
             -q|--quiet)
                 quiet=1
-                shift
                 ;;
             -i|--indent)
                 if (( $# < 2 )); then
-                    print-header red -i $indent "${log_dir}: ❌ Expected an indent value after '$1'"
+                    print-header red -i $indent "${dir:-Unknown Repo}: ❌ Expected an indent value after '$1'"
                     print "$_usage"
                     return 1
                 fi
-                indent="$2"
-                shift 2
+                shift
+                indent="$1"
                 ;;
             -*)
-                print-header red -i $indent "${log_dir}: ❌ Called dot-check-for-update with unknown option '$1'"
+                print-header red -i $indent "${dir:-Unknown Repo}: ❌ Called dot-check-for-update with unknown option '$1'"
                 print "$_usage"
                 return 1
                 ;;
             *)
                 if [[ -z $dir ]]; then
                     dir=$1
-                    shift
                 else
-                    print-header red -i $indent "${log_dir}: ❌ Called dot-check-for-update with unexpected argument '$1'"
+                    print-header red -i $indent "${dir:-Unknown Repo}: ❌ Called dot-check-for-update with unexpected argument '$1'"
                     print "$_usage"
                     return 1
                 fi
                 ;;
         esac
+        shift
     done
 
     if [[ -z $dir ]]; then
-        print-header red -i $indent "${log_dir}: ❌ Called dot-check-for-update without a directory"
+        print-header red -i $indent "Unknown Repo: ❌ Called dot-check-for-update without a directory"
         return 1
     fi
 
@@ -87,9 +86,7 @@ If no flags are provided then it's treated as if all flags are set."
 
     local remotes=(${(f)"$(git remote)"})
     if (( ${#remotes} == 0 )); then
-        if (( ! quiet )); then
-            print-header yellow -i $indent "${log_dir}: ⚠️ No git remote found, skipping update"
-        fi
+        (( ! quiet )) && print-header yellow -i $indent "${log_dir}: ⚠️ No git remote found, skipping update"
         popd > /dev/null
         return 0
     fi

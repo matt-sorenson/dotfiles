@@ -32,10 +32,11 @@ auto-dot-check-for-update() {
 }
 
 autoload \
+    brew-find-leafs \
     clang-format-ri \
-    jwt-print \
+    dot-check-for-update \
+    dot-check-for-update-git \
     git-popb \
     git-pushb \
     git-stack \
-    dot-check-for-update \
-    dot-check-for-update-git
+    jwt-print
