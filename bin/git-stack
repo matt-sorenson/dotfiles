@@ -10,8 +10,7 @@ function() {
 Display the saved branch stack (oldest at the top, newest at the bottom).
 
   -c, --clear           Clear the branch stack
-  -h, --help            Show this help message
-"
+  -h, --help            Show this help message"
 
     local clear_stack=0
 
@@ -23,12 +22,12 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
                 shift
                 ;;
             -h|--help)
-                print "%s" "$_usage"
+                print "$_usage"
                 return 0
                 ;;
             *)
                 print_header red "Unknown option: $1"
-                print "%s" "$_usage"
+                print "$_usage"
                 return 1
                 ;;
         esac

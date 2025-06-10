@@ -19,11 +19,11 @@ function() {
         jwt=$(pbpaste)
     fi
 
-    local header="$(   echo "${jwt}" | jq -R 'split(".") | .[0] | @base64d | fromjson')" 2> /dev/null
-    local payload="$(  echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson')" 2> /dev/null
-    local issued_at="$(echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .iat | todate')" 2> /dev/null
-    local expire_at="$(echo "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .exp | todate')" 2> /dev/null
-    local sig="$(      echo "${jwt}" | jq -R 'split(".") | .[2]')" 2> /dev/null
+    local header="$(   print "${jwt}" | jq -R 'split(".") | .[0] | @base64d | fromjson')" 2> /dev/null
+    local payload="$(  print "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson')" 2> /dev/null
+    local issued_at="$(print "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .iat | todate')" 2> /dev/null
+    local expire_at="$(print "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .exp | todate')" 2> /dev/null
+    local sig="$(      print "${jwt}" | jq -R 'split(".") | .[2]')" 2> /dev/null
 
     if [[ -z "${expire_at}" ]]; then
         expire_at="[[Does not expire]]"
@@ -50,18 +50,18 @@ function() {
         for error in "${errors[@]}"; do
             message="${message}- ${error}\n"
         done
-        printf "%b" "${message}"
+        print "${message}"
         return 1
     fi
 
     print-header green "JWT> '${jwt}'"
-    printf "Header:
-    %s
-    Payload:
-    %s
-    Issued at: %s
-    Expire at: %s
-    Sig: %s\n" "${header}" "${payload}" "${issued_at}" "${expire_at}" "${sig}"
+    print "Header:
+    ${header}
+Payload:
+    ${payload}
+Issued at: ${issued_at}
+Expire at: ${expire_at}
+Sig: ${sig}"
 
     return 0
 } "$@"

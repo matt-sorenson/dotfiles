@@ -6,7 +6,10 @@ add-to-path() {
     local dir=""
 
     local cmd="$0"
-    local fpath_str="[-f|--fpath] "
+    local fpath_opt_str="[-f|--fpath] "
+    local fpath_des_str="
+        -f, --fpath         Add to fpath instead of path"
+
 
     while (( $# )); do
         case "$1" in
@@ -17,9 +20,12 @@ add-to-path() {
                 do_fpath=1
                 ;;
             --add-to-fpath)
+                # This is a 'secret' option specifically for add-to-fpath
+                # to allow -h/--help to show the add-to-fpath option
                 do_fpath=1
                 cmd="add-to-fpath"
-                fpath_str=''
+                fpath_opt_str=''
+                fpath_des_str=''
                 ;;
             -o|--operation)
                 shift
@@ -28,7 +34,11 @@ add-to-path() {
                         operation="$1"
                         ;;
                     *)
-                        printf "%s\n" "Unknown operation: '$1'. Valid operations are 'prepend' or 'append'."
+                        if [[ -z "$1" ]]; then
+                            print "Error: No operation specified for --operation."
+                        else
+                            print "Unknown operation: '%1'. Valid operations are 'prepend' or 'append'.\n"
+                        fi
                         parse_error=1
                         ;;
                 esac
@@ -37,7 +47,7 @@ add-to-path() {
                 if [[ -z "$dir" ]]; then
                     dir="$1"
                 else
-                    printf "%s\n" "Unexpected argument: '$1'."
+                    print "Unexpected argument: '%1'\n"
                     parse_error=1
                 fi
                 ;;
@@ -45,22 +55,20 @@ add-to-path() {
         shift
     done
 
-    local usage="Usage: $cmd [-o|--operation prepend|append] ${fpath_str}<directory>
+    local usage="Usage: $cmd [-o|--operation prepend|append] ${fpath_opt_str}<directory>
 
     Options:
-        -h, --help          Show this help message
-        -f, --fpath         Add to fpath instead of path (defaults: false)
-        -o, --operation     Specify operation: 'prepend' or 'append' (default: 'prepend')
-"
+        -h, --help          Show this help message${fpath_des_str}
+        -o, --operation     Specify operation: 'prepend' or 'append' (default: 'prepend')"
     # Make sure an argument was provided
     if (( show_help )); then
-        printf "%s" "$usage"
+        print "$usage"
         return 0
     elif (( parse_error )); then
-        printf "%s" "$usage"
+        print "$usage"
         return 1
     elif [[ -z "$dir" ]]; then
-        printf "%s\n%s" "Error: No directory specified." "$usage"
+        print "Error: No directory specified.\n${usage}"
         return 1
     fi
 

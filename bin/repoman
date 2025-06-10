@@ -38,7 +38,7 @@ Extra options for repoman:
         default_repo_str=" (default: ${DOT_DEFAULT_REPO})"
     fi
 
-    printf '%s\n' "Usage: ${CALLING_NAME} [options]
+    print "Usage: ${CALLING_NAME} [options]
 
 Options:
   --git-clean              Clean untracked/ignored files from repo

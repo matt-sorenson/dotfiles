@@ -15,8 +15,7 @@ Options:
 Examples:
 aws-signon -f dev
 aws-signon dev
-aws-signon dev -f
-"
+aws-signon dev -f"
 
     local force=0
     local profile=""
@@ -24,7 +23,7 @@ aws-signon dev -f
     while (( $# )); do
         case "$1" in
             -h|--help)
-                printf "%s" "${_usage}"
+                print "${_usage}"
                 return 0
                 ;;
             -f|--force)
@@ -32,13 +31,13 @@ aws-signon dev -f
                 ;;
             -*)
                 print-header red "❌ Unknown option: $1"
-                printf "%s" "${_usage}"
+                print "${_usage}"
                 return 1
                 ;;
             *)
                 if [ -n "$profile" ]; then
                     print-header red "❌ Profile passed in multiple times!"
-                    printf "%s" "${_usage}"
+                    print "${_usage}"
                     return 1
                 fi
                 export AWS_PROFILE="$1"
@@ -51,10 +50,10 @@ aws-signon dev -f
     if [ -z "$profile" ]; then
         if [ -z "$AWS_PROFILE" ]; then
             print-header red "❌ No profile specified & \$AWS_PROFILE is not available!"
-            printf "%s" "${_usage}"
+            print "${_usage}"
             return 1
         else
-            printf "No profile specified, using \$AWS_PROFILE: %s\n" "$AWS_PROFILE"
+            print "No profile specified, using \$AWS_PROFILE: $AWS_PROFILE"
         fi
     else
         AWS_PROFILE="$profile"
@@ -72,10 +71,10 @@ aws-signon dev -f
 
     if (( exit_code != 0 )); then
         if (( ! force )); then
-            echo "not signed in, attempting SSO login for '$AWS_PROFILE'..."
+            print "not signed in, attempting SSO login for '$AWS_PROFILE'..."
         fi
         aws sso login --profile "$AWS_PROFILE"
     else
-        echo "already signed in as $AWS_PROFILE"
+        print "already signed in as $AWS_PROFILE"
     fi
 } "$@"

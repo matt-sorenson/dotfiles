@@ -17,8 +17,7 @@ Options:
   -b, --brew          Update brew
   -d, --doom          Update doom emacs
 
-If no flags are provided then it's treated as if all flags are set.
-"
+If no flags are provided then it's treated as if all flags are set."
 
     local -A flags
     flags=(
@@ -43,7 +42,7 @@ If no flags are provided then it's treated as if all flags are set.
     while (( $# )); do
         case $1 in
             -h|--help)
-                printf "%s" "$_usage"
+                print "$_usage"
                 return 0
                 ;;
             -g|--git)
@@ -88,12 +87,12 @@ If no flags are provided then it's treated as if all flags are set.
                 ;;
             -*)
                 print-header red "❌ Unknown option '$1'"
-                printf "%s" "$_usage"
+                print "$_usage"
                 return 1
                 ;;
             *)
                 print-header red "❌ Unknown argument '$1'"
-                printf "%s" "$_usage"
+                print "$_usage"
                 return 1
         esac
     done
@@ -210,7 +209,7 @@ If no flags are provided then it's treated as if all flags are set.
     if (( ! out && all_true )); then
         local update_filename="${DOTFILES}/tmp/dotfile-update"
         local current_time=$(date +%s)
-        printf "%s" "${current_time}" >! "${update_filename}"
+        print -n "${current_time}" >! "${update_filename}"
     fi
 
     return $out

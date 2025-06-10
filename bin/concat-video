@@ -5,7 +5,7 @@
 set -euo pipefail
 
 _usage() {
-    printf "Usage: concat-video [OPTIONS]
+    print "Usage: concat-video [OPTIONS]
 
 Required:
   -f, --file FILENAME        filename to base concat off of
@@ -14,8 +14,8 @@ Options:
   -o, --output <EXTENSION>   output file extension (default: .m4v)
   -c, --crop w:h:x:y         crop to dimensions w:h:x:y
   -t, --trim <SECONDS>       trim intro from 2nd,3rd... in seconds (default: 0)
-  -h, --help                 show this help and exit
-"
+  -h, --help                 show this help and exit"
+
     exit "${1:-0}"
 }
 
@@ -48,11 +48,11 @@ while (( $# )); do
             _usage 0
             ;;
         -*)
-            printf 'Unknown option: %s\n' "${1}" >&2
+            print 'Unknown option: ${1}' >&2
             _usage 1
             ;;
         *)
-            printf 'Unknown argument: %s\n' "${1}" >&2
+            print 'Unknown argument: ${1}' >&2
             _usage 1
             ;;
     esac
@@ -61,7 +61,7 @@ done
 
 # Ensure required
 if [[ -z "$filename" ]]; then
-    printf 'Error: --file is required\n' >&2
+    print 'Error: --file is required' >&2
     _usage 1
 fi
 
@@ -74,12 +74,12 @@ cd - >/dev/null 2>&1 || exit 1
 
 # Validate filename format
 if ! echo "$base" | grep -Eq '^(.*?) *pt\.?([0-9]+)(\..*)$'; then
-    printf 'Could not parse filename for part: %s\n' "$filename" >&2
+    print "Could not parse filename for part: $filename" >&2
     exit 1
 fi
 
 # Extract prefix
-prefix=$(printf '%s' "$base" | sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/')
+prefix=$(print -n "$base" | sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/')
 
 # Prepare output
 outdir="$dir/converted"
@@ -96,7 +96,7 @@ for f in "${prefix}"*; do
   files_partlist="${files_partlist}${n} $f"$'\n'
 done
 # sort numerically, extract filenames:
-files=$(printf '%s' "$files_partlist" | sort -n | cut -d' ' -f2-)
+files=$(print -n "$files_partlist" | sort -n | cut -d' ' -f2-)
 
 # Build ffmpeg inputs
 cmd="ffmpeg"
@@ -137,8 +137,8 @@ cmd="$cmd -filter_complex \"$filter_complex\" \
 eval "$cmd"
 status=$?
 if (( status )); then
-    printf 'ffmpeg failed with exit code %d\n' "$status" >&2
+    print "ffmpeg failed with exit code $status" >&2
     exit $status
 fi
 
-printf 'Successfully created %s\n' "$final_filename"
+print "Successfully created $final_filename"

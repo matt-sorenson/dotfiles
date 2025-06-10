@@ -3,7 +3,7 @@
 set -euo pipefail
 
 _usage() {
-    printf "Usage: brew-find-leafs [-h|--help]
+    print "Usage: brew-find-leafs [-h|--help]
 
 Finds brew formulas that aren't depended on by any other packages.
 This is useful for cleaning up unused dependencies.
@@ -14,8 +14,7 @@ Options:
   -q, --quiet  Suppress most output, only show the forumulas that would be removed
 
 There is explicitly not a -f or --force option as this script can't tell if you
-manually installed a formula or if it was installed as a dependency.
-"
+manually installed a formula or if it was installed as a dependency."
 
     exit "$1"
 }
@@ -64,7 +63,7 @@ for formula in $(brew list); do
                 check_formulas $(brew deps --1 --installed "${formula}")
             fi
         else
-            printf "%s\n" "${formula}"
+            print "${formula}"
         fi
     fi
 done

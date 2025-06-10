@@ -7,19 +7,18 @@ function() {
 
     local _usage="Usage: git-pushb [-h|--help] [-b <branch> | <branch>]
 
-    Arguments:
-        <Branch>    The branch to check out.
+Arguments:
+  <Branch>    The branch to check out.
 
-    Options:
-    -b <branch>   Create a new branch and check it out.
-    -h, --help    Show this help message
+Options:
+  -b <branch>   Create a new branch and check it out.
+  -h, --help    Show this help message
 
-    any flag from 'git checkout' that doesn't take a value can be passed in as an
-    option (unless the value is passed in as part of the same argument, ie '--conflict=<style>').
+any flag from 'git checkout' that doesn't take a value can be passed in as an
+option (unless the value is passed in as part of the same argument, ie '--conflict=<style>').
 
-    The only un-named argument can be the branch name (if -b is not used). If
-    multiple positional arguments are provided then the command will fail.
-    "
+The only un-named argument can be the branch name (if -b is not used). If
+multiple positional arguments are provided then the command will fail."
 
     local new_branch=
     local -a arguments=()
@@ -28,19 +27,19 @@ function() {
     while (( $# )); do
         case "$1" in
             -h|--help)
-                printf "%s" "$_usage"
+                print "$_usage"
                 return 0
                 ;;
             -b|--branch)
                 if [ $# -lt 2 ]; then
                     print_header red "Missing argument for '$1'"
-                    printf "%s" "$_usage"
+                    print "$_usage"
                     return 1
                 elif [ -z "$new_branch" ]; then
                     new_branch="$2"
                 else
                     print_header red "Unknown argument: '$1'"
-                    printf "a branch has already been provided '%s'.\n%s" "$new_branch" "$_usage"
+                    print "a branch has already been provided '$new_branch'.\n$_usage"
                     return 1
                 fi
 
@@ -68,8 +67,8 @@ function() {
                     arguments+=("$1")
                 else
                     print_header red "Unknown argument: $1"
-                    printf "a branch has already been provided.\n"
-                    printf "%s" "$_usage"
+                    print "a branch has already been provided."
+                    print "$_usage"
                     return 1
                 fi
                 shift
@@ -79,20 +78,20 @@ function() {
 
     if [[ -z "$new_branch" ]]; then
         print_header red "No branch specified."
-        printf "Please provide a branch name to check out.\n"
-        printf "%s" "$_usage"
+        print "Please provide a branch name to check out."
+        print "$_usage"
         return 1
     fi
 
     # find repo root
     local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-        printf 'Not a git repository.\n' >&2
+        print 'Not a git repository.' >&2
         return 1
     }
 
     # get current branch
     local current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || {
-        printf 'Failed to determine current branch.\n' >&2
+        print 'Failed to determine current branch.' >&2
         return 1
     }
 
@@ -105,7 +104,7 @@ function() {
 
     # ensure stack exists, then push current branch
     mkdir -p "$(dirname "$stack_file")"
-    printf '%s\n' "$current_branch" >> "$stack_file"
+    print "$current_branch" >> "$stack_file"
 
     git checkout "${arguments[@]}"
 } "$@"

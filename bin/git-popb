@@ -9,19 +9,18 @@ function() {
 
 This script checks out the last branch checked out with git-pushb and pops it from the stack.
 
--h, --help           Show this help message
-    "
+-h, --help           Show this help message"
 
     # Help check
     for arg in "$@"; do
         case "$arg" in
             -h|--help)
-                printf "%s" "$_usage"
+                print "$_usage"
                 return 0
                 ;;
             *)
                 print-header red "Unknown argument: $arg"
-                printf "%s" "$_usage"
+                print "$_usage"
                 return 1
                 ;;
         esac
@@ -29,7 +28,7 @@ This script checks out the last branch checked out with git-pushb and pops it fr
 
     # find repo root
     local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-        printf 'Not a git repository.\n' >&2
+        print 'Not a git repository.' >&2
         return 1
     }
 
@@ -42,18 +41,18 @@ This script checks out the last branch checked out with git-pushb and pops it fr
         elif git show-ref --quiet --verify refs/heads/main; then
             target_branch=main
         else
-            printf "Error: neither 'master' nor 'main' branch exists\n" >&2
+            print "Error: neither 'master' nor 'main' branch exists" >&2
             return 1
         fi
 
-        printf 'No branches in stack, checking out %s\n' "$target_branch" >&2
+        print "No branches in stack, checking out $target_branch" >&2
     else
         # read last entry
         target_branch=$(tail -n 1 "$stack_file")
 
         # remove last line in a POSIX-safe way
         local tmp_file=$(mktemp) || {
-            printf 'Failed to create temp file.\n' >&2
+            print 'Failed to create temp file.' >&2
             return 1
         }
         sed '$d' "$stack_file" > "$tmp_file"
@@ -68,7 +67,7 @@ This script checks out the last branch checked out with git-pushb and pops it fr
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
 
     if [[ "$current_branch" = "$target_branch" ]]; then
-        printf "✅ You are already on '%s'\n" "$target_branch"
+        print "✅ You are already on '$target_branch'"
     else
         git checkout "$target_branch"
     fi
