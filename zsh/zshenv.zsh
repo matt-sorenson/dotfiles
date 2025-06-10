@@ -90,4 +90,5 @@ if command -v rbenv > /dev/null ; then
 fi
 
 autoload \
-    aws-signon
+    aws-signon \
+    print-header

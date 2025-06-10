@@ -83,7 +83,7 @@ function prompt_ender_seg_SEA_time() {
 
 function prompt_ender_seg_git_info() {
     local bg ref
-    ref="$(echo $vcs_info_msg_0_)"
+    ref="$(print $vcs_info_msg_0_)"
     if [[ -n "$ref" ]]; then
         if [[ -n "$(git status --porcelain --ignore-submodules)" ]]; then
             bg=yellow

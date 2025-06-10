@@ -24,13 +24,13 @@ function print-header(){
     local header="${(pl:80::=:)}"
     shift
     local message="${@}"
-    echo "$color${header}\n= ${message}\n${header}$reset_color"
+    print "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
 function backup-file() {
     if [[ -f "${1}" ]]; then
         mv "${1}" "${1}.bak"
-        echo "${1} backed up to ${1}.bak"
+        print "${1} backed up to ${1}.bak"
     fi
 }
 
@@ -150,15 +150,15 @@ if cd "${DOTFILES}" &> /dev/null; then
     }
 else
     print-header red "❌ Failed to change directory to ${DOTFILES}"
-    echo "this shouldn't happen, but if the folder does exist (which we just created it),"
-    echo "then you can try running 'git config --local user.email \"\${GIT_EMAIL}\"' manually"
-    echo "continuing anyways as this isn't a critical error"
+    print "this shouldn't happen, but if the folder does exist (which we just created it),"
+    print "then you can try running 'git config --local user.email \"\${GIT_EMAIL}\"' manually"
+    print "continuing anyways as this isn't a critical error"
 fi
 
 print-header green "Setting up doomemacs"
 
 if ! command -v emacs > /dev/null 2>&1; then
-    print-header yellow "emacs not found, consider installing it"
+    print-header yellow "⚠️ emacs not found, consider installing it"
 fi
 
 mkdir -p "${HOME}/.config"

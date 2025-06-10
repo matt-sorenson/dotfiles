@@ -86,24 +86,26 @@ If no flags are provided then it's treated as if all flags are set."
                 shift
                 ;;
             -*)
-                print-header red "❌ Unknown option '$1'"
+                print-header -e "Unknown option '$1'"
                 print "$_usage"
                 return 1
                 ;;
             *)
-                print-header red "❌ Unknown argument '$1'"
+                print-header -e "Unknown argument '$1'"
                 print "$_usage"
                 return 1
         esac
     done
 
     if (( ! specified_flag )); then
-       for key in "${(@k)flags}"; do
+        local key
+        for key in "${(@k)flags}"; do
             if (( ! no_flags[$key] )); then
                 flags[$key]=1
             fi
         done
     elif (( specified_no_flag )); then
+        local key
        for key in "${(@k)flags}"; do
             if (( no_flags[$key] && flags[$key] )); then
                 _error -h "Specified flag --no-${key//_/-} but also specified -${key//_/-} or --${key//_/-}, please choose one."
@@ -112,6 +114,7 @@ If no flags are provided then it's treated as if all flags are set."
     fi
 
     local all_true=1
+    local key
     for key in "${(@k)flags}"; do
         if (( ! flags[$key] )); then
             all_true=0
@@ -136,7 +139,7 @@ If no flags are provided then it's treated as if all flags are set."
                 out=1
             fi
         else
-            print-header yellow "⚠️ ${DOTFILES} does not exist, skipping dotfiles update."
+            print-header -w "${DOTFILES} does not exist, skipping dotfiles update."
         fi
 
         if (( flags[local] )) && [[ -d "${DOTFILES}/local" ]]; then
@@ -145,11 +148,11 @@ If no flags are provided then it's treated as if all flags are set."
             fi
         elif (( flags[local] && specified_no_flag )); then
             # If the user specifically requested updating local then print a warning.
-            print-header yellow "⚠️ ${DOTFILES}/local does not exist, skipping local update."
+            print-header -w "${DOTFILES}/local does not exist, skipping local update."
         fi
 
-        repos_to_update=( ${DOTFILES}/deps/*(/) )
-
+        local repos_to_update=( ${DOTFILES}/deps/*(/) )
+        local repo
         for repo in $repos_to_update; do
             if ! dot-check-for-update-git -i 2 "$repo"; then
                 out=1
@@ -163,11 +166,11 @@ If no flags are provided then it's treated as if all flags are set."
 
             if brew update; then
                 if ! brew upgrade; then
-                    print-header red -i 2 "❌ brew: Failed to upgrade."
+                    print-header -e -i 2 "brew: Failed to upgrade."
                     out=1
                 fi
             else
-                print-header red -i 2 "❌ brew: Failed to update."
+                print-header -e -i 2 "brew: Failed to update."
                 out=1
             fi
         else
@@ -198,7 +201,7 @@ If no flags are provided then it's treated as if all flags are set."
             print-header green "Updating doom emacs."
 
             if ! "${doomemacs_bin}" upgrade --aot --force --color; then
-                print-header red -i 2 "❌ doom emacs failed to upgrade."
+                print-header -e -i 2 "doom emacs failed to upgrade."
                 out=1
             fi
         fi

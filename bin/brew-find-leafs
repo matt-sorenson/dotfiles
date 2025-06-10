@@ -2,6 +2,7 @@
 #compdef brew-find-leafs
 
 function() {
+    emulate -L zsh
     set -euo pipefail
 
     local flag_remove=0
@@ -35,15 +36,16 @@ manually installed a formula or if it was installed as a dependency."
                 shift 1
                 ;;
             *)
-                print-header red "Unknown option: $1"
+                print-header -e "Unknown option: $1"
                 print "$_usage"
                 return 1
                 ;;
         esac
     done
 
+
     if (( flag_quiet && flag_remove )); then
-        echo "Error: Cannot use --quiet and --remove together."
+        print "Error: Cannot use --quiet and --remove together."
         exit 1
     fi
 
@@ -53,6 +55,7 @@ manually installed a formula or if it was installed as a dependency."
         print-header green "Searching for formulas not depended on by other formulas..."
     fi
 
+    local formula
     for formula in $(brew list); do
         if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
             visited_formulas[$formula]=1

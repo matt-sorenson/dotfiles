@@ -12,22 +12,28 @@ Pretty prints a JWT (JSON Web Token)
 Options:
     -h, --help    Show this help message and exit"
 
-    for arg in "$@"; do
-        if [[ "${arg}" == "-h" || "${arg}" == '--help' ]]; then
-            print "${_usage}"
-            return 0
-        fi
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -h|--help)
+                print "${_usage}"
+                return 0
+            *)
+                print-header -e "Unknown argument: ${arg}"
+                print "${_usage}"
+                return 1
+        esac
+        shift
     done
 
     if ! command -v jq > /dev/null; then
-        print-header red "ERROR: jq not found. Please install jq to use this script."
+        print-header -e "ERROR: jq not found. Please install jq to use this script."
         return 1
     fi
 
     local jwt="${1:-}"
     if [[ -z "${jwt}" ]]; then
         if ! command -v pbpaste > /dev/null; then
-            print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument."
+            print-header -e "ERROR: pbpaste not found. Must pass a JWT as an argument."
             print "${_usage}"
             return 1
         fi
@@ -56,12 +62,13 @@ Options:
         errors+=("Issued at is empty or invalid.")
     fi
     if [[ -z "${sig}" || "${sig}" == 'null' ]]; then
-        print-header yellow "WARNING: Signature is empty or invalid. This may be a non-signed JWT."
+        print-header -w "WARNING: Signature is empty or invalid. This may be a non-signed JWT."
     fi
 
     if (( ${#errors[@]} > 0 )); then
-        print-header red "ERROR: JWT parsing failed: '${jwt}'"
+        print-header -e "ERROR: JWT parsing failed: '${jwt}'"
         local message=""
+        local error
         for error in "${errors[@]}"; do
             message="${message}- ${error}\n"
         done

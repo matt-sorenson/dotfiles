@@ -73,7 +73,7 @@ dir=$(pwd)
 cd - >/dev/null 2>&1 || exit 1
 
 # Validate filename format
-if ! echo "$base" | grep -Eq '^(.*?) *pt\.?([0-9]+)(\..*)$'; then
+if ! print "$base" | grep -Eq '^(.*?) *pt\.?([0-9]+)(\..*)$'; then
     print "Could not parse filename for part: $filename" >&2
     exit 1
 fi

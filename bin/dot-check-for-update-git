@@ -26,7 +26,7 @@ If no flags are provided then it's treated as if all flags are set."
                 ;;
             -i|--indent)
                 if (( $# < 2 )); then
-                    print-header red -i $indent "${dir:-Unknown Repo}: ❌ Expected an indent value after '$1'"
+                    print-header -e -i $indent "${dir:-Unknown Repo}: Expected an indent value after '$1'"
                     print "$_usage"
                     return 1
                 fi
@@ -34,7 +34,7 @@ If no flags are provided then it's treated as if all flags are set."
                 indent="$1"
                 ;;
             -*)
-                print-header red -i $indent "${dir:-Unknown Repo}: ❌ Called dot-check-for-update with unknown option '$1'"
+                print-header -e -i $indent "${dir:-Unknown Repo}: Called dot-check-for-update with unknown option '$1'"
                 print "$_usage"
                 return 1
                 ;;
@@ -42,7 +42,7 @@ If no flags are provided then it's treated as if all flags are set."
                 if [[ -z $dir ]]; then
                     dir=$1
                 else
-                    print-header red -i $indent "${dir:-Unknown Repo}: ❌ Called dot-check-for-update with unexpected argument '$1'"
+                    print-header -e -i $indent "${dir:-Unknown Repo}: Called dot-check-for-update with unexpected argument '$1'"
                     print "$_usage"
                     return 1
                 fi
@@ -52,7 +52,7 @@ If no flags are provided then it's treated as if all flags are set."
     done
 
     if [[ -z $dir ]]; then
-        print-header red -i $indent "Unknown Repo: ❌ Called dot-check-for-update without a directory"
+        print-header -e -i $indent "Unknown Repo: Called dot-check-for-update without a directory"
         return 1
     fi
 
@@ -73,10 +73,10 @@ If no flags are provided then it's treated as if all flags are set."
     esac
 
     if [[ ! -d "${dir}" ]]; then
-        print-header yellow -i $indent "${log_dir}: ⚠️ Missing Directory"
+        print-header -w -i $indent "${log_dir}: Missing Directory"
         return 0
     elif [[ ! -d "${dir}/.git" ]]; then
-        (( quiet )) && print-header yellow -i $indent "${log_dir}: ⚠️ Directory not a git repo"
+        (( quiet )) && print-header -w -i $indent "${log_dir}: Directory not a git repo"
         return 0
     fi
 
@@ -86,7 +86,7 @@ If no flags are provided then it's treated as if all flags are set."
 
     local remotes=(${(f)"$(git remote)"})
     if (( ${#remotes} == 0 )); then
-        (( ! quiet )) && print-header yellow -i $indent "${log_dir}: ⚠️ No git remote found, skipping update"
+        (( ! quiet )) && print-header -w -i $indent "${log_dir}: No git remote found, skipping update"
         popd > /dev/null
         return 0
     fi
@@ -98,18 +98,18 @@ If no flags are provided then it's treated as if all flags are set."
         if git merge-base --is-ancestor HEAD "${branch}"; then
             git merge "${branch}"
         elif ! git merge-base --is-ancestor "${branch}" HEAD; then
-            print-header red -i $indent "${log_dir}: ❌ Local branch has diverged from upstream"
+            print-header -e -i $indent "${log_dir}: Local branch has diverged from upstream"
             popd > /dev/null
             return 1
         fi
     else
-        print-header red -i $indent "${log_dir}: ❌ No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+        print-header -e -i $indent "${log_dir}: No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
         popd > /dev/null
         return 0
     fi
 
     git diff --quiet --ignore-submodules HEAD || {
-        print-header red -i $indent "${log_dir}: ❌ Uncommitted changes found"
+        print-header -e -i $indent "${log_dir}: Uncommitted changes found"
         popd > /dev/null
         return 1
     }
@@ -122,18 +122,18 @@ If no flags are provided then it's treated as if all flags are set."
         local behind=$(print "$behind_ahead" | awk '{print $2}')
 
         if (( behind > 0 && ahead > 0 )); then
-            print-header red -i $indent "${log_dir}: ❌ Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
+            print-header -e -i $indent "${log_dir}: Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
             popd > /dev/null
             return 1
         elif (( behind > 0 )); then
-            print-header red -i $indent "${log_dir}: ❌ Branch is behind upstream by ${behind} commits"
+            print-header -e -i $indent "${log_dir}: Branch is behind upstream by ${behind} commits"
             popd > /dev/null
             return 1
         elif (( ahead > 0 )); then
             print "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
         fi
     else
-        print-header yellow -i $indent "${log_dir}: ⚠️ Unable to compare with upstream for"
+        print-header -w -i $indent "${log_dir}: Unable to compare with upstream for"
         popd > /dev/null
         return 1
     fi

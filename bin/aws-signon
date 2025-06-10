@@ -30,13 +30,13 @@ aws-signon dev -f"
                 force=1
                 ;;
             -*)
-                print-header red "❌ Unknown option: $1"
+                print-header -e "Unknown option: $1"
                 print "${_usage}"
                 return 1
                 ;;
             *)
                 if [ -n "$profile" ]; then
-                    print-header red "❌ Profile passed in multiple times!"
+                    print-header -e "Profile passed in multiple times!"
                     print "${_usage}"
                     return 1
                 fi
@@ -49,7 +49,7 @@ aws-signon dev -f"
     export AWS_PROFILE
     if [ -z "$profile" ]; then
         if [ -z "$AWS_PROFILE" ]; then
-            print-header red "❌ No profile specified & \$AWS_PROFILE is not available!"
+            print-header -e "No profile specified & \$AWS_PROFILE is not available!"
             print "${_usage}"
             return 1
         else

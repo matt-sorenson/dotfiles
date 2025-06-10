@@ -3,7 +3,10 @@ autoload -U compinit && compinit -i
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-export AT_WORK=$([[ -f "${DOTFILES}/local/is-work" ]] && echo 1 || echo 0)
+export AT_WORK=0
+if [[ -f "${DOTFILES}/local/is-work" ]]; then
+    AT_WORK=1
+fi
 
 if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
@@ -19,7 +22,7 @@ if [[ "$OSTYPE" == darwin* ]]; then
     # this file may have been recreated by brew updates.
     if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
         print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
-        echo "this is the git autocomplete provided by git, deleting this to" \
+        print "this is the git autocomplete provided by git, deleting this to" \
             "fallback to the one provided by zsh"
         rm -f /opt/homebrew/share/zsh/site-functions/_git
     fi

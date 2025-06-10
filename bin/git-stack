@@ -19,7 +19,6 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
         case "$1" in
             -c|--clear)
                 clear_stack=1
-                shift
                 ;;
             -h|--help)
                 print "$_usage"
@@ -31,6 +30,7 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
                 return 1
                 ;;
         esac
+        shift
     done
 
     # Find repo root

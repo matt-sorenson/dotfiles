@@ -2,11 +2,11 @@
 #compdef clang-format-ri
 
 function(){
-    emulate -L
+    emulate -L zsh
     set -euo pipefail
 
     if ! command -v clang-format > /dev/null; then
-        print-header red "ERROR: clang-format not found. Please install clang-format to use this script."
+        print-header -e "ERROR: clang-format not found. Please install clang-format to use this script."
         return 1
     fi
 
@@ -26,7 +26,7 @@ Options:
                 ;;
             -e|--extensions)
                 if $# < 2 ]; then
-                    print-header red "Error: --extensions requires at least one extension argument."
+                    print-header -e "Error: --extensions requires at least one extension argument."
                     print "${_usage}"
                     return 1
                 fi
@@ -37,14 +37,14 @@ Options:
                 shift
                 break
                 ;;
-            -*|--*)
-                print-header red "Unknown option: ${1}"
+            -*)
+                print-header -e "Unknown option: ${1}"
                 print "${_usage}"
                 return 1
                 ;;
             *)
                 if [[ -n "${srcpath}" ]]; then
-                    print-header red "Source path already set: ${srcpath}"
+                    print-header -e "Source path already set: ${srcpath}"
                     print "${_usage}"
                     return 1
                 fi
@@ -55,12 +55,13 @@ Options:
     done
 
     if [[ -z "${srcpath}" ]]; then
-        print-header red "Source path is required."
+        print-header -e "Source path is required."
         print "${_usage}"
         return 1
     fi
 
     local filters=()
+    local ext
     for ext in "${extensions[@]}"; do
         filters+=( -iname "${ext}" -o )
     done

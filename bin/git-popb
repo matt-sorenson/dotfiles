@@ -11,19 +11,19 @@ This script checks out the last branch checked out with git-pushb and pops it fr
 
 -h, --help           Show this help message"
 
-    # Help check
-    for arg in "$@"; do
-        case "$arg" in
+    while (( $# )); do
+        case "$1" in
             -h|--help)
                 print "$_usage"
                 return 0
                 ;;
             *)
-                print-header red "Unknown argument: $arg"
+                print-header -e "Unknown argument: $arg"
                 print "$_usage"
                 return 1
                 ;;
         esac
+        shift
     done
 
     # find repo root

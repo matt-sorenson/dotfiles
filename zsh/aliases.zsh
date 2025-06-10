@@ -24,13 +24,14 @@ auto-dot-check-for-update() {
 
     if (( last_update < cuttoff_time )); then
         read -q "RUN_UPDATE?It's been a while, update dotfiles? "
-        echo '' # read -q doesn't output a newline
+        print '' # read -q doesn't output a newline
         if [[ "${RUN_UPDATE:l}" == "y" ]]; then
             dot-check-for-update;
         fi
     fi
 }
 
+# see bottom of zshenv.zsh for more autoloaded functions
 autoload \
     brew-find-leafs \
     clang-format-ri \
