@@ -181,7 +181,7 @@ If no flags are provided then it's treated as if all flags are set.
                 color="yellow"
                 icon="⚠️"
             fi
-            print-header "$color" -i 2 "$icon brew: \`brew\` is not installed."
+            print-header "$color" -i 2 "$icon brew: 'brew' is not installed."
         fi
     fi
 
