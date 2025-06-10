@@ -116,9 +116,12 @@ add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.config/emacs/bin"
 
 if [[ -d "${HOME}/Library/pnpm" ]]; then
-  export PNPM_HOME="${HOME}/Library/pnpm"
+    export PNPM_HOME="${HOME}/Library/pnpm"
+    add-to-path "${HOME}/Library/pnpm"
 fi
-add-to-path "${HOME}/Library/pnpm"
 
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
+
+add-to-fpath "${DOTFILES}/bin"
+add-to-fpath "${DOTFILES}/local/bin"

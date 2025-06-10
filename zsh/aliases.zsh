@@ -31,9 +31,6 @@ auto-dot-check-for-update() {
     fi
 }
 
-add-to-fpath "${DOTFILES}/bin"
-add-to-fpath "${DOTFILES}/local/bin"
-
 autoload \
     clang-format-ri \
     jwt-print \

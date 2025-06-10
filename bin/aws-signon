@@ -1,9 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env zsh
+#compdef aws-signon
 
-set -eu
+function() {
+    emulate -L zsh
+    set -uo pipefail
 
-_usage() {
-    printf "Usage: aws-signon [-f|--force] [-h|--help] <profile>
+    local _usage="Usage: aws-signon [-f|--force] [-h|--help] <profile>
 
 Options:
   -f, --force                         Force login even if already signed in
@@ -11,89 +13,69 @@ Options:
   <profile>                           AWS profile to sign into
 
 Examples:
-  aws-signon -f dev
-  aws-signon dev
-  aws-signon dev -f
+aws-signon -f dev
+aws-signon dev
+aws-signon dev -f
 "
 
-    exit "${1:-0}"
-}
-
-_error() {
-    local help=0
-    local parts=()
+    local force=0
+    local profile=""
 
     while (( $# )); do
-        case "${1}" in
+        case "$1" in
             -h|--help)
-                help=1
+                printf "%s" "${_usage}"
+                return 0
+                ;;
+            -f|--force)
+                force=1
+                ;;
+            -*)
+                print-header red "❌ Unknown option: $1"
+                printf "%s" "${_usage}"
+                return 1
                 ;;
             *)
-                parts+=("$1")
+                if [ -n "$profile" ]; then
+                    print-header red "❌ Profile passed in multiple times!"
+                    printf "%s" "${_usage}"
+                    return 1
+                fi
+                export AWS_PROFILE="$1"
                 ;;
         esac
         shift
     done
 
-    print-header red "❌ ${parts[*]}"
-
-    # if help was requested, show usage
-    if (( help )); then
-        _usage 1
-    fi
-
-    exit 1
-}
-
-force=0
-profile=""
-
-while (( $# )); do
-    case "$1" in
-        -h|--help)
-            _usage 0
-            ;;
-        -f|--force)
-            force=1
-            shift
-            ;;
-        -*)
-            _error -h "Unknown option: $1"
-            ;;
-        *)
-            if [ -n "$profile" ]; then
-                _error -h "Profile passed in multiple times!"
-            fi
-            profile="$1"
-            shift
-            ;;
-    esac
-done
-
-if [ -z "$profile" ]; then
-    if [ -z "$AWS_PROFILE" ]; then
-        _error -h "No profile specified!"
+    export AWS_PROFILE
+    if [ -z "$profile" ]; then
+        if [ -z "$AWS_PROFILE" ]; then
+            print-header red "❌ No profile specified & \$AWS_PROFILE is not available!"
+            printf "%s" "${_usage}"
+            return 1
+        else
+            printf "No profile specified, using \$AWS_PROFILE: %s\n" "$AWS_PROFILE"
+        fi
     else
-        printf "No profile specified, using AWS_PROFILE: %s\n" "$AWS_PROFILE"
-        profile="$AWS_PROFILE"
+        AWS_PROFILE="$profile"
+        unset profile
     fi
-fi
 
-print-header green "🔐 Signing into AWS: $profile"
+    print-header green "🔐 Signing into AWS: $AWS_PROFILE"
 
-export AWS_PROFILE="$profile"
-
-exit_code=0
-if (( force )); then
-    aws sts get-caller-identity --profile "$profile" > /dev/null 2>&1
-    exit_code=$?
-fi
-
-if (( exit_code || force )); then
+    # Set to 1 so that if force is set it will attempt to login
+    local exit_code=1
     if (( ! force )); then
-        echo "not signed in, attempting SSO login for '$profile'..."
+        aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null
+        local exit_code=$?
     fi
-    aws sso login --profile "$profile"
-else
-    echo "already signed in as $profile"
-fi
+
+    if (( exit_code != 0 )); then
+        if (( ! force )); then
+            echo "not signed in, attempting SSO login for '$AWS_PROFILE'..."
+        fi
+        aws sso login --profile "$AWS_PROFILE"
+    else
+        echo "already signed in as $AWS_PROFILE"
+    fi
+} "$@"
