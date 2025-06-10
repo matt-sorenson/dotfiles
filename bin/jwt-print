@@ -5,6 +5,20 @@ function() {
     emulate -L zsh
     set -uo pipefail
 
+    local _usage="Usage: jwt-print <jwt>
+
+Pretty prints a JWT (JSON Web Token)
+
+Options:
+    -h, --help    Show this help message and exit"
+
+    for arg in "$@"; do
+        if [[ "${arg}" == "-h" || "${arg}" == '--help' ]]; then
+            print "${_usage}"
+            return 0
+        fi
+    done
+
     if ! command -v jq > /dev/null; then
         print-header red "ERROR: jq not found. Please install jq to use this script."
         return 1
@@ -14,6 +28,7 @@ function() {
     if [[ -z "${jwt}" ]]; then
         if ! command -v pbpaste > /dev/null; then
             print-header red "ERROR: pbpaste not found. Must pass a JWT as an argument."
+            print "${_usage}"
             return 1
         fi
         jwt=$(pbpaste)
