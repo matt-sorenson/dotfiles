@@ -92,11 +92,13 @@ DOTFILES="${HOME}/.dotfiles"
 
 safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
 
+mkdir "${DOTFILES}/deps"
+
 print-header green "Setting up fzf-tab"
-safe-git-clone "https://github.com/Aloxaf/fzf-tab" "${HOME}/.fzf-tab"
+safe-git-clone "https://github.com/Aloxaf/fzf-tab" "${DOTFILES}/deps/fzf-tab"
 
 print-header green "Setting up zsh-syntax-highlighting"
-safe-git-clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${HOME}/.zsh-syntax-highlighting"
+safe-git-clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${DOTFILES}/deps/zsh-syntax-highlighting"
 
 # Lets source zshenv so that we can use it's setup instead of duplicating it here
 source "${DOTFILES}/zsh/zshenv.zsh"
@@ -116,7 +118,6 @@ safe-set-link "${HOME}/.zshenv"   "${DOTFILES}/zsh/zshenv.zsh"
 
 print-header green "Setting up misc dotfiles"
 safe-set-link "${HOME}/.gitconfig" "${DOTFILES}/gitconfig"
-safe-set-link "${HOME}/.tmux.conf" "${DOTFILES}/tmux.conf"
 
 LOCAL_DOTFILES="${DOTFILES}/local.$(hostname -s)"
 

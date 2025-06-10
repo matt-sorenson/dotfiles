@@ -4,7 +4,9 @@
 ## This script depends on DOTFILES being set to the path of the dotfiles repo.
 
 function() {
-    local -a repos_to_update=( "${HOME}/.fzf-tab" "${HOME}/.zsh-syntax-highlighting" )
+    emulate -L zsh
+    set -uo pipefail
+    setopt nullglob
 
     local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
 
@@ -147,8 +149,10 @@ If no flags are provided then it's treated as if all flags are set.
             print-header yellow "⚠️ ${DOTFILES}/local does not exist, skipping local update."
         fi
 
-        for dir in $repos_to_update; do
-            if ! dot-check-for-update-git -i 2 "$dir"; then
+        repos_to_update=( ${DOTFILES}/deps/*(/) )
+
+        for repo in $repos_to_update; do
+            if ! dot-check-for-update-git -i 2 "$repo"; then
                 out=1
             fi
         done
