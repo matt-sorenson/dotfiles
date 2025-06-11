@@ -80,7 +80,11 @@ If no flags are provided then it's treated as if all flags are set."
         print-header -w -i $indent "${log_dir}: Missing Directory"
         return 0
     elif [[ ! -d "${dir}/.git" ]]; then
-        (( quiet )) && print-header -w -i $indent "${log_dir}: Directory not a git repo"
+        if (( quiet )); then
+            print-header -w -i $indent "${log_dir}: Directory not a git repo"
+        else
+            print "Directory not a git repo"
+        fi
         return 0
     fi
 
@@ -91,7 +95,11 @@ If no flags are provided then it's treated as if all flags are set."
 
     local remotes=(${(f)"$(git remote)"})
     if (( ${#remotes} == 0 )); then
-        (( ! quiet )) && print-header -w -i $indent "${log_dir}: No git remote found, skipping update"
+        if (( ! quiet )); then
+            print-header -w -i $indent "${log_dir}: No git remote found, skipping update"
+        else
+            print "Directory not a git repo"
+        fi
         return 0
     fi
 
