@@ -91,4 +91,5 @@ fi
 
 autoload \
     aws-signon \
-    print-header
+    print-header \
+    repoman

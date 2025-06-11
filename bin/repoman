@@ -1,23 +1,38 @@
 #!/usr/bin/env zsh
+#compdef repoman
 
 # This is not a POSIX sh script as it depends on the environment being setup
 # in .zshenv.
 
-set -euo pipefail
+function() {
+    emulate -L zsh
+    set -uo pipefail
 
-CALLING_NAME=${CALLING_NAME:-repoman}
-DOT_DEFAULT_REPO=${DOT_DEFAULT_REPO:-}
+    local default_repo="${DOT_DEFAULT_REPO:-}"
+    local calling_name="${calling_name:-repoman}"
 
-# # These variables should be changed for individual use cases and are expected to
-# # change between different repos.
-# # Commands like --git-clean are the same between repos so are not exposed here.
-function _usage() {
-    local extra_args=""
+    # emulate `local -F` since it doesn't exist
+    trap 'unset -f _repoman-usage' EXIT
+    function _repoman-usage() {
+        # This function is a bit more complex cause it handles alias commands
+        # and can hide some of the options based on the verbosity level so by
+        # default it only shows basic usage when an alias is called.
+        local extra_args=""
+        local verbose=0
+        while (( $# )); do
+            case "$1" in
+                -v|--verbose)
+                    verbose=1
+                    ;;
+                *)
+                    print-header -e "Unknown option: '$1'"
+                    ;;
+            esac
+            shift
+        done
 
-    if [[ "$1" == "-v" ]]; then
-        shift
-
-        extra_args="
+        if (( verbose )); then
+            extra_args="
 
 Extra options for repoman:
   --calling-name <command_name>         Name to use in the usage message
@@ -31,14 +46,14 @@ Extra options for repoman:
   --unit-tests-cmd <cmd>                Command to run for unit tests
   --integration-tests-cmd <cmd>         Command to run for integration tests
   --db-container-name <name>            If set script can skip starting the DB container if it's already running."
-    fi
+        fi
 
-    local default_repo_str=""
-    if [[ -n "${DOT_DEFAULT_REPO}" ]]; then
-        default_repo_str=" (default: ${DOT_DEFAULT_REPO})"
-    fi
+        local default_repo_str=""
+        if [[ -n "${default_repo}" ]]; then
+            default_repo_str=" (default: ${default_repo})"
+        fi
 
-    print "Usage: ${CALLING_NAME} [options]
+        print "Usage: ${calling_name} [options]
 
 Options:
   --git-clean              Clean untracked/ignored files from repo
@@ -48,348 +63,367 @@ Options:
   -b, --build              Build
   -m, --migration          Run migrations & Update zapatos schema
   -u, --unit-test          Run unit tests
-  --integration-test       Run integration tests
+  -I, --integration-test   Run integration tests
   -t, --test               Run all tests
   -h, --help               Show this help message
   -r <repo>, --repo <repo> The directory under \$WORKSPACE_ROOT_DIR containing the repo. ${default_repo_str}
   -p <path>, --path <path> The path to the repo. Overrides -r/--repo.${extra_args}
 
 Examples:
-  ${CALLING_NAME} -cib                       Run clean and install
-  ${CALLING_NAME} --clean --install --build  Run clean and install
-  ${CALLING_NAME} -cibt                      Run clean, install, build, and test
-  ${CALLING_NAME} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
+  ${calling_name} -cib                       Run clean and install
+  ${calling_name} --clean --install --build  Run clean and install
+  ${calling_name} -cibt                      Run clean, install, build, and test
+  ${calling_name} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
+    }
 
-    exit "${1:-0}"
-}
+    local -A opts=(
+        path                ""
+        repo                "${default_repo}"
+        help                0
+        verbose             0
 
-_error() {
-    local help=0
-    local parts=()
+        aws_signon          0
+        clean               0
+        nuke                0
+        git_clean           0
+        install             0
+        build               0
+        db_up               0
+        migration           0
+        test                0
+        unit_test           0
+        integration_test    0
+
+        clean_cmd               ""
+        nuke_cmd                ""
+        install_cmd             ""
+        build_cmd               ""
+        db_up_cmd               ""
+        migrations_cmd          ""
+        unit_tests_cmd          ""
+        integration_tests_cmd   ""
+
+        migrations_subdir       ""
+        db_container_name       ""
+    )
 
     while (( $# )); do
-        case "${1}" in
-            -h|--help)
-                help=1
+        case "$1" in
+            --help) ;& # fallthrough
+            --verbose) ;& # fallthrough
+            --clean) ;& # fallthrough
+            --install) ;& # fallthrough
+            --build) ;& # fallthrough
+            --db-up) ;& # fallthrough
+            --unit-test) ;& # fallthrough
+            --integration-test) ;& # fallthrough
+            --git-clean) ;& # fallthrough
+            --nuke) ;& # fallthrough
+            --migration) ;& # fallthrough
+            --test)
+                opts[${${1#--}//-/_}]=1
+                ;;
+            --calling-name)
+                if (( $# < 2 )); then
+                    print-header -e "missing argument for $1"
+                    _repoman-usage
+                    return 1
+                fi
+
+                calling_name="$2"
+                shift
+                ;;
+            --repo|-r) ;& # fallthrough
+            --path|-p) ;& # fallthrough
+            --migrations-subdir) ;& # fallthrough
+            --db-container-name) ;& # fallthrough
+            --clean-cmd) ;& # fallthrough
+            --nuke-cmd) ;& # fallthrough
+            --install-cmd) ;& # fallthrough
+            --build-cmd) ;& # fallthrough
+            --db-up-cmd) ;& # fallthrough
+            --migrations-cmd) ;& # fallthrough
+            --unit-tests-cmd) ;& # fallthrough
+            --integration-tests-cmd)
+                if (( $# < 2 )); then
+                    print-header -e "missing argument for $1"
+                    _repoman-usage
+                    return 1
+                fi
+
+                # Normalize to canonical flag
+                [[ $1 == '-p' ]] && argv[1]='--path'
+                [[ $1 == '-r' ]] && argv[1]='--repo'
+
+                opts[${${1#--}//-/_}]="$2"
+                shift
+                ;;
+            -[!-]*)
+                local args="${1#-}" # Remove leading dash
+                local arg
+                for arg in ${(s::)args}; do
+                    case "$arg" in
+                        h) opts[help]=1 ;;
+                        v) opts[verbose]=1 ;;
+                        c) opts[clean]=1 ;;
+                        n) opts[nuke]=1 ;;
+                        i) opts[install]=1 ;;
+                        b) opts[build]=1 ;;
+                        d) opts[db_up]=1 ;;
+                        m) opts[migration]=1 ;;
+                        u) opts[unit_test]=1 ;;
+                        I) opts[integration_test]=1 ;;
+                        t) opts[test]=1;;
+                        p|r)
+                            print-header -e "Option '-${arg}' cannot be used in combined short form."
+                            _repoman-usage
+                            return 1
+                            ;;
+                        *)
+                            print-header -e "Unknown option: '-${arg}'"
+                            _repoman-usage
+                            return 1
+                            ;;
+                    esac
+                done
+                ;;
+            --*)
+                print-header -e "Unknown option: '$1'"
+                _repoman-usage
+                return 1
                 ;;
             *)
-                parts+=("$1")
-                ;;
+                print-header -e "Unexpected argument: '$1'"
+                _repoman-usage
+                return 1
         esac
         shift
     done
 
-    print-header -e "${parts[*]}"
-
-    # if help was requested, show usage
-    if (( help )); then
-        _usage 1
-    fi
-
-    exit 1
-}
-
-typeset -A opts=(
-    path                ""
-    repo                "${DOT_DEFAULT_REPO}"
-    help                0
-    verbose             0
-
-    aws_signon          0
-    clean               0
-    nuke                0
-    git_clean           0
-    install             0
-    build               0
-    db_up               0
-    migration           0
-    test                0
-    unit_test           0
-    integration_test    0
-
-    clean_cmd               ""
-    nuke_cmd                ""
-    install_cmd             ""
-    build_cmd               ""
-    db_up_cmd               ""
-    migrations_cmd          ""
-    unit_tests_cmd          ""
-    integration_tests_cmd   ""
-
-    migrations_subdir       ""
-    db_container_name       ""
-)
-
-while (( $# )); do
-    case "$1" in
-        --help) ;& # fallthrough
-        --verbose) ;& # fallthrough
-        --clean) ;& # fallthrough
-        --install) ;& # fallthrough
-        --build) ;& # fallthrough
-        --db-up) ;& # fallthrough
-        --unit-test) ;& # fallthrough
-        --integration-test) ;& # fallthrough
-        --git-clean) ;& # fallthrough
-        --nuke) ;& # fallthrough
-        --migration) ;& # fallthrough
-        --test)
-            opts[${${1#--}//-/_}]=1
-            ;;
-        --calling-name)
-            if (( $# < 2 )); then
-                _error -h "missing argument for $1"
-            fi
-
-            CALLING_NAME="$2"
-            shift
-            ;;
-        --repo|-r)
-            if (( $# < 2 )); then
-                _error -h "missing argument for $1"
-            fi
-
-            opts[repo]="$2"
-            shift
-            ;;
-        --path|-p)
-            if (( $# < 2 )); then
-                _error -h "missing argument for $1"
-            fi
-
-            opts[path]="$2"
-            shift
-            ;;
-        --migrations-subdir) ;& # fallthrough
-        --db-container-name) ;& # fallthrough
-        --clean-cmd) ;& # fallthrough
-        --nuke-cmd) ;& # fallthrough
-        --install-cmd) ;& # fallthrough
-        --build-cmd) ;& # fallthrough
-        --db-up-cmd) ;& # fallthrough
-        --migrations-cmd) ;& # fallthrough
-        --unit-tests-cmd) ;& # fallthrough
-        --integration-tests-cmd)
-            if (( $# < 2 )); then
-                _error -h "missing argument for $1"
-            fi
-
-            opts[${${1#--}//-/_}]="$2"
-            shift
-            ;;
-        -[!-]*)
-            local args="${1#-}" # Remove leading dash
-            local arg
-            for arg in ${(s::)args}; do
-                case "$arg" in
-                    h) opts[help]=1 ;;
-                    v) opts[verbose]=1 ;;
-                    c) opts[clean]=1 ;;
-                    n) opts[nuke]=1 ;;
-                    i) opts[install]=1 ;;
-                    b) opts[build]=1 ;;
-                    d) opts[db_up]=1 ;;
-                    m) opts[migration]=1 ;;
-                    u) opts[unit_test]=1 ;;
-                    t) opts[test]=1;;
-                    *)
-                        _error -h "Unknown option: '-${arg}'"
-                        ;;
-                esac
-            done
-            ;;
-        --*)
-            _error -h "Unknown option: '$1'"
-            ;;
-        *)
-            _error -h "Unexpected argument: '$1'"
-    esac
-    shift
-done
-
-if (( opts[help] )); then
-    if (( opts[verbose] )); then
-        _usage -v 0
-    fi
-    _usage 0
-fi
-
-repo_dir=
-if [[ -n "${opts[path]}" ]]; then
-    repo_dir="${opts[path]}"
-else
-    if [[ -z "${WORKSPACE_ROOT_DIR}" ]]; then
-        print "Error: WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
-        if [[ -z "${DOT_DEFAULT_REPO}" ]]; then
-            print "       When -r/--repo is not specified, \"${WORKSPACE_ROOT_DIR}/${DOT_DEFAULT_REPO}\" is used."
+    if (( opts[help] )); then
+        if (( opts[verbose] )); then
+            _repoman-usage -v
+        else
+            _repoman-usage
         fi
-        _usage 1
+        return 0
     fi
-    repo_dir="${WORKSPACE_ROOT_DIR}/${opts[repo]}"
-fi
 
-if [[ ! -d "${repo_dir}" ]]; then
-    _error "The directory '${repo_dir}' does not exist. Please check the path or repo name."
-fi
-
-local any_set=0
-local v
-for v in "${(@v)opts}"; do
-    if [[ "$v" == "1" ]]; then
-        any_set=1
-        break
+    repo_dir=
+    if [[ -n "${opts[path]}" ]]; then
+        repo_dir="${opts[path]}"
+    else
+        if [[ -z "${WORKSPACE_ROOT_DIR}" ]]; then
+            print "Error: WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
+            if [[ -z "${default_repo}" ]]; then
+                print "       When -r/--repo is not specified, \"${WORKSPACE_ROOT_DIR}/${default_repo}\" is used."
+            fi
+            _repoman-usage 1
+        fi
+        repo_dir="${WORKSPACE_ROOT_DIR}/${opts[repo]}"
     fi
-done
 
-if (( ! any_set )); then
-    _error -h "You must specify at least one option"
-fi
+    if [[ ! -d "${repo_dir}" ]]; then
+        print-header -e "The directory '${repo_dir}' does not exist. Please check the path or repo name."
+        return 1
+    fi
 
-if (( opts[git_clean] || opts[nuke] )); then
-    opts[clean]=1
-fi
+    local any_set=0
+    local v
+    for v in "${(@v)opts}"; do
+        if [[ "$v" == "1" ]]; then
+            any_set=1
+            break
+        fi
+    done
 
-if (( opts[migration] )); then
-    opts[aws_signon]=1
-fi
+    if (( ! any_set )); then
+        print-header -e "You must specify at least one option"
+        _repoman-usage
+        return 1
+    fi
 
-if (( opts[test] )); then
-    opts[unit_test]=1;
-    opts[integration_test]=1
-fi
+    if (( opts[git_clean] || opts[nuke] )); then
+        opts[clean]=1
+    fi
 
-# Logic overrides
-if (( opts[clean] && opts[build] && ! opts[install] )); then
-    print-header -w "[override] Adding install: clean + build requires install"
-    opts[install]=1
-fi
+    if (( opts[migration] )); then
+        opts[aws_signon]=1
+    fi
 
-if (( opts[clean] && opts[unit_test] )); then
-    if (( ! opts[install] )); then
-        print-header -w "[override] Adding install: clean + test requires install"
+    if (( opts[test] )); then
+        opts[unit_test]=1;
+        opts[integration_test]=1
+    fi
+
+    # Logic overrides
+    if (( opts[clean] && opts[build] && ! opts[install] )); then
+        print-header -w "[override] Adding install: clean + build requires install"
         opts[install]=1
     fi
-    if (( ! opts[build] )); then
-        print-header -w "[override] Adding build: clean + test requires build"
-        opts[build]=1
-    fi
-fi
 
-if (( opts[nuke] && ! opts[db_up] && opts[migration] )); then
-    print-header -w "[override] Adding db-up: nuke + migration requires db-up"
-    opts[db_up]=1
-fi
-
-cd "${repo_dir}" > /dev/null
-
-# Execute steps
-if (( opts[git_clean] )); then
-    print-header green "🧹 git clean"
-    git clean -fdx || _error "Git clean failed: git clean -fdx"
-fi
-
-if (( opts[nuke] )); then
-    if [[ -z "${opts[nuke_cmd]}" ]]; then
-        _error "nuke-cmd is not set."
+    if (( opts[clean] && opts[unit_test] )); then
+        if (( ! opts[install] )); then
+            print-header -w "[override] Adding install: clean + test requires install"
+            opts[install]=1
+        fi
+        if (( ! opts[build] )); then
+            print-header -w "[override] Adding build: clean + test requires build"
+            opts[build]=1
+        fi
     fi
 
-    print-header green "🧹 nuke: ${opts[nuke_cmd]}"
-    eval ${opts[nuke_cmd]} || _error "Clean nuke failed: ${opts[nuke_cmd]}"
-elif (( opts[clean] )); then
-    if [[ -z "${opts[clean_cmd]}" ]]; then
-        _error "clean-cmd is not set."
+    if (( opts[nuke] && ! opts[db_up] && opts[migration] )); then
+        print-header -w "[override] Adding db-up: nuke + migration requires db-up"
+        opts[db_up]=1
     fi
 
-    print-header green "🧹 clean: ${opts[clean_cmd]}"
-    eval ${opts[clean_cmd]} || _error "Clean failed: ${opts[clean_cmd]}"
-fi
-
-if (( opts[install] )); then
-    if [[ -z "${opts[install_cmd]}" ]]; then
-        _error "install-cmd is not set."
-    fi
-
-    print-header green "install: ${opts[install_cmd]}"
-    eval ${opts[install_cmd]} || _error "Install failed: ${opts[install_cmd]}"
-fi
-
-if (( opts[aws_signon] )); then
-    aws-signon dev || _error "aws-signon failed"
-fi
-
-if (( opts[db_up] )); then
-    if [[ -z "${opts[db_up_cmd]}" ]]; then
-        _error "db-up-cmd is not set."
-    fi
-    if [[ -z "${opts[db_container_name]}" ]]; then
-        _error "db-container-name is not set."
-    fi
-
-    print-header green "Starting DB Docker container"
-
-    DB_CONTAINER_ID=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
-    if [[ -z $DB_CONTAINER_ID ]]; then
-        cd "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-        eval ${opts[db_up_cmd]} || _error "Starting db failed: ${opts[db_up_cmd]}"
-        cd "${repo_dir}" > /dev/null
-    else
-        print "DB Docker container is already running"
-    fi
-fi
-
-if (( opts[migration] )); then
-    if [[ -z "${opts[migrations_cmd]}" ]]; then
-        _error "migrations-cmd is not set."
-    fi
-
-    print-header green "run-migration"
-    cd "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-    eval ${opts[migrations_cmd]} || _error "Migration failed: ${opts[migrations_cmd]}"
     cd "${repo_dir}" > /dev/null
-fi
 
-if (( opts[build] )); then
-    if [[ -z "${opts[build_cmd]}" ]]; then
-        _error "build-cmd is not set."
+    # Execute steps
+    if (( opts[git_clean] )); then
+        print-header green "🧹 git clean"
+        git clean -fdx || {
+            print-header -e "Git clean failed: git clean -fdx"
+            return 1
+        }
     fi
 
-    print-header green "build: ${opts[build_cmd]}"
-    eval ${opts[build_cmd]} || _error "Build failed: ${opts[build_cmd]}"
-fi
-
-if (( opts[unit_test] )); then
-    if [[ -z "${opts[unit_tests_cmd]}" ]]; then
-        # passing in -t/--test sets the  flag, but shouldn't
-        # fail if unit-test-cmd is not set. If `test` is not set that
-        # means the user specifically requested unit tests and we should
-        # treat it as an error.
-        if (( ! opts[test] )); then
-            _error "unit-test-cmd is not set."
-        else
-            print-header -w "unit-test-cmd missing, skipping."
+    if (( opts[nuke] )); then
+        if [[ -z "${opts[nuke_cmd]}" ]]; then
+            print-header -e "nuke-cmd is not set."
         fi
-    else
-        print-header green "unit tests: ${opts[unit_tests_cmd]}"
-        eval ${opts[unit_tests_cmd]} || _error "Tests failed: ${opts[unit_tests_cmd]}"
-    fi
-fi
 
-if (( opts[integration_test] )); then
-    if [[ -z "${opts[integration_tests_cmd]}" ]]; then
-        # passing in -t/--test sets the integration-test flag, but shouldn't
-        # fail if integration-test-cmd is not set. If `test` is not set that
-        # means the user specifically requested integration tests and we should
-        # treat it as an error.
-        if (( ! opts[test] )); then
-            _error "integration-tests-cmd is not set."
-        else
-            print-header -w "integration-tests-cmd missing, skipping."
+        print-header green "🧹 nuke: ${opts[nuke_cmd]}"
+        eval ${opts[nuke_cmd]} || {
+            print-header -e "Clean nuke failed: ${opts[nuke_cmd]}"
+            return 1
+        }
+    elif (( opts[clean] )); then
+        if [[ -z "${opts[clean_cmd]}" ]]; then
+            print-header -e "clean-cmd is not set."
+            return 1
         fi
-    else
-        print-header green "integration tests: ${opts[integration_tests_cmd]}"
-        eval ${opts[integration_tests_cmd]} || _error "Tests failed: ${opts[integration_tests_cmd]}"
-    fi
-fi
 
-print-header green "All steps completed successfully"
-exit 0
+        print-header green "🧹 clean: ${opts[clean_cmd]}"
+        eval ${opts[clean_cmd]} || {
+            print-header -e "Clean failed: ${opts[clean_cmd]}"
+            return 1
+        }
+    fi
+
+    if (( opts[install] )); then
+        if [[ -z "${opts[install_cmd]}" ]]; then
+            print-header -e "install-cmd is not set."
+        fi
+
+        print-header green "install: ${opts[install_cmd]}"
+        eval ${opts[install_cmd]} || {
+            print-header -e "Install failed: ${opts[install_cmd]}"
+            return 1
+        }
+    fi
+
+    if (( opts[aws_signon] )); then
+        aws-signon dev || {
+            print-header -e "aws-signon failed"
+            return 1
+        }
+    fi
+
+    if (( opts[db_up] )); then
+        if [[ -z "${opts[db_up_cmd]}" ]]; then
+            print-header -e "db-up-cmd is not set."
+            return 1
+        elif [[ -z "${opts[db_container_name]}" ]]; then
+            print-header -e "db-container-name is not set."
+            return 1
+        fi
+
+        print-header green "Starting DB Docker container: '${opts[db_container_name]}'"
+
+        DB_CONTAINER_ID=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
+        if [[ -z $DB_CONTAINER_ID ]]; then
+            cd "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
+            eval ${opts[db_up_cmd]} || {
+                print-header -e "Starting db failed: ${opts[db_up_cmd]}"
+                return 1
+            }
+            cd "${repo_dir}" > /dev/null
+        else
+            print "DB Docker container is already running"
+        fi
+    fi
+
+    if (( opts[migration] )); then
+        if [[ -z "${opts[migrations_cmd]}" ]]; then
+            print-header -e "migrations-cmd is not set."
+            return 1
+        fi
+
+        print-header green "run-migration"
+        cd "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
+        eval ${opts[migrations_cmd]} || {
+            print-header -e "Migration failed: ${opts[migrations_cmd]}"
+            return 1
+        }
+        cd "${repo_dir}" > /dev/null
+    fi
+
+    if (( opts[build] )); then
+        if [[ -z "${opts[build_cmd]}" ]]; then
+            print-header -e "build-cmd is not set."
+        fi
+
+        print-header green "build: ${opts[build_cmd]}"
+        eval ${opts[build_cmd]} || {
+            print-header -e "Build failed: ${opts[build_cmd]}"
+            return 1
+        }
+    fi
+
+    if (( opts[unit_test] )); then
+        if [[ -z "${opts[unit_tests_cmd]}" ]]; then
+            # passing in -t/--test sets the  flag, but shouldn't
+            # fail if unit-test-cmd is not set. If `test` is not set that
+            # means the user specifically requested unit tests and we should
+            # treat it as an error.
+            if (( ! opts[test] )); then
+                print-header -e "unit-test-cmd is not set."
+                return 1
+            else
+                print-header -w "unit-test-cmd missing, skipping."
+            fi
+        else
+            print-header green "unit tests: ${opts[unit_tests_cmd]}"
+            eval ${opts[unit_tests_cmd]} || {
+                print-header -e "Tests failed: ${opts[unit_tests_cmd]}"
+                return 1
+            }
+        fi
+    fi
+
+    if (( opts[integration_test] )); then
+        if [[ -z "${opts[integration_tests_cmd]}" ]]; then
+            # passing in -t/--test sets the integration-test flag, but shouldn't
+            # fail if integration-test-cmd is not set. If `test` is not set that
+            # means the user specifically requested integration tests and we should
+            # treat it as an error.
+            if (( ! opts[test] )); then
+                print-header -e "integration-tests-cmd is not set."
+                return 1
+            else
+                print-header -w "integration-tests-cmd missing, skipping."
+            fi
+        else
+            print-header green "integration tests: ${opts[integration_tests_cmd]}"
+            eval ${opts[integration_tests_cmd]} || {
+                print-header -e "Tests failed: ${opts[integration_tests_cmd]}"
+                return 1
+            }
+        fi
+    fi
+
+    print-header green "All steps completed successfully"
+    return 0
+} "$@"
