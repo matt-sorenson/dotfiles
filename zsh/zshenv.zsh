@@ -49,37 +49,65 @@ fi
 # npm/node/nvm/pnpm/npx will be slower.
 if [[ -d "${HOME}/.nvm" ]]; then
     _lazy_load_nvm() {
-      unset -f corepack npm node nvm pnpm npx _lazy_load_nvm
-      export NVM_DIR="${HOME}/.nvm"
-      [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
+        unset -f corepack npm node nvm pnpm npx _lazy_load_nvm
+        export NVM_DIR="${HOME}/.nvm"
+        [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
     }
 
     npm() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
         _lazy_load_nvm
         npm $@
     }
 
     npx() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
         _lazy_load_nvm
         npx $@
     }
 
     node() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
         _lazy_load_nvm
         node $@
     }
 
     nvm() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
         _lazy_load_nvm
         nvm $@
     }
 
     corepack() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
         _lazy_load_nvm
         corepack $@
     }
 
     pnpm() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
         _lazy_load_nvm
         pnpm $@
     }

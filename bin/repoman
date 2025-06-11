@@ -7,6 +7,7 @@
 function() {
     emulate -L zsh
     set -uo pipefail
+    setopt err_return
 
     local default_repo="${DOT_DEFAULT_REPO:-}"
     local calling_name="${calling_name:-repoman}"

@@ -4,6 +4,7 @@
 function() {
     emulate -L zsh
     set -uo pipefail
+    setopt err_return
 
     local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
 
@@ -85,8 +86,8 @@ If no flags are provided then it's treated as if all flags are set."
 
     print-header green -i $indent "${log_dir}: $@"
 
-    trap "popd' 2> /dev/null || print 'Failed to change back to starting directory'" INT TERM EXIT
     pushd "${dir}" > /dev/null
+    trap "popd' 2> /dev/null || print 'Failed to change back to starting directory'" INT TERM EXIT
 
     local remotes=(${(f)"$(git remote)"})
     if (( ${#remotes} == 0 )); then

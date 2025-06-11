@@ -3,7 +3,8 @@
 
 function() {
     emulate -L zsh
-    set -euo pipefail
+    set -uo pipefail
+    setopt err_return
 
     local flag_remove=0
     local flag_quiet=0

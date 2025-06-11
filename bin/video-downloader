@@ -4,7 +4,7 @@
 # Usage:
 #   video-downloader <url_or_file>
 
-set -eu
+set -euo pipefail
 
 # Function to process a single URL
 process_url() {

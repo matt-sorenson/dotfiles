@@ -10,6 +10,10 @@ ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
 wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
 
 auto-dot-check-for-update() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
     local hours="${1:-15}"
     local time_limit_in_seconds=$(( 60 * 60 * hours ))
     local current_time=$(date +%s)

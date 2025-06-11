@@ -1,4 +1,8 @@
 add-to-path() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
     local show_help=0
     local do_fpath=0
     local parse_error=0

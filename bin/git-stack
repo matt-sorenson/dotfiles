@@ -4,6 +4,7 @@
 function() {
     emulate -L zsh
     set -uo pipefail
+    setopt err_return
 
     local _usage="Usage: git-stack [-h|--help]
 

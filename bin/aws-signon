@@ -4,6 +4,7 @@
 function() {
     emulate -L zsh
     set -uo pipefail
+    set err_return
 
     local _usage="Usage: aws-signon [-f|--force] [-h|--help] <profile>
 
