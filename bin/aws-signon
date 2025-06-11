@@ -40,7 +40,7 @@ aws-signon dev -f"
                     print "${_usage}"
                     return 1
                 fi
-                export AWS_PROFILE="$1"
+                export profile="$1"
                 ;;
         esac
         shift
