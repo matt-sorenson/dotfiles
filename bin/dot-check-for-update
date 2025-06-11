@@ -7,6 +7,7 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt nullglob
+    setopt err_return
 
     local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
 

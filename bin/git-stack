@@ -25,7 +25,7 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
                 return 0
                 ;;
             *)
-                print_header red "Unknown option: $1"
+                print-header red "Unknown option: $1"
                 print "$_usage"
                 return 1
                 ;;
@@ -35,7 +35,7 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
 
     # Find repo root
     local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-        print_header red "Not a git repository.";
+        print-header red "Not a git repository.";
         return 1;
     }
 
@@ -43,10 +43,10 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
 
     if (( clear_stack )); then
         rm -f "$stack_file"
-        print_header green "Cleared branch stack."
+        print-header green "Cleared branch stack."
     else
         if [[ ! -s "$stack_file" ]]; then
-            print_header yellow "Branch stack is empty."
+            print-header yellow "Branch stack is empty."
             return 1
         else
             cat -n "$stack_file"

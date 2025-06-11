@@ -31,8 +31,8 @@ multiple positional arguments are provided then the command will fail."
                 return 0
                 ;;
             -b|--branch)
-                if (( $# <  )); then
-                    print_header red "Missing argument for '$1'"
+                if (( $# < 2 )); then
+                    print-header red "Missing argument for '$1'"
                     print "$_usage"
                     return 1
                 elif [ -z "$new_branch" ]; then
@@ -40,7 +40,7 @@ multiple positional arguments are provided then the command will fail."
                     arguments+=("$1" "$2")
                     shift
                 else
-                    print_header red "Invalid '$1' - a branch has already been provided '$new_branch'"
+                    print-header red "Invalid '$1' - a branch has already been provided '$new_branch'"
                     print "$_usage"
                     return 1
                 fi
@@ -52,7 +52,7 @@ multiple positional arguments are provided then the command will fail."
                 # clear all remaining arguments
                 set --
                 ;;
-            -*)
+            -*|--*)
                 arguments+=("$1")
                 ;;
             *)
@@ -60,7 +60,7 @@ multiple positional arguments are provided then the command will fail."
                     new_branch="$1"
                     arguments+=("$1")
                 else
-                    print_header red "Unknown argument: $1"
+                    print-header red "Unknown argument: $1"
                     print "a branch has already been provided."
                     print "$_usage"
                     return 1
@@ -71,7 +71,7 @@ multiple positional arguments are provided then the command will fail."
     done
 
     if [[ -z "$new_branch" ]]; then
-        print_header red "No branch specified."
+        print-header red "No branch specified."
         print "Please provide a branch name to check out."
         print "$_usage"
         return 1

@@ -2,6 +2,9 @@
 #compdef dot-check-for-update-git
 
 function() {
+    emulate -L zsh
+    set -uo pipefail
+
     local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
 
 Options:
@@ -82,12 +85,12 @@ If no flags are provided then it's treated as if all flags are set."
 
     print-header green -i $indent "${log_dir}: $@"
 
+    trap "popd' 2> /dev/null || print 'Failed to change back to starting directory'" INT TERM EXIT
     pushd "${dir}" > /dev/null
 
     local remotes=(${(f)"$(git remote)"})
     if (( ${#remotes} == 0 )); then
         (( ! quiet )) && print-header -w -i $indent "${log_dir}: No git remote found, skipping update"
-        popd > /dev/null
         return 0
     fi
 
@@ -99,18 +102,15 @@ If no flags are provided then it's treated as if all flags are set."
             git merge "${branch}"
         elif ! git merge-base --is-ancestor "${branch}" HEAD; then
             print-header -e -i $indent "${log_dir}: Local branch has diverged from upstream"
-            popd > /dev/null
             return 1
         fi
     else
         print-header -e -i $indent "${log_dir}: No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
-        popd > /dev/null
         return 0
     fi
 
     git diff --quiet --ignore-submodules HEAD || {
         print-header -e -i $indent "${log_dir}: Uncommitted changes found"
-        popd > /dev/null
         return 1
     }
 
@@ -123,22 +123,17 @@ If no flags are provided then it's treated as if all flags are set."
 
         if (( behind > 0 && ahead > 0 )); then
             print-header -e -i $indent "${log_dir}: Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
-            popd > /dev/null
             return 1
         elif (( behind > 0 )); then
             print-header -e -i $indent "${log_dir}: Branch is behind upstream by ${behind} commits"
-            popd > /dev/null
             return 1
         elif (( ahead > 0 )); then
             print "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
         fi
     else
         print-header -w -i $indent "${log_dir}: Unable to compare with upstream for"
-        popd > /dev/null
         return 1
     fi
-
-    popd > /dev/null
 
     return 0
 } "$@"
