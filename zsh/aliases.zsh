@@ -9,6 +9,15 @@ wsls()   { ls "$@" "${WORKSPACE_ROOT_DIR}" }
 ws()     { pushd   "${WORKSPACE_ROOT_DIR}/${1}" }
 wscode() { code    "${WORKSPACE_ROOT_DIR}/${1}" }
 
+# pbpaste is osx specific, try a few fallback options if available.
+if ! command -v pbpaste > /dev/null; then
+    if command -v xsel > /dev/null; then
+        alias pbpaste='xsel --clipboard --output'
+    elif command -v xclip > /dev/null; then
+        alias pbcopy='xclip -selection clipboard'
+    fi
+fi
+
 auto-dot-check-for-update() {
     emulate -L zsh
     set -uo pipefail
