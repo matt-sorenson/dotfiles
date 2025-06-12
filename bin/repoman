@@ -166,9 +166,14 @@ Examples:
                 shift
                 ;;
             -[!-]*)
-                local args="${1#-}" # Remove leading dash
-                local arg
-                for arg in ${(s::)args}; do
+                local arg_list=("${(@s::)args}")
+
+                # Process by popping front each time
+                while (( ${#arg_list} )); do
+                    local arg=${arg_list[1]}
+                    # Pop the front of the list
+                    arg_list=("${arg_list[@]:1}")
+
                     case "$arg" in
                         h) opts[help]=1 ;;
                         v) opts[verbose]=1 ;;
@@ -182,9 +187,23 @@ Examples:
                         I) opts[integration_test]=1 ;;
                         t) opts[test]=1;;
                         p|r)
-                            print-header -e "Option '-${arg}' cannot be used in combined short form."
-                            _repoman-usage
-                            return 1
+                            if (( ${#arg_list} )); then
+                                print-header -e "If '-${arg}' is used in combined short form it must be the last argument."
+                                print "  ex) '-c -r reponame' and '-cr reponame' are equivelant, but '-rc reponame' is invalid."
+                                _repoman-usage
+                                return 1
+                            fi
+
+                            if (( $# < 2 )); then
+                                print-header -e "missing argument for '-${arg}'"
+                                _repoman-usage
+                                return 1
+                            fi
+
+                            local flag_map=( p path r repo )
+                            opts[${flag_name}]=${flag_map[$arg]}
+
+                            shift
                             ;;
                         *)
                             print-header -e "Unknown option: '-${arg}'"
@@ -192,6 +211,8 @@ Examples:
                             return 1
                             ;;
                     esac
+
+                    any_set=1
                 done
                 ;;
             --*)
