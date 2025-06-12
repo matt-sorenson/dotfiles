@@ -4,7 +4,7 @@
 function() {
     emulate -L zsh
     set -uo pipefail
-    set err_return
+    setopt err_return
 
     local _usage="Usage: aws-signon [-f|--force] [-h|--help] <profile>
 
@@ -41,7 +41,7 @@ aws-signon dev -f"
                     print "${_usage}"
                     return 1
                 fi
-                export profile="$1"
+                profile="$1"
                 ;;
         esac
         shift
@@ -60,6 +60,8 @@ aws-signon dev -f"
         AWS_PROFILE="$profile"
         unset profile
     fi
+
+    echo "here: $AWS_PROFILE"
 
     print-header green "🔐 Signing into AWS: $AWS_PROFILE"
 
