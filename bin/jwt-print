@@ -13,28 +13,37 @@ Pretty prints a JWT (JSON Web Token)
 Options:
     -h, --help    Show this help message and exit"
 
-    while [ $# -gt 0 ]; do
+    local jwt=''
+    while (( $# )); do
         case "$1" in
             -h|--help)
                 print "${_usage}"
                 return 0
-            *)
+            -*)
                 print-header -e "Unknown argument: ${arg}"
                 print "${_usage}"
                 return 1
+            *)
+                if [[ -n "${jwt}" ]]; then
+                    print-header -e "Too many arguments. Expected a single JWT or nothing to read from clipboard."
+                    print "${_usage}"
+                    return 1
+                fi
+
+                jwt="$1"
         esac
         shift
     done
 
     if ! command -v jq > /dev/null; then
-        print-header -e "ERROR: jq not found. Please install jq to use this script."
+        print-header -e "jq not found. Please install jq to use this script."
         return 1
     fi
 
     local jwt="${1:-}"
     if [[ -z "${jwt}" ]]; then
         if ! command -v pbpaste > /dev/null; then
-            print-header -e "ERROR: pbpaste not found. Must pass a JWT as an argument."
+            print-header -e "pbpaste not found. Must pass a JWT as an argument."
             print "${_usage}"
             return 1
         fi
@@ -67,7 +76,7 @@ Options:
     fi
 
     if (( ${#errors[@]} > 0 )); then
-        print-header -e "ERROR: JWT parsing failed: '${jwt}'"
+        print-header -e "JWT parsing failed: '${jwt}'"
         local message=""
         local error
         for error in "${errors[@]}"; do
