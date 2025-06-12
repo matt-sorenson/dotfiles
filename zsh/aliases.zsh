@@ -49,6 +49,7 @@ autoload \
     clang-format-ri \
     dot-check-for-update \
     dot-check-for-update-git \
+    git-dag \
     git-popb \
     git-pushb \
     git-stack \
