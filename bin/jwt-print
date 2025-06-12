@@ -6,9 +6,17 @@ function() {
     set -uo pipefail
     setopt err_return
 
+    local paste_str=' If not provided, it will try to read from the clipboard.'
+    if ! command -v pbpaste > /dev/null; then
+        paste_str=''
+    fi
+
     local _usage="Usage: jwt-print <jwt>
 
 Pretty prints a JWT (JSON Web Token)
+
+Arguments:
+    <jwt>        The JWT to print.${paste_str}
 
 Options:
     -h, --help    Show this help message and exit"
@@ -19,10 +27,12 @@ Options:
             -h|--help)
                 print "${_usage}"
                 return 0
+                ;;
             -*)
                 print-header -e "Unknown argument: ${arg}"
                 print "${_usage}"
                 return 1
+                ;;
             *)
                 if [[ -n "${jwt}" ]]; then
                     print-header -e "Too many arguments. Expected a single JWT or nothing to read from clipboard."
@@ -31,6 +41,7 @@ Options:
                 fi
 
                 jwt="$1"
+                ;;
         esac
         shift
     done
@@ -40,7 +51,7 @@ Options:
         return 1
     fi
 
-    local jwt="${1:-}"
+    local was_from_clipboard=0
     if [[ -z "${jwt}" ]]; then
         if ! command -v pbpaste > /dev/null; then
             print-header -e "pbpaste not found. Must pass a JWT as an argument."
@@ -48,52 +59,77 @@ Options:
             return 1
         fi
         jwt=$(pbpaste)
+
+        print "Read '${jwt}' from clipboard."
     fi
 
-    local header="$(   print "${jwt}" | jq -R 'split(".") | .[0] | @base64d | fromjson')" 2> /dev/null
-    local payload="$(  print "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson')" 2> /dev/null
-    local issued_at="$(print "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .iat | todate')" 2> /dev/null
-    local expire_at="$(print "${jwt}" | jq -R 'split(".") | .[1] | @base64d | fromjson | .exp | todate')" 2> /dev/null
-    local sig="$(      print "${jwt}" | jq -R 'split(".") | .[2]')" 2> /dev/null
+    local parts=("${(@s/./)jwt}")
 
-    if [[ -z "${expire_at}" ]]; then
-        expire_at="[[Does not expire]]"
-    fi
-
-    local errors=()
-
-    if [[ -z "${header}" ]]; then
-        errors+=("Header is empty or invalid.")
-    fi
-    if [[ -z "${payload}" ]]; then
-        errors+=("Payload is empty or invalid.")
-    fi
-    if [[ -z "${issued_at}" ]]; then
-        errors+=("Issued at is empty or invalid.")
-    fi
-    if [[ -z "${sig}" || "${sig}" == 'null' ]]; then
-        print-header -w "WARNING: Signature is empty or invalid. This may be a non-signed JWT."
-    fi
-
-    if (( ${#errors[@]} > 0 )); then
-        print-header -e "JWT parsing failed: '${jwt}'"
-        local message=""
-        local error
-        for error in "${errors[@]}"; do
-            message="${message}- ${error}\n"
-        done
-        print "${message}"
+    if (( ${#parts} != 3 )); then
+        print-header -e "Invalid JWT format. Expected 3 parts separated by dots ('.')."
         return 1
     fi
 
-    print-header green "JWT> '${jwt}'"
-    print "Header:
-    ${header}
-Payload:
-    ${payload}
-Issued at: ${issued_at}
-Expire at: ${expire_at}
-Sig: ${sig}"
+    local header_b64="${parts[1]}"
+    local payload_b64="${parts[2]}"
+    local sig="${parts[3]:-}"
+    unset parts
+
+    local header="$(   print "${header_b64}"  | jq -R '@base64d | fromjson')" 2> /dev/null
+    local payload="$(  print "${payload_b64}" | jq -R '@base64d | fromjson')" 2> /dev/null
+    local issued_at="$(print "${payload}"     | jq -r 'if has("iat") then (.iat | todate) else "" end')" 2> /dev/null
+    local expire_at="$(print "${payload}"     | jq -r 'if has("exp") then (.exp | todate) else "" end')" 2> /dev/null
+
+    local has_errors=0
+
+    if [[ -z "${header}" && -z "${payload}" ]]; then
+        print-header -e 'Failed to parse JWT'
+        print "jwt: ${jwt}"
+        return 1
+    fi
+
+    if [[ -n "${header}" ]]; then
+        header="Header:\n${header}\n"
+    else
+        print-header -w 'Header is empty or invalid.'
+        has_errors=1
+    fi
+
+    if [[ -n "${payload}" ]]; then
+        payload="Payload:\n${payload}\n"
+    else
+        print-header -w 'Payload is empty or invalid.'
+        has_errors=1
+    fi
+
+    if [[ -n "${issued_at}" ]]; then
+        issued_at="Issued at: ${issued_at}\n"
+    else
+        print-header -w 'Issued at is empty or invalid.'
+        has_errors=1
+    fi
+
+    if [[ -z "${sig}" ]]; then
+        print-header -w 'Signature is empty. This may be a non-signed JWT.'
+        has_errors=1
+    else
+        sig="Sig: ${sig}\n"
+    fi
+
+    if [[ -n "${expire_at}" ]]; then
+        expire_at+="Expire at: ${expire_at}\n"
+    else
+        print-header -w "JWT does not have an expiration time."
+        has_errors=1
+    fi
+
+    if (( ! has_errors )); then
+        print-header green "JWT"
+    else
+        print-header blue "JWT (with errors)"
+    fi
+
+    print -n "${header}${payload}${issued_at}${sig}"
 
     return 0
 } "$@"
