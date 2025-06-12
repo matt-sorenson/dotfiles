@@ -44,7 +44,6 @@ auto-dot-check-for-update() {
     fi
 }
 
-# see bottom of zshenv.zsh for more autoloaded functions
 autoload \
     brew-find-leafs \
     clang-format-ri \
