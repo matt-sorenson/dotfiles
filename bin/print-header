@@ -30,11 +30,16 @@ Options:
                 print "$_usage"
                 return 0
                 ;;
-            -i|--indent)
+            -i|--indent|-wi|-we)
                 if (( $# < 2 )); then
                     print-header -e "Error: '$1' requires an argument."
                     print "$_usage"
                     return 1
+                fi
+
+                if [[ "$1" == "-wi" || "$1" == "-wi" ]]; then
+                    # add -w or -e to the argv array
+                    argv+=("-${1[2]}")
                 fi
 
                 indent="$2"
