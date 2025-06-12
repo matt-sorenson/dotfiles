@@ -12,8 +12,10 @@ function() {
     local default_repo="${DOT_DEFAULT_REPO:-}"
     local calling_name="${calling_name:-repoman}"
 
-    # emulate `local -F` since it doesn't exist
-    trap 'unset -f _repoman-usage' EXIT
+    local starting_dir="${PWD}"
+
+    # emulate `local -F` since it doesn't exist & return to starting directory.
+    trap "unset -f _repoman-usage; cd $(printf '%q' "${starting_dir}") &> /dev null || print 'failed to return to starting directory.'" EXIT INT TERM
     function _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
         # and can hide some of the options based on the verbosity level so by
@@ -77,6 +79,7 @@ Examples:
   ${calling_name} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
     }
 
+    local any_set=0
     local -A opts=(
         path                ""
         repo                "${default_repo}"
@@ -111,7 +114,9 @@ Examples:
     while (( $# )); do
         case "$1" in
             --help) ;& # fallthrough
-            --verbose) ;& # fallthrough
+            --verbose)
+                opts[${${1#--}//-/_}]=1
+                ;;
             --clean) ;& # fallthrough
             --install) ;& # fallthrough
             --build) ;& # fallthrough
@@ -123,6 +128,7 @@ Examples:
             --migration) ;& # fallthrough
             --test)
                 opts[${${1#--}//-/_}]=1
+                any_set=1
                 ;;
             --calling-name)
                 if (( $# < 2 )); then
@@ -229,14 +235,7 @@ Examples:
         return 1
     fi
 
-    local any_set=0
-    local v
-    for v in "${(@v)opts}"; do
-        if [[ "$v" == "1" ]]; then
             any_set=1
-            break
-        fi
-    done
 
     if (( ! any_set )); then
         print-header -e "You must specify at least one option"
@@ -257,27 +256,40 @@ Examples:
         opts[integration_test]=1
     fi
 
+    function override-flags() {
+        local flag_list=()
+
+        if (( $# < 2 )); then
+            print-header -e "override-flags requires at least two arguments"
+            return 1
+        fi
+
+        while (( $# > 1 )); do
+            if (( ! opts[$1] )); then
+                return
+            fi
+
+            flag_list+=("${1//_/-}")
+            shift
+        done
+
+        if (( ! opts[$1] )); then
+            local name="${1//_/-}"
+            print-header -w "[override] Adding ${name}: ${(j: + :)${(@)flag_list}} requires ${name}"
+            opts[$1]=1
+        fi
+    }
+
     # Logic overrides
-    if (( opts[clean] && opts[build] && ! opts[install] )); then
-        print-header -w "[override] Adding install: clean + build requires install"
-        opts[install]=1
-    fi
+    override-flags clean build install
+    override-flags clean unit_test install
+    override-flags clean unit_test build
+    override-flags nuke db_up install
+    override-flags nuke migration install
+    override-flags nuke migration db_up
 
-    if (( opts[clean] && opts[unit_test] )); then
-        if (( ! opts[install] )); then
-            print-header -w "[override] Adding install: clean + test requires install"
-            opts[install]=1
-        fi
-        if (( ! opts[build] )); then
-            print-header -w "[override] Adding build: clean + test requires build"
-            opts[build]=1
-        fi
-    fi
-
-    if (( opts[nuke] && ! opts[db_up] && opts[migration] )); then
-        print-header -w "[override] Adding db-up: nuke + migration requires db-up"
-        opts[db_up]=1
-    fi
+    # emulate `local -F` since it doesn't exist
+    unset -f override-flags
 
     cd "${repo_dir}" > /dev/null
 
