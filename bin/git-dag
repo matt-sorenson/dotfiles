@@ -21,7 +21,7 @@ If no branches are specified it will show the current branch and if they exist m
     local branches=()
     local all=0
 
-    while (( $#)); do
+    while (( $# )); do
         case "$1" in
             -h|--help)
                 print "$_usage"

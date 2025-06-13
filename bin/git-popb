@@ -8,7 +8,7 @@ function() {
 
     local _usage="Usage: git-popb [-h|--help]
 
-This script checks out the last branch checked out with git-pushb and pops it from the stack.
+Check out the last branch checked out with git-pushb and pops it from the stack.
 
 -h, --help           Show this help message"
 

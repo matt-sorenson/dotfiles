@@ -1,0 +1,5 @@
+#compdef git-alias
+#description show All the git aliases configured.
+
+_arguments '(-h --help)'{-h,--help}'[Show help]' \
+    && return 0

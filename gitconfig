@@ -18,13 +18,9 @@
 
 [push]
     default = current
+    autoSetupRemote = true
 
 [alias]
-    # submodule helpers
-    rfetch = fetch --recurse-submodules
-    rpush = push --recurse-submodules=check
-    up = !git pull --rebase --prune $@ && git submodule update --init --recursive
-
     # Attemps to do a force push but fails if the remote has diverged.
     # Only use this on branches others aren't using as you'll cause pain
     pushf = push --force-with-lease
@@ -35,12 +31,6 @@
     # log helpers
     authors =  !git log --format='%aN <%aE>' | sort -u
     olog = log --oneline
-
-    # List all aliases
-    alias = !git config --get-regexp ^alias\\. | cut -f2- -d .
-
-    # Initialize repo and create initial commit
-    it = !git init && git commit -m "root" --allow-empty
 
     # add staged files to HEAD commit
     amend = commit --amend --no-edit

@@ -8,6 +8,8 @@ function() {
 
     local _usage="Usage: git-pushb [-h|--help] [-b <branch> | <branch>]
 
+Push a branch onto the stach and check it out.
+
 Arguments:
   <Branch>    The branch to check out.
 

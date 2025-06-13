@@ -13,10 +13,9 @@ function() {
     local calling_name="${calling_name:-repoman}"
 
     local starting_dir="$(pwd)"
-    echo "Starting in directory: ${starting_dir}"
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
-    trap "unset -f _repoman-usage; cd $(printf '%q' "${starting_dir}") &> /dev/null || print 'failed to return to starting directory.'" EXIT INT TERM
+    trap "unset -f _repoman-usage; cd $(printf '%q' "${starting_dir}") &> /dev/null || print-header -e '>>> failed to return to starting directory.'" EXIT INT TERM
     function _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
         # and can hide some of the options based on the verbosity level so by
