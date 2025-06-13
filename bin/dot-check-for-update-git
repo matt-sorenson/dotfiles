@@ -90,10 +90,7 @@ If no flags are provided then it's treated as if all flags are set."
 
     print-header green -i $indent "${log_dir}: $@"
 
-    pushd "${dir}" > /dev/null
-    trap "popd &> /dev/null || print 'Failed to change back to starting directory'" INT TERM EXIT
-
-    local remotes=(${(f)"$(git remote)"})
+    local remotes=(${(f)"$(git -C "${dir}" remote)"})
     if (( ${#remotes} == 0 )); then
         if (( ! quiet )); then
             print-header -w -i $indent "${log_dir}: No git remote found, skipping update"
@@ -103,28 +100,28 @@ If no flags are provided then it's treated as if all flags are set."
         return 0
     fi
 
-    git fetch
+    git -C "${dir}" fetch
 
-    local branch="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
+    local branch="$(git -C "${dir}" rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
     if [[ -n "${branch}" ]]; then
-        if git merge-base --is-ancestor HEAD "${branch}"; then
-            git merge "${branch}"
-        elif ! git merge-base --is-ancestor "${branch}" HEAD; then
+        if git -C "${dir}" merge-base --is-ancestor HEAD "${branch}"; then
+            git -C "${dir}" merge "${branch}"
+        elif ! git -C "${dir}" merge-base --is-ancestor "${branch}" HEAD; then
             print-header -e -i $indent "${log_dir}: Local branch has diverged from upstream"
             return 1
         fi
     else
-        print-header -e -i $indent "${log_dir}: No upstream branch found for $(git rev-parse --abbrev-ref HEAD)"
+        print-header -e -i $indent "${log_dir}: No upstream branch found for $(git -C "${dir}" rev-parse --abbrev-ref HEAD)"
         return 0
     fi
 
-    git diff --quiet --ignore-submodules HEAD || {
+    git -C "${dir}" diff --quiet --ignore-submodules HEAD || {
         print-header -e -i $indent "${log_dir}: Uncommitted changes found"
         return 1
     }
 
     # Check if branch is behind or has diverged (but NOT just ahead)
-    local behind_ahead=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+    local behind_ahead=$(git -C "${dir}" rev-list --left-right --count HEAD...@{u} 2>/dev/null)
 
     if (( ! $? )); then
         local ahead=$(print "$behind_ahead" | awk '{print $1}')
