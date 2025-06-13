@@ -27,23 +27,17 @@ function print-header(){
     print "$color${header}\n= ${message}\n${header}$reset_color"
 }
 
-function backup-file() {
-    if [[ -f "${1}" ]]; then
-        mv "${1}" "${1}.bak"
-        print "${1} backed up to ${1}.bak"
-    fi
-}
-
 function safe-set-link() {
     local dest="${1}"
     local src="${2}"
 
-    # safe-set-link is idempotent
+    # If the destination is already linked to the source do nothing
     if [[ "${dest}" -ef "${src}" ]]; then
-        return
+        return 0
+    elif [[ -f "${dest}" ]]; then
+        mv "${dest}" "${dest}.bak"
+        print "${dest} backed up to ${dest}.bak"
     fi
-
-    backup-file "${dest}"
 
     ln -s "${src}" "${dest}"
 }
@@ -55,23 +49,22 @@ function safe-git-clone(){
     # if the destination exists check to see if one of it's remotes is the given URL
     # if so skip cloning
     if [[ -d "${dest}" ]]; then
-        pushd "${dest}" || {
-            print-header red "❌ failed to validate existing git repo at ${dest}"
-            return 1
-        }
-        local RESULT_COUNT
-        RESULT_COUNT=$(git remote -v  | grep "${url}" | wc -l)
-        popd || {
-            print-header red "❌ failed to pop directory stack after checking existing git repo at ${dest}"
-            return 1
-        }
+        if git -C "$dir" rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+            local result_count=$(git remote -v -C ${dest} | grep "${url}" | wc -l)
 
-        if (( RESULT_COUNT >= 0 )); then
-            return
+            # If result_count is greater than 0 that means the remote repo
+            # already exists in the destination directory.
+            if (( result_count > 0 )); then
+                print green "✅ Destination directory ${dest} already exists with remote ${url}"
+                return 0
+            fi
+        fi
+
+        if [[ -n "$(ls -A "$dir" 2>/dev/null)" ]]; then
+            print-header red "❌ safe-git-clone: Destination directory ${dest} already exists and is not empty"
+            return 1
         fi
     fi
-
-    backup-file "${dest}"
 
     git clone --recursive "${url}" "${dest}"
 }
