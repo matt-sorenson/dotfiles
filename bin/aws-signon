@@ -61,8 +61,6 @@ aws-signon dev -f"
         unset profile
     fi
 
-    echo "here: $AWS_PROFILE"
-
     print-header green "🔐 Signing into AWS: $AWS_PROFILE"
 
     # Set to 1 so that if force is set it will attempt to login

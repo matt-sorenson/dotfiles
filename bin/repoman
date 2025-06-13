@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-#compdef repoman
+#compdef repomanq
 
 # This is not a POSIX sh script as it depends on the environment being setup
 # in .zshenv.
@@ -12,10 +12,11 @@ function() {
     local default_repo="${DOT_DEFAULT_REPO:-}"
     local calling_name="${calling_name:-repoman}"
 
-    local starting_dir="${PWD}"
+    local starting_dir="$(pwd)"
+    echo "Starting in directory: ${starting_dir}"
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
-    trap "unset -f _repoman-usage; cd $(printf '%q' "${starting_dir}") &> /dev null || print 'failed to return to starting directory.'" EXIT INT TERM
+    trap "unset -f _repoman-usage; cd $(printf '%q' "${starting_dir}") &> /dev/null || print 'failed to return to starting directory.'" EXIT INT TERM
     function _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
         # and can hide some of the options based on the verbosity level so by
@@ -48,7 +49,10 @@ Extra options for repoman:
   --migrations-cmd <cmd>                Command to run for migrations
   --unit-tests-cmd <cmd>                Command to run for unit tests
   --integration-tests-cmd <cmd>         Command to run for integration tests
-  --db-container-name <name>            If set script can skip starting the DB container if it's already running."
+  --db-container-name <name>            If set script can skip starting the DB container if it's already running.
+  --verbose-opts                        Comma separated list of options to enable verbose output for specific steps.
+  --repo <repo_name>                    The directory under \$WORKSPACE_ROOT_DIR containing the repo. Defaults to '${default_repo}' if not set.
+                                        ex: clean,nuke,install,build,db_up,migrations,unit_tests,integration_tests"
         fi
 
         local default_repo_str=""
@@ -107,6 +111,15 @@ Examples:
         unit_tests_cmd          ""
         integration_tests_cmd   ""
 
+        clean_verbose             ''
+        nuke_verbose              ''
+        install_verbose           ''
+        build_verbose             ''
+        db_up_verbose             ''
+        migrations_verbose        ''
+        unit_tests_verbose        ''
+        integration_tests_verbose ''
+
         migrations_subdir       ""
         db_container_name       ""
     )
@@ -140,6 +153,28 @@ Examples:
                 calling_name="$2"
                 shift
                 ;;
+            --verbose-opts)
+                if (( $# < 2 )); then
+                    print-header -e "missing argument for $1"
+                    _repoman-usage
+                    return 1
+                fi
+
+                local piece
+                for piece in ${(s:,:)2}; do
+                    local key="${piece}_verbose"
+
+                    if [[ -z "${opts[$key]+set}" ]]; then
+                        print-header -e "Unknown verbose option: '$piece'"
+                        _repoman-usage -v
+                        return 1
+                    fi
+
+                    opts[$key]=' --verbose '
+                done
+
+                shift
+                ;;
             --repo|-r) ;& # fallthrough
             --path|-p) ;& # fallthrough
             --migrations-subdir) ;& # fallthrough
@@ -166,7 +201,7 @@ Examples:
                 shift
                 ;;
             -[!-]*)
-                local arg_list=("${(@s::)args}")
+                local arg_list=("${(@s::)1#-}")
 
                 # Process by popping front each time
                 while (( ${#arg_list} )); do
@@ -328,9 +363,9 @@ Examples:
             print-header -e "nuke-cmd is not set."
         fi
 
-        print-header green "🧹 nuke: ${opts[nuke_cmd]}"
-        eval ${opts[nuke_cmd]} || {
-            print-header -e "Clean nuke failed: ${opts[nuke_cmd]}"
+        print-header green "🧹 nuke: ${opts[nuke_cmd]}${opts[nuke_verbose]}"
+        eval ${opts[nuke_cmd]}${opts[nuke_verbose]} || {
+            print-header -e "Clean nuke failed: ${opts[nuke_cmd]}${opts[nuke_verbose]}"
             return 1
         }
     elif (( opts[clean] )); then
@@ -339,9 +374,9 @@ Examples:
             return 1
         fi
 
-        print-header green "🧹 clean: ${opts[clean_cmd]}"
-        eval ${opts[clean_cmd]} || {
-            print-header -e "Clean failed: ${opts[clean_cmd]}"
+        print-header green "🧹 clean: ${opts[clean_cmd]}${opts[clean_verbose]}"
+        eval ${opts[clean_cmd]}${opts[clean_verbose]} || {
+            print-header -e "Clean failed: ${opts[clean_cmd]}${opts[clean_verbose]}"
             return 1
         }
     fi
@@ -351,9 +386,9 @@ Examples:
             print-header -e "install-cmd is not set."
         fi
 
-        print-header green "install: ${opts[install_cmd]}"
-        eval ${opts[install_cmd]} || {
-            print-header -e "Install failed: ${opts[install_cmd]}"
+        print-header green "install: ${opts[install_cmd]}${opts[install_verbose]}"
+        eval ${opts[install_cmd]}${opts[install_verbose]} || {
+            print-header -e "Install failed: ${opts[install_cmd]}${opts[install_verbose]}"
             return 1
         }
     fi
@@ -374,13 +409,14 @@ Examples:
             return 1
         fi
 
-        print-header green "Starting DB Docker container: '${opts[db_container_name]}'"
+        print-header green "Starting DB Docker container: '${opts[db_container_name]}'${opts[db_up_verbose]}"
 
         DB_CONTAINER_ID=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
         if [[ -z $DB_CONTAINER_ID ]]; then
             cd "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-            eval ${opts[db_up_cmd]} || {
-                print-header -e "Starting db failed: ${opts[db_up_cmd]}"
+            print-header green "Starting DB command: ${opts[db_up_cmd]}${opts[db_up_verbose]}"
+            eval ${opts[db_up_cmd]}${opts[db_up_verbose]} || {
+                print-header -e "Starting db failed: ${opts[db_up_cmd]}${opts[db_up_verbose]}"
                 return 1
             }
             cd "${repo_dir}" > /dev/null
@@ -395,10 +431,10 @@ Examples:
             return 1
         fi
 
-        print-header green "run-migration"
+        print-header green "run-migration${opts[migrations_verbose]}"
         cd "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-        eval ${opts[migrations_cmd]} || {
-            print-header -e "Migration failed: ${opts[migrations_cmd]}"
+        eval ${opts[migrations_cmd]}${opts[migrations_verbose]} || {
+            print-header -e "Migration failed: ${opts[migrations_cmd]}${opts[migrations_verbose]}"
             return 1
         }
         cd "${repo_dir}" > /dev/null
@@ -409,9 +445,9 @@ Examples:
             print-header -e "build-cmd is not set."
         fi
 
-        print-header green "build: ${opts[build_cmd]}"
-        eval ${opts[build_cmd]} || {
-            print-header -e "Build failed: ${opts[build_cmd]}"
+        print-header green "build: ${opts[build_cmd]}${opts[build_verbose]}"
+        eval ${opts[build_cmd]}${opts[build_verbose]} || {
+            print-header -e "Build failed: ${opts[build_cmd]}${opts[build_verbose]}"
             return 1
         }
     fi
@@ -429,9 +465,9 @@ Examples:
                 print-header -w "unit-test-cmd missing, skipping."
             fi
         else
-            print-header green "unit tests: ${opts[unit_tests_cmd]}"
-            eval ${opts[unit_tests_cmd]} || {
-                print-header -e "Tests failed: ${opts[unit_tests_cmd]}"
+            print-header green "unit tests: ${opts[unit_tests_cmd]}${opts[unit_tests_verbose]}"
+            eval ${opts[unit_tests_cmd]}${opts[unit_tests_verbose]} || {
+                print-header -e "Tests failed: ${opts[unit_tests_cmd]}${opts[unit_tests_verbose]}"
                 return 1
             }
         fi
@@ -450,14 +486,14 @@ Examples:
                 print-header -w "integration-tests-cmd missing, skipping."
             fi
         else
-            print-header green "integration tests: ${opts[integration_tests_cmd]}"
-            eval ${opts[integration_tests_cmd]} || {
-                print-header -e "Tests failed: ${opts[integration_tests_cmd]}"
+            print-header green "integration tests: ${opts[integration_tests_cmd]}${opts[integration_tests_verbose]}"
+            eval ${opts[integration_tests_cmd]}${opts[integration_tests_verbose]} || {
+                print-header -e "Tests failed: ${opts[integration_tests_cmd]}${opts[integration_tests_verbose]}"
                 return 1
             }
         fi
     fi
 
-    print-header green "All steps completed successfully"
+    print-header green "All steps completed successfully${opts[verbose]:+ --verbose }"
     return 0
 } "$@"
