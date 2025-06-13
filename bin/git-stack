@@ -40,7 +40,7 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
         return 1;
     }
 
-    local stack_file="$repo_root/.ms-popd-stack"
+    local stack_file="$repo_root/.ms-popb-stack"
 
     if (( clear_stack )); then
         rm -f "$stack_file"

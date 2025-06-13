@@ -33,7 +33,7 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
         return 1
     }
 
-    local stack_file="$repo_root/.ms-popd-stack"
+    local stack_file="$repo_root/.ms-popb-stack"
     local target_branch
 
     if [[ ! -s "$stack_file" ]]; then
