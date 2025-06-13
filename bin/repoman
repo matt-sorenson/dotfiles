@@ -34,7 +34,8 @@ function() {
             shift
         done
 
-        if (( verbose )); then
+        # We don't print the extra options if this is being called from an alias.
+        if (( verbose )) && [[ $calling_name == 'repoman' ]]; then
             extra_args="
 
 Extra options for repoman:

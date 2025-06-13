@@ -1,21 +1,30 @@
-#!/usr/bin/env zsh
+# You are not expected to run repoman directly but to wrap it, see below
+# for a basic example that uses make commands.
 
-# Copy this file into your bin directory and fill in the necessary fields.
-#
-# Make sure to throw `compdef _repoman <functionname>` in your local zshrc.
+# Copy this into your local/zshrc.zsh file, replace all instances of <reponame>
+# with the name of the repository you want the function set up for.
+# Also fill out/modify any of the additional fields, removing if not needed.
+
+# --migrations-subdir should be the subdirectory of your repo that
+# the `--migrations-cmd`/`--db-up-cmd` need to be run from.
 
 # These will change for every repo
-export DOT_DEFAULT_REPO="repo-wrapper"
+export DOT_DEFAULT_REPO="<reponame>"
 
-repoman \
-    --calling-name repo-wrapper \
-    --clean-cmd "" \
-    --nuke-cmd "" \
-    --install-cmd "" \
-    --build-cmd "" \
-    --migrations-subdir "" \
-    --db-up-cmd "" \
-    --migrations-cmd "" \
-    --unit-tests-cmd "" \
-    --db-container-name "" \
-    "$@"
+function <reponame>() {
+    repoman \
+        --calling-name <reponame> \
+        --clean-cmd "make clean" \
+        --nuke-cmd "make nuke" \
+        --install-cmd "make install" \
+        --build-cmd "make build" \
+        --migrations-subdir "" \
+        --db-up-cmd "make db-up" \
+        --migrations-cmd "make migrations" \
+        --unit-tests-cmd "make unit-test" \
+        --integration-tests-cmd "make integration-test" \
+        --db-container-name "<reponame container>" \
+        --verbose-opts "unit-tests" \
+        "$@"
+}
+compdef _repoman <reponame>
