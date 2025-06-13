@@ -85,7 +85,7 @@ Examples:
 
     local any_set=0
     local -A opts=(
-        path                ""
+        path                ''
         repo                "${default_repo}"
         help                0
         verbose             0
@@ -102,14 +102,14 @@ Examples:
         unit_test           0
         integration_test    0
 
-        clean_cmd               ""
-        nuke_cmd                ""
-        install_cmd             ""
-        build_cmd               ""
-        db_up_cmd               ""
-        migrations_cmd          ""
-        unit_tests_cmd          ""
-        integration_tests_cmd   ""
+        clean_cmd               ''
+        nuke_cmd                ''
+        install_cmd             ''
+        build_cmd               ''
+        db_up_cmd               ''
+        migrations_cmd          ''
+        unit_tests_cmd          ''
+        integration_tests_cmd   ''
 
         clean_verbose             ''
         nuke_verbose              ''
@@ -120,8 +120,8 @@ Examples:
         unit_tests_verbose        ''
         integration_tests_verbose ''
 
-        migrations_subdir       ""
-        db_container_name       ""
+        migrations_subdir       ''
+        db_container_name       ''
     )
 
     while (( $# )); do
@@ -162,7 +162,7 @@ Examples:
 
                 local piece
                 for piece in ${(s:,:)2}; do
-                    local key="${piece}_verbose"
+                    local key="${piece//-/_}_verbose"
 
                     if [[ -z "${opts[$key]+set}" ]]; then
                         print-header -e "Unknown verbose option: '$piece'"
@@ -170,7 +170,7 @@ Examples:
                         return 1
                     fi
 
-                    opts[$key]=' --verbose '
+                    opts[$key]=' --verbose'
                 done
 
                 shift
@@ -270,6 +270,13 @@ Examples:
             _repoman-usage
         fi
         return 0
+    fi
+
+    # If verbose is not set, remove all verbose options
+    if (( ! opts[verbose] )); then
+        for key in ${(M)${(k)opts}#*_verbose}; do
+            opts[$key]=''
+        done
     fi
 
     repo_dir=
