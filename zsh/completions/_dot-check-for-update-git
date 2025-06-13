@@ -1,0 +1,6 @@
+#compdef dot-check-for-update-git
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-i --indent)'{-i,--indent}'[Indent the header 'n' spaces.]' \
+    && return 0

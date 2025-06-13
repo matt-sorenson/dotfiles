@@ -1,0 +1,8 @@
+#compdef print-header
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-i --indent)'{-i,--indent}'[Indent the header by 'n' spaces]' \
+    '(-w --warn)'{-w,--warn}'[Format the header as a warning]' \
+    '(-e --error)'{-e,--error}'[Format the header as an error]' \
+    && return 0
