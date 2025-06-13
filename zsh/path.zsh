@@ -14,7 +14,6 @@ add-to-path() {
     local fpath_des_str="
         -f, --fpath         Add to fpath instead of path"
 
-
     while (( $# )); do
         case "$1" in
             -h|--help)
@@ -129,7 +128,12 @@ add-to-path "${HOME}/.config/emacs/bin"
 
 if [[ -d "${HOME}/Library/pnpm" ]]; then
     export PNPM_HOME="${HOME}/Library/pnpm"
-    add-to-path "${HOME}/Library/pnpm"
+elif [[ -d "${HOME}/.pnpm" ]]; then
+    export PNPM_HOME="${HOME}/.pnpm"
+fi
+
+if [[ -v PNPM_HOME ]]; then
+    add-to-path "${PNPM_HOME}"
 fi
 
 add-to-path '/opt/homebrew/bin'

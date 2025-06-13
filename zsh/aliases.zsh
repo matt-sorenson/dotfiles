@@ -67,12 +67,16 @@ auto-dot-check-for-update() {
 }
 
 autoload \
+    aws-signon \
     brew-find-leafs \
     clang-format-ri \
     dot-check-for-update \
     dot-check-for-update-git \
+    git-alias \
     git-dag \
     git-popb \
     git-pushb \
     git-stack \
-    jwt-print
+    jwt-print \
+    print-header \
+    repoman
