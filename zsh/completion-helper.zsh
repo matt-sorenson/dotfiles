@@ -1,3 +1,5 @@
+# This helper file can provide arrays/maps/functions that assist with zsh completion.
+
 _dot_cdk_cmds=(
     deploy
     destroy

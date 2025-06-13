@@ -69,7 +69,7 @@ Options:
     # Derive basename and directory
     local base=$(basename -- "$filename")
     local dir=$(dirname -- "$filename")
-    cd "$dir" || return 1
+    cd -- "$dir" || return 1
     local dir=$(pwd)
     cd - >/dev/null 2>&1 || return 1
 

@@ -135,9 +135,9 @@ if ! mkdir -p "${DOTFILES}/tmp"; then
 fi
 
 curr_dir="${PWD}"
-if cd "${DOTFILES}" &> /dev/null; then
+if cd -- "${DOTFILES}" &> /dev/null; then
     git config --local user.email "${GIT_EMAIL:='matt@mattsorenson.com'}"
-    cd "${curr_dir}" &> /dev/null || {
+    cd -- "${curr_dir}" &> /dev/null || {
         print-header red "❌ Failed to pop directory stack after setting git email"
         exit 1
     }
