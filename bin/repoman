@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-#compdef repomanq
+#compdef repoman
 
 # This is not a POSIX sh script as it depends on the environment being setup
 # in .zshenv.
