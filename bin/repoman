@@ -50,8 +50,8 @@ Extra options for repoman:
   --unit-tests-cmd <cmd>                Command to run for unit tests
   --integration-tests-cmd <cmd>         Command to run for integration tests
   --db-container-name <name>            If set script can skip starting the DB container if it's already running.
-  --verbose-opts                        Comma separated list of options to enable verbose output for specific steps.
   --repo <repo_name>                    The directory under \$WORKSPACE_ROOT_DIR containing the repo. Defaults to '${default_repo}' if not set.
+  --verbose-opts                        Comma separated list of options to enable verbose output for specific steps.
                                         ex: clean,nuke,install,build,db-up,migrations,unit-tests,integration-tests"
         fi
 
@@ -501,6 +501,6 @@ Examples:
         fi
     fi
 
-    print-header green "All steps completed successfully${opts[verbose]:+ --verbose }"
+    print-header green "All steps completed successfully"
     return 0
 } "$@"
