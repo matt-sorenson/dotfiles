@@ -8,9 +8,11 @@
 # --migrations-subdir should be the subdirectory of your repo that
 # the `--migrations-cmd`/`--db-up-cmd` need to be run from.
 
-# These will change for every repo
+# If DOT_DEFAULT_REPO is not set then you must provide -r/--repo or -p/--path
+# when calling repoman.
 export DOT_DEFAULT_REPO="<reponame>"
 
+# These will change for every repo
 function <reponame>() {
     repoman \
         --calling-name <reponame> \
