@@ -1,4 +1,12 @@
-autoload -U compinit && compinit -i
+ZSH_COMPDUMP="${DOTFILES}/tmp/zsh-compdump-${ZSH_VERSION}"
+zstyle ':completion::complete:*' cache-path "${DOTFILES}/tmp/zsh-compcache"
+
+autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
+
+if [[ -f "${HOME}/.zcompdump" ]]; then
+    print-header -w "Removing old zcompdump file."
+    rm -f "${HOME}/.zcompdump"
+fi
 
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
@@ -27,6 +35,9 @@ if [[ "${OSTYPE}" == darwin* ]]; then
         rm -f /opt/homebrew/share/zsh/site-functions/_git
     fi
 
+    # Disable Apple's "save/restore shell state" feature.
+    SHELL_SESSIONS_DISABLE=1
+
     export CLICOLOR=1
     export LSCOLORS=GxFxCxDxBxegedabagaced
 
@@ -36,8 +47,10 @@ fi
 # Autocomplete will complete past '-'
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 
+LESSHISTFILE="${DOTFILES}/tmp/less-history" # Disable less history file
+
 # History settings
-HISTFILE="${DOTFILES}/tmp/zshhistory"
+HISTFILE="${DOTFILES}/tmp/zsh-history"
 HISTSIZE=101000
 SAVEHIST=100000
 setopt extended_history         # Write the history file in the ':start:elapsed;command' format.
@@ -88,10 +101,10 @@ if [[ -r "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh" ]]; then
     source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
 fi
 
+compinit -d "${ZSH_COMPDUMP}"
+
 # This has some arrays/maps that are used for auto-completion
 source "${DOTFILES}/zsh/completion-helper.zsh"
-
-compinit -i
 
 if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
