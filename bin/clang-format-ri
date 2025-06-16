@@ -5,6 +5,7 @@ function(){
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
     if ! command -v clang-format > /dev/null; then
         print-header -e "ERROR: clang-format not found. Please install clang-format to use this script."
@@ -55,9 +56,12 @@ Options:
         esac
     done
 
-    if [[ -z "${srcpath}" ]]; then
+    if [[ ! -v "${srcpath}" ]]; then
         print-header -e "Source path is required."
         print "${_usage}"
+        return 1
+    elif [[ ! -d "${srcpath}" ]]; then
+        print-header -e "Source path is not a directory: ${srcpath}"
         return 1
     fi
 
@@ -68,9 +72,7 @@ Options:
     done
 
     # Remove the final '-o'
-    if (( ${#filters[@]} )); then
-        unset 'filters[-1]'
-    fi
+    unset 'filters[-1]'
 
     find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$@" {} \;
 } "$@"

@@ -114,7 +114,7 @@ If no flags are provided then it's treated as if all flags are set."
         done
     fi
 
-    local all_true=1
+    local -i all_true=1
     local key
     for key in "${(@k)flags}"; do
         if (( ! flags[$key] )); then
@@ -124,7 +124,7 @@ If no flags are provided then it's treated as if all flags are set."
 
     # We use this instead of exiting early so that we can try to update
     # everything even if one fails
-    local out=0
+    local -i out=0
 
     if (( flags[git] )); then
         print-header green "Updating git repositories."

@@ -58,7 +58,7 @@ Options:
         shift
     done
 
-    if [[ -v filename || -z "${filename}" ]]; then
+    if [[ ! -v filename || -z "${filename}" ]]; then
         print-header -e '--file is required' >&2
         print "${_usage}"
         return 1

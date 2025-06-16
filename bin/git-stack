@@ -13,7 +13,8 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
   -c, --clear           Clear the branch stack
   -h, --help            Show this help message"
 
-    local clear_stack=0
+    local -i clear_stack=0
+    local -i quiet=0
 
     # Parse options
     while (( $# )); do
@@ -24,6 +25,9 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
             -h|--help)
                 print "${_usage}"
                 return 0
+                ;;
+            -q|--quiet)
+                quiet=1
                 ;;
             *)
                 print-header red "Unknown option: $1"
@@ -47,8 +51,7 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
         print-header green "Cleared branch stack."
     else
         if [[ ! -s "${stack_file}" ]]; then
-            print-header yellow "Branch stack is empty."
-            return 1
+            (( ! quiet )) && print-header yellow "Branch stack is empty."
         else
             cat -n "${stack_file}"
         fi

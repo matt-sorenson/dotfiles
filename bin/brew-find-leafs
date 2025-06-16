@@ -50,7 +50,7 @@ manually installed a formula or if it was installed as a dependency."
         exit 1
     fi
 
-    local -A visited_formulas
+    local -a visited_formulas=()
 
     if (( ! flag_quiet )); then
         print-header green "Searching for formulas not depended on by other formulas..."

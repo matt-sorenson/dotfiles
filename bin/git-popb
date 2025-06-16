@@ -12,11 +12,16 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
 
 -h, --help           Show this help message"
 
+    local -i quiet=0
+
     while (( $# )); do
         case "$1" in
             -h|--help)
                 print "${_usage}"
                 return 0
+                ;;
+            -q|--quiet)
+                quiet=1
                 ;;
             *)
                 print-header -e "Unknown argument: $arg"
@@ -68,7 +73,7 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
 
     if [[ "${current_branch}" = "${target_branch}" ]]; then
-        print "✅ You are already on '${target_branch}'"
+        (( ! quiet )) && print-header green "✅ You are already on '${target_branch}'"
     else
         git checkout "${target_branch}"
     fi

@@ -5,6 +5,7 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
     local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
 
@@ -17,7 +18,7 @@ If no flags are provided then it's treated as if all flags are set."
 
     local quiet=0
     local indent=0
-    local dir=
+    local dir
 
     while (( $# )); do
         case $1 in
@@ -43,20 +44,20 @@ If no flags are provided then it's treated as if all flags are set."
                 return 1
                 ;;
             *)
-                if [[ -z $dir ]]; then
-                    dir=$1
-                else
+                if [[ -v ${dir} ]]; then
                     print-header -e -i $indent "${dir:-Unknown Repo}: Called dot-check-for-update with unexpected argument '$1'"
                     print "${_usage}"
                     return 1
                 fi
+
+                dir=$1
                 ;;
         esac
         shift
     done
 
-    if [[ -z $dir ]]; then
-        print-header -e -i $indent "Unknown Repo: Called dot-check-for-update without a directory"
+    if [[ ! -v $dir ]]; then
+        print-header -e -i $indent "Unknown Repo: Called dot-check-for-update-git without a directory"
         return 1
     fi
 
@@ -76,11 +77,11 @@ If no flags are provided then it's treated as if all flags are set."
     if [[ ! -d "${dir}" ]]; then
         print-header -w -i $indent "${log_dir}: Missing Directory"
         return 0
-    elif [[ ! -d "${dir}/.git" ]]; then
+    elif git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null;; then
         if (( quiet )); then
             print-header -w -i $indent "${log_dir}: Directory not a git repo"
         else
-            print "Directory not a git repo"
+            print "${log_dir}: Directory not a git repo"
         fi
         return 0
     fi

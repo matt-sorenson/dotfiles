@@ -5,6 +5,7 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
     local paste_str=' If not provided, it will try to read from the clipboard.'
     if ! command -v pbpaste > /dev/null; then
@@ -21,7 +22,7 @@ Arguments:
 Options:
     -h, --help    Show this help message and exit"
 
-    local jwt=''
+    local jwt
     while (( $# )); do
         case "$1" in
             -h|--help)
@@ -52,7 +53,7 @@ Options:
     fi
 
     local was_from_clipboard=0
-    if [[ -z "${jwt}" ]]; then
+    if [[ ! -v jwt ]]; then
         if ! command -v pbpaste > /dev/null; then
             print-header -e "pbpaste not found. Must pass a JWT as an argument."
             print "${_usage}"
@@ -80,7 +81,7 @@ Options:
     local issued_at="$(print "${payload}"     | jq -r 'if has("iat") then (.iat | todate) else "" end')" 2> /dev/null
     local expire_at="$(print "${payload}"     | jq -r 'if has("exp") then (.exp | todate) else "" end')" 2> /dev/null
 
-    local has_errors=0
+    local -i has_errors=0
 
     if [[ -z "${header}" && -z "${payload}" ]]; then
         print-header -e 'Failed to parse JWT'
@@ -110,7 +111,7 @@ Options:
     fi
 
     if [[ -z "${sig}" ]]; then
-        print-header -w 'Signature is empty. This may be a non-signed JWT.'
+        print-header -w 'Signature is empty.'
         has_errors=1
     else
         sig="Sig: ${sig}\n"
@@ -119,14 +120,14 @@ Options:
     if [[ -n "${expire_at}" ]]; then
         expire_at+="Expire at: ${expire_at}\n"
     else
-        print-header -w "JWT does not have an expiration time."
+        print-header -w 'JWT does not have an expiration time.'
         has_errors=1
     fi
 
     if (( ! has_errors )); then
-        print-header green "JWT"
+        print-header green 'JWT'
     else
-        print-header blue "JWT (with errors)"
+        print-header blue 'JWT (with errors)'
     fi
 
     print -n "${header}${payload}${issued_at}${sig}"

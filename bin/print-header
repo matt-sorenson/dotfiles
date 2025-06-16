@@ -83,6 +83,8 @@ Options:
         return 1
     fi
     local message="${icon}${(j: :)parts}"
+    unset icon
+    unset parts
 
     local msglen=${#message}
     local header_length=80
