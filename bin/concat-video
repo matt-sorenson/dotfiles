@@ -87,10 +87,12 @@ Options:
     local -i n
     for f in "${dir}/${prefix}"*; do
         case "${f}" in
-            *pt.?([0-9]).*) n="${${f##*pt.}%%.*}" ;;
+            *pt.?([0-9]).*)
+            n="${${f##*pt.}%%.*}"
+            files_partlist+=("${n} ${(q)f}")
+            ;;
             *) continue ;;
         esac
-        files_partlist+=("${n} ${(q)f}")
     done
 
     local old_IFS="${IFS}"
