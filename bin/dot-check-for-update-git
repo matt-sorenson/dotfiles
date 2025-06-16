@@ -134,7 +134,9 @@ If no flags are provided then it's treated as if all flags are set."
             print-header -e -i $indent "${log_dir}: Branch is behind upstream by ${behind} commits"
             return 1
         elif (( ahead > 0 )); then
-            print "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
+            if (( ! quiet )); then
+                print "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
+            fi
         fi
     else
         print-header -w -i $indent "${log_dir}: Unable to compare with upstream for"
