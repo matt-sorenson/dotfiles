@@ -24,7 +24,7 @@ if ! command -v print-header &> /dev/null; then
     }
 fi
 
-function() {
+function main() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
@@ -76,14 +76,23 @@ function() {
         # if so skip cloning
         if [[ -d "${dest}" ]]; then
             if git -C "${dest}" rev-parse --is-inside-work-tree &> /dev/null; then
-                local result_count=$(git -C "${dest}" remote -v | grep -c -- "${url}")
-
-                # If result_count is greater than 0 that means the remote repo
-                # already exists in the destination directory.
-                if (( result_count > 0 )); then
-                    print-header green "✅ Destination directory ${dest} already exists with remote ${url}"
-                    return 0
+                local urls=("$url")
+                # If it's a github repo check for either the https or ssh URL
+                # Otherwise just use the URL as is.
+                if [[ "${url}" =~ '^git@github.com:(.+)$' ]]; then
+                    urls+=("https://github.com/${match[1]}")
+                elif [[ "${url}" =~ '^https://github.com/(.+)$' ]]; then
+                    urls+=("git@github.com:${match[1]}")
                 fi
+
+                local remote
+                for remote in "${urls[@]}"; do
+                    if git -C "${dest}" remote -v | grep -q -- "${remote}"; then
+                        print-header green "✅ Destination directory ${dest} already exists with remote ${remote}"
+                        return 0
+                    fi
+                done
+                unset remote
             fi
 
             if [[ -n "$(ls -A "${dest}" 2> /dev/null)" ]]; then
@@ -149,7 +158,8 @@ function() {
             --no-docker)
                 do_docker=0
                 ;;
-            --no-doomemacs)
+            --no-doomemacs) ;& # fallthrough
+            --no-doom)
                 do_doomemacs=0
                 ;;
             --plugin|-p)
@@ -212,6 +222,7 @@ Options:${mac_specific_help}${debian_specific_help}
   --no-fzf                      Do not install fzf-tab plugin
   --no-syntax                   Do not install zsh-syntax-highlighting plugin
   --no-docker                   Do not install Docker
+  --no-doom, --no-doomemacs     Do not install Doom Emacs
   --plugin <name=[shallow=]url> Add a custom plugin to install
                                 Plugins added here will be automatically updated with the dot-check-for-update script
                                 You'll need to manually source/init zsh plugins (that aren't 'local' or in the default list).
@@ -239,10 +250,12 @@ Options:${mac_specific_help}${debian_specific_help}
         shift
     done
 
-    if (( do_brew )) && ! command -v brew &> /dev/null; then
-        print-header green "Installing Homebrew"
+    if (( do_brew )); then
+        if ! command -v brew &> /dev/null; then
+            print-header green "Installing Homebrew"
 
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
 
         local brew_install_list=(
             awscli
@@ -261,11 +274,12 @@ Options:${mac_specific_help}${debian_specific_help}
         )
 
         if (( do_docker )); then
-            apt_install_list+=( docker docker-compose )
+            brew_install_list+=( docker docker-compose )
         fi
 
         print-header green "installing items from brew"
-        brew install "${brew_install_list[@]}"
+        print "Install List: ${brew_install_list[@]}"
+        brew install -q "${brew_install_list[@]}"
     fi
 
     if (( do_debian_apt )); then
@@ -318,6 +332,8 @@ Options:${mac_specific_help}${debian_specific_help}
     mkdir -p "${DOTFILES}/deps"
     mkdir -p "${DOTFILES}/tmp"
 
+    print-header blue "Setting up zsh & plugins"
+
     local name url
     for name url in "${(@kv)plugins}"; do
         print-header green "Setting up $name"
@@ -330,13 +346,11 @@ Options:${mac_specific_help}${debian_specific_help}
         fi
     done
 
-    print "pre-source zshenv"
-
-    print "post-source zshenv"
-
     print-header green "Setting up zsh"
     safe-set-link "${HOME}/.zshrc"    "${DOTFILES}/zsh/zshrc.zsh"
     safe-set-link "${HOME}/.zshenv"   "${DOTFILES}/zsh/zshenv.zsh"
+
+    print-header blue "Done setting up zsh & plugins"
 
     print-header green "Setting up misc dotfiles"
     safe-set-link "${HOME}/.gitconfig" "${DOTFILES}/gitconfig"
@@ -371,7 +385,7 @@ Options:${mac_specific_help}${debian_specific_help}
         mkdir -p "${HOME}/.config"
         safe-git-clone "https://github.com/doomemacs/doomemacs" "${HOME}/.config/emacs"
         safe-set-link "${HOME}/.config/doom" "${DOTFILES}/doom"
-        eval "${HOME}/.config/emacs/bin/doom install --no-env"
+        eval "${HOME}/.config/emacs/bin/doom install --no-env --aot"
     else
         print-header -w "emacs not found, consider installing it"
         print "Skipping doomemacs setup"
@@ -380,4 +394,6 @@ Options:${mac_specific_help}${debian_specific_help}
     print-header green "Setting up local dotfiles complete."
     print "if any of the repos checked out above where already present you may want to run dot-check-for-update to update them."
     print "You should restart your terminal now to apply the changes."
-} "$@"
+}
+
+main "$@"
