@@ -63,19 +63,14 @@ aws-signon dev -f"
 
     print-header green "🔐 Signing into AWS: ${AWS_PROFILE}"
 
-    # Set to 1 so that if force is set it will attempt to login
-    local exit_code=1
     if (( ! force )); then
-        aws sts get-caller-identity --profile "${AWS_PROFILE}" &> /dev/null
-        local exit_code=$?
+        if aws sts get-caller-identity --profile "${AWS_PROFILE}" &> /dev/null; then
+            print "already signed in as ${AWS_PROFILE}"
+            return 0
+        fi
+
+        print "not signed in, attempting SSO login for '${AWS_PROFILE}'..."
     fi
 
-    if (( exit_code != 0 )); then
-        if (( ! force )); then
-            print "not signed in, attempting SSO login for '${AWS_PROFILE}'..."
-        fi
-        aws sso login --profile "${AWS_PROFILE}"
-    else
-        print "already signed in as ${AWS_PROFILE}"
-    fi
+    aws sso login --profile "${AWS_PROFILE}"
 } "$@"
