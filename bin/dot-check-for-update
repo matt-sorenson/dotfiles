@@ -95,6 +95,7 @@ If no flags are provided then it's treated as if all flags are set."
                 print-header -e "Unknown argument '$1'"
                 print "${_usage}"
                 return 1
+                ;;
         esac
     done
 

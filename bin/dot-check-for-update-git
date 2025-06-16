@@ -44,7 +44,7 @@ If no flags are provided then it's treated as if all flags are set."
                 return 1
                 ;;
             *)
-                if [[ -v ${dir} ]]; then
+                if [[ -v dir ]]; then
                     print-header -e -i $indent "${dir:-Unknown Repo}: Called dot-check-for-update with unexpected argument '$1'"
                     print "${_usage}"
                     return 1
@@ -56,7 +56,7 @@ If no flags are provided then it's treated as if all flags are set."
         shift
     done
 
-    if [[ ! -v $dir ]]; then
+    if [[ ! -v dir ]]; then
         print-header -e -i $indent "Unknown Repo: Called dot-check-for-update-git without a directory"
         return 1
     fi
@@ -71,13 +71,15 @@ If no flags are provided then it's treated as if all flags are set."
             # starts with $HOME/ → "~/…"
             log_dir="~${dir#${HOME}}"
             ;;
-        *) ;; # no-op
+        *)
+            log_dir="${dir}"
+            ;;
     esac
 
     if [[ ! -d "${dir}" ]]; then
         print-header -w -i $indent "${log_dir}: Missing Directory"
         return 0
-    elif git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null;; then
+    elif ! git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null; then
         if (( quiet )); then
             print-header -w -i $indent "${log_dir}: Directory not a git repo"
         else
