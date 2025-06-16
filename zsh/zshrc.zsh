@@ -37,7 +37,7 @@ fi
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 # History settings
-HISTFILE="${DOTFILES}/tmp/history"
+HISTFILE="${DOTFILES}/tmp/zshhistory"
 HISTSIZE=101000
 SAVEHIST=100000
 setopt extended_history         # Write the history file in the ':start:elapsed;command' format.
