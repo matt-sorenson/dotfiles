@@ -97,7 +97,7 @@ multiple positional arguments are provided then the command will fail."
         return 0
     fi
 
-    local stack_file="${repo_root}/.ms-pop-stack"
+    local stack_file="${repo_root}/.ms-popb-stack"
 
     # ensure stack exists, then push current branch
     mkdir -p "$(dirname "${stack_file}")"
