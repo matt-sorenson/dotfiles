@@ -359,7 +359,7 @@ Options:${mac_specific_help}${debian_specific_help}
     mkdir -p "${LOCAL_DOTFILES}/zsh/completions"
 
     if (( is_work)); then
-        touch "${LOCAL_DOTFILES}/is_work"
+        touch "${LOCAL_DOTFILES}/is-work"
     fi
 
     if [[ "${DOTFILES}/local" != "${LOCAL_DOTFILES}" ]]; then
