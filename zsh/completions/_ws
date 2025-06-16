@@ -1,0 +1,3 @@
+#compdef ws wscode wsls
+
+_files -W /${WORKSPACE_ROOT_DIR}/

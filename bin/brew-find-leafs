@@ -1,0 +1,74 @@
+#!/usr/bin/env zsh
+#compdef brew-find-leafs
+
+function() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    local flag_remove=0
+    local flag_quiet=0
+
+    local _usage="Usage: brew-find-leafs [-h|--help]
+
+Finds brew formulas that aren't depended on by any other packages.
+This is useful for cleaning up unused dependencies.
+
+Options:
+  -h, --help   Show this help message and exit
+  -r, --remove Ask to remove formulas that are not depended on by other formulas
+  -q, --quiet  Suppress most output, only show the forumulas that would be removed
+
+There is explicitly not a -f or --force option as this script can't tell if you
+manually installed a formula or if it was installed as a dependency."
+
+    while (( $# )); do
+        case "$1" in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            -r|--remove)
+                flag_remove=1
+                shift 1
+                ;;
+            -q|--quiet)
+                quiet=1
+                shift 1
+                ;;
+            *)
+                print-header -e "Unknown option: $1"
+                print "$_usage"
+                return 1
+                ;;
+        esac
+    done
+
+
+    if (( flag_quiet && flag_remove )); then
+        print "Error: Cannot use --quiet and --remove together."
+        exit 1
+    fi
+
+    local -A visited_formulas
+
+    if (( ! flag_quiet )); then
+        print-header green "Searching for formulas not depended on by other formulas..."
+    fi
+
+    local formula
+    for formula in $(brew list); do
+        if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
+            visited_formulas[$formula]=1
+            if (( flag_remove )); then
+                read -q "input?'${formula}' is not depended on by other formulas. Remove? [Y/n] "
+                if [[ "${input}" == "y" ]]; then
+                    brew remove "${formula}"
+                    check_formulas $(brew deps --1 --installed "${formula}")
+                fi
+            else
+                print "${formula}"
+            fi
+        fi
+    done
+} "$@"

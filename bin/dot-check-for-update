@@ -1,0 +1,220 @@
+#!/usr/bin/env zsh
+#compdef dot-check-for-update
+
+## This script depends on DOTFILES being set to the path of the dotfiles repo.
+
+function() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt nullglob
+    setopt err_return
+
+    local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
+
+Options:
+  -h, --help          Show this help message and exit
+  -g, --git           Update git repositories
+  -l, --local         Update local scripts
+  -b, --brew          Update brew
+  -d, --doom          Update doom emacs
+
+If no flags are provided then it's treated as if all flags are set."
+
+    local -A flags
+    flags=(
+        "git"     0
+        "local"   0
+        "brew"    0
+        "doom"    0
+        "local"   0
+    )
+
+    local -A no_flags=(
+        "git"     0
+        "local"   0
+        "brew"    0
+        "doom"    0
+        "local"   0
+    )
+
+    local specified_flag=0
+    local specified_no_flag=0
+
+    while (( $# )); do
+        case $1 in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            -g|--git)
+                flags[git]=1
+                specified_flag=1
+                shift
+                ;;
+            -l|--local)
+                flags[local]=1
+                specified_flag=1
+                shift
+                ;;
+            -b|--brew)
+                flags[brew]=1
+                specified_flag=1
+                shift
+                ;;
+            -d|--doom)
+                flags[doom]=1
+                specified_flag=1
+                shift
+                ;;
+            --no-git)
+                no_flags[git]=1
+                specified_no_flag=1
+                shift
+                ;;
+            --no-local)
+                no_flags[local]=1
+                specified_no_flag=1
+                shift
+                ;;
+            --no-brew)
+                no_flags[brew]=1
+                specified_no_flag=1
+                shift
+                ;;
+            --no-doom)
+                no_flags[doom]=1
+                specified_no_flag=1
+                shift
+                ;;
+            -*)
+                print-header -e "Unknown option '$1'"
+                print "$_usage"
+                return 1
+                ;;
+            *)
+                print-header -e "Unknown argument '$1'"
+                print "$_usage"
+                return 1
+        esac
+    done
+
+    if (( ! specified_flag )); then
+        local key
+        for key in "${(@k)flags}"; do
+            if (( ! no_flags[$key] )); then
+                flags[$key]=1
+            fi
+        done
+    elif (( specified_no_flag )); then
+        local key
+       for key in "${(@k)flags}"; do
+            if (( no_flags[$key] && flags[$key] )); then
+                _error -h "Specified flag --no-${key//_/-} but also specified -${key//_/-} or --${key//_/-}, please choose one."
+            fi
+        done
+    fi
+
+    local all_true=1
+    local key
+    for key in "${(@k)flags}"; do
+        if (( ! flags[$key] )); then
+            all_true=0
+        fi
+    done
+
+    # We use this instead of exiting early so that we can try to update
+    # everything even if one fails
+    local out=0
+
+    if (( flags[git] )); then
+        print-header green "Updating git repositories."
+        if [[ -d "${DOTFILES}" ]]; then
+            if dot-check-for-update-git -i 2 "${DOTFILES}"; then
+                # If hammerspoon exists we may have updated the config while updating
+                # the dotfiles, so we need to reload it.
+                if command -v "hs" > /dev/null; then
+                    print-header green "Reloading hammerspoon"
+                    hs -c "hs.reload()"
+                fi
+            else
+                out=1
+            fi
+        else
+            print-header -w "${DOTFILES} does not exist, skipping dotfiles update."
+        fi
+
+        if (( flags[local] )) && [[ -d "${DOTFILES}/local" ]]; then
+            if ! dot-check-for-update-git -i 2 "${DOTFILES}/local" -q; then
+                out=1
+            fi
+        elif (( flags[local] && specified_no_flag )); then
+            # If the user specifically requested updating local then print a warning.
+            print-header -w "${DOTFILES}/local does not exist, skipping local update."
+        fi
+
+        local repos_to_update=( ${DOTFILES}/deps/*(/) )
+        local repo
+        for repo in $repos_to_update; do
+            if ! dot-check-for-update-git -i 2 "$repo"; then
+                out=1
+            fi
+        done
+    fi
+
+    if (( flags[brew] )); then
+        if command -v "brew" > /dev/null; then
+            print-header green "Updating brew."
+
+            if brew update; then
+                if ! brew upgrade; then
+                    print-header -e -i 2 "brew: Failed to upgrade."
+                    out=1
+                fi
+            else
+                print-header -e -i 2 "brew: Failed to update."
+                out=1
+            fi
+        else
+            local color icon
+            if (( ! specified_flag )); then
+                color="red"
+                icon="❌"
+                out=1
+            else
+                color="yellow"
+                icon="⚠️"
+            fi
+            print-header "$color" -i 2 "$icon brew: 'brew' is not installed."
+        fi
+    fi
+
+    # You can specify a local update function in your "$DOTFILES/local/zsh"
+    # files or in $DOTFILES/local/bin
+    if (( flags[local] )) && command -v "dot-check-for-update-local" > /dev/null; then
+        if ! dot-check-for-update-local; then
+            out=1
+        fi
+    fi
+
+    if (( flags[doom] )); then
+        local doomemacs_bin="${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}"
+        if command -v "${doomemacs_bin}" > /dev/null; then
+            print-header green "Updating doom emacs."
+
+            if ! "${doomemacs_bin}" upgrade --aot --force --color; then
+                print-header -e -i 2 "doom emacs failed to upgrade."
+                out=1
+            fi
+        fi
+    fi
+
+    # Only update the timestamp if all updates were successful & we didn't
+    # skip any updates
+    if (( ! out && all_true )); then
+        local update_filename="${DOTFILES}/tmp/dotfile-update"
+        local current_time=$(date +%s)
+        print -n "${current_time}" >! "${update_filename}"
+    fi
+
+    return $out
+} "$@"

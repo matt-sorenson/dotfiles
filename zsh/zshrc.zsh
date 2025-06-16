@@ -1,34 +1,38 @@
+autoload -U compinit && compinit -i
+
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-AT_WORK=0
+export AT_WORK=0
+if [[ -f "${DOTFILES}/local/is-work" ]]; then
+    AT_WORK=1
+fi
 
-if [ -f "${DOTFILES}/local/zsh/zshrc.zsh" ]; then
+if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
 
-source "${DOTFILES}/zsh/update.zsh"
-
-source "${HOME}/.zprezto/init.zsh"
-
 source "${DOTFILES}/zsh/aliases.zsh"
 
-if [ -d "${HOME}/.nvm" ]; then
-    export NVM_DIR="${HOME}/.nvm"
-    [ -s "${NVM_DIR}/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
-
-if [ -d "${DOTFILES}/zsh/completion" ]; then
-    fpath=("${DOTFILES}/zsh/completion" $fpath)
-fi
+# These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
+add-to-fpath "${DOTFILES}/zsh/completions"
+add-to-fpath "${DOTFILES}/local/zsh/completions"
 
 if [[ "$OSTYPE" == darwin* ]]; then
+    # this file may have been recreated by brew updates.
+    if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
+        print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
+        print "this is the git autocomplete provided by git, deleting this to" \
+            "fallback to the one provided by zsh"
+        rm -f /opt/homebrew/share/zsh/site-functions/_git
+    fi
+
     export CLICOLOR=1
     export LSCOLORS=GxFxCxDxBxegedabagaced
+
+    ssh-add --apple-load-keychain
 fi
 
-COMPLETION_WAITING_DOTS="true"
 # Autocomplete will complete past '-'
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 
@@ -36,39 +40,61 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 HISTFILE="${DOTFILES}/tmp/history"
 HISTSIZE=101000
 SAVEHIST=100000
-setopt hist_expire_dups_first
-setopt hist_reduce_blanks
-setopt hist_ignore_dups
-setopt hist_find_no_dups
-setopt hist_verify
-setopt share_history
-setopt no_append_history
+setopt extended_history         # Write the history file in the ':start:elapsed;command' format.
+setopt hist_expire_dups_first   # Expire a duplicate event first when trimming history.
+setopt hist_reduce_blanks       # Remove superfluous blanks from each command line being added to the history list.
+setopt hist_ignore_dups         # Do not record an event that was just recorded again.
+setopt hist_find_no_dups        # Do not display a previously found event.
+setopt hist_verify              # For multiline history don’t execute the line directly; instead, perform history expansion and reload the line into the editing buffer.
+setopt share_history            # Share history between all sessions.
+setopt inc_append_history_time  # Append to history file instead of replacing it.
 
 # Directory stack options
-setopt auto_pushd
-setopt auto_cd
-setopt pushd_to_home
-setopt no_pushd_silent
+setopt auto_pushd           # treat cd as pushd allowing popd to go back to previous directory
+setopt auto_cd              # If provided a valid directory and no command treat it as cd
+setopt pushd_to_home        # Push to home when no directories in stack
+
+unsetopt pushd_silent       # Print the new directory stack after pushd or popd.
+
+# when a trap is set in a function it will be restored when the function exits.
+setopt local_traps
+setopt local_options
 
 # Random settings
-setopt complete_inword
-setopt extended_glob
+setopt complete_in_word     # Leave cursor when using completions
+setopt extended_glob        # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc. (An initial unquoted ‘~’ always produces named directory expansion.)
 setopt interactive_comments # treat comments as comments in interactive shell
-setopt no_beep
-setopt clobber
-setopt multios
+setopt clobber              # Allow `>` to truncate files
+setopt multios              # Perform implicit tees or cats when multiple redirections are attempted
 
-auto-check-for-update
+unsetopt beep               # Disable "pc speaker" beep
 
-ssh-add --apple-load-keychain
-prompt ender
+auto-dot-check-for-update 15 # check for updates every 15 hours
 
-if type rbenv > /dev/null ; then
-    eval "$(rbenv init -)"
+bindkey -e
+
+if [[ -d "${HOME}/.nvm" ]]; then
+    # This loads nvm bash_completion
+    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 fi
 
-if type direnv > /dev/null ; then
-    eval "$(direnv hook zsh)"
+if [[ -r "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh" ]]; then
+    # Don't sort the completions for aws-signon (keep them in dev, staging, prod order)
+    zstyle ':completion:*:aws-signon:*' sort false
+
+    # set list-colors to enable filename colorizing
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+    source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
 fi
+
+# This has some arrays/maps that are used for auto-completion
+source "${DOTFILES}/zsh/completion-helper.zsh"
 
 compinit -i
+
+if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+source "${DOTFILES}/zsh/ender.zsh-theme"

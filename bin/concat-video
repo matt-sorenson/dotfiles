@@ -1,0 +1,146 @@
+#! /usr/bin/env zsh
+
+function() {}
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    
+    local _usage="Usage: concat-video [OPTIONS]
+
+Required:
+  -f, --file FILENAME        filename to base concat off of
+
+Options:
+  -o, --output <EXTENSION>   output file extension (default: .m4v)
+  -c, --crop w:h:x:y         crop to dimensions w:h:x:y
+  -t, --trim <SECONDS>       trim intro from 2nd,3rd... in seconds (default: 0)
+  -h, --help                 show this help and exit"
+
+    # Defaults
+    local output_ext='.m4v'
+    local trim=0
+    local crop=''
+    local crop_given=0
+
+    while (( $# )); do
+        case "$1" in
+            -f|--file)
+                filename="${2}"
+                shift 2
+                ;;
+            -o|--output)
+                output_ext="${2}"
+                shift 2
+                ;;
+            -c|--crop)
+                crop="${2}"
+                crop_given=1
+                shift 2
+                ;;
+            -t|--trim)
+                trim="${2}"
+                shift 2
+                ;;
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            -*)
+                print 'Unknown option: ${1}' >&2
+                print "$_usage"
+                return 1
+                ;;
+            *)
+                print 'Unknown argument: ${1}' >&2
+                print "$_usage"
+                return 1
+                ;;
+        esac
+    done
+    # ---- end parsing ----
+
+    # Ensure required
+    if [[ -z "$filename" ]]; then
+        print 'Error: --file is required' >&2
+        print "$_usage"
+        return 1
+    fi
+
+    # Derive basename and directory
+    local base=$(basename -- "$filename")
+    local dir=$(dirname -- "$filename")
+    cd -- "$dir" || return 1
+    local dir=$(pwd)
+    cd - >/dev/null 2>&1 || return 1
+
+    # Validate filename format
+    if ! print "$base" | grep -Eq '^(.*?) *pt\.?([0-9]+)(\..*)$'; then
+        print "Could not parse filename for part: $filename" >&2
+        return 1
+    fi
+
+    # Extract prefix
+    local prefix=$(print -n "$base" | sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/')
+
+    # Prepare output
+    local outdir="$dir/converted"
+    mkdir -p "$outdir"
+    local final_filename="$outdir/${prefix}${output_ext}"
+
+    # Gather & sort parts
+    local files_partlist=
+    for f in "${prefix}"*; do
+    case "$f" in
+        *pt.?([0-9]).*) n="${f##*pt.}"; n="${n%%.*}" ;;
+        *) continue ;;
+    esac
+    files_partlist="${files_partlist}${n} $f"$'\n'
+    done
+    # sort numerically, extract filenames:
+    local files=$(print -n "$files_partlist" | sort -n | cut -d' ' -f2-)
+
+    # Build ffmpeg inputs
+    local cmd="ffmpeg"
+    for f in $files; do
+        cmd="$cmd -i \"${f//\"/\\\"}\""
+    done
+
+    # Build filter_complex
+    local filter_complex=''
+    local i=0
+    for f in $files; do
+        local start_trim=$(( i ? trim : 0 ))
+
+        filter_complex="${filter_complex}[$i:v]setpts=PTS-STARTPTS,trim=start=$start_trim"
+        (( crop_given )) && filter_complex="${filter_complex},crop=$crop"
+        filter_complex="${filter_complex}[v$i]; "
+
+        filter_complex="${filter_complex}[$i:a]asetpts=PTS-STARTPTS"
+        ((start_trim )) && filter_complex="${filter_complex},atrim=start=$start_trim"
+        filter_complex="${filter_complex}[a$i]; "
+
+        i=$((i + 1))
+    done
+
+    # Concatenate streams
+    local concat_inputs=''
+    for j in $(seq 0 $((i - 1))); do
+        concat_inputs="${concat_inputs}[v$j][a$j]"
+    done
+    filter_complex="$filter_complex${concat_inputs}concat=n=$i:v=1:a=1[out]"
+
+    # Final ffmpeg command
+    cmd="$cmd -filter_complex \"$filter_complex\" \
+        -c:v libx264 -crf 15 -preset veryslow \
+        -map \"[out]\" \"$final_filename\""
+
+    # Execute!
+    eval "$cmd"
+    status=$?
+    if (( status )); then
+        print "ffmpeg failed with exit code $status" >&2
+        return $status
+    fi
+
+    print "Successfully created $final_filename"
+} "$@"

@@ -1,0 +1,81 @@
+#!/usr/bin/env zsh
+#compdef aws-signon
+
+function() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    local _usage="Usage: aws-signon [-f|--force] [-h|--help] <profile>
+
+Options:
+  -f, --force                         Force login even if already signed in
+  -h, --help                          Show this help message
+  <profile>                           AWS profile to sign into
+
+Examples:
+aws-signon -f dev
+aws-signon dev
+aws-signon dev -f"
+
+    local force=0
+    local profile=""
+
+    while (( $# )); do
+        case "$1" in
+            -h|--help)
+                print "${_usage}"
+                return 0
+                ;;
+            -f|--force)
+                force=1
+                ;;
+            -*)
+                print-header -e "Unknown option: $1"
+                print "${_usage}"
+                return 1
+                ;;
+            *)
+                if [ -n "$profile" ]; then
+                    print-header -e "Profile passed in multiple times!"
+                    print "${_usage}"
+                    return 1
+                fi
+                profile="$1"
+                ;;
+        esac
+        shift
+    done
+
+    export AWS_PROFILE
+    if [ -z "$profile" ]; then
+        if [ -z "$AWS_PROFILE" ]; then
+            print-header -e "No profile specified & \$AWS_PROFILE is not available!"
+            print "${_usage}"
+            return 1
+        else
+            print "No profile specified, using \$AWS_PROFILE: $AWS_PROFILE"
+        fi
+    else
+        AWS_PROFILE="$profile"
+        unset profile
+    fi
+
+    print-header green "🔐 Signing into AWS: $AWS_PROFILE"
+
+    # Set to 1 so that if force is set it will attempt to login
+    local exit_code=1
+    if (( ! force )); then
+        aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null
+        local exit_code=$?
+    fi
+
+    if (( exit_code != 0 )); then
+        if (( ! force )); then
+            print "not signed in, attempting SSO login for '$AWS_PROFILE'..."
+        fi
+        aws sso login --profile "$AWS_PROFILE"
+    else
+        print "already signed in as $AWS_PROFILE"
+    fi
+} "$@"

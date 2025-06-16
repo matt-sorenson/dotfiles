@@ -1,0 +1,9 @@
+#compdef dot-check-for-update
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-g --git)'{-g,--git}'[Update dotfile git repos]' \
+    '(-l --local)'{-l,--local}'[Update local]' \
+    '(-b --brew)'{-b,--brew}'[Update brew]' \
+    '(-d --doom)'{-d,--doom}'[Update doomemacs]' \
+    && return 0

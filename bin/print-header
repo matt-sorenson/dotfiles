@@ -1,0 +1,107 @@
+#!/usr/bin/env zsh
+#compdef print-header
+
+autoload -Uz colors && colors
+
+function() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+local _usage="Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
+
+Arguments:
+  <color>                        The color of the header (e.g., red, green, blue)
+  <message>                      The message to display in the header
+
+Options:
+  -h, --help                     Show this help message and exit
+  -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)"
+
+    local show_usage=false
+    local indent=0
+    local color=''
+    local parts=()
+    local icon=''
+
+    while (( $# )); do
+        case "$1" in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            -i|--indent|-wi|-we)
+                if (( $# < 2 )); then
+                    print-header -e "Error: '$1' requires an argument."
+                    print "$_usage"
+                    return 1
+                fi
+
+                if [[ "$1" == "-wi" || "$1" == "-wi" ]]; then
+                    # add -w or -e to the argv array
+                    argv+=("-${1[2]}")
+                fi
+
+                indent="$2"
+                shift
+                ;;
+            -w|--warn)
+                color="${fg_bold[yellow]}"
+                icon='⚠️ '
+                ;;
+            -e|--error)
+                color="${fg_bold[red]}"
+                icon='❗ '
+                ;;
+            -*)
+                print-header -e "Unknown option: $1"
+                print "$_usage"
+                return 1
+                ;;
+            *)
+                case "$1" in
+                    "\\033"*)
+                        "$color$1"
+                        ;;
+                    black|red|green|yellow|blue|magenta|cyan|white)
+                        color="${color}${fg_bold[${1}]}"
+                        ;;
+                    bgblack|bgred|bggreen|bgyellow|bgblue|bgmagenta|bgcyan|bgwhite)
+                        color="${color}${bg[${1#bg}]}"
+                        ;;
+                    *)
+                        parts+=("$1")
+                esac
+                ;;
+        esac
+        shift
+    done
+
+    if (( ${#parts[@]} == 0 )); then
+        print "Error: No message provided."
+        print "$_usage"
+        return 1
+    fi
+    local message="${icon}${(j: :)parts}"
+
+    local msglen=${#message}
+    local header_length=80
+    if (( msglen + 2 > header_length )); then
+        header_length=$((msglen + 2))
+    fi
+
+    local maxlen=$(( header_length - indent - 2 ))
+    local message_padding=''
+    if (( msglen < $maxlen )); then
+        local pad=$(( maxlen - msglen ))
+        message_padding="$(printf '%*s' "$pad" '')"
+    fi
+
+    local reset_color="${reset_color:-${fg[reset]}}"
+    local indent_space="$(printf '%*s' $indent)"
+    local header="${$(printf "%*s" $header_length '=')// /=}"
+    printf "%s\n%s\n%s\n" \
+        "${indent_space}${color}${header}${reset_color}" \
+        "${indent_space}${color}= ${message}${message_padding}${reset_color}" \
+        "${indent_space}${color}${header}${reset_color}"
+} "$@"

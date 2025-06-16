@@ -1,0 +1,15 @@
+#compdef git-dag
+#description show the git history as a dag
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-a --all)'{-a,--all}'[Show all branches]' \
+    '*:branch name:->branch' \
+    && return 0
+
+case $state in
+    branch)
+        local branchs=( ${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads)"} )
+        compadd -a ms_branchs
+        ;;
+esac

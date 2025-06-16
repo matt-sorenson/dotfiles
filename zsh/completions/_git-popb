@@ -1,0 +1,6 @@
+#compdef git-popb
+#description pop the last branch off your git stack and check it out
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    && return 0

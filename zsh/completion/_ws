@@ -1,5 +1,0 @@
-#compdef ws
-
-#typeset -A opt_args
-
-_files -W /${WORKSPACE_ROOT_DIR}/

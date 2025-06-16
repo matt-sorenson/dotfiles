@@ -1,0 +1,76 @@
+#!/usr/bin/env zsh
+#compdef clang-format-ri
+
+function(){
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    if ! command -v clang-format > /dev/null; then
+        print-header -e "ERROR: clang-format not found. Please install clang-format to use this script."
+        return 1
+    fi
+
+    local _usage="Usage: clang-format-ri [options] <source-path> -- [<clang-format-options>...]
+Recursively format C++ source files in place using clang-format.
+
+Options:
+  -h, --help    Show this help message and exit"
+
+    local extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )
+    local srcpath
+    while (( $# )); do
+        case "${1}" in
+            -h|--help)
+                print "${_usage}"
+                return 0
+                ;;
+            -e|--extensions)
+                if $# < 2 ]; then
+                    print-header -e "Error: --extensions requires at least one extension argument."
+                    print "${_usage}"
+                    return 1
+                fi
+                extensions=("${(@s/:/)$2}")
+                shift 2
+                ;;
+            --)
+                shift
+                break
+                ;;
+            -*)
+                print-header -e "Unknown option: ${1}"
+                print "${_usage}"
+                return 1
+                ;;
+            *)
+                if [[ -n "${srcpath}" ]]; then
+                    print-header -e "Source path already set: ${srcpath}"
+                    print "${_usage}"
+                    return 1
+                fi
+                srcpath="${1}"
+                shift
+                ;;
+        esac
+    done
+
+    if [[ -z "${srcpath}" ]]; then
+        print-header -e "Source path is required."
+        print "${_usage}"
+        return 1
+    fi
+
+    local filters=()
+    local ext
+    for ext in "${extensions[@]}"; do
+        filters+=( -iname "${ext}" -o )
+    done
+
+    # Remove the final '-o'
+    if (( ${#filters[@]} )); then
+        unset 'filters[-1]'
+    fi
+
+    find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$@" {} \;
+} "$@"

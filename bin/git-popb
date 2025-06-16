@@ -1,0 +1,75 @@
+#!/usr/bin/env zsh
+#compdef git-popb
+
+function() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    local _usage="Usage: git-popb [-h|--help]
+
+Check out the last branch checked out with git-pushb and pops it from the stack.
+
+-h, --help           Show this help message"
+
+    while (( $# )); do
+        case "$1" in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            *)
+                print-header -e "Unknown argument: $arg"
+                print "$_usage"
+                return 1
+                ;;
+        esac
+        shift
+    done
+
+    # find repo root
+    local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        print 'Not a git repository.' >&2
+        return 1
+    }
+
+    local stack_file="$repo_root/.ms-popb-stack"
+    local target_branch
+
+    if [[ ! -s "$stack_file" ]]; then
+        if git show-ref --quiet --verify refs/heads/master; then
+            target_branch=master
+        elif git show-ref --quiet --verify refs/heads/main; then
+            target_branch=main
+        else
+            print "Error: neither 'master' nor 'main' branch exists" >&2
+            return 1
+        fi
+
+        print "No branches in stack, checking out $target_branch" >&2
+    else
+        # read last entry
+        target_branch=$(tail -n 1 "$stack_file")
+
+        # remove last line in a POSIX-safe way
+        local tmp_file=$(mktemp) || {
+            print 'Failed to create temp file.' >&2
+            return 1
+        }
+        sed '$d' "$stack_file" > "$tmp_file"
+        mv "$tmp_file" "$stack_file"
+    fi
+
+    # if now empty, delete it
+    if [[ ! -s "$stack_file" ]]; then
+        rm -f "$stack_file"
+    fi
+
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+    if [[ "$current_branch" = "$target_branch" ]]; then
+        print "✅ You are already on '$target_branch'"
+    else
+        git checkout "$target_branch"
+    fi
+} "$@"

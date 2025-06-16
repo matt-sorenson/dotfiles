@@ -1,3 +1,6 @@
+    # Create the file `${dotfiles}/local/gitconfig` to override settings in here
+    # Specifically probably need to override user.email
+
 [user]
     email = matt@mattsorenson.com
     name = Matt Sorenson
@@ -14,20 +17,13 @@
     rebase = true
 
 [push]
-    default = simple
+    default = current
+    autoSetupRemote = true
 
 [alias]
-    # submodule helpers
-    rfetch = fetch --recurse-submodules
-    rpush = push --recurse-submodules=check
-    up = !git pull --rebase --prune $@ && git submodule update --init --recursive
-
+    # Attemps to do a force push but fails if the remote has diverged.
+    # Only use this on branches others aren't using as you'll cause pain
     pushf = push --force-with-lease
-
-    # Checkout previously checked out branch. unlike normal `popd` doesn't
-    # act as a stack and calling it multiple times in a row will just go back
-    # and forth between the 2 branchs.
-    popd = checkout -
 
     # 'heavy duty' garbage collection
     gcf = !git -c gc.reflogExpire=0 -c gc.reflogExpireUnreachable=0 -c gc.rerereresolved=0 -c gc.rerereunresolved=0 -c gc.pruneExpire=now gc "$@"
@@ -35,13 +31,6 @@
     # log helpers
     authors =  !git log --format='%aN <%aE>' | sort -u
     olog = log --oneline
-    dag = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)' --all
-
-    # List all aliases
-    alias = !git config --get-regexp ^alias\\. | cut -f2- -d .
-
-    # Initialize repo and create initial commit
-    it = !git init && git commit -m "root" --allow-empty
 
     # add staged files to HEAD commit
     amend = commit --amend --no-edit

@@ -1,0 +1,7 @@
+#compdef git-stack
+#description show your current git branch stack
+
+_arguments \
+    '(-c, --clean)'{-c,--clean}'[Clear the branch stack]' \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    && return 0

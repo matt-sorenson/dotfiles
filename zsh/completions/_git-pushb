@@ -1,0 +1,6 @@
+#compdef git-pushb
+#description pushb into a branch-named directory
+
+# While it's not a perfect 1:1 as calling git-checkout it does for pretty much
+# all my use cases so reuse the _git-checkout completion function
+_git-checkout
