@@ -18,8 +18,9 @@ If no branches are specified it will show the current branch and if they exist m
         return 1
     }
 
-    local branches=()
     local all=0
+    local flags=()
+    local branches=()
 
     while (( $# )); do
         case "$1" in
@@ -35,15 +36,13 @@ If no branches are specified it will show the current branch and if they exist m
                 branches+=("$1")
 
                 if ! git show-ref --verify --quiet "$1" &> /dev/null; then
-                    print-header -e "Branch '$1' does not exist." >&2
-                    return 1
+                    print-header -w "Branch '$1' does not exist." >&2
                 fi
                 ;;
         esac
         shift
     done
 
-    local flags=()
     if (( all == 1 && $#branches > 0 )); then
         print-header -e "Cannot use --all and provide branch names together."
         print "${_usage}"
@@ -67,5 +66,5 @@ If no branches are specified it will show the current branch and if they exist m
         fi
     fi
 
-    git log --graph --abbrev-commit --decorate --format=format:"'${format}'" "${flags[@]}"
+    git log --graph --abbrev-commit --decorate --format=format:"${(q)format}" "${flags[@]}"
 } "$@"
