@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-function() {}
+function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
