@@ -18,8 +18,8 @@ wsls() {
                 args+=("$1")
                 ;;
             *)
-                if [[ -n "$subdir" ]]; then
-                    print-header -e "Subdirectory already set '$subdir'."
+                if [[ -n "${subdir}" ]]; then
+                    print-header -e "Subdirectory already set '${subdir}'."
                     return 1
                 fi
 

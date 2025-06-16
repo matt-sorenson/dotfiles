@@ -24,7 +24,7 @@ If no branches are specified it will show the current branch and if they exist m
     while (( $# )); do
         case "$1" in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             -a|--all)
@@ -46,7 +46,7 @@ If no branches are specified it will show the current branch and if they exist m
     local flags=()
     if (( all == 1 && $#branches > 0 )); then
         print-header -e "Cannot use --all and provide branch names together."
-        print "$_usage"
+        print "${_usage}"
         return 1
     fi
 
@@ -55,7 +55,7 @@ If no branches are specified it will show the current branch and if they exist m
 
         local current_branch=$(git rev-parse --abbrev-ref HEAD)
         if (( ${branches[(i)$current_branch]} == 0 )) && [[ $current_branch != master && $current_branch != main ]]; then
-            flags+=("$current_branch")
+            flags+=("${current_branch}")
         fi
 
         if (( ${branches[(i)master]} == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then

@@ -18,7 +18,7 @@ source "${DOTFILES}/zsh/aliases.zsh"
 add-to-fpath "${DOTFILES}/zsh/completions"
 add-to-fpath "${DOTFILES}/local/zsh/completions"
 
-if [[ "$OSTYPE" == darwin* ]]; then
+if [[ "${OSTYPE}" == darwin* ]]; then
     # this file may have been recreated by brew updates.
     if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
         print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
@@ -75,7 +75,7 @@ bindkey -e
 
 if [[ -d "${HOME}/.nvm" ]]; then
     # This loads nvm bash_completion
-    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+    [ -s "${NVM_DIR}/bash_completion" ] && source "${NVM_DIR}/bash_completion"
 fi
 
 if [[ -r "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh" ]]; then

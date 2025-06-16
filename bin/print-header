@@ -27,13 +27,13 @@ Options:
     while (( $# )); do
         case "$1" in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             -i|--indent|-wi|-we)
                 if (( $# < 2 )); then
                     print-header -e "Error: '$1' requires an argument."
-                    print "$_usage"
+                    print "${_usage}"
                     return 1
                 fi
 
@@ -55,13 +55,13 @@ Options:
                 ;;
             -*)
                 print-header -e "Unknown option: $1"
-                print "$_usage"
+                print "${_usage}"
                 return 1
                 ;;
             *)
                 case "$1" in
                     "\\033"*)
-                        "$color$1"
+                        "${color}${1}"
                         ;;
                     black|red|green|yellow|blue|magenta|cyan|white)
                         color="${color}${fg_bold[${1}]}"
@@ -79,7 +79,7 @@ Options:
 
     if (( ${#parts[@]} == 0 )); then
         print "Error: No message provided."
-        print "$_usage"
+        print "${_usage}"
         return 1
     fi
     local message="${icon}${(j: :)parts}"
@@ -94,7 +94,7 @@ Options:
     local message_padding=''
     if (( msglen < $maxlen )); then
         local pad=$(( maxlen - msglen ))
-        message_padding="$(printf '%*s' "$pad" '')"
+        message_padding="$(printf '%*s' "${pad}" '')"
     fi
 
     local reset_color="${reset_color:-${fg[reset]}}"

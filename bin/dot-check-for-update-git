@@ -22,7 +22,7 @@ If no flags are provided then it's treated as if all flags are set."
     while (( $# )); do
         case $1 in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             -q|--quiet)
@@ -31,7 +31,7 @@ If no flags are provided then it's treated as if all flags are set."
             -i|--indent)
                 if (( $# < 2 )); then
                     print-header -e -i $indent "${dir:-Unknown Repo}: Expected an indent value after '$1'"
-                    print "$_usage"
+                    print "${_usage}"
                     return 1
                 fi
                 shift
@@ -39,7 +39,7 @@ If no flags are provided then it's treated as if all flags are set."
                 ;;
             -*)
                 print-header -e -i $indent "${dir:-Unknown Repo}: Called dot-check-for-update with unknown option '$1'"
-                print "$_usage"
+                print "${_usage}"
                 return 1
                 ;;
             *)
@@ -47,7 +47,7 @@ If no flags are provided then it's treated as if all flags are set."
                     dir=$1
                 else
                     print-header -e -i $indent "${dir:-Unknown Repo}: Called dot-check-for-update with unexpected argument '$1'"
-                    print "$_usage"
+                    print "${_usage}"
                     return 1
                 fi
                 ;;
@@ -62,18 +62,15 @@ If no flags are provided then it's treated as if all flags are set."
 
     local log_dir
     case $dir in
-    "$HOME")
-        # exactly $HOME → "~"
-        log_dir='~'
-        ;;
-    "$HOME"/*)
-        # starts with $HOME/ → "~/…"
-        log_dir="~${dir#$HOME}"
-        ;;
-    *)
-        # anything else → unchanged
-        dir="$dir"
-        ;;
+        "${HOME}")
+            # exactly $HOME → "~"
+            log_dir='~'
+            ;;
+        "${HOME}"/*)
+            # starts with $HOME/ → "~/…"
+            log_dir="~${dir#${HOME}}"
+            ;;
+        *) ;; # no-op
     esac
 
     if [[ ! -d "${dir}" ]]; then
@@ -124,8 +121,8 @@ If no flags are provided then it's treated as if all flags are set."
     local behind_ahead=$(git -C "${dir}" rev-list --left-right --count HEAD...@{u} 2>/dev/null)
 
     if (( ! $? )); then
-        local ahead=$(print "$behind_ahead" | awk '{print $1}')
-        local behind=$(print "$behind_ahead" | awk '{print $2}')
+        local ahead=$(print "${behind_ahead}" | awk '{print $1}')
+        local behind=$(print "${behind_ahead}" | awk '{print $2}')
 
         if (( behind > 0 && ahead > 0 )); then
             print-header -e -i $indent "${log_dir}: Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"

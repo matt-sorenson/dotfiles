@@ -15,12 +15,12 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
     while (( $# )); do
         case "$1" in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             *)
                 print-header -e "Unknown argument: $arg"
-                print "$_usage"
+                print "${_usage}"
                 return 1
                 ;;
         esac
@@ -33,10 +33,10 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
         return 1
     }
 
-    local stack_file="$repo_root/.ms-popb-stack"
+    local stack_file="${repo_root}/.ms-popb-stack"
     local target_branch
 
-    if [[ ! -s "$stack_file" ]]; then
+    if [[ ! -s "${stack_file}" ]]; then
         if git show-ref --quiet --verify refs/heads/master; then
             target_branch=master
         elif git show-ref --quiet --verify refs/heads/main; then
@@ -49,27 +49,27 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
         print "No branches in stack, checking out $target_branch" >&2
     else
         # read last entry
-        target_branch=$(tail -n 1 "$stack_file")
+        target_branch=$(tail -n 1 "${stack_file}")
 
         # remove last line in a POSIX-safe way
         local tmp_file=$(mktemp) || {
             print 'Failed to create temp file.' >&2
             return 1
         }
-        sed '$d' "$stack_file" > "$tmp_file"
-        mv "$tmp_file" "$stack_file"
+        sed '$d' "${stack_file}" > "${tmp_file}"
+        mv "${tmp_file}" "${stack_file}"
     fi
 
     # if now empty, delete it
-    if [[ ! -s "$stack_file" ]]; then
-        rm -f "$stack_file"
+    if [[ ! -s "${stack_file}" ]]; then
+        rm -f "${stack_file}"
     fi
 
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-    if [[ "$current_branch" = "$target_branch" ]]; then
-        print "✅ You are already on '$target_branch'"
+    if [[ "${current_branch}" = "${target_branch}" ]]; then
+        print "✅ You are already on '${target_branch}'"
     else
-        git checkout "$target_branch"
+        git checkout "${target_branch}"
     fi
 } "$@"

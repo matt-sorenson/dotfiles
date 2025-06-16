@@ -26,12 +26,12 @@ function prompt_ender_fg_color() {
 function prompt_ender_start_segment() {
     prompt_ender_bg_color "$1"
     local msg=' '
-    if [[ "$_prompt_ender_current_bg" != 'NONE' && "$1" != "$_prompt_ender_current_bg" ]]; then
-        prompt_ender_fg_color "$_prompt_ender_current_bg"
-        msg="$_prompt_ender_seperator "
+    if [[ "${_prompt_ender_current_bg}" != 'NONE' && "$1" != "${_prompt_ender_current_bg}" ]]; then
+        prompt_ender_fg_color "${_prompt_ender_current_bg}"
+        msg="${_prompt_ender_seperator} "
     fi
 
-    print -n "$msg"
+    print -n "${msg}"
 
     prompt_ender_fg_color "$2"
     _prompt_ender_current_bg="$1"
@@ -45,8 +45,8 @@ function prompt_ender_segment_print() {
 }
 
 function prompt_ender_end_segment() {
-    if [[ -n "$_prompt_ender_current_bg" ]]; then
-        prompt_ender_fg_color $_prompt_ender_current_bg
+    if [[ -n "${_prompt_ender_current_bg}" ]]; then
+        prompt_ender_fg_color ${_prompt_ender_current_bg}
         print -n "%k"
     fi
     print -n "%k%f"
@@ -66,15 +66,15 @@ function prompt_ender_seg_dir() {
     local working_dir="$(pwd)"
     local msg="%~"
 
-    if [[ "$working_dir" = "${WORKSPACE_ROOT_DIR}"/* ]]; then
+    if [[ "${working_dir}" = "${WORKSPACE_ROOT_DIR}"/* ]]; then
         if [[ "${working_dir#${WORKSPACE_ROOT_DIR}}" =~ '/([^/]+)(.*)' ]]; then
             prompt_ender_segment_print yellow black "ws"
-            prompt_ender_segment_print cyan black "$match[1]"
+            prompt_ender_segment_print cyan black "${match[1]}"
             msg="${match[2]#?}"
         fi
     fi
 
-    prompt_ender_segment_print blue black "$msg"
+    prompt_ender_segment_print blue black "${msg}"
 }
 
 function prompt_ender_seg_SEA_time() {
@@ -84,7 +84,7 @@ function prompt_ender_seg_SEA_time() {
 function prompt_ender_seg_git_info() {
     local bg ref
     ref="$(print $vcs_info_msg_0_)"
-    if [[ -n "$ref" ]]; then
+    if [[ -n "${ref}" ]]; then
         if [[ -n "$(git status --porcelain --ignore-submodules)" ]]; then
             bg=yellow
             _ref="${ref} $_prompt_ender_plus_minus"
@@ -92,13 +92,13 @@ function prompt_ender_seg_git_info() {
             bg=green
             ref="${ref} "
         fi
-        if [[ "${ref/.../}" == "$ref" ]]; then
-            ref="$_prompt_ender_vcs_branch $ref"
+        if [[ "${ref/.../}" == "${ref}" ]]; then
+            ref="${_prompt_ender_vcs_branch} ${ref}"
         else
-            ref="$_prompt_ender_vcs_detached ${_prompt_ender_vcs_cross/.../}"
+            ref="${_prompt_ender_vcs_detached} ${_prompt_ender_vcs_cross/.../}"
         fi
 
-        prompt_ender_segment_print $bg black "$ref"
+        prompt_ender_segment_print $bg black "${ref}"
     fi
 }
 
@@ -176,7 +176,7 @@ ${(e)$(prompt_ender_build_prompt2)} "
 }
 
 function prompt_ender_preexec() {
-    _prompt_ender_start_time="$SECONDS"
+    _prompt_ender_start_time="${SECONDS}"
 }
 
 function +vi-git-untracked(){

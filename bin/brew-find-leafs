@@ -25,7 +25,7 @@ manually installed a formula or if it was installed as a dependency."
     while (( $# )); do
         case "$1" in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             -r|--remove)
@@ -38,7 +38,7 @@ manually installed a formula or if it was installed as a dependency."
                 ;;
             *)
                 print-header -e "Unknown option: $1"
-                print "$_usage"
+                print "${_usage}"
                 return 1
                 ;;
         esac

@@ -45,6 +45,6 @@ Options
     for line in "${lines[@]}"; do
         local alias_name="${line%% *}"
         local cmd="${line#* }"
-        printf "%-${max}s  %s\n" "$alias_name" "$cmd"
+        printf "%-${max}s  %s\n" "${alias_name}" "${cmd}"
     done
 } "$@"

@@ -43,7 +43,7 @@ If no flags are provided then it's treated as if all flags are set."
     while (( $# )); do
         case $1 in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             -g|--git)
@@ -88,12 +88,12 @@ If no flags are provided then it's treated as if all flags are set."
                 ;;
             -*)
                 print-header -e "Unknown option '$1'"
-                print "$_usage"
+                print "${_usage}"
                 return 1
                 ;;
             *)
                 print-header -e "Unknown argument '$1'"
-                print "$_usage"
+                print "${_usage}"
                 return 1
         esac
     done
@@ -155,7 +155,7 @@ If no flags are provided then it's treated as if all flags are set."
         local repos_to_update=( ${DOTFILES}/deps/*(/) )
         local repo
         for repo in $repos_to_update; do
-            if ! dot-check-for-update-git -i 2 "$repo"; then
+            if ! dot-check-for-update-git -i 2 "${repo}"; then
                 out=1
             fi
         done
@@ -175,16 +175,12 @@ If no flags are provided then it's treated as if all flags are set."
                 out=1
             fi
         else
-            local color icon
+            local flag='-w'
             if (( ! specified_flag )); then
-                color="red"
-                icon="❌"
+                flag='-e'
                 out=1
-            else
-                color="yellow"
-                icon="⚠️"
             fi
-            print-header "$color" -i 2 "$icon brew: 'brew' is not installed."
+            print-header "${flag}" -i 2 "brew: 'brew' is not installed."
         fi
     fi
 

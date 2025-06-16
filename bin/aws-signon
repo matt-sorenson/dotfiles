@@ -36,7 +36,7 @@ aws-signon dev -f"
                 return 1
                 ;;
             *)
-                if [ -n "$profile" ]; then
+                if [ -n "${profile}" ]; then
                     print-header -e "Profile passed in multiple times!"
                     print "${_usage}"
                     return 1
@@ -48,34 +48,34 @@ aws-signon dev -f"
     done
 
     export AWS_PROFILE
-    if [ -z "$profile" ]; then
-        if [ -z "$AWS_PROFILE" ]; then
+    if [ -z "${profile}" ]; then
+        if [ -z "${AWS_PROFILE}" ]; then
             print-header -e "No profile specified & \$AWS_PROFILE is not available!"
             print "${_usage}"
             return 1
         else
-            print "No profile specified, using \$AWS_PROFILE: $AWS_PROFILE"
+            print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"
         fi
     else
-        AWS_PROFILE="$profile"
+        AWS_PROFILE="${profile}"
         unset profile
     fi
 
-    print-header green "🔐 Signing into AWS: $AWS_PROFILE"
+    print-header green "🔐 Signing into AWS: ${AWS_PROFILE}"
 
     # Set to 1 so that if force is set it will attempt to login
     local exit_code=1
     if (( ! force )); then
-        aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null
+        aws sts get-caller-identity --profile "${AWS_PROFILE}" &> /dev/null
         local exit_code=$?
     fi
 
     if (( exit_code != 0 )); then
         if (( ! force )); then
-            print "not signed in, attempting SSO login for '$AWS_PROFILE'..."
+            print "not signed in, attempting SSO login for '${AWS_PROFILE}'..."
         fi
-        aws sso login --profile "$AWS_PROFILE"
+        aws sso login --profile "${AWS_PROFILE}"
     else
-        print "already signed in as $AWS_PROFILE"
+        print "already signed in as ${AWS_PROFILE}"
     fi
 } "$@"

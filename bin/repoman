@@ -15,7 +15,7 @@ function() {
     local starting_dir="$(pwd)"
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
-    trap 'unset -f _repoman-usage; cd -- "$starting_dir" &> /dev/null || print-header -e ">>> failed to return to starting directory."' EXIT INT TERM
+    trap 'unset -f _repoman-usage; cd -- "${starting_dir}" &> /dev/null || print-header -e ">>> failed to return to starting directory."' EXIT INT TERM
     function _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
         # and can hide some of the options based on the verbosity level so by
@@ -196,13 +196,13 @@ Examples:
                 # So we don't have to re-enumerate all of the --*-cmd options
                 # we wildcard it in the case statement check and validate that
                 # the key exists in the opts array.
-                if [[ "$key" == *_cmd && ! -v opts[$key] ]]; then
+                if [[ "${key}" == *_cmd && ! -v opts[${key}] ]]; then
                     print-header -e "Unknown option: '$1'"
                     _repoman-usage -v
                     return 1
                 fi
 
-                if [[ -n "$opts[$key]" ]]; then
+                if [[ -v opts[${key}] && -n "${opts[${key}]}" ]]; then
                     print-header -e "Option '$1' is already set to '${opts[$key]}'."
                     return 1
                 fi
@@ -219,7 +219,7 @@ Examples:
                     # Pop the front of the list
                     arg_list=("${arg_list[@]:1}")
 
-                    case "$arg" in
+                    case "${arg}" in
                         h) opts[help]=1 ;;
                         v) opts[verbose]=1 ;;
                         c) opts[clean]=1 ;;

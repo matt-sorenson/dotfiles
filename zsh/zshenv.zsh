@@ -9,7 +9,7 @@ fi
 
 source "${DOTFILES}/zsh/path.zsh"
 
-if [[ "$OSTYPE" == darwin* ]]; then
+if [[ "${OSTYPE}" == darwin* ]]; then
     export HOMEBREW_NO_ANALYTICS=1
     export BROWSER='open'
 
@@ -18,13 +18,14 @@ if [[ "$OSTYPE" == darwin* ]]; then
     fi
 fi
 
-export EDITOR='emacs'
-export VISUAL='emacs'
+if command -v emacs &> /dev/null; then
+    export EDITOR='emacs'
+    export VISUAL='emacs'
+fi
+
 export PAGER='less -FgMRXi'
 
-if [[ -z "$LANG" ]]; then
-    export LANG='en_US.UTF-8'
-fi
+export LANG="${LANG:-en_US.UTF-8}"
 
 # Set the Less input preprocessor.
 # Try both `lesspipe` and `lesspipe.sh` as either might exist on a system.
@@ -32,11 +33,11 @@ if (( $#commands[(i)lesspipe(|.sh)] )); then
     export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
 fi
 
-if [[ -z "$TMPDIR" ]]; then
+if [[ -z "${TMPDIR}" ]]; then
     export TMPDIR="/tmp/$LOGNAME"
 fi
-if [[ ! -d "$TMPDIR" ]]; then
-    mkdir -p -m 700 "$TMPDIR"
+if [[ ! -d "${TMPDIR}" ]]; then
+    mkdir -p -m 700 "${TMPDIR}"
 fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"

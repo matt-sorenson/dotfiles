@@ -12,23 +12,23 @@ process_url() {
     done_file=$2
 
     # Initialize done file if needed
-    if [ ! -f "$done_file" ]; then
-        : > "$done_file"
+    if [ ! -f "${done_file}" ]; then
+        : > "${done_file}"
     fi
 
     # Skip if already processed
-    if grep -F -x "$url" "$done_file" >/dev/null 2>&1; then
-        printf '[SKIP] %s already processed.\n' "$url"
+    if grep -F -x "${url}" "${done_file}" >/dev/null 2>&1; then
+        printf '[SKIP] %s already processed.\n' "${url}"
         return
     fi
 
     # Download
-    printf '[DOWNLOAD] %s\n' "$url"
-    if $ytdl_cmd $ytdl_opts "$url"; then
-        printf '%s\n' "$url" >> "$done_file"
-        printf '[OK] "%s" recorded in "%s"\n' "$url" "$done_file"
+    printf '[DOWNLOAD] %s\n' "${url}"
+    if $ytdl_cmd $ytdl_opts "${url}"; then
+        printf '%s\n' "${url}" >> "${done_file}"
+        printf '[OK] "%s" recorded in "%s"\n' "${url}" "${done_file}"
     else
-        printf '[ERROR] Failed to download "%s"\n' "$url"
+        printf '[ERROR] Failed to download "%s"\n' "${url}"
     fi
 }
 
@@ -42,28 +42,28 @@ input=$1
 ytdl_cmd=youtube-dl
 ytdl_opts="-f bestvideo[ext=mp4]+bestaudio[ext=m4a]"
 
-case "$input" in
+case "${input}" in
     http* )
         # Direct URL
-        $ytdl_cmd $ytdl_opts "$input"
+        $ytdl_cmd $ytdl_opts "${input}"
         ;;
     * )
         # Local file: read URLs line by line
-        if [ ! -f "$input" ]; then
-            printf "Error: File '%s' not found.\n" "$input" >&2
+        if [ ! -f "${input}" ]; then
+            printf "Error: File '%s' not found.\n" "${input}" >&2
             exit 1
         fi
 
         # Determine .done filename (basename + .done)
-        base=$(basename "$input")
+        base=$(basename "${input}")
         done_file="${PWD}/${base}.done"
 
         while IFS= read -r url; do
             # Skip empty or comment lines
-            case "$url" in
+            case "${url}" in
                 ''|\#*) continue ;;
             esac
-            process_url "$url" "$done_file"
-        done < "$input"
+            process_url "${url}" "${done_file}"
+        done < "${input}"
         ;;
 esac

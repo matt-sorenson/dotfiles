@@ -47,7 +47,7 @@ add-to-path() {
                 esac
                 ;;
             *)
-                if [[ -z "$dir" ]]; then
+                if [[ -z "${dir}" ]]; then
                     dir="$1"
                 else
                     print "Unexpected argument: '%1'\n"
@@ -65,12 +65,12 @@ add-to-path() {
         -o, --operation     Specify operation: 'prepend' or 'append' (default: 'prepend')"
     # Make sure an argument was provided
     if (( show_help )); then
-        print "$usage"
+        print "${usage}"
         return 0
     elif (( parse_error )); then
-        print "$usage"
+        print "${usage}"
         return 1
-    elif [[ -z "$dir" ]]; then
+    elif [[ -z "${dir}" ]]; then
         print "Error: No directory specified.\n${usage}"
         return 1
     fi
@@ -79,28 +79,28 @@ add-to-path() {
     dir="${dir:A}"
 
     # Check that it exists and is a directory
-    if [[ ! -d "$dir" ]]; then
+    if [[ ! -d "${dir}" ]]; then
         return 1
     fi
 
     if (( do_fpath )); then
         # Check that it's not in the fpath already
-        if [[ ":$FPATH:" != *":$dir:"* ]]; then
+        if [[ ":$FPATH:" != *":${dir}:"* ]]; then
             # Prepend it to path
-            if [[ "$operation" == "prepend" ]]; then
-                fpath=("$dir" "${fpath[@]}")
+            if [[ "${operation}" == "prepend" ]]; then
+                fpath=("${dir}" "${fpath[@]}")
             else
-                fpath+=("$dir")
+                fpath+=("${dir}")
             fi
         fi
     else
         # Check that it's not in the path already
-        if [[ ":$PATH:" != *":$dir:"* ]]; then
+        if [[ ":$PATH:" != *":${dir}:"* ]]; then
             # Prepend it to path
-            if [[ "$operation" == "prepend" ]]; then
-                path=("$dir" "${path[@]}")
+            if [[ "${operation}" == "prepend" ]]; then
+                path=("${dir}" "${path[@]}")
             else
-                path+=("$dir")
+                path+=("${dir}")
             fi
         fi
     fi

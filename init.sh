@@ -9,18 +9,18 @@ if ! command -v print-header &> /dev/null; then
         local color
         local prefix=''
         if [[ $1 == '-e' ]]; then
-            color="$fg_bold[red]"
+            color="${fg_bold[red]}"
             prefix='❌ '
         elif [[ $1 == '-w' ]]; then
-            color="$fg_bold[yellow]"
+            color="${fg_bold[yellow]}"
             prefix='⚠️ '
         else
-            color="$fg_bold[${1}]"
+            color="${fg_bold[${1}]}"
         fi
         shift
 
         local header="${(pl:80::=:)}"
-        print "$color${header}\n= ${prefix}${$@}\n${header}$reset_color"
+        print "${color}${header}\n= ${prefix}${$@}\n${header}$reset_color"
     }
 fi
 
@@ -58,9 +58,9 @@ function() {
                     return 1
                     ;;
                 *)
-                    if [[ -z "$url" ]]; then
+                    if [[ -z "${url}" ]]; then
                         url="$1"
-                    elif [[ -z "$dest" ]]; then
+                    elif [[ -z "${dest}" ]]; then
                         dest="$1"
                     else
                         print-header -e "Too many arguments: $1"
@@ -106,7 +106,7 @@ function() {
     local do_brew=0
     local do_hammerspoon=0
     local mac_specific_help=''
-    if [[ "$OSTYPE" == darwin* ]]; then
+    if [[ "${OSTYPE}" == darwin* ]]; then
         do_brew=1
         do_hammerspoon=1
         mac_specific_help="
@@ -164,7 +164,7 @@ function() {
                     plugin_name="${1%%=*}"
                     plugin_url="${1#*=}"
 
-                    if [[ -z "$plugin_name" || -z "$plugin_url" ]]; then
+                    if [[ -z "${plugin_name}" || -z "${plugin_url}" ]]; then
                         print-header -e "--plugin argument must include both name and URL"
                         return 1
                     fi
@@ -176,9 +176,9 @@ function() {
                     return 1
                 fi
 
-                plugins["$plugin_name"]="$plugin_url"
+                plugins["${plugin_name}"]="${plugin_url}"
 
-                if [[ $plugin_name == 'local' ]]; then
+                if [[ ${plugin_name} == 'local' ]]; then
                     if (( local_set )); then
                         print-header -e "\$LOCAL_DOTFILES set multiple times. Existing: '${LOCAL_DOTFILES}', New: '$1'"
                         return 1
@@ -322,11 +322,11 @@ Options:${mac_specific_help}${debian_specific_help}
     for name url in "${(@kv)plugins}"; do
         print-header green "Setting up $name"
 
-        if [[ "$url" == 'shallow='* ]]; then
+        if [[ "${url}" == 'shallow='* ]]; then
             url="${url#shallow=}"
-            safe-git-clone --shallow "$url" "${DOTFILES}/deps/$name"
+            safe-git-clone --shallow "${url}" "${DOTFILES}/deps/$name"
         else
-            safe-git-clone "$url" "${DOTFILES}/deps/$name"
+            safe-git-clone "${url}" "${DOTFILES}/deps/$name"
         fi
     done
 

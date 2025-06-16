@@ -22,12 +22,12 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
                 clear_stack=1
                 ;;
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             *)
                 print-header red "Unknown option: $1"
-                print "$_usage"
+                print "${_usage}"
                 return 1
                 ;;
         esac
@@ -40,17 +40,17 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
         return 1;
     }
 
-    local stack_file="$repo_root/.ms-popb-stack"
+    local stack_file="${repo_root}/.ms-popb-stack"
 
     if (( clear_stack )); then
-        rm -f "$stack_file"
+        rm -f "${stack_file}"
         print-header green "Cleared branch stack."
     else
-        if [[ ! -s "$stack_file" ]]; then
+        if [[ ! -s "${stack_file}" ]]; then
             print-header yellow "Branch stack is empty."
             return 1
         else
-            cat -n "$stack_file"
+            cat -n "${stack_file}"
         fi
     fi
 } "$@"

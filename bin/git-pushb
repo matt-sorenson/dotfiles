@@ -30,21 +30,21 @@ multiple positional arguments are provided then the command will fail."
     while (( $# )); do
         case "$1" in
             -h|--help)
-                print "$_usage"
+                print "${_usage}"
                 return 0
                 ;;
             -b|--branch)
                 if (( $# < 2 )); then
                     print-header red "Missing argument for '$1'"
-                    print "$_usage"
+                    print "${_usage}"
                     return 1
-                elif [ -z "$new_branch" ]; then
+                elif [ -z "${new_branch}" ]; then
                     new_branch="$2"
                     arguments+=("$1" "$2")
                     shift
                 else
-                    print-header red "Invalid '$1' - a branch has already been provided '$new_branch'"
-                    print "$_usage"
+                    print-header red "Invalid '$1' - a branch has already been provided '${new_branch}'"
+                    print "${_usage}"
                     return 1
                 fi
                 ;;
@@ -59,13 +59,13 @@ multiple positional arguments are provided then the command will fail."
                 arguments+=("$1")
                 ;;
             *)
-                if [ -z "$new_branch" ]; then
+                if [ -z "${new_branch}" ]; then
                     new_branch="$1"
                     arguments+=("$1")
                 else
                     print-header red "Unknown argument: $1"
                     print "a branch has already been provided."
-                    print "$_usage"
+                    print "${_usage}"
                     return 1
                 fi
                 ;;
@@ -73,10 +73,10 @@ multiple positional arguments are provided then the command will fail."
         shift
     done
 
-    if [[ -z "$new_branch" ]]; then
+    if [[ -z "${new_branch}" ]]; then
         print-header red "No branch specified."
         print "Please provide a branch name to check out."
-        print "$_usage"
+        print "${_usage}"
         return 1
     fi
 
@@ -93,15 +93,15 @@ multiple positional arguments are provided then the command will fail."
     }
 
     # if user asked to pushb into the same branch, do nothing
-    if [[ "$new_branch" = "$current_branch" ]]; then
+    if [[ "${new_branch}" = "${current_branch}" ]]; then
         return 0
     fi
 
-    local stack_file="$repo_root/.ms-pop-stack"
+    local stack_file="${repo_root}/.ms-pop-stack"
 
     # ensure stack exists, then push current branch
-    mkdir -p "$(dirname "$stack_file")"
-    print "$current_branch" >> "$stack_file"
+    mkdir -p "$(dirname "${stack_file}")"
+    print "${current_branch}" >> "${stack_file}"
 
     git checkout "${arguments[@]}"
 } "$@"
