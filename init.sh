@@ -104,6 +104,28 @@ function main() {
         git clone "${extra_args[@]}" "${url}" "${dest}"
     }
 
+    local app_install_list=(
+        fzf
+        git
+        zsh
+
+        # These are mostly there for doomemacs but useful in general
+        pandoc
+        ripgrep
+        shellcheck
+    )
+
+    local -a apt_install_list=(
+        emacs-nox # emacs-nox is the terminal version of emacs
+        silversearcher-ag
+    )
+
+    local -a brew_install_list=(
+        awscli
+        emacs
+        the_silver_searcher
+    )
+
     local do_debian_apt=0
     local debian_specific_help=''
     if command -v apt-get &> /dev/null; then
@@ -257,46 +279,17 @@ Options:${mac_specific_help}${debian_specific_help}
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
 
-        local brew_install_list=(
-            awscli
-            docker
-            docker-compose
-            emacs
-            fzf
-            git
-            the_silver_searcher
-            zsh
-
-            # These are mostly there for doomemacs but useful in general
-            shellcheck
-            ripgrep
-            pandoc
-        )
-
         if (( do_docker )); then
             brew_install_list+=( docker docker-compose )
         fi
 
         print-header green "installing items from brew"
-        print "Install List: ${brew_install_list[@]}"
-        brew install -q "${brew_install_list[@]}"
+        print "Install List: ${app_install_list[@]}" "${brew_install_list[@]}"
+        brew install -q "${app_install_list[@]}" "${brew_install_list[@]}"
     fi
 
     if (( do_debian_apt )); then
         print-header green "Installing apt packages"
-
-        local apt_install_list=(
-            emacs-nox # emacs-nox is the terminal version of emacs
-            fzf
-            git
-            silversearcher-ag
-            zsh
-
-            # These are mostly there for doomemacs but useful in general
-            shellcheck
-            ripgrep
-            pandoc
-        )
 
         # Only add docker if it's not already installed.
         if (( do_docker )) && ! command -v docker &> /dev/null; then
@@ -321,8 +314,10 @@ Options:${mac_specific_help}${debian_specific_help}
             )
         fi
 
+        print "Install List: ${app_install_list[@]}" "${apt_install_list[@]}"
+
         sudo apt-get update
-        sudo apt-get install -y "${apt_install_list[@]}"
+        sudo apt-get install -y "${app_install_list[@]}" "${apt_install_list[@]}"
     fi
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
