@@ -26,7 +26,7 @@
     pushf = push --force-with-lease
 
     # 'heavy duty' garbage collection
-    gcf = !git -c gc.reflogExpire=0 -c gc.reflogExpireUnreachable=0 -c gc.rerereresolved=0 -c gc.rerereunresolved=0 -c gc.pruneExpire=now gc "$@"
+    gcf = -c gc.reflogExpire=0 -c gc.reflogExpireUnreachable=0 -c gc.rerereresolved=0 -c gc.rerereunresolved=0 -c gc.pruneExpire=now gc
 
     # log helpers
     authors =  !git log --format='%aN <%aE>' | sort -u
