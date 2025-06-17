@@ -32,6 +32,12 @@ git clone git@github.com:matt-sorenson/dotfiles.git "${HOME}/.dotfiles"
     --plugin 'local=https://github.com/...'
 ```
 
+# Shellcheck command
+```
+# since shellcheck doesn't natively support zsh we tell it to treat it as bash
+# and exclude some warnings that are wrong in zsh.
+shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash
+```
 
 # LLM saved memory Prompts
 

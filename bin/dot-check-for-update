@@ -26,19 +26,19 @@ Options:
 If no flags are provided then it's treated as if all flags are set."
 
     local -A flags=(
-        "git"     0
-        "local"   0
-        "brew"    0
-        "doom"    0
-        "local"   0
+        ["git"]=0
+        ["local"]=0
+        ["brew"]=0
+        ["doom"]=0
+        ["local"]=0
     )
 
     local -A no_flags=(
-        "git"     0
-        "local"   0
-        "brew"    0
-        "doom"    0
-        "local"   0
+        ["git"]=0
+        ["local"]=0
+        ["brew"]=0
+        ["doom"]=0
+        ["local"]=0
     )
 
     local specified_flag=0
@@ -174,9 +174,9 @@ If no flags are provided then it's treated as if all flags are set."
             print-header -w "${DOTFILES}/local does not exist, skipping local update."
         fi
 
-        local repos_to_update=( ${DOTFILES}/deps/*(/) )
+        local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo
-        for repo in $repos_to_update; do
+        for repo in "${repos_to_update[@]}"; do
             if ! dot-check-for-update-git -i 2 "${repo}"; then
                 out=1
             fi
@@ -230,7 +230,8 @@ If no flags are provided then it's treated as if all flags are set."
     # skip any updates
     if (( ! out && all_true )); then
         local update_filename="${DOTFILES}/tmp/dotfile-update"
-        local current_time=$(date +%s)
+        local current_time
+        current_time=$(date +%s)
         print -n "${current_time}" >! "${update_filename}"
     fi
 

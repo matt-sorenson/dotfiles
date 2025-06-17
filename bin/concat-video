@@ -41,6 +41,7 @@ Options:
                     -t|--trim) trim="${2}" ;;
                 esac
                 shift
+                ;;
             -h|--help)
                 print "${_usage}"
                 return 0
@@ -75,7 +76,8 @@ Options:
     fi
 
     # Extract prefix
-    local prefix=$(sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/' <<< "${base}")
+    local prefix
+    prefix=$(sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/' <<< "${base}")
 
     # Prepare output
     local outdir="${dir}/converted"
@@ -149,7 +151,7 @@ Options:
     cmd+=("${final_filename}")
 
 
-    if ! ${cmd[@]}; then
+    if ! "${cmd[@]};" then
         local status=$?
         print-header -e "ffmpeg failed with exit code $status"
         return $status

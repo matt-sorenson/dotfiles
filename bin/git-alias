@@ -5,6 +5,7 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt null_glob
 
     local _usage="Usage: git alias [-h|--help]
 
@@ -25,13 +26,18 @@ Options
                 return 1
                 ;;
         esac
+
+        # This is unreachable, but included so it's not missed
+        # if additional arguments are added.
+        # shellcheck disable=SC2317
         shift
     done
 
-    # Retrieve alias lines: "aliasName command..."
-    local git_output=$(git config --get-regexp "^alias\." | cut -f2- -d.)
-    # Split into array by newline
-    local lines=("${(@f)git_output}")
+    local lines
+    # Retrieve alias lines: "alias.aliasName command..."
+    lines=("${(@f)$(git config --get-regexp "^alias\.")}")
+    # Remove "alias." prefix from each line
+    lines=("${lines[@]#alias.}")
 
     # Find longest alias name
     local max=0

@@ -27,7 +27,7 @@ Options:
                 return 0
                 ;;
             -e|--extensions)
-                if $# < 2 ]; then
+                if (( $# < 2 )); then
                     print-header -e "Error: --extensions requires at least one extension argument."
                     print "${_usage}"
                     return 1

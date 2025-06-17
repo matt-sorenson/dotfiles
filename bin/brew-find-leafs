@@ -77,8 +77,6 @@ manually installed a formula or if it was installed as a dependency."
     local -a formulas=()
     local -A depended_on=()
 
-    local brew_output="$(brew deps --installed)"
-
     local deps
     while IFS=: read -r formula deps; do
         formulas+=("$formula")
@@ -87,7 +85,7 @@ manually installed a formula or if it was installed as a dependency."
         for dep in $deps; do
             depended_on[$dep]=1
         done
-    done < <(print "$brew_output")
+    done < <(brew deps --installed)
     unset deps
 
     local formula
