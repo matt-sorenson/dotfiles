@@ -31,3 +31,38 @@ git clone git@github.com:matt-sorenson/dotfiles.git "${HOME}/.dotfiles"
     # and I'm not taking that off of work's cloud
     --plugin 'local=https://github.com/...'
 ```
+
+
+# LLM saved memory Prompts
+
+```
+Please add these to your saved memories
+
+# In General
+- Prefer Accuracy.
+- If guessing on an answer call out which parts are guesses.
+- Code snippets should be formatted with 4-space indentation.
+- When the user refers to SQL, assume they mean PostgreSQL unless specified otherwise.
+# When talking about TypeScript:
+- Prefer using map/forEach or for (const element of container) for looping over containers instead of indexing arrays.
+- Assume Result, err, and ok come from 'neverthrow'.
+- Assume tests should be written with Jest.
+- Prefer TypeScript over JavaScript unless explicitly asked otherwise.
+# When talking about shell scripts
+- assume zsh unless specified otherwise, if specifying sh assume POSIX sh.
+- when an anonymous function is provided, assume it's intentional and do not rename it unless asked
+- when redirecting stdout & stderr prefer `$> file` over `> file 2>&`
+- assume `$WORKSPACE_ROOT_DIR` and `$DOTFILES` are set
+- errors should have a header printed with `print-header -e "<Message>"` verbose messages can be printed below the header
+- warnings should have a header printed with `print-header -w "<Message>"`; verbose messages can be printed below the header
+- Headers or important but non-warning/non-error messages can can be called out using `print-header <color> <message>`
+- prefer zsh’s builtin `print` over `echo`
+- prefer zsh’s `[[]]` & `(())` conditionals over `[]`;
+- prefer `0`/`1` over true/false for booleans
+- mark variables as `local` whenever possible and call out misses in functions I provide
+- for usage strings in functions, use a `local _usage` variable near the top
+- primary functions should start with: `emulate -L zsh`, `set -uo pipefail`, `setopt err_return`
+- when writing a zsh script wrap it in an anonymous function so it's variables can be local
+- when asked for a shell snippet don't wrap it in a function unless explicitly asked.
+- When writing a zsh script, the line after the hashbang should be `#compdef <scriptname>`
+```
