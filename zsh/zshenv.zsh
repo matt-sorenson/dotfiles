@@ -118,6 +118,19 @@ if command -v rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
 
+is-emoji() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    local -i codepoint=$(printf '%d' "'$1")
+
+    (( (codepoint >= 0x1F600 && codepoint <= 0x1F64F) ||
+        (codepoint >= 0x1F300 && codepoint <= 0x1F5FF) ||
+        (codepoint >= 0x1F680 && codepoint <= 0x1F6FF) ||
+        (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
+}
+
 autoload \
     aws-signon \
     print-header \

@@ -84,5 +84,4 @@ autoload \
     git-pushb \
     git-stack \
     jwt-print \
-    print-header \
     repoman

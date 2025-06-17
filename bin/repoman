@@ -69,6 +69,7 @@ Options:
   -i, --install            Install dependencies
   -b, --build              Build
   -m, --migration          Run migrations & Update zapatos schema
+  -g, --generate-schema    Generate DB Schema
   -u, --unit-test          Run unit tests
   -I, --integration-test   Run integration tests
   -t, --test               Run all tests
@@ -98,6 +99,7 @@ Examples:
         build               0
         db_up               0
         migration           0
+        generate_schema     0
         test                0
         unit_test           0
         integration_test    0
@@ -108,6 +110,7 @@ Examples:
         build_cmd               ''
         db_up_cmd               ''
         migrations_cmd          ''
+        generate_schema_cmd     ''
         unit_tests_cmd          ''
         integration_tests_cmd   ''
 
@@ -117,11 +120,16 @@ Examples:
         build_verbose             ''
         db_up_verbose             ''
         migrations_verbose        ''
+        generate_schema_verbose   ''
         unit_tests_verbose        ''
         integration_tests_verbose ''
 
         migrations_subdir       ''
         db_container_name       ''
+
+        db_up_does_migration  0
+        db_up_does_schema     0
+        migration_does_schema 0
     )
 
     while (( $# )); do
@@ -130,15 +138,19 @@ Examples:
             --verbose)
                 opts[${${1#--}//-/_}]=1
                 ;;
-            --clean) ;& # fallthrough
-            --install) ;& # fallthrough
             --build) ;& # fallthrough
+            --clean) ;& # fallthrough
+            --db-up-does-migration) ;& # fallthrough
+            --db-up-does-schema) ;& # fallthrough
             --db-up) ;& # fallthrough
-            --unit-test) ;& # fallthrough
-            --integration-test) ;& # fallthrough
+            --generate-schema) ;& # fallthrough
             --git-clean) ;& # fallthrough
-            --nuke) ;& # fallthrough
+            --install) ;& # fallthrough
+            --integration-test) ;& # fallthrough
+            --migration-does-schema) ;& # fallthrough
             --migration) ;& # fallthrough
+            --nuke) ;& # fallthrough
+            --unit-test) ;& # fallthrough
             --test)
                 opts[${${1#--}//-/_}]=1
                 any_set=1
@@ -220,17 +232,18 @@ Examples:
                     arg_list=("${arg_list[@]:1}")
 
                     case "${arg}" in
-                        h) opts[help]=1 ;;
-                        v) opts[verbose]=1 ;;
-                        c) opts[clean]=1 ;;
-                        n) opts[nuke]=1 ;;
-                        i) opts[install]=1 ;;
                         b) opts[build]=1 ;;
+                        c) opts[clean]=1 ;;
                         d) opts[db_up]=1 ;;
-                        m) opts[migration]=1 ;;
-                        u) opts[unit_test]=1 ;;
+                        g) opts[generate_schema]=1 ;;
+                        h) opts[help]=1 ;;
+                        i) opts[install]=1 ;;
                         I) opts[integration_test]=1 ;;
+                        m) opts[migration]=1 ;;
+                        n) opts[nuke]=1 ;;
                         t) opts[test]=1;;
+                        u) opts[unit_test]=1 ;;
+                        v) opts[verbose]=1 ;;
                         p|r)
                             if (( ${#arg_list} )); then
                                 print-header -e "If '-${arg}' is used in combined short form it must be the last argument."
@@ -441,18 +454,39 @@ Examples:
     fi
 
     if (( opts[migration] )); then
-        if [[ -z "${opts[migrations_cmd]}" ]]; then
-            print-header -e "migrations-cmd is not set."
-            return 1
-        fi
+        # Skip if we've already run the migration
+        if ! (( opts[db_up] && opts[db_up_does_migration] )); then
+            if [[ -z "${opts[migrations_cmd]}" ]]; then
+                print-header -e "migrations-cmd is not set."
+                return 1
+            fi
 
-        print-header green "run-migration${opts[migrations_verbose]}"
-        cd -- "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-        eval ${opts[migrations_cmd]}${opts[migrations_verbose]} || {
-            print-header -e "Migration failed: ${opts[migrations_cmd]}${opts[migrations_verbose]}"
-            return 1
-        }
-        cd -- "${repo_dir}" > /dev/null
+            print-header green "run migration: ${opts[migrations_cmd]}${opts[migrations_verbose]}"
+            cd -- "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
+            eval ${opts[migrations_cmd]}${opts[migrations_verbose]} || {
+                print-header -e "Migration failed: ${opts[migrations_cmd]}${opts[migrations_verbose]}"
+                return 1
+            }
+            cd -- "${repo_dir}" > /dev/null
+        fi
+    fi
+
+    if (( opts[generate_schema] )); then
+        # Skip if we've already generated the schema
+        if ! (( opts[db_up] && opts[db_up_does_schema] )) || (( opts[migration] && opts[migration_does_schema] )); then
+            if [[ -z "${opts[generate_schema_cmd]}" ]]; then
+                print-header -e "generate-schema-cmd is not set."
+                return 1
+            fi
+
+            print-header green "generate schema: ${opts[generate_schema_cmd]}${opts[generate_schema_verbose]}"
+            cd -- "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
+            eval ${opts[generate_schema_cmd]}${opts[generate_schema_verbose]} || {
+                print-header -e "Migration failed: ${opts[generate_schema_cmd]}${opts[generate_schema_verbose]}"
+                return 1
+            }
+            cd -- "${repo_dir}" > /dev/null
+        fi
     fi
 
     if (( opts[build] )); then
