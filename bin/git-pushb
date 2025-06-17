@@ -55,7 +55,7 @@ multiple positional arguments are provided then the command will fail."
                 # clear all remaining arguments
                 set --
                 ;;
-            -*|--*)
+            -*)
                 arguments+=("$1")
                 ;;
             *)
@@ -81,13 +81,15 @@ multiple positional arguments are provided then the command will fail."
     fi
 
     # find repo root
-    local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
         print 'Not a git repository.' >&2
         return 1
     }
 
     # get current branch
-    local current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || {
+    local current_branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || {
         print 'Failed to determine current branch.' >&2
         return 1
     }

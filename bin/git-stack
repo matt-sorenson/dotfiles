@@ -39,7 +39,8 @@ Display the saved branch stack (oldest at the top, newest at the bottom).
     done
 
     # Find repo root
-    local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
         print-header red "Not a git repository.";
         return 1;
     }

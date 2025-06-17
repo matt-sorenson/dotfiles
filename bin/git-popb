@@ -1,6 +1,8 @@
 #!/usr/bin/env zsh
 #compdef git-popb
 
+autoload -Uz colors && colors
+
 function() {
     emulate -L zsh
     set -uo pipefail
@@ -10,6 +12,7 @@ function() {
 
 Check out the last branch checked out with git-pushb and pops it from the stack.
 
+-q, --quiet          Suppress some output messages
 -h, --help           Show this help message"
 
     local -i quiet=0
@@ -24,7 +27,7 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
                 quiet=1
                 ;;
             *)
-                print-header -e "Unknown argument: $arg"
+                print-header -e "Unknown argument: $1"
                 print "${_usage}"
                 return 1
                 ;;
@@ -33,7 +36,8 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
     done
 
     # find repo root
-    local repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
         print 'Not a git repository.' >&2
         return 1
     }
@@ -51,18 +55,15 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
             return 1
         fi
 
-        print "No branches in stack, checking out $target_branch" >&2
+        print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
     else
         # read last entry
         target_branch=$(tail -n 1 "${stack_file}")
 
-        # remove last line in a POSIX-safe way
-        local tmp_file=$(mktemp) || {
-            print 'Failed to create temp file.' >&2
-            return 1
-        }
-        sed '$d' "${stack_file}" > "${tmp_file}"
-        mv "${tmp_file}" "${stack_file}"
+        local stack_contents
+        stack_contents="$(sed '$d' "${stack_file}")"
+        print -n "${stack_contents}" >! "${stack_file}"
+        unset stack_contents
     fi
 
     # if now empty, delete it
@@ -70,7 +71,8 @@ Check out the last branch checked out with git-pushb and pops it from the stack.
         rm -f "${stack_file}"
     fi
 
-    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+    local current_branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
 
     if [[ "${current_branch}" = "${target_branch}" ]]; then
         (( ! quiet )) && print-header green "✅ You are already on '${target_branch}'"

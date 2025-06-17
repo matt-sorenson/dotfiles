@@ -52,19 +52,20 @@ If no branches are specified it will show the current branch and if they exist m
     if (( ! all )); then
         flags+=("${branches[@]}")
 
-        local current_branch=$(git rev-parse --abbrev-ref HEAD)
-        if (( ${branches[(i)$current_branch]} == 0 )) && [[ $current_branch != master && $current_branch != main ]]; then
+        local current_branch
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
+        if (( branches[(i)$current_branch] == 0 )) && [[ $current_branch != master && $current_branch != main ]]; then
             flags+=("${current_branch}")
         fi
 
-        if (( ${branches[(i)master]} == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then
+        if (( branches[(i)master] == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then
             flags+=(master)
         fi
 
-        if (( ${branches[(i)main]} == 0 )) && git show-ref --verify --quiet refs/heads/main &> /dev/null; then
+        if (( branches[(i)main] == 0 )) && git show-ref --verify --quiet refs/heads/main &> /dev/null; then
             flags+=(main)
         fi
     fi
 
-    git log --graph --abbrev-commit --decorate --format=format:"${(q)format}" "${flags[@]}"
+    git log --graph --abbrev-commit --decorate --format=format:"${format}" "${flags[@]}"
 } "$@"

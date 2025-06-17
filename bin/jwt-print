@@ -30,7 +30,7 @@ Options:
                 return 0
                 ;;
             -*)
-                print-header -e "Unknown argument: ${arg}"
+                print-header -e "Unknown argument: ${1}"
                 print "${_usage}"
                 return 1
                 ;;
@@ -52,7 +52,6 @@ Options:
         return 1
     fi
 
-    local was_from_clipboard=0
     if [[ ! -v jwt ]]; then
         if ! command -v pbpaste > /dev/null; then
             print-header -e "pbpaste not found. Must pass a JWT as an argument."
@@ -76,10 +75,11 @@ Options:
     local sig="${parts[3]:-}"
     unset parts
 
-    local header="$(   print "${header_b64}"  | jq -R '@base64d | fromjson')" 2> /dev/null
-    local payload="$(  print "${payload_b64}" | jq -R '@base64d | fromjson')" 2> /dev/null
-    local issued_at="$(print "${payload}"     | jq -r 'if has("iat") then (.iat | todate) else "" end')" 2> /dev/null
-    local expire_at="$(print "${payload}"     | jq -r 'if has("exp") then (.exp | todate) else "" end')" 2> /dev/null
+    local header payload issued_at expire_at
+    header="$(   print "${header_b64}"  | jq -R '@base64d | fromjson')" 2> /dev/null
+    payload="$(  print "${payload_b64}" | jq -R '@base64d | fromjson')" 2> /dev/null
+    issued_at="$(print "${payload}"     | jq -r 'if has("iat") then (.iat | todate) else "" end')" 2> /dev/null
+    expire_at="$(print "${payload}"     | jq -r 'if has("exp") then (.exp | todate) else "" end')" 2> /dev/null
 
     local -i has_errors=0
 
