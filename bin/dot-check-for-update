@@ -18,10 +18,14 @@ Options:
   -b, --brew          Update brew
   -d, --doom          Update doom emacs
 
+  +g, --no-git        Do not update git repositories
+  +l, --no-local      Do not update local scripts
+  +b, --no-brew       Do not update brew
+  +d, --no-doom       Do not update doom emacs
+
 If no flags are provided then it's treated as if all flags are set."
 
-    local -A flags
-    flags=(
+    local -A flags=(
         "git"     0
         "local"   0
         "brew"    0
@@ -46,50 +50,68 @@ If no flags are provided then it's treated as if all flags are set."
                 print "${_usage}"
                 return 0
                 ;;
-            -g|--git)
-                flags[git]=1
+            --git) ;& # fall through
+            --local) ;& # fall through
+            --brew) ;& # fall through
+            --doom)
+                flags[${1##--}]=1
                 specified_flag=1
-                shift
                 ;;
-            -l|--local)
-                flags[local]=1
-                specified_flag=1
-                shift
-                ;;
-            -b|--brew)
-                flags[brew]=1
-                specified_flag=1
-                shift
-                ;;
-            -d|--doom)
-                flags[doom]=1
-                specified_flag=1
-                shift
-                ;;
-            --no-git)
-                no_flags[git]=1
-                specified_no_flag=1
-                shift
-                ;;
-            --no-local)
-                no_flags[local]=1
-                specified_no_flag=1
-                shift
-                ;;
-            --no-brew)
-                no_flags[brew]=1
-                specified_no_flag=1
-                shift
-                ;;
+            --no-git) ;& # fall through
+            --no-local) ;& # fall through
+            --no-brew) ;& # fall through
             --no-doom)
-                no_flags[doom]=1
+                no_flags[${1##--no-}]=1
                 specified_no_flag=1
-                shift
                 ;;
-            -*)
+            --*)
                 print-header -e "Unknown option '$1'"
                 print "${_usage}"
                 return 1
+                ;;
+            +*)
+                local arg_list=("${(@s::)1#+}")
+
+                # Process by popping front each time
+                while (( ${#arg_list} )); do
+                    local arg=${arg_list[1]}
+                    # Pop the front of the list
+                    arg_list=("${arg_list[@]:1}")
+
+                    case $arg in
+                        g) argv+=('--no-git') ;;
+                        l) argv+=('--no-local') ;;
+                        b) argv+=('--no-brew') ;;
+                        d) argv+=('--no-doom') ;;
+                        *)
+                            print-header -e "Unknown option '+$arg'"
+                            print "${_usage}"
+                            return 1
+                            ;;
+                    esac
+                done
+                ;;
+            -[!-]*)
+                local arg_list=("${(@s::)1#-}")
+
+                # Process by popping front each time
+                while (( ${#arg_list} )); do
+                    local arg=${arg_list[1]}
+                    # Pop the front of the list
+                    arg_list=("${arg_list[@]:1}")
+
+                    case $arg in
+                        g) argv+=('--git') ;;
+                        l) argv+=('--local') ;;
+                        b) argv+=('--brew') ;;
+                        d) argv+=('--doom') ;;
+                        *)
+                            print-header -e "Unknown option '-$arg'"
+                            print "${_usage}"
+                            return 1
+                            ;;
+                    esac
+                done
                 ;;
             *)
                 print-header -e "Unknown argument '$1'"
@@ -97,17 +119,17 @@ If no flags are provided then it's treated as if all flags are set."
                 return 1
                 ;;
         esac
+        shift
     done
 
+    local key
     if (( ! specified_flag )); then
-        local key
         for key in "${(@k)flags}"; do
             if (( ! no_flags[$key] )); then
                 flags[$key]=1
             fi
         done
     elif (( specified_no_flag )); then
-        local key
        for key in "${(@k)flags}"; do
             if (( no_flags[$key] && flags[$key] )); then
                 _error -h "Specified flag --no-${key//_/-} but also specified -${key//_/-} or --${key//_/-}, please choose one."
@@ -116,7 +138,6 @@ If no flags are provided then it's treated as if all flags are set."
     fi
 
     local -i all_true=1
-    local key
     for key in "${(@k)flags}"; do
         if (( ! flags[$key] )); then
             all_true=0
