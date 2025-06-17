@@ -5,6 +5,7 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt null_glob
 
     local flag_remove=0
     local flag_quiet=0
@@ -28,13 +29,31 @@ manually installed a formula or if it was installed as a dependency."
                 print "${_usage}"
                 return 0
                 ;;
-            -r|--remove)
-                flag_remove=1
-                shift 1
-                ;;
-            -q|--quiet)
-                quiet=1
-                shift 1
+            -r|--remove) flag_remove=1 ;;
+            -q|--quiet) flag_quiet=1 ;;
+            -[!-]*)
+                local arg_list=("${(@s::)1#-}")
+
+                # Process by popping front each time
+                while (( ${#arg_list} )); do
+                    local arg=${arg_list[1]}
+                    # Pop the front of the list
+                    arg_list=("${arg_list[@]:1}")
+
+                    case $arg in
+                        r) flag_remove=1 ;;
+                        q) flag_quiet=1 ;;
+                        h)
+                            print "${_usage}"
+                            return 0
+                            ;;
+                        *)
+                            print-header -e "Unknown option: -${arg}"
+                            print "${_usage}"
+                            return 1
+                            ;;
+                    esac
+                done
                 ;;
             *)
                 print-header -e "Unknown option: $1"
@@ -42,32 +61,50 @@ manually installed a formula or if it was installed as a dependency."
                 return 1
                 ;;
         esac
+
+        shift
     done
 
-
     if (( flag_quiet && flag_remove )); then
-        print "Error: Cannot use --quiet and --remove together."
+        print "Error: --quiet and --remove are mutually exclusive."
         exit 1
     fi
-
-    local -a visited_formulas=()
 
     if (( ! flag_quiet )); then
         print-header green "Searching for formulas not depended on by other formulas..."
     fi
 
+    local -a formulas=()
+    local -A depended_on=()
+
+    local brew_output="$(brew deps --installed)"
+
+    local deps
+    while IFS=: read -r formula deps; do
+        formulas+=("$formula")
+
+        deps=("${(s: :)deps}")
+        for dep in $deps; do
+            depended_on[$dep]=1
+        done
+    done < <(print "$brew_output")
+    unset deps
+
     local formula
-    for formula in $(brew list); do
-        if [[ -z $(brew uses --installed "${formula}") ]] && ! (( ${+visited_formulas[$formula]} )) && [[ $formula != "brew-cask" ]]; then
-            visited_formulas[$formula]=1
+    for formula in $formulas; do
+        if [[ ! -v depended_on[$formula] ]]; then
             if (( flag_remove )); then
-                read -q "input?'${formula}' is not depended on by other formulas. Remove? [Y/n] "
-                if [[ "${input}" == "y" ]]; then
+                local input
+                if read -q "?Remove ${formula}? [Y/n] "; then
+                    print
                     brew remove "${formula}"
                     check_formulas $(brew deps --1 --installed "${formula}")
+                else
+                    print
                 fi
+                unset input
             else
-                print "${formula}"
+                print "$formula"
             fi
         fi
     done
