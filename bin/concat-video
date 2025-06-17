@@ -24,22 +24,23 @@ Options:
 
     while (( $# )); do
         case "$1" in
-            -f|--file)
-                filename="${2}"
-                shift
-                ;;
-            -o|--output)
-                output_ext="${2}"
-                shift
-                ;;
-            -c|--crop)
-                crop="${2}"
-                shift
-                ;;
+            -f|--file) ;& # fall through
+            -o|--output) ;& # fall through
+            -c|--crop) ;& # fall through
             -t|--trim)
-                trim="${2}"
+                if (( $# < 2 )); then
+                    print-header -e "Missing argument for $1" >&2
+                    print "${_usage}"
+                    return 1
+                fi
+
+                case "$1" in
+                    -f|--file) filename="${2}" ;;
+                    -o|--output) output_ext="${2}" ;;
+                    -c|--crop) crop="${2}" ;;
+                    -t|--trim) trim="${2}" ;;
+                esac
                 shift
-                ;;
             -h|--help)
                 print "${_usage}"
                 return 0
@@ -58,7 +59,7 @@ Options:
         shift
     done
 
-    if [[ ! -v filename || -z "${filename}" ]]; then
+    if [[ ! -v filename ]]; then
         print-header -e '--file is required' >&2
         print "${_usage}"
         return 1
@@ -147,7 +148,7 @@ Options:
     cmd+=(-map '[out]')
     cmd+=("${final_filename}")
 
-    
+
     if ! ${cmd[@]}; then
         local status=$?
         print-header -e "ffmpeg failed with exit code $status"
