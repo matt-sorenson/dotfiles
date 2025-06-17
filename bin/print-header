@@ -7,8 +7,9 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
-local _usage="Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
+    local _usage="Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
 
 Arguments:
   <color>                        The color of the header (e.g., red, green, blue)
@@ -18,11 +19,10 @@ Options:
   -h, --help                     Show this help message and exit
   -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)"
 
-    local show_usage=false
     local indent=0
     local color=''
     local parts=()
-    local icon=''
+    local icon
 
     while (( $# )); do
         case "$1" in
@@ -77,33 +77,29 @@ Options:
         shift
     done
 
-    if (( ${#parts[@]} == 0 )); then
-        print "Error: No message provided."
-        print "${_usage}"
-        return 1
+    local message
+    if (( ${#parts[@]} )); then
+        message+="${(j: :)parts}"
+    else
+        print-header -w "No message provided."
+        message+="No message provided."
     fi
-    local message="${icon}${(j: :)parts}"
-    unset icon
     unset parts
 
-    local msglen=${#message}
-    local header_length=80
-    if (( msglen + 2 > header_length )); then
-        header_length=$((msglen + 2))
+    message="= ${icon:-}${message}"
+    local msg_length=$(( ${#message} + 2))
+    if [[ -v icon ]]; then
+        print 'here'
+        # The icons are printed as 2 characters in zsh so need to account for
+        msg_length=$(( msg_length + 1 ))
     fi
 
-    local maxlen=$(( header_length - indent - 2 ))
-    local message_padding=''
-    if (( msglen < $maxlen )); then
-        local pad=$(( maxlen - msglen ))
-        message_padding="$(printf '%*s' "${pad}" '')"
-    fi
+    local header_length=$(( msg_length > 80 ? msg_length: 80 ))
+    message="${message}${(l:$(( header_length - msg_length )):: :):-} ="
 
-    local reset_color="${reset_color:-${fg[reset]}}"
-    local indent_space="$(printf '%*s' $indent)"
-    local header="${$(printf "%*s" $header_length '=')// /=}"
-    printf "%s\n%s\n%s\n" \
-        "${indent_space}${color}${header}${reset_color}" \
-        "${indent_space}${color}= ${message}${message_padding}${reset_color}" \
-        "${indent_space}${color}${header}${reset_color}"
+    local indent_space="${(l:$indent:: :):-}"
+    local header="${(l:$header_length::=:):-}"
+    print "${indent_space}${color}${header}
+${indent_space}${color}${message}
+${indent_space}${color}${header}${reset_color}"
 } "$@"
