@@ -8,11 +8,13 @@ function() {
     set -uo pipefail
     setopt nullglob
     setopt err_return
+    setopt typeset_to_unset
 
-    local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom]
+    local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto [time-limit-in-hours]]
 
 Options:
-  -h, --help          Show this help message and exit
+  --auto [limit]      Automatically update dotfiles if they haven't been updated recently
+
   --dotfiles          Update dotfiles reposito
   --deps              Update \$DOTFILES/deps/* folders
   -l, --local         Update local scripts
@@ -26,9 +28,13 @@ Options:
   +b, --no-brew       Do not update brew
   +d, --no-doom       Do not update doom emacs
 
+  -h, --help          Show this help message and exit
+
 If no flags are provided then it's treated as if all flags are set."
 
+    local auto_limit_in_hours
     local -A flags=(
+        ["auto"]=0
         ["dotfiles"]=0
         ['deps']=0
         ["local"]=0
@@ -54,6 +60,23 @@ If no flags are provided then it's treated as if all flags are set."
             -h|--help)
                 print "${_usage}"
                 return 0
+                ;;
+            --auto)
+                if [[ $# -gt 1 ]]; then
+                    if [[ $2 == <-> ]]; then
+                        if [[ -v auto_limit_in_hours ]]; then
+                            print-header -e "Multiple time limits provided."
+                            print "${_usage}"
+                            return 1
+                        fi
+
+                        auto_limit_in_hours="$2"
+                        shift
+                    fi
+
+                    auto_limit_in_hours="15"
+                    flags[auto]=1
+                fi
                 ;;
             --*)
                 if [[ -v flags[${1##--}] ]]; then
@@ -111,13 +134,50 @@ If no flags are provided then it's treated as if all flags are set."
                 done
                 ;;
             *)
-                print-header -e "Unknown argument '$1'"
+                print-header -e "Unknown option '$1'."
                 print "${_usage}"
                 return 1
                 ;;
         esac
         shift
     done
+
+    if (( flags[auto] )); then
+        local date_cmd=()
+        if command -v gdate > /dev/null; then
+            date_cmd=(gdate -d)
+        elif date --version >/dev/null 2>&1; then
+            date_cmd=(date -d)
+        else
+            date_cmd=(date -j -f "%Y-%m-%dT%H:%M:%SZ")
+        fi
+
+        local time_limit_in_seconds=$(( 60 * 60 * auto_limit_in_hours ))
+        local current_time=$(date +%s)
+        local cutoff_time=$(( current_time - time_limit_in_seconds ))
+
+        local -i last_update
+        local update_filename="${DOTFILES}/tmp/dotfile-update"
+        if [[ -r "${update_filename}" ]]; then
+            if ! last_update="$( "${date_cmd[@]}" "$(<"$update_filename")" "+%s" )"; then
+                last_update=0
+            fi
+        else
+            last_update=0
+        fi
+
+        if (( last_update < cutoff_time )); then
+            local RUN_UPDATE
+            read -q "RUN_UPDATE?It's been a while, update dotfiles? "
+            print ''
+            if [[ "${RUN_UPDATE:l}" != "y" ]]; then
+                return 0
+            fi
+        else
+            return 0
+        fi
+    fi
+    unset 'flags[auto]'
 
     local key
     if (( ! specified_flag )); then

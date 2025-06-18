@@ -82,7 +82,7 @@ setopt multios              # Perform implicit tees or cats when multiple redire
 
 unsetopt beep               # Disable "pc speaker" beep
 
-auto-dot-check-for-update 15 # check for updates every 15 hours
+dot-check-for-update --auto 15 # check for updates every 15 hours
 
 bindkey -e
 
