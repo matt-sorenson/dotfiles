@@ -87,7 +87,9 @@ If no flags are provided then it's treated as if all flags are set."
         fi
         return 0
     elif [[ "$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" != "$dir" ]]; then
-        print-header blue -i "$indent" "${log_dir}: Directory is not the root of a git repository, skipping"
+        if (( ! quiet )); then
+            print-header blue -i "$indent" "${log_dir}: Directory is not the root of a git repository, skipping"
+        fi
         return 0
     fi
 

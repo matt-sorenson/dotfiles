@@ -166,9 +166,15 @@ If no flags are provided then it's treated as if all flags are set."
         fi
 
         local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
-        local repo
+        local repo quiet
         for repo in "${repos_to_update[@]}"; do
-            if ! dot-check-for-update-git -i 2 "${repo}"; then
+            quiet=''
+            if [[ $repo == */local ]]; then
+                quiet='-q'
+            fi
+
+            # $quiet is not quoted so that it can be empty
+            if ! dot-check-for-update-git -i 2 "${repo}" $quiet; then
                 out=1
             fi
         done

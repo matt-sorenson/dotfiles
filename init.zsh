@@ -162,7 +162,7 @@ function main() {
     local git_email=''
     local is_work=0
     local local_set=0
-    local LOCAL_DOTFILES="${DOTFILES}/local"
+    local LOCAL_DOTFILES="${DOTFILES}/deps/local"
 
     while (( $# )); do
         case "$1" in
