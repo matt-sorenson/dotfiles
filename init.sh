@@ -6,7 +6,11 @@ if ! command -v print-header &> /dev/null; then
     autoload -Uz colors && colors
 
     function print-header(){
-        local color
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+
+        local color=''
         local prefix=''
         if [[ $1 == '-e' ]]; then
             color="${fg_bold[red]}"
@@ -19,8 +23,8 @@ if ! command -v print-header &> /dev/null; then
         fi
         shift
 
-        local header="${(pl:80::=:)}"
-        print "${color}${header}\n= ${prefix}${$@}\n${header}$reset_color"
+        local header="${(l:80::=:):-}"
+        print "${color}${header}\n= ${prefix}$*\n${header}$reset_color"
     }
 fi
 
@@ -295,7 +299,7 @@ Options:${mac_specific_help}${debian_specific_help}
         if (( do_docker )) && ! command -v docker &> /dev/null; then
             if [[ -v UBUNTU_CODENAME ]]; then
                 print-header blue "Detected Ubuntu, setting up Docker apt repository"
-                sudo apt-get install ca-certificates curl
+                sudo apt install ca-certificates curl
                 sudo install -m 0755 -d /etc/apt/keyrings
                 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
                 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -316,8 +320,8 @@ Options:${mac_specific_help}${debian_specific_help}
 
         print "Install List: ${app_install_list[@]}" "${apt_install_list[@]}"
 
-        sudo apt-get update
-        sudo apt-get install -y "${app_install_list[@]}" "${apt_install_list[@]}"
+        sudo apt update
+        sudo apt install -y "${app_install_list[@]}" "${apt_install_list[@]}"
     fi
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
@@ -385,6 +389,11 @@ Options:${mac_specific_help}${debian_specific_help}
         print-header -w "emacs not found, consider installing it"
         print "Skipping doomemacs setup"
     fi
+
+    print-header green "Setting up WS"
+    export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
+    mkdir -p "${WORKSPACE_ROOT_DIR}"
+    safe-set-link "${WORKSPACE_ROOT_DIR}/dotfiles" "${DOTFILES}"
 
     print-header green "Setting up local dotfiles complete."
     print "if any of the repos checked out above where already present you may want to run dot-check-for-update to update them."

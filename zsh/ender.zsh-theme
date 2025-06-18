@@ -5,12 +5,12 @@ setopt prompt_subst
 # Define variables.
 _prompt_ender_current_bg='NONE'
 _prompt_ender_start_time=$SECONDS
-_prompt_ender_seperator="\ue0b0"
-_prompt_ender_plus_minus="\u00b1"
-_prompt_ender_plus="\u2795"
-_prompt_ender_vcs_branch="\ue0a0"
-_prompt_ender_vcs_detached="\u27a6"
-_prompt_ender_vcs_cross="\u2718"
+_prompt_ender_seperator=""
+_prompt_ender_plus_minus="±" #"\u00b1"
+_prompt_ender_plus="+"
+_prompt_ender_vcs_branch=""
+_prompt_ender_vcs_detached="➦"
+_prompt_ender_vcs_cross="✘"
 
 _prompt_ender_user_root='#'
 _prompt_ender_user_other='λ'

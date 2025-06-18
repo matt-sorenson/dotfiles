@@ -165,15 +165,6 @@ If no flags are provided then it's treated as if all flags are set."
             print-header -w "${DOTFILES} does not exist, skipping dotfiles update."
         fi
 
-        if (( flags[local] )) && [[ -d "${DOTFILES}/local" ]]; then
-            if ! dot-check-for-update-git -i 2 "${DOTFILES}/local" -q; then
-                out=1
-            fi
-        elif (( flags[local] && specified_no_flag )); then
-            # If the user specifically requested updating local then print a warning.
-            print-header -w "${DOTFILES}/local does not exist, skipping local update."
-        fi
-
         local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo
         for repo in "${repos_to_update[@]}"; do
@@ -183,7 +174,7 @@ If no flags are provided then it's treated as if all flags are set."
         done
     fi
 
-    if (( flags[brew] )); then
+    if [[ flags[brew] -eq 1 && "${OSTYPE}" == darwin* ]]; then
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 

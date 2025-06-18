@@ -89,7 +89,6 @@ Options:
     message="= ${icon:-}${message}"
     local msg_length=$(( ${#message} + 2))
     if [[ -v icon ]]; then
-        print 'here'
         # The icons are printed as 2 characters in zsh so need to account for
         msg_length=$(( msg_length + 1 ))
     fi
