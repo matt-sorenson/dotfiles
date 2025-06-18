@@ -47,27 +47,35 @@ auto-dot-check-for-update() {
     setopt err_return
     setopt typeset_to_unset
 
+    local date_cmd=()
+    if command -v gdate > /dev/null; then
+        date_cmd=(gdate -d)
+    elif date --version >/dev/null 2>&1; then
+        date_cmd=(date -d)
+    else
+        date_cmd=(date -j -f "%Y-%m-%dT%H:%M:%SZ")
+    fi
+
     local hours="${1:-15}"
     local time_limit_in_seconds=$(( 60 * 60 * hours ))
     local current_time=$(date +%s)
-    local cuttoff_time=$(($current_time - $time_limit_in_seconds))
+    local cutoff_time=$(( current_time - time_limit_in_seconds ))
 
-    # If the file doesn't exist we treat it as if it was last updated at the epoch
     local -i last_update
     local update_filename="${DOTFILES}/tmp/dotfile-update"
     if [[ -r "${update_filename}" ]]; then
-        if ! last_update="$(date +%s -d "$(<"$update_filename")")"; then
+        if ! last_update="$( "${date_cmd[@]}" "$(<"$update_filename")" "+%s" )"; then
             last_update=0
         fi
     else
         last_update=0
     fi
 
-    if (( last_update < cuttoff_time )); then
+    if (( last_update < cutoff_time )); then
         read -q "RUN_UPDATE?It's been a while, update dotfiles? "
-        print '' # read -q doesn't output a newline
+        print ''
         if [[ "${RUN_UPDATE:l}" == "y" ]]; then
-            dot-check-for-update;
+            dot-check-for-update
         fi
     fi
 }
