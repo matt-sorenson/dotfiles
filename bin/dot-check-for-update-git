@@ -12,10 +12,12 @@ function() {
 Options:
   -h, --help            Show this help message
   -q, --quiet           Suppress some warnings.
+  --extra-quiet         Suppress all output if directory not a repo or has no remotes.
   -i, --indent <indent> Set the indent level for headers messages (default: 0)
 
 If no flags are provided then it's treated as if all flags are set."
 
+    local extra_quiet=0
     local quiet=0
     local indent=0
     local dir
@@ -26,12 +28,26 @@ If no flags are provided then it's treated as if all flags are set."
                 print "${_usage}"
                 return 0
                 ;;
+            --extra-quiet)
+                extra_quiet=1
+                quiet=1
+                ;;
             -q|--quiet)
                 quiet=1
                 ;;
             -i|--indent)
                 if (( $# < 2 )); then
                     print-header -e -i "$indent" "${dir:-Unknown Repo}: Expected an indent value after '$1'"
+                    print "${_usage}"
+                    return 1
+                fi
+                shift
+                indent="$1"
+                ;;
+            -qi)
+                quiet=1
+                if (( $# < 2 )); then
+                    print-header -e -i "$indent" "${dir:-Unknown Repo}: Expected an indent value after '-qi'"
                     print "${_usage}"
                     return 1
                 fi
@@ -61,32 +77,41 @@ If no flags are provided then it's treated as if all flags are set."
         return 1
     fi
 
+    # canonicalize the directory path
+    dir="${dir:A}"
+
+    local remotes
+    if (( extra_quiet )); then
+        if [[ "$(git -C "$dir" rev-parse --show-toplevel 2> /dev/null)" != "$dir" ]] then
+            return 0
+        fi
+
+        remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
+        if (( ${#remotes} == 0 )); then
+            return 0
+        fi
+    fi
+
     local log_dir
     case $dir in
-        "${HOME}")
-            # exactly $HOME → "~"
-            log_dir='~'
-            ;;
-        "${HOME}"/*)
-            # starts with $HOME/ → "~/…"
-            log_dir="~${dir#"${HOME}"}"
-            ;;
-        *)
-            log_dir="${dir}"
-            ;;
+        "${DOTFILES}/deps/"*)     log_dir="deps> ${dir#"${DOTFILES}/deps/"}" ;;
+        "${HOME}")                log_dir='~' ;;
+        "${HOME}/"*)              log_dir="~${dir#"${HOME}"}" ;;
+        *)                        log_dir="${dir}" ;;
     esac
 
     if [[ ! -d "${dir}" ]]; then
         print-header -w -i "$indent" "${log_dir}: Missing Directory"
         return 0
     elif ! git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null; then
+        echo "${dir}"
         if (( quiet )); then
             print-header -w -i "$indent" "${log_dir}: Directory not a git repo"
         else
             print "${log_dir}: Directory not a git repo"
         fi
         return 0
-    elif [[ "$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" != "$dir" ]]; then
+    elif [[ "$(git -C "$dir" rev-parse --show-toplevel 2> /dev/null)" != "$dir" ]]; then
         if (( ! quiet )); then
             print-header blue -i "$indent" "${log_dir}: Directory is not the root of a git repository, skipping"
         fi
@@ -95,13 +120,12 @@ If no flags are provided then it's treated as if all flags are set."
 
     print-header green -i "$indent" "${log_dir}: $*"
 
-    local remotes
     remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
     if (( ${#remotes} == 0 )); then
         if (( ! quiet )); then
             print-header -w -i "$indent" "${log_dir}: No git remote found, skipping update"
         else
-            print "Directory not a git repo"
+            print "No git remote found, skipping update"
         fi
         return 0
     fi

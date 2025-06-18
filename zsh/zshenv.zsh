@@ -123,6 +123,12 @@ is-emoji() {
     set -uo pipefail
     setopt err_return
 
+    local -a exceptions=('❌' '✅')
+
+    if (( ${exceptions[(Ie)$1]} )); then
+        return 0
+    fi
+
     local -i codepoint=$(printf '%d' "'$1")
 
     (( (codepoint >= 0x1F600 && codepoint <= 0x1F64F) ||

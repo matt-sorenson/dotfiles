@@ -13,11 +13,14 @@ function() {
 
 Options:
   -h, --help          Show this help message and exit
-  -g, --git           Update git repositories
+  --dotfiles          Update dotfiles reposito
+  --deps              Update \$DOTFILES/deps/* folders
   -l, --local         Update local scripts
   -b, --brew          Update brew
   -d, --doom          Update doom emacs
 
+  --no-dotfiles       Do not update dotfiles repositories
+  --no-deps           Do not update \$DOTFILES/deps/* folders
   +g, --no-git        Do not update git repositories
   +l, --no-local      Do not update local scripts
   +b, --no-brew       Do not update brew
@@ -26,7 +29,8 @@ Options:
 If no flags are provided then it's treated as if all flags are set."
 
     local -A flags=(
-        ["git"]=0
+        ["dotfiles"]=0
+        ['deps']=0
         ["local"]=0
         ["brew"]=0
         ["doom"]=0
@@ -34,7 +38,8 @@ If no flags are provided then it's treated as if all flags are set."
     )
 
     local -A no_flags=(
-        ["git"]=0
+        ["dotfiles"]=0
+        ['deps']=0
         ["local"]=0
         ["brew"]=0
         ["doom"]=0
@@ -50,24 +55,18 @@ If no flags are provided then it's treated as if all flags are set."
                 print "${_usage}"
                 return 0
                 ;;
-            --git) ;& # fall through
-            --local) ;& # fall through
-            --brew) ;& # fall through
-            --doom)
-                flags[${1##--}]=1
-                specified_flag=1
-                ;;
-            --no-git) ;& # fall through
-            --no-local) ;& # fall through
-            --no-brew) ;& # fall through
-            --no-doom)
-                no_flags[${1##--no-}]=1
-                specified_no_flag=1
-                ;;
             --*)
-                print-header -e "Unknown option '$1'"
-                print "${_usage}"
-                return 1
+                if [[ -v flags[${1##--}] ]]; then
+                    flags[${1##--}]=1
+                    specified_flag=1
+                elif [[ -v no_flags[${1##--no-}] ]]; then
+                    no_flags[${1##--no-}]=1
+                    specified_no_flag=1
+                else
+                    print-header -e "Unknown option '$1'"
+                    print "${_usage}"
+                    return 1
+                fi
                 ;;
             +*)
                 local arg_list=("${(@s::)1#+}")
@@ -79,7 +78,6 @@ If no flags are provided then it's treated as if all flags are set."
                     arg_list=("${arg_list[@]:1}")
 
                     case $arg in
-                        g) argv+=('--no-git') ;;
                         l) argv+=('--no-local') ;;
                         b) argv+=('--no-brew') ;;
                         d) argv+=('--no-doom') ;;
@@ -101,7 +99,6 @@ If no flags are provided then it's treated as if all flags are set."
                     arg_list=("${arg_list[@]:1}")
 
                     case $arg in
-                        g) argv+=('--git') ;;
                         l) argv+=('--local') ;;
                         b) argv+=('--brew') ;;
                         d) argv+=('--doom') ;;
@@ -148,7 +145,7 @@ If no flags are provided then it's treated as if all flags are set."
     # everything even if one fails
     local -i out=0
 
-    if (( flags[git] )); then
+    if (( flags[dotfiles] )); then
         print-header green "Updating git repositories."
         if [[ -d "${DOTFILES}" ]]; then
             if dot-check-for-update-git -i 2 "${DOTFILES}"; then
@@ -164,17 +161,17 @@ If no flags are provided then it's treated as if all flags are set."
         else
             print-header -w "${DOTFILES} does not exist, skipping dotfiles update."
         fi
+    fi
 
+    if (( flags[deps] )); then
         local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo quiet
         for repo in "${repos_to_update[@]}"; do
-            quiet=''
             if [[ $repo == */local ]]; then
-                quiet='-q'
+                continue
             fi
 
-            # $quiet is not quoted so that it can be empty
-            if ! dot-check-for-update-git -i 2 "${repo}" $quiet; then
+            if ! dot-check-for-update-git -i 2 "${repo}"; then
                 out=1
             fi
         done
@@ -203,11 +200,17 @@ If no flags are provided then it's treated as if all flags are set."
         fi
     fi
 
-    # You can specify a local update function in your "$DOTFILES/local/zsh"
-    # files or in $DOTFILES/local/bin
-    if (( flags[local] )) && command -v "dot-check-for-update-local" > /dev/null; then
-        if ! dot-check-for-update-local; then
+    if (( flags[local] )); then
+        if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local"; then
             out=1
+        fi
+
+        # You can specify a local update function in your "$DOTFILES/local/zsh"
+        # files or in $DOTFILES/local/bin
+        if command -v "dot-check-for-update-local" > /dev/null; then
+            if ! dot-check-for-update-local; then
+                out=1
+            fi
         fi
     fi
 

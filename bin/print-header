@@ -66,7 +66,7 @@ Options:
                 ;;
             -e|--error)
                 color="${fg_bold[red]}"
-                icon='😡 '
+                icon='❌ '
                 ;;
             -*)
                 print-header -e "Unknown option: $1"
