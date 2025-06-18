@@ -132,10 +132,10 @@ function main() {
 
     local do_debian_apt=0
     local debian_specific_help=''
-    if command -v apt-get &> /dev/null; then
+    if command -v apt &> /dev/null; then
         do_debian_apt=1
         debian_specific_help="
-  --no-debian-apt    Do not install packages using apt-get"
+  --no-debian-apt    Do not install packages using apt"
     fi
 
     local do_brew=0
@@ -276,6 +276,10 @@ Options:${mac_specific_help}${debian_specific_help}
         shift
     done
 
+    if command -v locale-gen &> /dev/null; then
+        sudo locale-gen en_US en_US.UTF-8
+    fi
+
     if (( do_brew )); then
         if ! command -v brew &> /dev/null; then
             print-header green "Installing Homebrew"
@@ -290,16 +294,14 @@ Options:${mac_specific_help}${debian_specific_help}
         print-header green "installing items from brew"
         print "Install List: ${app_install_list[@]}" "${brew_install_list[@]}"
         brew install -q "${app_install_list[@]}" "${brew_install_list[@]}"
-    fi
-
-    if (( do_debian_apt )); then
+    elif (( do_debian_apt )); then
         print-header green "Installing apt packages"
-
         # Only add docker if it's not already installed.
         if (( do_docker )) && ! command -v docker &> /dev/null; then
             if [[ -v UBUNTU_CODENAME ]]; then
                 print-header blue "Detected Ubuntu, setting up Docker apt repository"
-                sudo apt install ca-certificates curl
+                sudo apt update
+                sudo apt install -y ca-certificates curl
                 sudo install -m 0755 -d /etc/apt/keyrings
                 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
                 sudo chmod a+r /etc/apt/keyrings/docker.asc

@@ -25,7 +25,7 @@ fi
 
 export PAGER='less -FgMRXi'
 
-export LANG="${LANG:-en_US.UTF-8}"
+export LANG=en_US.UTF-8
 
 # Set the Less input preprocessor.
 # Try both `lesspipe` and `lesspipe.sh` as either might exist on a system.
