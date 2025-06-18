@@ -222,7 +222,7 @@ If no flags are provided then it's treated as if all flags are set."
     if (( ! out && all_true )); then
         local update_filename="${DOTFILES}/tmp/dotfile-update"
         local current_time
-        current_time=$(date +%s)
+        current_time="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
         print -n "${current_time}" >! "${update_filename}"
     fi
 

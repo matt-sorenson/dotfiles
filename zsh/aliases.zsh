@@ -45,6 +45,7 @@ auto-dot-check-for-update() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
     local hours="${1:-15}"
     local time_limit_in_seconds=$(( 60 * 60 * hours ))
@@ -52,10 +53,14 @@ auto-dot-check-for-update() {
     local cuttoff_time=$(($current_time - $time_limit_in_seconds))
 
     # If the file doesn't exist we treat it as if it was last updated at the epoch
-    local last_update=0
+    local -i last_update
     local update_filename="${DOTFILES}/tmp/dotfile-update"
     if [[ -r "${update_filename}" ]]; then
-        last_update=$(cat "${update_filename}")
+        if ! last_update="$(date +%s -d "$(<"$update_filename")")"; then
+            last_update=0
+        fi
+    else
+        last_update=0
     fi
 
     if (( last_update < cuttoff_time )); then
