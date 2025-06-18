@@ -19,8 +19,11 @@ if [[ "${OSTYPE}" == darwin* ]]; then
 fi
 
 if command -v emacs &> /dev/null; then
-    export EDITOR='emacs'
     export VISUAL='emacs'
+elif command -v nvim &> /dev/null; then
+    export VISUAL='nvim'
+elif command -v vim &> /dev/null; then
+    export VISUAL='vim'
 fi
 
 export PAGER='less -FgMRXi'
