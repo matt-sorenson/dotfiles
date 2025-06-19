@@ -32,12 +32,15 @@ Arguments:
 
 Options:
   -h, --help                     Show this help message and exit
+  --icon <icon-emoji>            Prepend this emoji to the message, combines with -w/-e
+  -w, --warn                     Shortcut for 'yellow --icon ⚠️'
+  -e, --error                    Shortcut for 'red --icon ❌'
   -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)"
 
     local indent=0
     local color=''
     local parts=()
-    local icon
+    local icon=''
 
     while (( $# )); do
         case "$1" in
@@ -52,7 +55,7 @@ Options:
                     return 1
                 fi
 
-                if [[ "$1" == "-wi" || "$1" == "-wi" ]]; then
+                if [[ "$1" == "-wi" || "$1" == "-ei" ]]; then
                     # add -w or -e to the argv array
                     argv+=("-${1[2]}")
                 fi
@@ -60,13 +63,23 @@ Options:
                 indent="$2"
                 shift
                 ;;
+            --icon)
+                if (( $# < 2 )); then
+                    print-header -e "Error: '$1' requires an argument."
+                    print "${_usage}"
+                    return 1
+                fi
+
+                icon="${icon}$2"
+                shift
+                ;;
             -w|--warn)
                 color="${fg_bold[yellow]}"
-                icon='⚠️ '
+                icon="⚠️${icon}"
                 ;;
             -e|--error)
                 color="${fg_bold[red]}"
-                icon='❌ '
+                icon="❌${icon}"
                 ;;
             -*)
                 print-header -e "Unknown option: $1"
@@ -92,18 +105,19 @@ Options:
         shift
     done
 
-    local message="= ${icon:-}"
+    local message="= ${icon:+$icon }"
     if (( ${#parts[@]} )); then
         message+="${(j: :)parts}"
     else
-        print-header -w "No message provided."
         message+="No message provided."
+        color="$bg[magenta]$fg[black]"
     fi
     unset parts
 
     local msg_length=$(( ${#message} + 2))
     # Handle emojis that render as 2 characters
     local -a chars
+    local char
     chars=(${(@ps::)message})
     for char in $chars; do
         if is-emoji "$char"; then
