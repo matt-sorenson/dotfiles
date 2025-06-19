@@ -4,7 +4,7 @@ zstyle ':completion::complete:*' cache-path "${DOTFILES}/tmp/zsh-compcache"
 autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
 
 if [[ -f "${HOME}/.zcompdump" ]]; then
-    print-header -w "Removing old zcompdump file."
+    print-header cyan "Removing old zcompdump file."
     rm -f "${HOME}/.zcompdump"
 fi
 

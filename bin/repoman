@@ -84,13 +84,8 @@ Examples:
   ${calling_name} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
     }
 
-    local any_set=0
-    local -A opts=(
-        path                ''
-        repo                "${default_repo}"
-        help                0
-        verbose             0
-
+    local -i any_set=0
+    local -A flags=(
         aws_signon          0
         clean               0
         nuke                0
@@ -103,6 +98,13 @@ Examples:
         test                0
         unit_test           0
         integration_test    0
+    )
+
+    local -A opts=(
+        path                ''
+        repo                "${default_repo}"
+        help                0
+        verbose             0
 
         clean_cmd               ''
         nuke_cmd                ''
@@ -138,22 +140,6 @@ Examples:
             --verbose)
                 opts[${${1#--}//-/_}]=1
                 ;;
-            --build) ;& # fallthrough
-            --clean) ;& # fallthrough
-            --db-up-does-migration) ;& # fallthrough
-            --db-up-does-schema) ;& # fallthrough
-            --db-up) ;& # fallthrough
-            --generate-schema) ;& # fallthrough
-            --git-clean) ;& # fallthrough
-            --install) ;& # fallthrough
-            --integration-test) ;& # fallthrough
-            --migration-does-schema) ;& # fallthrough
-            --migration) ;& # fallthrough
-            --nuke) ;& # fallthrough
-            --unit-test) ;& # fallthrough
-            --test)
-                opts[${${1#--}//-/_}]=1
-                any_set=1
                 ;;
             --calling-name)
                 if (( $# < 2 )); then
@@ -222,7 +208,18 @@ Examples:
                 opts[$key]="$2"
                 shift
                 ;;
-            -[!-]*)
+            --*)
+                local key="${${1#--}//-/_}"
+                if [[ -v "flags[$key]" ]]; then
+                    flags[$key]=1
+                    any_set=1
+                else
+                    print-header -e "Unknown option: '$1'"
+                    _repoman-usage
+                    return 1
+                fi
+                ;;
+            -*)
                 local arg_list=("${(@s::)1#-}")
 
                 # Process by popping front each time
@@ -273,11 +270,6 @@ Examples:
                     any_set=1
                 done
                 ;;
-            --*)
-                print-header -e "Unknown option: '$1'"
-                _repoman-usage
-                return 1
-                ;;
             *)
                 print-header -e "Unexpected argument: '$1'"
                 _repoman-usage
@@ -320,8 +312,6 @@ Examples:
         print-header -e "The directory '${repo_dir}' does not exist. Please check the path or repo name."
         return 1
     fi
-
-            any_set=1
 
     if (( ! any_set )); then
         print-header -e "You must specify at least one option"

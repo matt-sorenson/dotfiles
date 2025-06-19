@@ -32,6 +32,7 @@ function main() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
     function safe-set-link() {
         local dest="${1}"
@@ -111,16 +112,16 @@ function main() {
     local app_install_list=(
         fzf
         git
+        shellcheck
         zsh
 
         # These are mostly there for doomemacs but useful in general
         pandoc
         ripgrep
-        shellcheck
     )
 
     local -a apt_install_list=(
-        emacs-nox # emacs-nox is the terminal version of emacs
+        emacs-nox # emacs-nox is the terminal only version of emacs
         silversearcher-ag
     )
 
@@ -130,63 +131,98 @@ function main() {
         the_silver_searcher
     )
 
-    local do_debian_apt=0
-    local debian_specific_help=''
-    if command -v apt &> /dev/null; then
-        do_debian_apt=1
-        debian_specific_help="
-  --no-debian-apt    Do not install packages using apt"
-    fi
-
-    local do_brew=0
-    local do_hammerspoon=0
-    local mac_specific_help=''
-    if [[ "${OSTYPE}" == darwin* ]]; then
-        do_brew=1
-        do_hammerspoon=1
-        mac_specific_help="
-  --no-brew          Do not install Homebrew
-  --no-hammerspoon   Do not set up Hammerspoon"
-    fi
-
-    local do_docker=1
-    local do_doomemacs=1
-
     local -A plugins=(
         [fzf-tab]="shallow=https://github.com/Aloxaf/fzf-tab"
         [zsh-syntax-highlighting]="shallow=https://github.com/zsh-users/zsh-syntax-highlighting.git"
     )
 
     export DOTFILES="${DOTFILES:-${HOME}/.dotfiles}"
+    local LOCAL_DOTFILES git_email git_local_email
+    local matt_email="matt@mattsorenson.com"
 
-    local git_email=''
-    local is_work=0
-    local local_set=0
-    local LOCAL_DOTFILES="${DOTFILES}/deps/local"
+    local -A flags=(
+        # macOS
+        [do_brew]=0
+        [do_hammerspoon]=0
+
+        # Debian Derivitives
+        [do_apt]=0
+
+        [do_docker]=1
+        [do_doomemacs]=1
+
+        [do_local_template]=0
+        [do_work]=0
+    )
+
+    local debian_specific_help=''
+    local mac_specific_help=''
+    case "${OSTYPE}" in
+        darwin*)
+            flags[do_brew]=1
+            flags[do_hammerspoon]=1
+            mac_specific_help="\n  --no-brew          Do not install Homebrew\n  --no-hammerspoon   Do not set up Hammerspoon"
+            ;;
+        linux*)
+            if command -v apt &> /dev/null; then
+                flags[do_apt]=1
+                debian_specific_help="\n  --no-debian-apt    Do not install packages using apt"
+            fi
+            ;;
+        *)
+            print-header -w "UNKNOWN OSTYPE: ${OSTYPE}"
+    esac
+
+    local _usage="Usage: init.sh [OPTIONS]
+Options:${mac_specific_help}${debian_specific_help}
+  --work, -w                            Set up local/is_work file so hammerspoon & scripts can detect work environment
+  --local-template
+  --local-git <url>                     Use the specified git repo for local dotfiles
+  --local-ref <ref>                     Use the specified reference for local dotfiles
+  --local-git-email                     Email to  set in the local/gitconfig file
+
+  --no-brew                             Do not install Homebrew
+  --no-hammerspoon                      Do not set up Hammerspoon
+  --no-debian-apt                       Do not install packages using apt
+  --no-docker                           Do not install Docker
+  --no-doom, --no-doomemacs             Do not install Doom Emacs
+
+  --no-plugin-fzf-tab                   Do not install fzf-tab plugin
+  --no-plugin-zsh-syntax-highlighting   Do not install zsh-syntax-highlighting plugin
+
+  --plugin <name=[shallow=]url>         Add a custom plugin to install
+        Plugins added here will be automatically updated with the dot-check-for-update script
+        You'll need to manually source/init zsh plugins (that aren't 'local' or in the default list).
+        Shallow flags the repo to be cloned with --depth 1, which is useful for large repos.
+
+  --help, -h                            Show this help message"
+    unset mac_specific_help debian_specific_help
+
 
     while (( $# )); do
         case "$1" in
-            --no-brew)
-                do_brew=0
+            --no-plugin-*)
+                local key="${1#--no-plugin-}"
+
+                if [[ ! -v plugins[$key] ]]; then
+                    print-header -e "Unknown plugin: $1"
+                    print "${_usage}"
+                    return 1
+                fi
+
+                unset "plugins[$key]"
                 ;;
-            --no-debian-apt)
-                do_debian_apt=0
-                ;;
-            --no-hammerspoon)
-                do_hammerspoon=0
-                ;;
-            --no-fzf)
-                unset "plugins[fzf-tab]"
-                ;;
-            --no-syntax)
-                unset "plugins[zsh-syntax-highlighting]"
-                ;;
-            --no-docker)
-                do_docker=0
-                ;;
-            --no-doomemacs) ;& # fallthrough
-            --no-doom)
-                do_doomemacs=0
+            --no-*)
+                local key="do_${${1#--no-}//-/_}"
+                key="${key/%doom/doomemacs}"
+
+                if [[ ! -v flags[$key] ]]; then
+                    print-header -e "Unknown flag: $1"
+                    print "${_usage}"
+                    return 1
+                fi
+
+                flags[$key]=0
                 ;;
             --plugin|-p)
                 shift
@@ -215,62 +251,84 @@ function main() {
                 plugins["${plugin_name}"]="${plugin_url}"
 
                 if [[ ${plugin_name} == 'local' ]]; then
-                    if (( local_set )); then
+                    if [[ -v LOCAL_DOTFILES ]]; then
                         print-header -e "\$LOCAL_DOTFILES set multiple times. Existing: '${LOCAL_DOTFILES}', New: '$1'"
                         return 1
                     fi
 
-                    local_set=1
                     LOCAL_DOTFILES="${DOTFILES}/deps/local"
                 fi
+                ;;
+            --local-git)
+                shift
+                if (( $# == 0 )); then
+                    print-header -e "--local-git requires a value"
+                    return 1
+                elif [[ -v LOCAL_DOTFILES ]]; then
+                    print-header -e "\$LOCAL_DOTFILES set multiple times. Existing: '${LOCAL_DOTFILES}', New: '$1'"
+                    return 1
+                fi
+
+                plugins[local]="$1"
+                LOCAL_DOTFILES="${DOTFILES}/deps/local"
                 ;;
             --local-ref)
                 shift
                 if (( $# == 0 )); then
                     print-header -e "--local-ref requires a value"
                     return 1
-                elif (( local_set )); then
-                    print-header -e "--local-ref set multiple times. Existing: '${LOCAL_DOTFILES}', New: '$1'"
+                elif [[ -v LOCAL_DOTFILES ]]; then
+                    local new="${DOTFILES}/local.$1"
+                    print-header -e "\$LOCAL_DOTFILES set multiple times. Existing: '${LOCAL_DOTFILES}', New: '${new}'"
                     return 1
                 fi
-                local_set=1
-                LOCAL_DOTFILES="${DOTFILES}/$1"
-                ;;
-            --work|-w)
-                is_work=1
+                LOCAL_DOTFILES="${DOTFILES}/local.$1"
                 ;;
             --help|-h)
-                print "Usage: init.sh [OPTIONS]
-Options:${mac_specific_help}${debian_specific_help}
-  --work, -w                    Set up local/is_work file so hammerspoon & scripts can detect work environment
-  --local-git <url>             Use the specified git repo for local dotfiles
-  --local-ref <ref>             Use the specified reference for local dotfiles
-  --no-fzf                      Do not install fzf-tab plugin
-  --no-syntax                   Do not install zsh-syntax-highlighting plugin
-  --no-docker                   Do not install Docker
-  --no-doom, --no-doomemacs     Do not install Doom Emacs
-  --plugin <name=[shallow=]url> Add a custom plugin to install
-                                Plugins added here will be automatically updated with the dot-check-for-update script
-                                You'll need to manually source/init zsh plugins (that aren't 'local' or in the default list).
-                                Shallow flags the repo to be cloned with --depth 1, which is useful for large repos.
-
-  --help, -h                    Show this help message"
+                print "${_usage}"
                 return 0
+                ;;
+            --local-git-email)
+                shift
+                if (( $# == 0 )); then
+                    print-header -e "--local-git-email requires a value"
+                    return 1
+                elif [[ -v git_local_email ]]
+                    print-header -e "--local-git-email already set. Existing: ${git_local_email}, New: $1"
+                fi
+                git_local_email="$1"
                 ;;
             --git-email)
                 shift
                 if (( $# == 0 )); then
                     print-header -e "--git-email requires a value"
                     return 1
+                elif [[ -v git_email ]]
+                    print-header -e "--git-email already set. Existing: ${git_email}, New: $1"
                 fi
                 git_email="$1"
                 ;;
             --git-email-matt)
-                git_email="matt@mattsorenson.com"
+                if [[ -v git_email ]]
+                    print-header -e "--git-email already set. Existing: ${git_email}, New: ${matt_email}"
+                fi
+
+                git_email="${matt_email}"
                 ;;
+            -w)
+                argv+=('--work')
             *)
-                print-header -e "Unknown option: $1"
-                return 1
+                local key="do_${${1#--}//-/_}"
+                key="${key/%doom/doomemacs}"
+                key="${key/%do_work/do_local_work}"
+
+                if [[ ! -v flags[$key] ]]; then
+                    print-header -e "Unknown flag: $1"
+                    print "${_usage}"
+                    return 1
+                fi
+
+                flags[$key]=1
                 ;;
         esac
         shift
@@ -280,24 +338,24 @@ Options:${mac_specific_help}${debian_specific_help}
         sudo locale-gen en_US en_US.UTF-8
     fi
 
-    if (( do_brew )); then
+    if (( flags[do_brew] )); then
         if ! command -v brew &> /dev/null; then
             print-header green "Installing Homebrew"
 
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
 
-        if (( do_docker )); then
+        if (( flags[do_docker] )); then
             brew_install_list+=( docker docker-compose )
         fi
 
         print-header green "installing items from brew"
-        print "Install List: ${app_install_list[@]}" "${brew_install_list[@]}"
-        brew install -q "${app_install_list[@]}" "${brew_install_list[@]}"
-    elif (( do_debian_apt )); then
+        print "Install List: ${(q)app_install_list[@]} ${(q)brew_install_list[@]}"
+        brew install -q ${(q)app_install_list[@]} ${(q)brew_install_list[@]}
+    elif (( flags[do_brew] )); then
         print-header green "Installing apt packages"
         # Only add docker if it's not already installed.
-        if (( do_docker )) && ! command -v docker &> /dev/null; then
+        if (( flags[do_docker] )) && ! command -v docker &> /dev/null; then
             if [[ -v UBUNTU_CODENAME ]]; then
                 print-header blue "Detected Ubuntu, setting up Docker apt repository"
                 sudo apt update
@@ -320,10 +378,10 @@ Options:${mac_specific_help}${debian_specific_help}
             )
         fi
 
-        print "Install List: ${app_install_list[@]}" "${apt_install_list[@]}"
+        print "Install List: ${(q)app_install_list[@]} ${(q)apt_install_list[@]}"
 
         sudo apt update
-        sudo apt install -y "${app_install_list[@]}" "${apt_install_list[@]}"
+        sudo apt install -y ${(q)app_install_list[@]} ${(q)apt_install_list[@]}
     fi
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
@@ -356,40 +414,40 @@ Options:${mac_specific_help}${debian_specific_help}
     print-header green "Setting up misc dotfiles"
     safe-set-link "${HOME}/.gitconfig" "${DOTFILES}/gitconfig"
 
-    mkdir -p "${LOCAL_DOTFILES}/bin"
-    mkdir -p "${LOCAL_DOTFILES}/zsh/completions"
-
-    if (( is_work)); then
-        touch "${LOCAL_DOTFILES}/is-work"
-    fi
-
     if [[ "${DOTFILES}/local" != "${LOCAL_DOTFILES}" ]]; then
         safe-set-link "${DOTFILES}/local" "${LOCAL_DOTFILES}"
     fi
 
-    if ! git -C "${DOTFILES}" config --local user.email "${git_email}"; then
-        print-header -w "Failed to set git user.email in ${DOTFILES}"
-        print "You can change to the directory directly and try \'git config --local user.email \"you@example.com\"\'"
+    mkdir -p "${DOTFILES}/local/bin"
+    mkdir -p "${DOTFILES}/local/zsh/completions"
+
+    if (( flags[do_work] )); then
+        touch "${DOTFILES}/local/is-work"
     fi
 
-    if (( do_hammerspoon )); then
-        print-header blue "Setting up macOS specific files"
+    if [[ -v git_email ]]; then
+        if ! git -C "${DOTFILES}" config --local user.email "${git_email}"; then
+            print-header -w "Failed to set git user.email in ${DOTFILES}"
+            print "You can change to the directory directly and try \'git config --local user.email \"you@example.com\"\'"
+        fi
+    fi
 
+    if (( flags[do_hammerspoon] )); then
         print-header green "Setting up hammerspoon"
         safe-set-link "${HOME}/.hammerspoon" "${DOTFILES}/hammerspoon"
-
-        print-header blue "macOS specific files done"
     fi
 
-    if (( do_doomemacs )) && command -v emacs &> /dev/null; then
-        print-header green "Setting up doomemacs"
-        mkdir -p "${HOME}/.config"
-        safe-git-clone "https://github.com/doomemacs/doomemacs" "${HOME}/.config/emacs"
-        safe-set-link "${HOME}/.config/doom" "${DOTFILES}/doom"
-        eval "${HOME}/.config/emacs/bin/doom install --no-env --aot"
-    else
-        print-header -w "emacs not found, consider installing it"
-        print "Skipping doomemacs setup"
+    if (( flags[do_doomemacs] )); then
+        if command -v emacs &> /dev/null; then
+            print-header green "Setting up doomemacs"
+            mkdir -p "${HOME}/.config"
+            safe-git-clone "https://github.com/doomemacs/doomemacs" "${HOME}/.config/emacs"
+            safe-set-link "${HOME}/.config/doom" "${DOTFILES}/doom"
+            eval "${HOME}/.config/emacs/bin/doom install --no-env --aot"
+        else
+            print-header -w "emacs not found, consider installing it"
+            print "Skipping doomemacs setup"
+        fi
     fi
 
     print-header green "Setting up WS"
@@ -397,7 +455,7 @@ Options:${mac_specific_help}${debian_specific_help}
     mkdir -p "${WORKSPACE_ROOT_DIR}"
     safe-set-link "${WORKSPACE_ROOT_DIR}/dotfiles" "${DOTFILES}"
 
-    print-header green "Setting up local dotfiles complete."
+    print-header green "Setting up dotfiles complete."
     print "if any of the repos checked out above where already present you may want to run dot-check-for-update to update them."
     print "You should restart your terminal now to apply the changes."
 }
