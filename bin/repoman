@@ -8,14 +8,11 @@ function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt typeset_to_unset
 
     local default_repo="${DOT_DEFAULT_REPO:-}"
     local calling_name="${calling_name:-repoman}"
 
-    local starting_dir="$(pwd)"
-
-    # emulate `local -F` since it doesn't exist & return to starting directory.
-    trap 'unset -f _repoman-usage; cd -- "${starting_dir}" &> /dev/null || print-header -e ">>> failed to return to starting directory."' EXIT INT TERM
     function _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
         # and can hide some of the options based on the verbosity level so by
@@ -36,23 +33,23 @@ function() {
 
         # We don't print the extra options if this is being called from an alias.
         if (( verbose )) && [[ $calling_name == 'repoman' ]]; then
-            extra_args="
+            extra_args="\n
+# Task Options
+Each task has a corresponding for the below list
+
+  --<task>-cmd <task-command>   Command to run for <task>
+  --<task>-verbose-arg <arg>    Argument to append to <task-command>
+  --<task>-working-dir <dir>    Working directory to change to for that command (defaults to root of repo)
+
+Each task pair has a corresponding flag for the below list
+  --<task1>-does-<task2>    <task1> completing successfully means that <task2> is no longer required.
+                            This is useful for cases like when bringing the DB up automatically runs
+                            migrations or schema generation.
 
 Extra options for repoman:
   --calling-name <command_name>         Name to use in the usage message
-  --clean-cmd <cmd>                     Command to run for clean
-  --nuke-cmd <cmd>                      Command to run for nuke
-  --install-cmd <cmd>                   Command to run for install
-  --build-cmd <cmd>                     Command to run for build
-  --migrations-subdir <subdirectory>    Subdirectory for migrations inside the repo
-  --db-up-cmd <cmd>                     Command to run to start the DB container
-  --migrations-cmd <cmd>                Command to run for migrations
-  --unit-tests-cmd <cmd>                Command to run for unit tests
-  --integration-tests-cmd <cmd>         Command to run for integration tests
   --db-container-name <name>            If set script can skip starting the DB container if it's already running.
-  --repo <repo_name>                    The directory under \$WORKSPACE_ROOT_DIR containing the repo. Defaults to '${default_repo}' if not set.
-  --verbose-opts                        Comma separated list of options to enable verbose output for specific steps.
-                                        ex: clean,nuke,install,build,db-up,migrations,unit-tests,integration-tests"
+  --repo <repo_name>                    The directory under \$WORKSPACE_ROOT_DIR containing the repo. Defaults to '${default_repo}' if not set."
         fi
 
         local default_repo_str=""
@@ -63,17 +60,22 @@ Extra options for repoman:
         print "Usage: ${calling_name} [options]
 
 Options:
+
+  -h, --help               Show this help message
+
+# Tasks
   --git-clean              Clean untracked/ignored files from repo
   -c, --clean              Basic clean of the workspace
   -n, --nuke               clean:nuke, cleanup lots more of the environment
   -i, --install            Install dependencies
   -b, --build              Build
-  -m, --migration          Run migrations & Update zapatos schema
+  -m, --migrations          Run migrations & Update zapatos schema
   -g, --generate-schema    Generate DB Schema
-  -u, --unit-test          Run unit tests
-  -I, --integration-test   Run integration tests
-  -t, --test               Run all tests
-  -h, --help               Show this help message
+  -u, --unit-tests         Run unit tests
+  -I, --integration-tests  Run integration tests
+  -t, --tests              Run all tests
+
+# Other
   -r <repo>, --repo <repo> The directory under \$WORKSPACE_ROOT_DIR containing the repo. ${default_repo_str}
   -p <path>, --path <path> The path to the repo. Overrides -r/--repo.${extra_args}
 
@@ -84,8 +86,29 @@ Examples:
   ${calling_name} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
     }
 
+    local starting_dir="$(pwd)"
+
+    # emulate `local -F` since it doesn't exist & return to starting directory.
+    TRAPEXIT() {
+        if [[ -v _repoman-usage ]]; then
+            unset -f _repoman-usage;
+        fi
+
+        if [[ -v _run-task ]]; then
+            unset -f _run-task;
+        fi
+
+        if [[ -v _override-tasks ]]; then
+            unset -f _override-tasks;
+        fi
+
+        if [[ "${PWD:A}" != "${starting_dir:A}" ]]; then
+            cd -- "${starting_dir}" &> /dev/null || print-header -e ">>> failed to return to starting directory."
+        fi
+    }
+
     local -i any_set=0
-    local -A flags=(
+    local -A tasks=(
         aws_signon          0
         clean               0
         nuke                0
@@ -93,187 +116,219 @@ Examples:
         install             0
         build               0
         db_up               0
-        migration           0
+        migrations          0
         generate_schema     0
-        test                0
-        unit_test           0
-        integration_test    0
+        tests               0
+        unit_tests          0
+        integration_tests   0
     )
 
+    local -A task_does_task=(
+        nuke                'clean'
+    )
+
+    local -A icons=(
+        git_clean         '🧹'
+        clean             '🧹'
+        nuke              '🧹'
+        install           '📦'
+        build             '🛠️'
+        db_up             '💾'
+        migrations        '💾'
+        generate_schema   '💾'
+        unit_tests        '🧪'
+        integration_tests '🧪'
+    )
+
+    local -A task_commands=(
+        git_clean         'git clean -fdx'
+    )
+
+    if command -v aws &> /dev/null; then
+        task_commands[aws_signon]='aws-signon dev'
+    fi
+
+    local -A task_verbose_args=()
+    local -A task_working_dirs=()
+
     local -A opts=(
-        path                ''
-        repo                "${default_repo}"
         help                0
         verbose             0
+        dump_commands       0
 
-        clean_cmd               ''
-        nuke_cmd                ''
-        install_cmd             ''
-        build_cmd               ''
-        db_up_cmd               ''
-        migrations_cmd          ''
-        generate_schema_cmd     ''
-        unit_tests_cmd          ''
-        integration_tests_cmd   ''
+        path              ''
+        repo              "${default_repo}"
 
-        clean_verbose             ''
-        nuke_verbose              ''
-        install_verbose           ''
-        build_verbose             ''
-        db_up_verbose             ''
-        migrations_verbose        ''
-        generate_schema_verbose   ''
-        unit_tests_verbose        ''
-        integration_tests_verbose ''
-
-        migrations_subdir       ''
-        db_container_name       ''
-
-        db_up_does_migration  0
-        db_up_does_schema     0
-        migration_does_schema 0
+        db_container_name ''
     )
 
     while (( $# )); do
         case "$1" in
-            --help) ;& # fallthrough
-            --verbose)
-                opts[${${1#--}//-/_}]=1
-                ;;
-                ;;
-            --calling-name)
-                if (( $# < 2 )); then
-                    print-header -e "missing argument for $1"
-                    _repoman-usage
+        --help) ;& # fallthrough
+        --verbose) ;& # fallthrough
+        --dump-commands)
+            opts[${${1#--}//-/_}]=1
+            ;;
+        --calling-name)
+            if (( $# < 2 )); then
+                print-header -e "missing argument for $1"
+                _repoman-usage
+                return 1
+            fi
+
+            calling_name="$2"
+            shift
+            ;;
+        --repo|-r) ;& # fallthrough
+        --path|-p) ;& # fallthrough
+        --db-container-name) ;& # fallthrough
+        --*-cmd) ;& # fallthrough
+        --*-working-dir) ;& # fallthrough
+        --*-verbose-arg)
+            if (( $# < 2 )); then
+                print-header -e "missing argument for $1"
+                _repoman-usage
+                return 1
+            fi
+
+            # Canonicalize the argument
+            [[ $1 == '-p' ]] && argv[1]='--path'
+            [[ $1 == '-r' ]] && argv[1]='--repo'
+
+            local key="${${1#--}//-/_}"
+
+            if [[ $key == *_verbose_arg ]] && [[ -v tasks[${key/%_verbose_arg/}] ]]; then
+                key="${key/%_verbose_arg/}"
+                if [[ -v task_verbose_args[$key] ]]; then
+                    print-header -e "Option '$1' is already set to '${task_verbose_args[$key]}'."
                     return 1
                 fi
 
-                calling_name="$2"
-                shift
-                ;;
-            --verbose-opts)
-                if (( $# < 2 )); then
-                    print-header -e "missing argument for $1"
-                    _repoman-usage
+                task_verbose_args[$key]="$2"
+            elif [[ $key == *_cmd ]] && [[ -v tasks[${key%_cmd}] ]]; then
+                key="${key%_cmd}"
+                if [[ -v task_commands[$key] ]]; then
+                    print-header -e "Option '$1' is already set to '${task_commands[$key]}'."
                     return 1
                 fi
 
-                local piece
-                for piece in ${(s:,:)2}; do
-                    local key="${piece//-/_}_verbose"
-
-                    if [[ ! ${+opts[$key]} ]]; then
-                        print-header -e "Unknown verbose option: '$key'"
-                        _repoman-usage -v
-                        return 1
-                    fi
-
-                    opts[$key]=' --verbose'
-                done
-
-                shift
-                ;;
-            --repo|-r) ;& # fallthrough
-            --path|-p)
-                # Normalize to canonical flag
-                [[ $1 == '-p' ]] && argv[1]='--path'
-                [[ $1 == '-r' ]] && argv[1]='--repo'
-                ;& # fallthrough
-            --migrations-subdir) ;& # fallthrough
-            --db-container-name) ;& # fallthrough
-            --*-cmd)
-                if (( $# < 2 )); then
-                    print-header -e "missing argument for $1"
-                    _repoman-usage
+                task_commands[$key]="$2"
+            elif [[ $key == *_working_dir ]] && [[ -v tasks[${key%_working_dir}] ]]; then
+                key="${key%_working_dir}"
+                if [[ -v task_working_dirs[$key] ]]; then
+                    print-header -e "Option '$1' is already set to '${task_working_dirs[$key]}'."
                     return 1
                 fi
 
-                local key="${1#--}"
-                key="${key//-/_}"
-
-                # So we don't have to re-enumerate all of the --*-cmd options
-                # we wildcard it in the case statement check and validate that
-                # the key exists in the opts array.
-                if [[ "${key}" == *_cmd && ! -v opts[${key}] ]]; then
-                    print-header -e "Unknown option: '$1'"
-                    _repoman-usage -v
-                    return 1
-                fi
-
-                if [[ -v opts[${key}] && -n "${opts[${key}]}" ]]; then
+                task_working_dirs[$key]="$2"
+            elif [[ -v opts[$key] ]]; then
+                if [[ -n "${opts[$key]}" ]]; then
                     print-header -e "Option '$1' is already set to '${opts[$key]}'."
                     return 1
                 fi
 
                 opts[$key]="$2"
-                shift
-                ;;
-            --*)
+            else
+                print-header -e "Unknown option: '$1'"
+                _repoman-usage -v
+                return 1
+            fi
+
+            unset key
+
+            shift
+            ;;
+        --*)
+            if [[ "$1" == --*-does-* ]]; then
+                local pattern="${1#--}"
+                local task1="${${pattern%%-does-*}//-/_}"   # extract first part
+                local task2="${${pattern#*-does-}//-/_}"    # extract second part
+
+                if [[ ! -v tasks[$task1] ]] && [[ ! -v tasks[$task2] ]]; then
+                    print-header -e "unknown option '$1'"
+                    print "${_usage}"
+                    return 1
+                fi
+
+                if [[ ! -v task_does_task[$task1] ]]; then
+                    task_does_task[$task1]="$task2"
+                else
+                    task_does_task[$task1]+=";$task2"
+                fi
+
+                unset pattern task1 task2
+            else
                 local key="${${1#--}//-/_}"
-                if [[ -v "flags[$key]" ]]; then
-                    flags[$key]=1
+                if [[ -v "tasks[$key]" ]]; then
+                    tasks[$key]=1
+                    any_set=1
+                elif [[ -v "tasks[${key/%_verbose/}]" ]]; then
+                    key="${key/%_verbose/}"
+                    if [[ -v task_verbose_args[$key] ]]; then
+                        print-header -e "Option '$1' is already set to '${task_verbose_args[$key]}'."
+                        return 1
+                    fi
+
+                    tasks[$key]='--verbose'
                     any_set=1
                 else
                     print-header -e "Unknown option: '$1'"
                     _repoman-usage
                     return 1
                 fi
-                ;;
-            -*)
-                local arg_list=("${(@s::)1#-}")
 
-                # Process by popping front each time
-                while (( ${#arg_list} )); do
-                    local arg=${arg_list[1]}
-                    # Pop the front of the list
-                    arg_list=("${arg_list[@]:1}")
+                unset key
+            fi
+            ;;
+        -*)
+            local arg_list=( "${(@s::)1#-}" )
 
-                    case "${arg}" in
-                        b) opts[build]=1 ;;
-                        c) opts[clean]=1 ;;
-                        d) opts[db_up]=1 ;;
-                        g) opts[generate_schema]=1 ;;
-                        h) opts[help]=1 ;;
-                        i) opts[install]=1 ;;
-                        I) opts[integration_test]=1 ;;
-                        m) opts[migration]=1 ;;
-                        n) opts[nuke]=1 ;;
-                        t) opts[test]=1;;
-                        u) opts[unit_test]=1 ;;
-                        v) opts[verbose]=1 ;;
-                        p|r)
-                            if (( ${#arg_list} )); then
-                                print-header -e "If '-${arg}' is used in combined short form it must be the last argument."
-                                print "  ex) '-c -r reponame' and '-cr reponame' are equivelant, but '-rc reponame' is invalid."
-                                _repoman-usage
-                                return 1
-                            fi
+            # Process by popping front each time
+            while (( ${#arg_list} )); do
+                local arg=${arg_list[1]}
+                # Pop the front of the list
+                arg_list=("${arg_list[@]:1}")
 
-                            if (( $# < 2 )); then
-                                print-header -e "missing argument for '-${arg}'"
-                                _repoman-usage
-                                return 1
-                            fi
-
-                            local flag_map=( p path r repo )
-                            opts[${flag_name}]=${flag_map[$arg]}
-
-                            shift
-                            ;;
-                        *)
-                            print-header -e "Unknown option: '-${arg}'"
+                case "${arg}" in
+                    b) any_set=1; tasks[build]=1 ;;
+                    c) any_set=1; tasks[clean]=1 ;;
+                    d) any_set=1; tasks[db_up]=1 ;;
+                    g) any_set=1; tasks[generate_schema]=1 ;;
+                    i) any_set=1; tasks[install]=1 ;;
+                    I) any_set=1; tasks[integration_tests]=1 ;;
+                    m) any_set=1; tasks[migrations]=1 ;;
+                    n) any_set=1; tasks[nuke]=1 ;;
+                    t) any_set=1; tasks[tests]=1 ;;
+                    u) any_set=1; tasks[unit_tests]=1 ;;
+                    h) opts[help]=1 ;;
+                    v) opts[verbose]=1 ;;
+                    p|r)
+                        if (( ${#arg_list} )); then
+                            print-header -e "If '-${arg}' is used in combined short form it must be the last argument."
+                            print "  ex) '-c -r reponame' and '-cr reponame' are equivelant, but '-rc reponame' is invalid."
                             _repoman-usage
                             return 1
-                            ;;
-                    esac
+                        fi
 
-                    any_set=1
-                done
-                ;;
-            *)
-                print-header -e "Unexpected argument: '$1'"
-                _repoman-usage
-                return 1
+                        if (( $# < 2 )); then
+                            print-header -e "missing argument for '-${arg}'"
+                            _repoman-usage
+                            return 1
+                        fi
+
+                        local flag_map=( p path r repo )
+                        opts[${flag_name}]=${flag_map[$arg]}
+
+                        shift
+                        ;;
+                    *)
+                        print-header -e "Unknown option: '-${arg}'"
+                        _repoman-usage
+                        return 1
+                        ;;
+                esac
+            done
+            ;;
         esac
         shift
     done
@@ -287,14 +342,31 @@ Examples:
         return 0
     fi
 
-    # If verbose is not set, remove all verbose options
-    if (( ! opts[verbose] )); then
-        for key in ${(M)${(k)opts}#*_verbose}; do
-            opts[$key]=''
+    if (( opts[dump_commands] )); then
+        local max_key_length=0 key
+        for key in "${(@k)task_commands}"; do
+            (( ${#key} > max_key_length )) && max_key_length=${#key}
         done
+
+        # Print the key-value pairs aligned
+        for key in "${(@k)task_commands}"; do
+            printf "%-${max_key_length}s → %s\n" "$key" "${task_commands[$key]}"
+        done
+
+        return 0
     fi
 
-    repo_dir=
+    # If verbose is set, add the '--verbose' to each commands argument list
+    if (( opts[verbose] )); then
+        local key
+        for key in ${(k)task_commands}; do
+            task_commands[$key]+=" ${task_verbose_args:-}"
+        done
+        unset key
+    fi
+    unset task_verbose_args
+
+    local repo_dir
     if [[ -n "${opts[path]}" ]]; then
         repo_dir="${opts[path]}"
     else
@@ -313,31 +385,65 @@ Examples:
         return 1
     fi
 
+    local key
+    for key in ${(k)task_working_dirs}; do
+        val="${${repo_dir}/${task_working_dirs[$key]}:A}"
+        if [[ -z $val || ${val} == "${starting_dir:A}" ]]; then
+            unset "task_working_dirs[$key]"
+        elif [[ -d "$val" ]]; then
+            task_working_dirs[$key]="$val"
+        else
+            print-header -e "'$val' from --${key//_/-}-working-dir not a directory."
+            return 1
+        fi
+    done
+    unset key
+
+    # Canonicalize the repo dir
+    repo_dir="$repo_dir:A"
+
     if (( ! any_set )); then
         print-header -e "You must specify at least one option"
         _repoman-usage
         return 1
     fi
 
-    if (( opts[migration] )); then
-        opts[aws_signon]=1
+    if (( tasks[tests] )); then
+        # When testing the value below we differentiate tests that were
+        # specifically asked for being set to 1 & and the user asking to run
+        # availabe tests set to 2. So 'repoman -ut ...' will error if unit tests
+        # don't have commands available, but if integration tests are missing
+        # a command it will only print a warning.
+        if (( ! tasks[unit_tests] )); then
+            tasks[unit_tests]=2;
+        fi
+
+        if (( ! tasks[integration_tests] )); then
+            tasks[integration_tests]=2
+        fi
     fi
 
-    if (( opts[test] )); then
-        opts[unit_test]=1;
-        opts[integration_test]=1
-    fi
-
-    function override-flags() {
+    function _override-tasks() {
         local flag_list=()
 
+        local quiet=0
+        if [[ $1 == '-q' ]]; then
+            quiet=1
+            shift
+        fi
+
         if (( $# < 2 )); then
-            print-header -e "override-flags requires at least two arguments"
+            print-header -e "_override-tasks requires at least two arguments"
+            print "Usage: _override-tasks <dependant-flag> [...<dependent-flag>] <dependency>
+
+If all of the flags in the <dependent-flag> list are present then <dependency> will be forced on.
+
+This is useful for handling cases like '--clean --build' but forgetting to install."
             return 1
         fi
 
         while (( $# > 1 )); do
-            if (( ! opts[$1] )); then
+            if (( ! tasks[$1] )); then
                 return
             fi
 
@@ -345,193 +451,165 @@ Examples:
             shift
         done
 
-        if (( ! opts[$1] )); then
+        if (( ! tasks[$1] )); then
             local name="${1//_/-}"
-            print-header -w "[override] Adding ${name}: ${(j: + :)${(@)flag_list}} requires ${name}"
-            opts[$1]=1
+            if (( ! quiet )); then
+                print-header -w "[override] Adding ${name}: ${(j: + :)${(@)flag_list}} requires ${name}"
+            fi
+
+            if (( ! tasks[$1] )); then
+                tasks[$1]=2
+            fi
         fi
     }
 
     # Logic overrides
-    override-flags clean build install
-    override-flags clean unit_test install
-    override-flags clean unit_test build
-    override-flags nuke db_up install
-    override-flags nuke migration install
-    override-flags nuke migration db_up
+    _override-tasks -q migrations aws_signon
+    _override-tasks clean build install
+    _override-tasks clean unit_tests install
+    _override-tasks clean unit_tests build
+    _override-tasks nuke db_up install
+    _override-tasks nuke migrations install
+    _override-tasks nuke migrations db_up
+    _override-tasks nuke generate_schema db_up
+    _override-tasks nuke generate_schema migrations
 
-    # emulate `local -F` since it doesn't exist
-    unset -f override-flags
+    local finished_tasks=()
+    run_task() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return
+        setopt typeset_to_unset
 
-    cd -- "${repo_dir}" > /dev/null
+        local task header
+        local quiet=0
+        local _usage="Usage: run_task <task> [<header>] [-q]"
+
+        while (( $# )); do
+            case "$1" in
+                -q|--quiet)
+                    quiet=1
+                    ;;
+                *)
+                    if [[ ! -v task ]]; then
+                        task="$1"
+                    elif [[ ! -v header ]]; then
+                        header="$1"
+                    else
+                        print-header -e "run_task: Unknown argument '$1'"
+                        return 1
+                    fi
+                    ;;
+            esac
+            shift
+        done
+
+        if [[ ! -v task ]]; then
+            print-header "run_task requires a task. Usage: run_task <task> [<header>][-q]"
+            return 1
+        fi
+
+        local icon=''
+        if [[ -v icons[$task] ]]; then
+            icon="${icons[$task]}"
+        fi
+
+        if [[ ! -v header ]]; then
+            header="${(C)task//_/ }"
+        fi
+        # uppercase db if it's a seperate word.
+        header=${$(print "$header" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig')}
+
+        if [[ ! -v tasks[$task] ]]; then
+            print-header -e "${header}: Invalid task: ${task}"
+            return 1
+        elif (( ! tasks[$task] )); then
+            return 0
+        elif [[ ! -v task_commands[$task] ]]; then
+            if (( tasks[$task] == 2 )); then
+                print-header cyan --icon "${icon}" "${header}: Command not found, skipping"
+                return 0
+            else
+                print-header -e --icon "${icon}" "${header}: Command not found"
+                return 1
+            fi
+        elif [[ -z "$task_commands[$task]" ]]; then
+            print-header -e --icon "${icon}" "${header}: Command not found"
+            return 1
+        fi
+
+        local working_dir
+        if [[ -v task_working_dirs[$task] ]]; then
+            working_dir="${task_working_dirs[$task]:A}"
+        else
+            working_dir="${repo_dir:A}"
+        fi
+
+        if (( ! quiet )); then
+            print-header green --icon "${icon}" "${header}: Command: ${task_commands[$task]}"
+        fi
+
+        if [[ "${PWD:A}" != "${working_dir}" ]]; then
+            cd ${(q)working_dir} || {
+                print-header -e --icon "${icon}" "${header}: Failed to change directory to '${working_dir}'"
+                return 1
+            }
+        fi
+
+        eval ${task_commands[$task]} || {
+            print-header -e --icon "${icon}" "${header} failed"
+            return 1
+        }
+
+        if [[ -v task_does_task[$task] ]]; then
+            for implied_task in ${(s:;:)task_does_task[$task]}; do
+                if (( ${finished_tasks[(I)$implied_task]} )); then
+                    print-header "Invalid case: --${task}-does-${implied_task}, '${implied_task}' already finished."
+                    return
+                fi
+
+                if (( tasks[$implied_task] )); then
+                    local implied_header="${(C)implied_task//_/ }"
+                    implied_header=${$(print "$implied_header" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig')}
+                    print-header cyan "${implied_header}: Skipped because ${header} already did it."
+
+                    tasks[$implied_task]=0
+                fi
+            done
+        fi
+
+        finished_tasks+=("$task")
+    }
 
     # Execute steps
-    if (( opts[git_clean] )); then
-        print-header green "🧹 git clean"
-        git clean -fdx || {
-            print-header -e "Git clean failed: git clean -fdx"
-            return 1
-        }
-    fi
+    run_task git_clean
+    run_task nuke
+    run_task clean
+    run_task install
+    run_task -q aws_signon
 
-    if (( opts[nuke] )); then
-        if [[ -z "${opts[nuke_cmd]}" ]]; then
-            print-header -e "nuke-cmd is not set."
-        fi
+    if (( tasks[db_up] )); then
+        if [[ -n "${opts[db_container_name]}" ]]; then
+            db_container_id=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
+            if [[ -n $db_container_id ]]; then
+                print "DB Docker container is already running"
 
-        print-header green "🧹 nuke: ${opts[nuke_cmd]}${opts[nuke_verbose]}"
-        eval ${opts[nuke_cmd]}${opts[nuke_verbose]} || {
-            print-header -e "Clean nuke failed: ${opts[nuke_cmd]}${opts[nuke_verbose]}"
-            return 1
-        }
-
-    # Nuke implies a more thorough clean so we can skip the clean step if nuke ran.
-    elif (( opts[clean] )); then
-        if [[ -z "${opts[clean_cmd]}" ]]; then
-            print-header -e "clean-cmd is not set."
-            return 1
-        fi
-
-        print-header green "🧹 clean: ${opts[clean_cmd]}${opts[clean_verbose]}"
-        eval ${opts[clean_cmd]}${opts[clean_verbose]} || {
-            print-header -e "Clean failed: ${opts[clean_cmd]}${opts[clean_verbose]}"
-            return 1
-        }
-    fi
-
-    if (( opts[install] )); then
-        if [[ -z "${opts[install_cmd]}" ]]; then
-            print-header -e "install-cmd is not set."
-        fi
-
-        print-header green "install: ${opts[install_cmd]}${opts[install_verbose]}"
-        eval ${opts[install_cmd]}${opts[install_verbose]} || {
-            print-header -e "Install failed: ${opts[install_cmd]}${opts[install_verbose]}"
-            return 1
-        }
-    fi
-
-    if (( opts[aws_signon] )); then
-        aws-signon dev || {
-            print-header -e "aws-signon failed"
-            return 1
-        }
-    fi
-
-    if (( opts[db_up] )); then
-        if [[ -z "${opts[db_up_cmd]}" ]]; then
-            print-header -e "db-up-cmd is not set."
-            return 1
-        elif [[ -z "${opts[db_container_name]}" ]]; then
-            print-header -e "db-container-name is not set."
-            return 1
-        fi
-
-        print-header green "Starting DB Docker container: '${opts[db_container_name]}'${opts[db_up_verbose]}"
-
-        DB_CONTAINER_ID=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
-        if [[ -z $DB_CONTAINER_ID ]]; then
-            cd -- "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-            print-header green "Starting DB command: ${opts[db_up_cmd]}${opts[db_up_verbose]}"
-            eval ${opts[db_up_cmd]}${opts[db_up_verbose]} || {
-                print-header -e "Starting db failed: ${opts[db_up_cmd]}${opts[db_up_verbose]}"
-                return 1
-            }
-            cd -- "${repo_dir}" > /dev/null
-        else
-            print "DB Docker container is already running"
-        fi
-    fi
-
-    if (( opts[migration] )); then
-        # Skip if we've already run the migration
-        if ! (( opts[db_up] && opts[db_up_does_migration] )); then
-            if [[ -z "${opts[migrations_cmd]}" ]]; then
-                print-header -e "migrations-cmd is not set."
-                return 1
-            fi
-
-            print-header green "run migration: ${opts[migrations_cmd]}${opts[migrations_verbose]}"
-            cd -- "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-            eval ${opts[migrations_cmd]}${opts[migrations_verbose]} || {
-                print-header -e "Migration failed: ${opts[migrations_cmd]}${opts[migrations_verbose]}"
-                return 1
-            }
-            cd -- "${repo_dir}" > /dev/null
-        fi
-    fi
-
-    if (( opts[generate_schema] )); then
-        # Skip if we've already generated the schema
-        if ! (( opts[db_up] && opts[db_up_does_schema] )) || (( opts[migration] && opts[migration_does_schema] )); then
-            if [[ -z "${opts[generate_schema_cmd]}" ]]; then
-                print-header -e "generate-schema-cmd is not set."
-                return 1
-            fi
-
-            print-header green "generate schema: ${opts[generate_schema_cmd]}${opts[generate_schema_verbose]}"
-            cd -- "${repo_dir}/${opts[migrations_subdir]}" > /dev/null
-            eval ${opts[generate_schema_cmd]}${opts[generate_schema_verbose]} || {
-                print-header -e "Migration failed: ${opts[generate_schema_cmd]}${opts[generate_schema_verbose]}"
-                return 1
-            }
-            cd -- "${repo_dir}" > /dev/null
-        fi
-    fi
-
-    if (( opts[build] )); then
-        if [[ -z "${opts[build_cmd]}" ]]; then
-            print-header -e "build-cmd is not set."
-        fi
-
-        print-header green "build: ${opts[build_cmd]}${opts[build_verbose]}"
-        eval ${opts[build_cmd]}${opts[build_verbose]} || {
-            print-header -e "Build failed: ${opts[build_cmd]}${opts[build_verbose]}"
-            return 1
-        }
-    fi
-
-    if (( opts[unit_test] )); then
-        if [[ -z "${opts[unit_tests_cmd]}" ]]; then
-            # passing in -t/--test sets the  flag, but shouldn't
-            # fail if unit-test-cmd is not set. If `test` is not set that
-            # means the user specifically requested unit tests and we should
-            # treat it as an error.
-            if (( ! opts[test] )); then
-                print-header -e "unit-test-cmd is not set."
-                return 1
-            else
-                print-header -w "unit-test-cmd missing, skipping."
+                # Since we're skipping the db-up we don't want to
+                # skip migrations/generate-schema if db_up_does_migration/db_up_does_schema
+                # are set
+                tasks[db_up]=0
             fi
         else
-            print-header green "unit tests: ${opts[unit_tests_cmd]}${opts[unit_tests_verbose]}"
-            eval ${opts[unit_tests_cmd]}${opts[unit_tests_verbose]} || {
-                print-header -e "Tests failed: ${opts[unit_tests_cmd]}${opts[unit_tests_verbose]}"
-                return 1
-            }
+            print "db-container-name is not set, still running db up"
         fi
     fi
 
-    if (( opts[integration_test] )); then
-        if [[ -z "${opts[integration_tests_cmd]}" ]]; then
-            # passing in -t/--test sets the integration-test flag, but shouldn't
-            # fail if integration-test-cmd is not set. If `test` is not set that
-            # means the user specifically requested integration tests and we should
-            # treat it as an error.
-            if (( ! opts[test] )); then
-                print-header -e "integration-tests-cmd is not set."
-                return 1
-            else
-                print-header -w "integration-tests-cmd missing, skipping."
-            fi
-        else
-            print-header green "integration tests: ${opts[integration_tests_cmd]}${opts[integration_tests_verbose]}"
-            eval ${opts[integration_tests_cmd]}${opts[integration_tests_verbose]} || {
-                print-header -e "Tests failed: ${opts[integration_tests_cmd]}${opts[integration_tests_verbose]}"
-                return 1
-            }
-        fi
-    fi
+    run_task db_up
+    run_task migrations
+    run_task generate_schema
+    run_task build
+    run_task unit_tests
+    run_task integration_tests
 
     print-header green "All steps completed successfully"
     return 0
