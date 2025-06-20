@@ -125,6 +125,11 @@ Options:
         fi
     done
 
+    local reset_color=${reset_color}
+    if [[ -z $color ]]; then
+        reset_color=''
+    fi
+
     local header_length=$(( msg_length > 80 ? msg_length: 80 ))
     local indent_space="${(l:$indent:: :):-}"
     local header="${(l:$header_length::=:):-}"

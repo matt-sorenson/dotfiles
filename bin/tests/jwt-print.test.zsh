@@ -7,7 +7,7 @@ function jwt-print-happycase() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ.GSMSgnCTkgkE0gufLXxWInLlgH1NYr0wfgSLGmtRk4k"
     local result="$(jwt-print $jwt)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
@@ -31,7 +31,7 @@ function jwt-print-no-header() {
     local jwt=".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     local result="$(jwt-print $jwt)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
@@ -55,7 +55,7 @@ function jwt-print-no-payload() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     local result="$(jwt-print $jwt)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
@@ -79,7 +79,7 @@ function jwt-print-no-issued-at() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6MTUxNjI0MDAwMH0.XNgaJiftieRy3GWKcIUjH1dAZpNrKNCDMVDxres-mCM"
     local result="$(jwt-print $jwt)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
@@ -103,7 +103,7 @@ function jwt-print-no-expire-at() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     local result="$(jwt-print $jwt)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
@@ -127,7 +127,7 @@ function jwt-print-no-sig() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ."
     local result="$(jwt-print $jwt)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 

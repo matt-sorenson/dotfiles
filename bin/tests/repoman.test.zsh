@@ -39,7 +39,7 @@ function repoman-happycase() {
         --integration-tests-cmd 'print "integration $(pwd)"-tests' \
         -ncibdmguI)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/repoman/${_test}"
 
@@ -84,7 +84,7 @@ function repoman-task-fails() {
         --integration-tests-cmd 'print "integration $(pwd)"-tests' \
         -ncibdmguI)"
 
-    sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/repoman/${_test}"
 
