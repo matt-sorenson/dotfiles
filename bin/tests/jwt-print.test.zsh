@@ -9,13 +9,13 @@ function jwt-print-happycase() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -33,13 +33,13 @@ function jwt-print-no-header() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -57,13 +57,13 @@ function jwt-print-no-payload() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -81,13 +81,13 @@ function jwt-print-no-issued-at() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -105,13 +105,13 @@ function jwt-print-no-expire-at() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -129,13 +129,13 @@ function jwt-print-no-sig() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -147,7 +147,7 @@ function jwt-print-no-sig() {
 }
 
 function main() {
-    mkdir -p "${DOTFILES}/bin/tests/failed-results/"
+    mkdir -p "${DOTFILES}/bin/tests/failed-results/jwt-print"
 
     local out=0
 
@@ -157,6 +157,10 @@ function main() {
     jwt-print-no-issued-at || (( out+=1 ))
     jwt-print-no-expire-at || (( out+=1 ))
     jwt-print-no-sig || (( out+=1 ))
+
+    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/jwt-print")" ]; then
+        rmdir "${DOTFILES}/bin/tests/failed-results/jwt-print"
+    fi
 
     if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/")" ]; then
         rmdir "${DOTFILES}/bin/tests/failed-results/"

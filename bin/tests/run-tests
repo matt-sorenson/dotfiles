@@ -21,6 +21,12 @@ main() {
         print-header green "All Tests Passed!"
     fi
 
+    if [[ -d "${DOTFILES}/bin/tests/failed-results/" ]]; then
+        if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/")" ]; then
+            rmdir "${DOTFILES}/bin/tests/failed-results/"
+        fi
+    fi
+
     return $out
 }
 

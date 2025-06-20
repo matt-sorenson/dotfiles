@@ -41,13 +41,13 @@ function repoman-happycase() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/repoman/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/repoman/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -86,13 +86,13 @@ function repoman-task-fails() {
 
     sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/repoman/${_test}"
 
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
         print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/repoman/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
         diff "${expected_filename}" "${failed_filename}"
@@ -113,7 +113,7 @@ function main() {
     mkdir -p "${root}/${generate_schema_dir}"
     mkdir -p "${root}/${unit_tests_dir}"
     mkdir -p "${root}/${integration_tests_dir}"
-    mkdir -p "${DOTFILES}/bin/tests/failed-results/"
+    mkdir -p "${DOTFILES}/bin/tests/failed-results/repoman/"
 
     if [[ ! -v DOTFILES ]] || [[ -z "${DOTFILES}" ]]; then
         print-header -e "DOTFILES must be defined."
@@ -126,6 +126,10 @@ function main() {
     repoman-task-fails || (( out+=1 ))
 
     rm -rf ${root}
+
+    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/repoman/")" ]; then
+        rmdir "${DOTFILES}/bin/tests/failed-results/repoman/"
+    fi
 
     if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/")" ]; then
         rmdir "${DOTFILES}/bin/tests/failed-results/"
