@@ -8,9 +8,10 @@ _arguments -C \
     '(-b --build)'{-b,--build}'[Build (tsc)]' \
     '(-d --db-up)'{-d,--db-up}'[Run Spin up the DB]' \
     '(-m --migration)'{-m,--migration}'[Run migrations]' \
-    '(-u --unit-test)'{-u,--unit-test}'[Run unit tests]' \
-    '--integration-test[Run integration tests]' \
-    '(-t --test)'{-t,--test}'[Run all tests]' \
+    '(-g --generate-schema)'{-g,--generate-schema}'[Generate Schema Files]' \
+    '(-u --unit-tests)'{-u,--unit-tests}'[Run unit tests]' \
+    '(-I --integration-tests)'{-I,--integration-tests}'[Run integration tests]' \
+    '(-t --tests)'{-t,--tests}'[Run all tests]' \
     '(-h --help)'{-h,--help}'[Show help message]'\
     '(-r --repo -p --path)'{-r,--repo}'[The directory under $WORKSPACE_ROOT_DIR containing the repo.]:repo:->repo' \
     '(-r --repo -p --path)'{-p,--path}'[The path to the repo. Overrides -r/--repo]:path:->path' \
