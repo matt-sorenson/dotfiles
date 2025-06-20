@@ -35,7 +35,7 @@ Options:
                 return 1
                 ;;
             *)
-                if [[ -n "${jwt}" ]]; then
+                if [[ -v jwt ]]; then
                     print-header -e "Too many arguments. Expected a single JWT or nothing to read from clipboard."
                     print "${_usage}"
                     return 1
@@ -53,6 +53,7 @@ Options:
     fi
 
     if [[ ! -v jwt ]]; then
+        echo HERE
         if ! command -v pbpaste > /dev/null; then
             print-header -e "pbpaste not found. Must pass a JWT as an argument."
             print "${_usage}"
@@ -121,7 +122,6 @@ Options:
         expire_at+="Expire at: ${expire_at}\n"
     else
         print-header -w 'JWT does not have an expiration time.'
-        has_errors=1
     fi
 
     if (( ! has_errors )); then

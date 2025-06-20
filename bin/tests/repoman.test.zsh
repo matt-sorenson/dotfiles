@@ -46,7 +46,7 @@ function repoman-happycase() {
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED repoman-task-fails"
+        print-header -e "FAILED ${_test}"
         local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
@@ -91,7 +91,7 @@ function repoman-task-fails() {
     expected=$(< "${expected_filename}")
 
     if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED repoman-task-fails"
+        print-header -e "FAILED ${_test}"
         local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
         print -n "${sanitized}" >! "${failed_filename}"
 
@@ -113,6 +113,7 @@ function main() {
     mkdir -p "${root}/${generate_schema_dir}"
     mkdir -p "${root}/${unit_tests_dir}"
     mkdir -p "${root}/${integration_tests_dir}"
+    mkdir -p "${DOTFILES}/bin/tests/failed-results/"
 
     if [[ ! -v DOTFILES ]] || [[ -z "${DOTFILES}" ]]; then
         print-header -e "DOTFILES must be defined."
@@ -125,6 +126,10 @@ function main() {
     repoman-task-fails || (( out+=1 ))
 
     rm -rf ${root}
+
+    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/")" ]; then
+        rmdir "${DOTFILES}/bin/tests/failed-results/"
+    fi
 
     return $out
 }

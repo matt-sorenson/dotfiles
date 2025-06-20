@@ -112,6 +112,7 @@ function main() {
     local app_install_list=(
         fzf
         git
+        jq          # 'like sed for json'
         shellcheck
         zsh
 
