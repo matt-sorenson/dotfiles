@@ -8,14 +8,15 @@ if [[ -r "${DOTFILES}/local/zsh/zshenv.zsh" ]]; then
 fi
 
 source "${DOTFILES}/zsh/path.zsh"
+source "${DOTFILES}/zsh/zshenv.nvm.zsh"
 
 if [[ "${OSTYPE}" == darwin* ]]; then
-    export HOMEBREW_NO_ANALYTICS=1
     export BROWSER='open'
+fi
 
-    if ! command -v brew >/dev/null 2>&1; then
-        eval "$(brew shellenv)"
-    fi
+if command -v brew &> /dev/null; then
+    export HOMEBREW_NO_ANALYTICS=1
+    eval "$(brew shellenv)"
 fi
 
 if command -v emacs &> /dev/null; then
@@ -49,73 +50,7 @@ if [[ -r "${HOME}/.cargo/env" ]]; then
     source "${HOME}/.cargo/env"
 fi
 
-# Lazy load nvm to speed up shell startup time, though the first call to
-# npm/node/nvm/pnpm/npx will be slower.
-if [[ -d "${HOME}/.nvm" ]]; then
-    _lazy_load_nvm() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
 
-        unset -f corepack npm node nvm pnpm npx _lazy_load_nvm
-        export NVM_DIR="${HOME}/.nvm"
-        [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
-    }
-
-    npm() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
-
-        _lazy_load_nvm
-        npm $@
-    }
-
-    npx() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
-
-        _lazy_load_nvm
-        npx $@
-    }
-
-    node() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
-
-        _lazy_load_nvm
-        node $@
-    }
-
-    nvm() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
-
-        _lazy_load_nvm
-        nvm $@
-    }
-
-    corepack() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
-
-        _lazy_load_nvm
-        corepack $@
-    }
-
-    pnpm() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
-
-        _lazy_load_nvm
-        pnpm $@
-    }
-fi
 
 if command -v rbenv > /dev/null ; then
     eval "$(rbenv init -)"
