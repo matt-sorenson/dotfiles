@@ -110,4 +110,9 @@ if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 
     source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
+if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    ZSH_AUTOSUGGEST_STRATEGY=completion
+    source "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
 source "${DOTFILES}/zsh/ender.zsh-theme"

@@ -34,6 +34,18 @@ function main() {
     setopt err_return
     setopt typeset_to_unset
 
+    function safe-cp() {
+        local src="${1}"
+        local dest="${2}"
+
+        if [[ -f "$dest" ]]; then
+            print "${dest} already exists, skipping copy."
+            return
+        fi
+
+        cp ${(q)src} ${(q)dest}
+    }
+
     function safe-set-link() {
         local dest="${1}"
         local src="${2}"
@@ -63,9 +75,9 @@ function main() {
                     return 1
                     ;;
                 *)
-                    if [[ -z "${url}" ]]; then
+                    if [[ ! -v url ]]; then
                         url="$1"
-                    elif [[ -z "${dest}" ]]; then
+                    elif [[ ! -v dest ]]; then
                         dest="$1"
                     else
                         print-header -e "Too many arguments: $1"
@@ -134,12 +146,16 @@ function main() {
 
     local -A plugins=(
         [fzf-tab]="shallow=https://github.com/Aloxaf/fzf-tab"
+        [zsh-autosuggestions]="shallow=https://github.com/zsh-users/zsh-autosuggestions"
         [zsh-syntax-highlighting]="shallow=https://github.com/zsh-users/zsh-syntax-highlighting.git"
     )
 
     export DOTFILES="${DOTFILES:-${HOME}/.dotfiles}"
-    local LOCAL_DOTFILES git_email git_local_email
+    local LOCAL_DOTFILES
+
     local matt_email="matt@mattsorenson.com"
+
+    local -A git_config=()
 
     local -A flags=(
         # macOS
@@ -152,11 +168,11 @@ function main() {
         [do_docker]=1
         [do_doomemacs]=1
 
-        [do_local_template]=0
+        [do_local_template]=1
         [do_work]=0
     )
 
-    local debian_specific_help=''
+    local apt_specific_help=''
     local mac_specific_help=''
     case "${OSTYPE}" in
         darwin*)
@@ -167,7 +183,7 @@ function main() {
         linux*)
             if command -v apt &> /dev/null; then
                 flags[do_apt]=1
-                debian_specific_help="\n  --no-debian-apt    Do not install packages using apt"
+                apt_specific_help="\n  --no-debian-apt    Do not install packages using apt"
             fi
             ;;
         *)
@@ -175,12 +191,16 @@ function main() {
     esac
 
     local _usage="Usage: init.sh [OPTIONS]
-Options:${mac_specific_help}${debian_specific_help}
+Options:${mac_specific_help}${apt_specific_help}
+  --no-local-template                   Disable initializing the local with basic files
   --work, -w                            Set up local/is_work file so hammerspoon & scripts can detect work environment
-  --local-template
   --local-git <url>                     Use the specified git repo for local dotfiles
   --local-ref <ref>                     Use the specified reference for local dotfiles
-  --local-git-email                     Email to  set in the local/gitconfig file
+  --git-local-email                     Email to  set in the local/gitconfig file
+  --git-local-name                      name to  set in the local/gitconfig file
+
+  --git-dotfiles-email                  Email to use in the \${DOTFILES}/.git/config file
+  --git-dotfiles-name                   Name to use in the \${DOTFILES}/.git/config file
 
   --no-brew                             Do not install Homebrew
   --no-hammerspoon                      Do not set up Hammerspoon
@@ -197,11 +217,14 @@ Options:${mac_specific_help}${debian_specific_help}
         Shallow flags the repo to be cloned with --depth 1, which is useful for large repos.
 
   --help, -h                            Show this help message"
-    unset mac_specific_help debian_specific_help
+    unset mac_specific_help apt_specific_help
 
 
     while (( $# )); do
         case "$1" in
+            --no-local-template)
+                flags[do_local_template]=0
+                ;;
             --no-plugin-*)
                 local key="${1#--no-plugin-}"
 
@@ -294,30 +317,54 @@ Options:${mac_specific_help}${debian_specific_help}
                 if (( $# == 0 )); then
                     print-header -e "--local-git-email requires a value"
                     return 1
-                elif [[ -v git_local_email ]]
-                    print-header -e "--local-git-email already set. Existing: ${git_local_email}, New: $1"
+                elif [[ -v git_config[local_email] ]]; then
+                    print-header -e "--local-git-email already set. Existing: ${git_config[local_email]}, New: $1"
                 fi
-                git_local_email="$1"
+                git_config[local_email]="$1"
                 ;;
-            --git-email)
+            --git-local-name)
                 shift
                 if (( $# == 0 )); then
-                    print-header -e "--git-email requires a value"
+                    print-header -e "--git-local-name requires a value"
                     return 1
-                elif [[ -v git_email ]]
-                    print-header -e "--git-email already set. Existing: ${git_email}, New: $1"
+                elif [[ -v git_config[local_name] ]]; then
+                    print-header -e "--git-local-name already set. Existing: ${git_config[local_name]}, New: $1"
                 fi
-                git_email="$1"
+                git_config[local_name]="$1"
                 ;;
-            --git-email-matt)
-                if [[ -v git_email ]]
-                    print-header -e "--git-email already set. Existing: ${git_email}, New: ${matt_email}"
+            --git-dotfiles-email)
+                if (( $# > 1 )); then
+                    print-header -e "$1 requires a value"
+                    return 1
+                elif [[ -v git_config[dir_dotfiles_email] ]]; then
+                    print-header -e "$1 already set. Existing: ${git_config[dir_dotfiles_email]}, New: $2"
+                fi
+                shift
+                git_config[dir_dotfiles_email]="$1"
+                ;;
+            --git-dotfiles-matt)
+                if [[ -v git_config[dir_dotfiles_email] ]]; then
+                    print-header -e "--git-dotfiles-email already set. Existing: ${git_config[dir_dotfiles_email]}, New: ${matt_email}"
+                elif [[ -v git_config[dir_dotfiles_name] ]]; then
+                    print-header -e "--git-dotfiles-name already set. Existing: ${git_config[dir_dotfiles_name]}, New: ${matt_email}"
                 fi
 
-                git_email="${matt_email}"
+                git_config[dir_dotfiles_email]="${matt_email}"
+                git_config[dir_dotfiles_name]="Matt Sorenson"
+                ;;
+            --git-dotfiles-name)
+                if (( $# > 1 )); then
+                    print-header -e "$1 requires a value"
+                    return 1
+                elif [[ -v git_config[dir_dotfiles_name] ]]; then
+                    print-header -e "$1 already set. Existing: ${git_config[dir_dotfiles_name]}, New: $2"
+                fi
+                shift
+                git_config[dir_dotfiles_name]="$1"
                 ;;
             -w)
                 argv+=('--work')
+                ;;
             *)
                 local key="do_${${1#--}//-/_}"
                 key="${key/%doom/doomemacs}"
@@ -415,21 +462,58 @@ Options:${mac_specific_help}${debian_specific_help}
     print-header green "Setting up misc dotfiles"
     safe-set-link "${HOME}/.gitconfig" "${DOTFILES}/gitconfig"
 
-    if [[ "${DOTFILES}/local" != "${LOCAL_DOTFILES}" ]]; then
-        safe-set-link "${DOTFILES}/local" "${LOCAL_DOTFILES}"
+    if [[ -v LOCAL_DOTFILES ]]; then
+        if [[ "${DOTFILES}/local" != "${LOCAL_DOTFILES}" ]]; then
+            safe-set-link "${DOTFILES}/local" "${LOCAL_DOTFILES}"
+        fi
     fi
 
-    mkdir -p "${DOTFILES}/local/bin"
-    mkdir -p "${DOTFILES}/local/zsh/completions"
+    if (( flags[do_local_template] )); then
+        print-header green "Setting up local based off of template"
+
+        mkdir -p "${DOTFILES}/local/bin"
+        mkdir -p "${DOTFILES}/local/zsh/completions"
+
+        if [[ ! -f "${DOTFILES}/local/zsh/zshenv.zsh" ]]; then
+            print "# export DOT_DEFAULT_REPO=<SETME>" > "${DOTFILES}/local/zsh/zshenv.zsh"
+        fi
+
+        touch "${DOTFILES}/local/zsh/zshrc.zsh"
+        touch "${DOTFILES}/local/gitconfig"
+
+        if (( flags[do_hammerspoon] )); then
+            safe-cp "${DOTFILES}/templates/config-home-assistant.lua" "${DOTFILES}/local/config-home-assistant.lua"
+            safe-cp "${DOTFILES}/templates/pr-teams.lua" "${DOTFILES}/local/pr-teams.lua"
+        fi
+    fi
 
     if (( flags[do_work] )); then
         touch "${DOTFILES}/local/is-work"
     fi
 
-    if [[ -v git_email ]]; then
-        if ! git -C "${DOTFILES}" config --local user.email "${git_email}"; then
+    if [[ -v git_config[dir_dotfiles_email] ]]; then
+        if ! git -C "${DOTFILES}" config --local user.email "${git_config[dir_dotfiles_email]}"; then
             print-header -w "Failed to set git user.email in ${DOTFILES}"
             print "You can change to the directory directly and try \'git config --local user.email \"you@example.com\"\'"
+        fi
+    fi
+    if [[ -v git_config[dir_dotfiles_name] ]]; then
+        if ! git -C "${DOTFILES}" config --local user.name "${git_config[dir_dotfiles_name]}"; then
+            print-header -w "Failed to set git user.name in ${DOTFILES}"
+            print "You can change to the directory directly and try \'git config --local user.name \"First Last\"\'"
+        fi
+    fi
+
+    if [[ -f "${DOTFILES}/local/gitconfig" ]]; then
+        if [[ -v git_config[local_email] ]]; then
+            if ! git config --file "${DOTFILES}/local/gitconfig" user.email "$git_config[local_email]"; then
+                print-header -w "Failed to set user.email in ${DOTFILES}/local/gitconfig"
+            fi
+        fi
+        if [[ -v git_config[local_name] ]]; then
+            if ! git config --file "${DOTFILES}/local/gitconfig" user.name "$git_config[local_name]"; then
+                print-header -w "Failed to set user.name in ${DOTFILES}/local/gitconfig"
+            fi
         fi
     fi
 
@@ -455,6 +539,7 @@ Options:${mac_specific_help}${debian_specific_help}
     export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
     mkdir -p "${WORKSPACE_ROOT_DIR}"
     safe-set-link "${WORKSPACE_ROOT_DIR}/dotfiles" "${DOTFILES}"
+    print "WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR}"
 
     print-header green "Setting up dotfiles complete."
     print "if any of the repos checked out above where already present you may want to run dot-check-for-update to update them."
