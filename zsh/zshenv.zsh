@@ -1,5 +1,6 @@
 autoload -Uz colors && colors
 
+export LANG=en_US.UTF-8
 export DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
 
@@ -29,12 +30,11 @@ fi
 
 export PAGER='less -FgMRXi'
 
-export LANG=en_US.UTF-8
-
-# Set the Less input preprocessor.
-# Try both `lesspipe` and `lesspipe.sh` as either might exist on a system.
-if (( $#commands[(i)lesspipe(|.sh)] )); then
-    export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
+# lesspipe can read certain binary files and show useful data instead of gibberish
+if command -v lesspipe.sh; then
+    eval "$(lesspipe.sh)"
+elif command -v lesspipe; then
+    eval "$(lesspipe)"
 fi
 
 if [[ -z "${TMPDIR}" ]]; then
@@ -49,8 +49,6 @@ TMPPREFIX="${TMPDIR%/}/zsh"
 if [[ -r "${HOME}/.cargo/env" ]]; then
     source "${HOME}/.cargo/env"
 fi
-
-
 
 if command -v rbenv > /dev/null ; then
     eval "$(rbenv init -)"
