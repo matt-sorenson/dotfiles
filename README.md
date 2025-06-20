@@ -41,7 +41,6 @@ shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash
 
 # LLM saved memory Prompts
 
-```
 Please add these to your saved memories
 
 # In General
@@ -71,4 +70,61 @@ Please add these to your saved memories
 - when writing a zsh script wrap it in an anonymous function so it's variables can be local
 - when asked for a shell snippet don't wrap it in a function unless explicitly asked.
 - When writing a zsh script, the line after the hashbang should be `#compdef <scriptname>`
+- zsh does support hyphens in function names but not variable names
+
+# When writing tests for zsh scripts they should be in this format
+
+- Assume print-header exists, use `print-header -e` for errors, 'print-header -w' for warnings
+- tests named as `test-case-1` or `test-case-n` in the example below should be named like `command_name-descriptive-name-of-test` using hyphens to seperate words
+- cleanup should not include the "failed-results/${_test}" files
+
+```
+test-case-1() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    local _test="<command>-<test-case-descriptor>"
+
+    local result="$(<command and options being tested>)"
+    # ${DOTFILES} will be different between machines so replace the paths in the
+    # received output with the literal variable name
+    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
+
+    local expected_filename="${DOTFILES}/bin/tests/expected-results/${_test}"
+
+    expected=$(< "${expected_filename}")
+
+    if [[ "$sanitized" != "${expected}" ]]; then
+        print-header -e "FAILED repoman-task-fails"
+        local failed_filename="${DOTFILES}/bin/tests/failed-results/${_test}"
+        print -n "${sanitized}" >! "${failed_filename}"
+
+        diff "${expected_filename}" "${failed_filename}"
+
+        return 1
+    fi
+
+    print "Success ${_test}"
+}
+
+main() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    <any shared setup>
+
+    local out=0
+
+    test-case-1 || (( out+=1 ))
+    <...>
+    test-case-n || (( out+=1 ))
+
+    <any shared cleanup>
+
+    return $out
+}
+
+main "$@"
 ```
