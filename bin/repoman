@@ -21,7 +21,7 @@ function() {
     unsetopt auto_pushd
 
     local default_repo="${DOT_DEFAULT_REPO:-}"
-    local calling_name="${calling_name:-repoman}"
+    local calling_name="repoman"
 
     function _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
@@ -75,11 +75,12 @@ Options:
 
 # Tasks
   --git-clean              Clean untracked/ignored files from repo
-  -c, --clean              Basic clean of the workspace
   -n, --nuke               clean:nuke, cleanup lots more of the environment
+  -c, --clean              Basic clean of the workspace
   -i, --install            Install dependencies
   -b, --build              Build
-  -m, --migrations          Run migrations & Update zapatos schema
+  -d, --db-up
+  -m, --migrations         Run migrations & Update zapatos schema
   -g, --generate-schema    Generate DB Schema
   -u, --unit-tests         Run unit tests
   -I, --integration-tests  Run integration tests
@@ -104,7 +105,16 @@ Examples:
             cd ${(q)_repoman_starting_dir} &> /dev/null || print-header -e ">>> failed to return to starting directory."
         fi
 
-        unset _repoman_starting_dir _repoman-run-task _repoman-usage _override-tasks
+        function _repoman-unset-f() {
+            while (( $# )) do
+                if [[ "$(type -w $1)" == *": function" ]]; then
+                    unset -f "$1"
+                fi
+                shift
+            done
+        }
+
+        _repoman-unset-f _repoman_starting_dir _repoman-run-task _repoman-usage _repoman-override-tasks _repoman-unset-f
     }
 
     local -i any_set=0
@@ -428,7 +438,7 @@ Examples:
         fi
     fi
 
-    function _override-tasks() {
+    function _repoman-override-tasks() {
         local flag_list=()
 
         local quiet=0
@@ -438,8 +448,8 @@ Examples:
         fi
 
         if (( $# < 2 )); then
-            print-header -e "_override-tasks requires at least two arguments"
-            print "Usage: _override-tasks <dependant-flag> [...<dependent-flag>] <dependency>
+            print-header -e "_repoman-override-tasks requires at least two arguments"
+            print "Usage: _repoman-override-tasks <dependant-flag> [...<dependent-flag>] <dependency>
 
 If all of the flags in the <dependent-flag> list are present then <dependency> will be forced on.
 
@@ -469,15 +479,15 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     }
 
     # Logic overrides
-    _override-tasks -q migrations aws_signon
-    _override-tasks clean build install
-    _override-tasks clean unit_tests install
-    _override-tasks clean unit_tests build
-    _override-tasks nuke db_up install
-    _override-tasks nuke migrations install
-    _override-tasks nuke migrations db_up
-    _override-tasks nuke generate_schema db_up
-    _override-tasks nuke generate_schema migrations
+    _repoman-override-tasks -q migrations aws_signon
+    _repoman-override-tasks clean build install
+    _repoman-override-tasks clean unit_tests install
+    _repoman-override-tasks clean unit_tests build
+    _repoman-override-tasks nuke db_up install
+    _repoman-override-tasks nuke migrations install
+    _repoman-override-tasks nuke migrations db_up
+    _repoman-override-tasks nuke generate_schema db_up
+    _repoman-override-tasks nuke generate_schema migrations
 
     local finished_tasks=()
     _repoman-run-task() {
@@ -560,7 +570,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         fi
 
         if (( ! quiet )); then
-            print-header green --icon "${icon}" "${header}: Command: ${task_commands[$task]}"
+            print-header green --icon "${icon}" "${header}: Command: \`${task_commands[$task]}\`"
         fi
 
         if [[ "${PWD:A}" != "${working_dir}" ]]; then
@@ -570,10 +580,10 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
             }
         fi
 
-        eval ${task_commands[$task]} || {
+        if ! eval ${task_commands[$task]}; then
             print-header -e --icon "${icon}" "${header} failed"
             return 1
-        }
+        fi
 
         if [[ -v task_does_task[$task] ]]; then
             for implied_task in ${(s:;:)task_does_task[$task]}; do

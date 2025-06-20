@@ -1,0 +1,27 @@
+#!/usr/bin/env zsh
+
+main() {
+    local out=0
+    local test_file test_name
+
+    for test_file in "${DOTFILES}"/bin/tests/**/*.test.zsh(.N); do
+        local test_name="${test_file:t:r:r}"
+        print-header blue --icon 🧪 "Running: $test_name"
+        if zsh "$test_file"; then
+            print-header green "Success: ${test_name}"
+        else
+            print-header -e "Failed: ${test_name}"
+            (( out+=$? ))
+        fi
+    done
+
+    if (( out )); then
+        print-header -e "$out tests failed."
+    else
+        print-header green "All Tests Passed!"
+    fi
+
+    return $out
+}
+
+main "$@"

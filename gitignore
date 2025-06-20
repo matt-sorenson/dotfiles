@@ -2,3 +2,5 @@
 ._.DS_Store
 .envrc
 .ms-popb-stack
+bin/tests/failed-results
+bin/tests/env
