@@ -58,8 +58,7 @@ Each task pair has a corresponding flag for the below list
 
 Extra options for repoman:
   --calling-name <command_name>         Name to use in the usage message
-  --db-container-name <name>            If set script can skip starting the DB container if it's already running.
-  --repo <repo_name>                    The directory under \$WORKSPACE_ROOT_DIR containing the repo. Defaults to '${default_repo}' if not set."
+  --db-container-name <name>            If set script can skip starting the DB container if it's already running."
         fi
 
         local default_repo_str=""
