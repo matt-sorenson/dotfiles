@@ -1,14 +1,24 @@
 #!/usr/bin/env zsh
 #compdef repoman
 
-# This is not a POSIX sh script as it depends on the environment being setup
-# in .zshenv.
+# Requirements:
+# - Environment variables:
+#   - DOT_DEFAULT_REPO (optional, fallback repo name)
+#   - WORKSPACE_ROOT_DIR (used to resolve --repo/-r to a path)
+# - External tools:
+#   - git
+#   - docker (for --db-container-name support)
+#   - realpath (optional, better path handling)
+# - Custom functions:
+#   - aws-signon (optional, be signed in already, or provide a --aws-signon-cmd)
+#   - print-header
 
 function() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
     setopt typeset_to_unset
+    unsetopt auto_pushd
 
     local default_repo="${DOT_DEFAULT_REPO:-}"
     local calling_name="${calling_name:-repoman}"
@@ -86,25 +96,15 @@ Examples:
   ${calling_name} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
     }
 
-    local starting_dir="$(pwd)"
+    export _repoman_starting_dir="${PWD}"
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
     TRAPEXIT() {
-        if [[ -v _repoman-usage ]]; then
-            unset -f _repoman-usage;
+        if [[ "${PWD:A}" != "${_repoman_starting_dir:A}" ]]; then
+            cd ${(q)_repoman_starting_dir} &> /dev/null || print-header -e ">>> failed to return to starting directory."
         fi
 
-        if [[ -v _run-task ]]; then
-            unset -f _run-task;
-        fi
-
-        if [[ -v _override-tasks ]]; then
-            unset -f _override-tasks;
-        fi
-
-        if [[ "${PWD:A}" != "${starting_dir:A}" ]]; then
-            cd -- "${starting_dir}" &> /dev/null || print-header -e ">>> failed to return to starting directory."
-        fi
+        unset _repoman_starting_dir _repoman-run-task _repoman-usage _override-tasks
     }
 
     local -i any_set=0
@@ -182,9 +182,9 @@ Examples:
         --repo|-r) ;& # fallthrough
         --path|-p) ;& # fallthrough
         --db-container-name) ;& # fallthrough
-        --*-cmd) ;& # fallthrough
-        --*-working-dir) ;& # fallthrough
-        --*-verbose-arg)
+        --?*-cmd) ;& # fallthrough
+        --?*-working-dir) ;& # fallthrough
+        --?*-verbose-arg)
             if (( $# < 2 )); then
                 print-header -e "missing argument for $1"
                 _repoman-usage
@@ -238,17 +238,11 @@ Examples:
 
             shift
             ;;
-        --*)
-            if [[ "$1" == --*-does-* ]]; then
+        --?*)
+            if [[ "$1" == --?*-does-?* ]]; then
                 local pattern="${1#--}"
                 local task1="${${pattern%%-does-*}//-/_}"   # extract first part
                 local task2="${${pattern#*-does-}//-/_}"    # extract second part
-
-                if [[ ! -v tasks[$task1] ]] && [[ ! -v tasks[$task2] ]]; then
-                    print-header -e "unknown option '$1'"
-                    print "${_usage}"
-                    return 1
-                fi
 
                 if [[ ! -v task_does_task[$task1] ]]; then
                     task_does_task[$task1]="$task2"
@@ -259,6 +253,12 @@ Examples:
                 unset pattern task1 task2
             else
                 local key="${${1#--}//-/_}"
+                if [[ -z "$key" ]]; then
+                    print-header -e "Unknown option: '$1'"
+                    _repoman-usage
+                    return 1
+                fi
+
                 if [[ -v "tasks[$key]" ]]; then
                     tasks[$key]=1
                     any_set=1
@@ -280,7 +280,7 @@ Examples:
                 unset key
             fi
             ;;
-        -*)
+        -?*)
             local arg_list=( "${(@s::)1#-}" )
 
             # Process by popping front each time
@@ -316,8 +316,11 @@ Examples:
                             return 1
                         fi
 
-                        local flag_map=( p path r repo )
-                        opts[${flag_name}]=${flag_map[$arg]}
+                        if [[ "${arg}" == p ]]; then
+                            opts[path]="$2"
+                        elif [[ "${arg}" == r ]]; then
+                            opts[repo]="$2"
+                        fi
 
                         shift
                         ;;
@@ -385,10 +388,12 @@ Examples:
         return 1
     fi
 
+    local starting_dir="${PWD:A}"
     local key
     for key in ${(k)task_working_dirs}; do
-        val="${${repo_dir}/${task_working_dirs[$key]}:A}"
-        if [[ -z $val || ${val} == "${starting_dir:A}" ]]; then
+        val="${repo_dir}/${task_working_dirs[$key]}"
+        val="${val:A}"
+        if [[ -z $val || ${val} == "${starting_dir}" ]]; then
             unset "task_working_dirs[$key]"
         elif [[ -d "$val" ]]; then
             task_working_dirs[$key]="$val"
@@ -397,7 +402,7 @@ Examples:
             return 1
         fi
     done
-    unset key
+    unset key starting_dir
 
     # Canonicalize the repo dir
     repo_dir="$repo_dir:A"
@@ -475,7 +480,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     _override-tasks nuke generate_schema migrations
 
     local finished_tasks=()
-    run_task() {
+    _repoman-run-task() {
         emulate -L zsh
         set -uo pipefail
         setopt err_return
@@ -483,7 +488,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
 
         local task header
         local quiet=0
-        local _usage="Usage: run_task <task> [<header>] [-q]"
+        local _repoman_run_task_usage="Usage: _repoman-run-task <task> [<header>] [-q]"
 
         while (( $# )); do
             case "$1" in
@@ -496,7 +501,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
                     elif [[ ! -v header ]]; then
                         header="$1"
                     else
-                        print-header -e "run_task: Unknown argument '$1'"
+                        print-header -e "_repoman-run-task: Unknown argument '$1'"
                         return 1
                     fi
                     ;;
@@ -505,7 +510,8 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         done
 
         if [[ ! -v task ]]; then
-            print-header "run_task requires a task. Usage: run_task <task> [<header>][-q]"
+            print-header "_repoman-run-task requires a task."
+            print "${_repoman_run_task_usage}"
             return 1
         fi
 
@@ -540,9 +546,17 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
 
         local working_dir
         if [[ -v task_working_dirs[$task] ]]; then
-            working_dir="${task_working_dirs[$task]:A}"
+            working_dir="${task_working_dirs[$task]}"
         else
-            working_dir="${repo_dir:A}"
+            working_dir="${repo_dir}"
+        fi
+
+        if command -v realpath &> /dev/null; then
+            if ! working_dir="$(realpath ${(a)working_dir})"; then
+                print-header -e --icon "${icon}" "${header}: Can't resolve path ${working_dir}"
+                return 1
+            fi
+
         fi
 
         if (( ! quiet )); then
@@ -582,11 +596,11 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     }
 
     # Execute steps
-    run_task git_clean
-    run_task nuke
-    run_task clean
-    run_task install
-    run_task -q aws_signon
+    _repoman-run-task git_clean
+    _repoman-run-task nuke
+    _repoman-run-task clean
+    _repoman-run-task install
+    _repoman-run-task -q aws_signon
 
     if (( tasks[db_up] )); then
         if [[ -n "${opts[db_container_name]}" ]]; then
@@ -604,12 +618,12 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         fi
     fi
 
-    run_task db_up
-    run_task migrations
-    run_task generate_schema
-    run_task build
-    run_task unit_tests
-    run_task integration_tests
+    _repoman-run-task db_up
+    _repoman-run-task migrations
+    _repoman-run-task generate_schema
+    _repoman-run-task build
+    _repoman-run-task unit_tests
+    _repoman-run-task integration_tests
 
     print-header green "All steps completed successfully"
     return 0

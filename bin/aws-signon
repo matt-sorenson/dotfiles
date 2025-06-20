@@ -7,6 +7,11 @@ function() {
     setopt err_return
     setopt typeset_to_unset
 
+    if ! command -v aws &> /dev/null; then
+        print-header -e "aws CLI must be installed to run aws-signon"
+        return 1
+    fi
+
     local _usage="Usage: aws-signon [-f|--force] [-h|--help] <profile>
 
 Options:
@@ -60,7 +65,7 @@ aws-signon dev -f"
         return 1
     fi
 
-    print-header green "🔐 Signing into AWS: ${AWS_PROFILE}"
+    print-header green --icon 🔐 "Signing into AWS: ${AWS_PROFILE}"
 
     if (( ! force )); then
         if aws sts get-caller-identity --profile "${AWS_PROFILE}" &> /dev/null; then
