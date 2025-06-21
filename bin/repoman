@@ -51,13 +51,13 @@ Each task has a corresponding for the below list
   --<task>-verbose-arg <arg>    Argument to append to <task-command>
   --<task>-working-dir <dir>    Working directory to change to for that command (defaults to root of repo)
 
-Each task pair has a corresponding flag for the below list
+# Each task pair has a corresponding flag for the below list
   --<task1>-does-<task2>    <task1> completing successfully means that <task2> is no longer required.
                             This is useful for cases like when bringing the DB up automatically runs
-                            migrations or schema generation.
+                            migrations or schema generation. <task1> must come before <task2>.
 
-Extra options for repoman:
-  --calling-name <command_name>         Name to use in the usage message
+# Extras:
+  --calling-name <command_name>         Command name to use in the usage message
   --db-container-name <name>            If set script can skip starting the DB container if it's already running."
         fi
 
@@ -72,6 +72,10 @@ Options:
 
   -h, --help               Show this help message
 
+# General Options
+  -r <repo>, --repo <repo> The directory under \$WORKSPACE_ROOT_DIR containing the repo. ${default_repo_str}
+  -p <path>, --path <path> The path to the repo. Overrides -r/--repo.
+
 # Tasks
   --git-clean              Clean untracked/ignored files from repo
   -n, --nuke               clean:nuke, cleanup lots more of the environment
@@ -83,13 +87,9 @@ Options:
   -g, --generate-schema    Generate DB Schema
   -u, --unit-tests         Run unit tests
   -I, --integration-tests  Run integration tests
-  -t, --tests              Run all tests
+  -t, --tests              Run all tests${extra_args}
 
-# Other
-  -r <repo>, --repo <repo> The directory under \$WORKSPACE_ROOT_DIR containing the repo. ${default_repo_str}
-  -p <path>, --path <path> The path to the repo. Overrides -r/--repo.${extra_args}
-
-Examples:
+# Examples:
   ${calling_name} -cib                       Run clean and install
   ${calling_name} --clean --install --build  Run clean and install
   ${calling_name} -cibt                      Run clean, install, build, and test
