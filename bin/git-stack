@@ -1,60 +1,58 @@
 #!/usr/bin/env zsh
 #compdef git-stack
 
-function() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
+emulate -L zsh
+set -uo pipefail
+setopt err_return
 
-    local _usage="Usage: git-stack [-h|--help]
+local _usage="Usage: git-stack [-h|--help]
 
 Display the saved branch stack (oldest at the top, newest at the bottom).
 
   -c, --clear           Clear the branch stack
   -h, --help            Show this help message"
 
-    local -i clear_stack=0
-    local -i quiet=0
+local -i clear_stack=0
+local -i quiet=0
 
-    # Parse options
-    while (( $# )); do
-        case "$1" in
-            -c|--clear)
-                clear_stack=1
-                ;;
-            -h|--help)
-                print "${_usage}"
-                return 0
-                ;;
-            -q|--quiet)
-                quiet=1
-                ;;
-            *)
-                print-header red "Unknown option: $1"
-                print "${_usage}"
-                return 1
-                ;;
-        esac
-        shift
-    done
+# Parse options
+while (( $# )); do
+    case "$1" in
+    -c|--clear)
+        clear_stack=1
+        ;;
+    -h|--help)
+        print "${_usage}"
+        return 0
+        ;;
+    -q|--quiet)
+        quiet=1
+        ;;
+    *)
+        print-header red "Unknown option: $1"
+        print "${_usage}"
+        return 1
+        ;;
+    esac
+    shift
+done
 
-    # Find repo root
-    local repo_root
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-        print-header red "Not a git repository.";
-        return 1;
-    }
+# Find repo root
+local repo_root
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    print-header red "Not a git repository.";
+    return 1;
+}
 
-    local stack_file="${repo_root}/.ms-popb-stack"
+local stack_file="${repo_root}/.ms-popb-stack"
 
-    if (( clear_stack )); then
-        rm -f "${stack_file}"
-        print-header green "Cleared branch stack."
+if (( clear_stack )); then
+    rm -f "${stack_file}"
+    print-header green "Cleared branch stack."
+else
+    if [[ ! -s "${stack_file}" ]]; then
+        (( ! quiet )) && print-header yellow "Branch stack is empty."
     else
-        if [[ ! -s "${stack_file}" ]]; then
-            (( ! quiet )) && print-header yellow "Branch stack is empty."
-        else
-            cat -n "${stack_file}"
-        fi
+        cat -n "${stack_file}"
     fi
-} "$@"
+fi

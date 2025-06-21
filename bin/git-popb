@@ -3,80 +3,79 @@
 
 autoload -Uz colors && colors
 
-function() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
+emulate -L zsh
+set -uo pipefail
+setopt err_return
 
-    local _usage="Usage: git-popb [-h|--help]
+local _usage="Usage: git-popb [-h|--help]
 
 Check out the last branch checked out with git-pushb and pops it from the stack.
 
 -q, --quiet          Suppress some output messages
 -h, --help           Show this help message"
 
-    local -i quiet=0
+local -i quiet=0
 
-    while (( $# )); do
-        case "$1" in
-            -h|--help)
-                print "${_usage}"
-                return 0
-                ;;
-            -q|--quiet)
-                quiet=1
-                ;;
-            *)
-                print-header -e "Unknown argument: $1"
-                print "${_usage}"
-                return 1
-                ;;
-        esac
-        shift
-    done
-
-    # find repo root
-    local repo_root
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-        print 'Not a git repository.' >&2
+while (( $# )); do
+    case "$1" in
+    -h|--help)
+        print "${_usage}"
+        return 0
+        ;;
+    -q|--quiet)
+        quiet=1
+        ;;
+    *)
+        print-header -e "Unknown argument: $1"
+        print "${_usage}"
         return 1
-    }
+        ;;
+    esac
+    shift
+done
 
-    local stack_file="${repo_root}/.ms-popb-stack"
-    local target_branch
+# find repo root
+local repo_root
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    print 'Not a git repository.' >&2
+    return 1
+}
 
-    if [[ ! -s "${stack_file}" ]]; then
-        if git show-ref --quiet --verify refs/heads/master; then
-            target_branch=master
-        elif git show-ref --quiet --verify refs/heads/main; then
-            target_branch=main
-        else
-            print "Error: neither 'master' nor 'main' branch exists" >&2
-            return 1
-        fi
+local stack_file="${repo_root}/.ms-popb-stack"
+local target_branch
 
-        print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
+if [[ ! -s "${stack_file}" ]]; then
+    if git show-ref --quiet --verify refs/heads/master; then
+        target_branch=master
+    elif git show-ref --quiet --verify refs/heads/main; then
+        target_branch=main
     else
-        # read last entry
-        target_branch=$(tail -n 1 "${stack_file}")
-
-        local stack_contents
-        stack_contents="$(sed '$d' "${stack_file}")"
-        print -n "${stack_contents}" >! "${stack_file}"
-        unset stack_contents
+        print "Error: neither 'master' nor 'main' branch exists" >&2
+        return 1
     fi
 
-    # if now empty, delete it
-    if [[ ! -s "${stack_file}" ]]; then
-        rm -f "${stack_file}"
-    fi
+    print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
+else
+    # read last entry
+    target_branch=$(tail -n 1 "${stack_file}")
 
-    local current_branch
-    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    local stack_contents
+    stack_contents="$(sed '$d' "${stack_file}")"
+    print -n "${stack_contents}" >! "${stack_file}"
+    unset stack_contents
+fi
 
-    if [[ "${current_branch}" = "${target_branch}" ]]; then
-        (( ! quiet )) && print-header green "✅ You are already on '${target_branch}'"
-    else
-        git checkout "${target_branch}"
-    fi
-} "$@"
+# if now empty, delete it
+if [[ ! -s "${stack_file}" ]]; then
+    rm -f "${stack_file}"
+fi
+
+local current_branch
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ "${current_branch}" = "${target_branch}" ]]; then
+    (( ! quiet )) && print-header green "✅ You are already on '${target_branch}'"
+    return 0
+fi
+
+git checkout "${target_branch}"
