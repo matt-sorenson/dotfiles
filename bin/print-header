@@ -18,16 +18,15 @@ if ! command -v is-emoji &> /dev/null; then
     }
 fi
 
-function() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
+emulate -L zsh
+set -uo pipefail
+setopt err_return
+setopt typeset_to_unset
 
-    local _usage="Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>] <message>
+local _usage="Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>...] [--] <message>
 
 Arguments:
-  <color>                        The color of the header (e.g., red, green, blue)
+  <color>                        The color of the header (e.g., red, green, blue, bgred, ...)
   <message>                      The message to display in the header
 
 Options:
@@ -35,115 +34,124 @@ Options:
   --icon <icon-emoji>            Prepend this emoji to the message, combines with -w/-e
   -w, --warn                     Shortcut for 'yellow --icon ⚠️'
   -e, --error                    Shortcut for 'red --icon ❌'
-  -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)"
+  -i <indent>, --indent <indent> Indent the header by the specified number of spaces (default: 0)
+  --                             (optional) Marks the end of flags, anything after this is treated as the message.
+                                 If your message starts with '--' it must either contain a space or come after the -- flag"
 
-    local indent=0
-    local color=''
-    local parts=()
-    local icon=''
+local indent=0
+local color=''
+local parts=()
+local icon=''
 
-    while (( $# )); do
-        case "$1" in
-            -h|--help)
-                print "${_usage}"
-                return 0
-                ;;
-            -i|--indent|-wi|-we)
-                if (( $# < 2 )); then
-                    print-header -e "Error: '$1' requires an argument."
-                    print "${_usage}"
-                    return 1
-                fi
-
-                if [[ "$1" == "-wi" || "$1" == "-ei" ]]; then
-                    # add -w or -e to the argv array
-                    argv+=("-${1[2]}")
-                fi
-
-                indent="$2"
-                shift
-                ;;
-            --icon)
-                if (( $# < 2 )); then
-                    print-header -e "Error: '$1' requires an argument."
-                    print "${_usage}"
-                    return 1
-                fi
-
-                icon="${icon}$2"
-                shift
-                ;;
-            -w|--warn)
-                color="${fg_bold[yellow]}"
-                icon="⚠️${icon}"
-                ;;
-            -e|--error)
-                color="${fg_bold[red]}"
-                icon="❌${icon}"
-                ;;
-            -*)
-                print-header -e "Unknown option: $1"
-                print "${_usage}"
-                return 1
-                ;;
-            *)
-                case "$1" in
-                    "\\033"*)
-                        "${color}${1}"
-                        ;;
-                    black|red|green|yellow|blue|magenta|cyan|white)
-                        color="${color}${fg_bold[${1}]}"
-                        ;;
-                    bgblack|bgred|bggreen|bgyellow|bgblue|bgmagenta|bgcyan|bgwhite)
-                        color="${color}${bg[${1#bg}]}"
-                        ;;
-                    *)
-                        parts+=("$1")
-                esac
-                ;;
-        esac
-        shift
-    done
-
-    local message="= ${icon:+$icon }"
-    if (( ${#parts[@]} )); then
-        message+="${(j: :)parts}"
-    else
-        message+="No message provided."
-        color="$bg[magenta]$fg[black]"
-    fi
-    unset parts
-
-    local msg_length=$(( ${#message} + 2))
-    # Handle emojis that render as 2 characters
-    local -a chars
-    local char
-    chars=(${(@ps::)message})
-    for char in $chars; do
-        if is-emoji "$char"; then
-            (( msg_length+=1 ))
+while (( $# )); do
+    case "$1" in
+    -h|--help)
+        print "${_usage}"
+        return 0
+        ;;
+    -i|--indent|-wi|-we)
+        if (( $# < 2 )); then
+            print-header -e "Error: '$1' requires an argument."
+            print "${_usage}"
+            return 1
         fi
-    done
 
-    local reset_color=${reset_color}
-    if [[ -z $color ]]; then
-        reset_color=''
+        if [[ "$1" == "-wi" || "$1" == "-ei" ]]; then
+            # add -w or -e to the argv array
+            argv+=("-${1[2]}")
+        fi
+
+        indent="$2"
+        shift
+        ;;
+    --icon)
+        if (( $# < 2 )); then
+            print-header -e "Error: '$1' requires an argument."
+            print "${_usage}"
+            return 1
+        fi
+
+        icon="${icon}$2"
+        shift
+        ;;
+    -w|--warn)
+        color="${fg_bold[yellow]}"
+        icon="⚠️${icon}"
+        ;;
+    -e|--error)
+        color="${fg_bold[red]}"
+        icon="❌${icon}"
+        ;;
+    --)
+        shift
+        parts=("$@")
+        set --
+        break;
+        ;;
+    -*)
+        if [[ "$1" == *" "* ]]; then
+            # This case helps catch messages like '--foo expects an argument'
+            parts+=("$1")
+        else
+            print-header -e "Unknown option: $1"
+            print "${_usage}"
+            return 1
+        fi
+        ;;
+    *)
+        case "$1" in
+        black|red|green|yellow|blue|magenta|cyan|white)
+            color="${color}${fg_bold[${1}]}"
+            ;;
+        bgblack|bgred|bggreen|bgyellow|bgblue|bgmagenta|bgcyan|bgwhite)
+            color="${color}${bg[${1#bg}]}"
+            ;;
+        *)
+            parts+=("$1")
+        esac
+        ;;
+    esac
+    shift
+done
+
+local message="= ${icon:+$icon }"
+if (( ${#parts[@]} )); then
+    message+="${(j: :)parts}"
+else
+    message+="No message provided."
+    color="$bg[magenta]$fg[black]"
+fi
+unset parts
+
+local msg_length=$(( ${#message} + 2))
+# Handle emojis that render as 2 characters
+local -a chars
+local char
+chars=(${(@ps::)message})
+for char in $chars; do
+    if is-emoji "$char"; then
+        (( msg_length+=1 ))
     fi
+done
 
-    local header_length=$(( msg_length > 80 ? msg_length: 80 ))
-    local indent_space="${(l:$indent:: :):-}"
-    local header="${(l:$header_length::=:):-}"
+local reset_color=${reset_color}
+if [[ -z $color ]]; then
+    reset_color=''
+fi
 
-    # \uFE0F renders as a zero-width space so we add a space after it to
-    # ensure it displays correctly
-    local modifier=$'\uFE0F'
-    message="${message//${modifier}/${modifier} }"
-    unset modifier
+local header_length=$(( msg_length > 80 ? msg_length: 80 ))
+local indent_space="${(l:$indent:: :):-}"
+local header="${(l:$header_length::=:):-}"
 
-    # Pad the message to header length in case a background color was set
-    message+="${(l:$(( header_length - msg_length )):: :):-} ="
+# \uFE0F renders as a zero-width space so we add a space after it to
+# ensure it displays correctly
+local modifier=$'\uFE0F'
+message="${message//${modifier}/${modifier} }"
+unset modifier
 
-    print "${indent_space}${color}${header}
+# Pad the message to header length in case a background color was set
+message+="${(l:$(( header_length - msg_length )):: :):-} ="
+
+print "${indent_space}${color}${header}
 ${indent_space}${color}${message}
 ${indent_space}${color}${header}${reset_color}"
-} "$@"

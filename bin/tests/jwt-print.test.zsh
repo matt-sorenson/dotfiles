@@ -1,170 +1,52 @@
 #!/usr/bin/env zsh
 
-alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
+source "${DOTFILES}/bin/tests/run-test.zsh"
 
 function jwt-print-happycase() {
-    local _test="jwt-print-happycase"
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ.GSMSgnCTkgkE0gufLXxWInLlgH1NYr0wfgSLGmtRk4k"
-    local result="$(jwt-print $jwt)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+    jwt-print "$jwt"
 }
 
 function jwt-print-no-header() {
-    local _test="jwt-print-no-header"
     local jwt=".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
-    local result="$(jwt-print $jwt)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+    jwt-print "$jwt"
 }
 
 function jwt-print-no-payload() {
-    local _test="jwt-print-no-payload"
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
-    local result="$(jwt-print $jwt)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+    jwt-print "$jwt"
 }
 
 function jwt-print-no-issued-at() {
-    local _test="jwt-print-no-issued-at"
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6MTUxNjI0MDAwMH0.XNgaJiftieRy3GWKcIUjH1dAZpNrKNCDMVDxres-mCM"
-    local result="$(jwt-print $jwt)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+    jwt-print "$jwt"
 }
 
 function jwt-print-no-expire-at() {
-    local _test="jwt-print-no-expire-at"
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
-    local result="$(jwt-print $jwt)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+    jwt-print "$jwt"
 }
 
 function jwt-print-no-sig() {
-    local _test="jwt-print-no-sig"
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ."
-    local result="$(jwt-print $jwt)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/jwt-print/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/jwt-print/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+    jwt-print "$jwt"
 }
 
 function main() {
-    mkdir -p "${DOTFILES}/bin/tests/failed-results/jwt-print"
-
     local out=0
+    local testee='jwt-print'
+    local -a test_cases=(
+        jwt-print-happycase
+        jwt-print-no-header
+        jwt-print-no-payload
+        jwt-print-no-issued-at
+        jwt-print-no-expire-at
+        jwt-print-no-sig
+    )
 
-    jwt-print-happycase || (( out+=1 ))
-    jwt-print-no-header || (( out+=1 ))
-    jwt-print-no-payload || (( out+=1 ))
-    jwt-print-no-issued-at || (( out+=1 ))
-    jwt-print-no-expire-at || (( out+=1 ))
-    jwt-print-no-sig || (( out+=1 ))
-
-    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/jwt-print")" ]; then
-        rmdir "${DOTFILES}/bin/tests/failed-results/jwt-print"
-    fi
-
-    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/")" ]; then
-        rmdir "${DOTFILES}/bin/tests/failed-results/"
-    fi
+    for element in "${test_cases[@]}"; do
+        run-test "$testee" "$element" || (( out += 1 ))
+    done
 
     return $out
 }

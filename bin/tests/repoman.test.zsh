@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
+source "${DOTFILES}/bin/tests/run-test.zsh"
 
 root="${DOTFILES}/bin/tests/env"
 clean_dir="clean"
@@ -14,9 +14,7 @@ unit_tests_dir="unit_tests"
 integration_tests_dir="integration_tests"
 
 function repoman-happycase() {
-    local _test="repoman-happycase"
-
-    local result="$(repoman \
+    repoman \
         --calling-name dotfiles \
         --path "$root" \
         --clean-working-dir "${clean_dir}" \
@@ -37,31 +35,11 @@ function repoman-happycase() {
         --generate-schema-cmd 'print "generate $(pwd)"-schema' \
         --unit-tests-cmd 'print "unit $(pwd)"-tests' \
         --integration-tests-cmd 'print "integration $(pwd)"-tests' \
-        -ncibdmguI)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/repoman/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/repoman/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+        -ncibdmguI
 }
 
 function repoman-task-fails() {
-    local _test="repoman-task-fails"
-
-    local result="$(repoman \
+    repoman \
         --calling-name dotfiles \
         --path "$root" \
         --clean-working-dir "${clean_dir}" \
@@ -82,25 +60,7 @@ function repoman-task-fails() {
         --generate-schema-cmd 'print "generate $(pwd)"-schema' \
         --unit-tests-cmd 'print "unit $(pwd)"-tests' \
         --integration-tests-cmd 'print "integration $(pwd)"-tests' \
-        -ncibdmguI)"
-
-    local sanitized="$(print -n "${result//${DOTFILES}/\$\{DOTFILES\}}" | strip-color-codes)"
-
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/repoman/${_test}"
-
-    expected=$(< "${expected_filename}")
-
-    if [[ "$sanitized" != "${expected}" ]]; then
-        print-header -e "FAILED ${_test}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/repoman/${_test}"
-        print -n "${sanitized}" >! "${failed_filename}"
-
-        diff "${expected_filename}" "${failed_filename}"
-
-        return 1
-    fi
-
-    print "Success ${_test}"
+        -ncibdmguI
 }
 
 function main() {
@@ -113,7 +73,6 @@ function main() {
     mkdir -p "${root}/${generate_schema_dir}"
     mkdir -p "${root}/${unit_tests_dir}"
     mkdir -p "${root}/${integration_tests_dir}"
-    mkdir -p "${DOTFILES}/bin/tests/failed-results/repoman/"
 
     if [[ ! -v DOTFILES ]] || [[ -z "${DOTFILES}" ]]; then
         print-header -e "DOTFILES must be defined."
@@ -121,19 +80,17 @@ function main() {
     fi
 
     local out=0
+    local testee='repoman'
+    local -a test_cases=(
+        'repoman-happycase'
+        'repoman-task-fails'
+    )
 
-    repoman-happycase || (( out+=1 ))
-    repoman-task-fails || (( out+=1 ))
+    for element in "${test_cases[@]}"; do
+        run-test "$testee" "$element" || (( out += 1 ))
+    done
 
     rm -rf ${root}
-
-    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/repoman/")" ]; then
-        rmdir "${DOTFILES}/bin/tests/failed-results/repoman/"
-    fi
-
-    if [ -z "$(ls -A "${DOTFILES}/bin/tests/failed-results/")" ]; then
-        rmdir "${DOTFILES}/bin/tests/failed-results/"
-    fi
 
     return $out
 }
