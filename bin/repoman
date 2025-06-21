@@ -603,11 +603,15 @@ _repoman-run-task() {
 }
 
 # Execute steps
+
+# make sure we're signed in first thing so that if say 'install' is slow
+# you can walk away after it already has the credientals
+_repoman-run-task -q aws_signon
+
 _repoman-run-task git_clean
 _repoman-run-task nuke
 _repoman-run-task clean
 _repoman-run-task install
-_repoman-run-task -q aws_signon
 
 if (( tasks[db_up] )); then
     if [[ -n "${opts[db_container_name]}" ]]; then
