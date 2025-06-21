@@ -1,0 +1,28 @@
+#!/bin/zsh
+
+emulate -L zsh
+set -euo pipefail
+setopt typeset_to_unset
+
+# Get list of staged files in bin/ directory
+if ! staged_files=($(git diff --cached --name-only --diff-filter=ACM | grep '^bin/')); then
+  return 0
+fi
+
+files=()
+
+for file in $staged_files; do
+    # Only check regular files that exist (in case they're deleted or moved)
+    if [[ -f "$file" ]] && grep -nH '\becho\b' "$file"; then
+        files+=("$file")
+    fi
+done
+
+if (( ${#files} )); then
+    print-header -e "Found 'echo' in these files"
+    printf "%s\n" $files
+
+    return 1
+fi
+
+return 0

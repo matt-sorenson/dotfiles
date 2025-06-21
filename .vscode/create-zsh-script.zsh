@@ -37,4 +37,6 @@ mkdir -p bin
 sed "s/<name>/${name}/g" "$template" > "$target"
 chmod 700 "$target"
 
+code ${(q)target}
+
 print-header green "✅ Created: $target"
