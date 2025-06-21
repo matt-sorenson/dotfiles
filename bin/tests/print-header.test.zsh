@@ -8,26 +8,26 @@ function happycase() {
     print-header 'Test'
 }
 
-function happycase-indent() {
+function indent() {
     print-header --indent 2 'Test'
 }
 
-function happycase-icon() {
+function icon() {
     print-header --icon 🌖 'Test'
 }
 
-function happycase-warning-icon() {
+function warning-icon() {
     # This can end up looking odd in a text editor
     # the space after the moon in the output is added for visual alignment
     # in the terminal itself.
     print-header -w --icon 🌖 'Test'
 }
 
-function happycase-warning() {
+function warning() {
     print-header -w 'Test'
 }
 
-function happycase-error() {
+function error() {
     print-header -e 'Test'
 }
 
@@ -41,16 +41,16 @@ function main() {
     local testee='print-header'
     local -a test_cases=(
         'happycase'
-        'happycase-indent'
-        'happycase-icon'
-        'happycase-warning-icon'
-        'happycase-warning'
-        'happycase-error'
+        'indent'
+        'icon'
+        'warning-icon'
+        'warning'
+        'error'
         'flag-after-double-dash'
     )
 
     for element in "${(k)test_cases[@]}"; do
-        run-test --no-strip-colors "$testee" "$element" || (( out += 1 ))
+        run-test --bootstrap --no-strip-colors "$testee" "$element" || (( out += 1 ))
     done
 
     return $out
