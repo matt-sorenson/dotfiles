@@ -1,0 +1,5 @@
+#compdef repoman-test
+
+_arguments -S -C \
+        "${_repoman_general_opts[@]}" \
+        "${_repoman_tasks_args[@]}"

@@ -1,27 +1,39 @@
-#compdef pnpm-man
+#compdef repoman
 
-_arguments -C \
-    '--git-clean[Clean untracked/ignored files from repo]' \
-    '(-c --clean)'{-c,--clean}'[Clean]' \
-    '(-n --nuke)'{-n,--nuke}'[Clean up development environment, db, docker, etc...]' \
-    '(-i --install)'{-i,--install}'[Install]' \
-    '(-b --build)'{-b,--build}'[Build (tsc)]' \
-    '(-d --db-up)'{-d,--db-up}'[Run Spin up the DB]' \
-    '(-m --migration)'{-m,--migration}'[Run migrations]' \
-    '(-g --generate-schema)'{-g,--generate-schema}'[Generate Schema Files]' \
-    '(-u --unit-tests)'{-u,--unit-tests}'[Run unit tests]' \
-    '(-I --integration-tests)'{-I,--integration-tests}'[Run integration tests]' \
-    '(-t --tests)'{-t,--tests}'[Run all tests]' \
-    '(-h --help)'{-h,--help}'[Show help message]'\
-    '(-r --repo -p --path)'{-r,--repo}'[The directory under $WORKSPACE_ROOT_DIR containing the repo.]:repo:->repo' \
-    '(-r --repo -p --path)'{-p,--path}'[The path to the repo. Overrides -r/--repo]:path:->path' \
-    && return 0
+local -a _repoman_tasks=(
+    'git-clean'
+    'nuke'
+    'clean'
+    'install'
+    'build'
+    'aws-signon'
+    'db-up'
+    'migrations'
+    'generate_schema'
+    'unit-tests'
+    'integration_tests'
+)
 
-case $state in
-    repo)
-        _files -W /${WORKSPACE_ROOT_DIR}/
-        ;;
-    path)
-        _directories
-        ;;
-esac
+local -a _repoman_args=()
+
+local task
+for task in "${_repoman_tasks[@]}"; do
+    _repoman_args+=("--${task}-working-dir[Directory to run the '${task}-working-cmd' from]:${task}-working:_directories")
+    _repoman_args+=("(--${task}-verbose --${task}--verbose-arg)--${task}-verbose[Alias for '--${task}-verbose-arg --verbose']")
+    _repoman_args+=("(--${task}-verbose --${task}--verbose-arg)--${task}-verbose-arg[Argument to add to generate-"${task}-verbose-cmd" if -v/--verbose is passed in]:${task}-verbose-arg: ")
+    _repoman_args+=("--${task}-cmd[Command to run for the '${task}' task]:${task}-cmd:_command_names")
+done
+unset task _repoman_tasks
+
+_repoman_args+=(
+    '--git-clean-does-clean[Implies that if --git-clean is passed in then "clean" should be skipped]'
+    '--nuke-does-clean[Implies that if --nuke is passed in then "clean" should be skipped]'
+    '--db-up-does-migrations[Implies that if --db-up is passed in then "migrations" should be skipped]'
+    '--db-up-does-generate-schema[Implies that if --db-up is passed in then "generate-schema" should be skipped]'
+    '--migrations-does-generate-schema[Implies that if --migrations is passed in then "generate-schema" should be skipped]'
+)
+
+_arguments -S -C \
+    "${_repoman_general_opts[@]}" \
+    "${_repoman_tasks_args[@]}" \
+    "${_repoman_args[@]}"

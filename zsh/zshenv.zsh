@@ -31,9 +31,9 @@ fi
 export PAGER='less -FgMRXi'
 
 # lesspipe can read certain binary files and show useful data instead of gibberish
-if command -v lesspipe.sh; then
+if command -v lesspipe.sh &> /dev/null; then
     eval "$(lesspipe.sh)"
-elif command -v lesspipe; then
+elif command -v lesspipe &> /dev/null; then
     eval "$(lesspipe)"
 fi
 

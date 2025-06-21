@@ -44,9 +44,6 @@ if [[ "${OSTYPE}" == darwin* ]]; then
     ssh-add --apple-load-keychain
 fi
 
-# Autocomplete will complete past '-'
-zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
-
 LESSHISTFILE="${DOTFILES}/tmp/less-history" # Disable less history file
 
 # History settings
@@ -94,9 +91,25 @@ fi
 if [[ -r "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh" ]]; then
     # Don't sort the completions for aws-signon (keep them in dev, staging, prod order)
     zstyle ':completion:*:aws-signon:*' sort false
+    zstyle ':completion:*:repoman:*' sort false
+    zstyle ':completion:*:repoman-test:*' sort false
+
+    # Autocomplete will complete past '-'
+    zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
+    zstyle ':completion:*' group-name ''
+    zstyle ':fzf-tab:*' group-name ''
+    zstyle ':fzf-tab:*' group-colors '1'
+
+    # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+    zstyle ':completion:*' menu no
 
     # set list-colors to enable filename colorizing
     zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+    zstyle ':completion:*:descriptions' format '[%d]'
+
+    # switch group using `<` and `>`
+    zstyle ':fzf-tab:*' switch-group '<' '>'
 
     source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
 fi

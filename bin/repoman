@@ -113,17 +113,18 @@ Examples:
             done
         }
 
-        _repoman-unset-f _repoman_starting_dir _repoman-run-task _repoman-usage _repoman-override-tasks _repoman-unset-f
+        unset _repoman_starting_dir
+        _repoman-unset-f _repoman-run-task _repoman-usage _repoman-override-tasks _repoman-unset-f
     }
 
     local -i any_set=0
     local -A tasks=(
-        aws_signon          0
-        clean               0
-        nuke                0
         git_clean           0
+        nuke                0
+        clean               0
         install             0
         build               0
+        aws_signon          0
         db_up               0
         migrations          0
         generate_schema     0
