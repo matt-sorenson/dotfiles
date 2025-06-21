@@ -88,25 +88,27 @@ if [[ -d "${HOME}/.nvm" ]]; then
     [ -s "${NVM_DIR}/bash_completion" ] && source "${NVM_DIR}/bash_completion"
 fi
 
-if [[ -r "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh" ]]; then
-    # Don't sort the completions for aws-signon (keep them in dev, staging, prod order)
-    zstyle ':completion:*:aws-signon:*' sort false
-    zstyle ':completion:*:repoman:*' sort false
-    zstyle ':completion:*:repoman-test:*' sort false
+# Don't sort the completions for some commands
+# which auto completion has been provided in a manual order
+zstyle ':completion:*:aws-signon:*' sort false
+zstyle ':completion:*:repoman:*' sort false
+zstyle ':completion:*:repoman-test:*' sort false
 
-    # Autocomplete will complete past '-'
-    zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
-    zstyle ':completion:*' group-name ''
+# Autocomplete will complete past '-'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
+zstyle ':completion:*' group-name ''
+
+# set list-colors to enable filename colorizing
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+zstyle ':completion:*:descriptions' format '[%d]'
+
+if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' group-name ''
     zstyle ':fzf-tab:*' group-colors '1'
 
     # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
     zstyle ':completion:*' menu no
-
-    # set list-colors to enable filename colorizing
-    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-
-    zstyle ':completion:*:descriptions' format '[%d]'
 
     # switch group using `<` and `>`
     zstyle ':fzf-tab:*' switch-group '<' '>'
@@ -119,13 +121,15 @@ compinit -d "${ZSH_COMPDUMP}"
 # This has some arrays/maps that are used for auto-completion
 source "${DOTFILES}/zsh/completion-helper.zsh"
 
-if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-    source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
+    source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
 fi
 
-if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-    ZSH_AUTOSUGGEST_STRATEGY=completion
-    source "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.zsh"
+if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
+    ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+    source "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+
+    bindkey '^ ' autosuggest-accept
 fi
 
 source "${DOTFILES}/zsh/ender.zsh-theme"
