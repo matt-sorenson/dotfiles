@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
 run-test() {
