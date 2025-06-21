@@ -1,0 +1,6 @@
+================================================================================
+= 🔐 Signing into AWS: dev                                                     =
+================================================================================
+mock_aws_logged_on_cmd_not_signed_on: dev
+not signed in, attempting SSO login for 'dev'...
+mock_aws_signon_cmd: dev

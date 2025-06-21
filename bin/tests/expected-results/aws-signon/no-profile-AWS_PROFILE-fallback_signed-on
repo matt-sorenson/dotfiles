@@ -1,0 +1,6 @@
+No profile specified, using $AWS_PROFILE: dev
+================================================================================
+= 🔐 Signing into AWS: dev                                                     =
+================================================================================
+mock_aws_logged_on_cmd_signed_on: dev
+already signed in as dev

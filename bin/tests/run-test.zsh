@@ -27,6 +27,7 @@ run-test(){
     --no-strip-colors)
         sanitize_colors=0
         ;;
+    --bootstrap) ;& # fallthrough
     --bootstrap-test)
         bootstrap_test=1
         ;;
@@ -84,7 +85,7 @@ run-test(){
         return 1
     fi
 
-    local result="$($test_name)"
+    local result="$($test_name 2>&1)"
 
     if (( sanitize_dotfiles_dir )); then
         result="${result//${DOTFILES}/\$\{DOTFILES\}}"
@@ -96,6 +97,7 @@ run-test(){
     local expected_filename="${DOTFILES}/bin/tests/expected-results/${testee}/${test_name}"
 
     if (( bootstrap_test )); then
+        mkdir -p "${DOTFILES}/bin/tests/expected-results/${testee}"
         print -n "$result" >! "${expected_filename}"
         return 0
     fi
