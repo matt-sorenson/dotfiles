@@ -94,7 +94,6 @@ case $dir in
 esac
 
 if ! git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null; then
-    echo "${dir}"
     if (( ! extra_quiet )); then
         if (( quiet )); then
             print-header -w -i "$indent" "${log_dir}: Directory not a git repo"

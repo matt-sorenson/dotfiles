@@ -52,7 +52,6 @@ if ! command -v jq > /dev/null; then
 fi
 
 if [[ ! -v jwt ]]; then
-    echo HERE
     if ! command -v pbpaste > /dev/null; then
         print-header -e "pbpaste not found. Must pass a JWT as an argument."
         print "${_usage}"

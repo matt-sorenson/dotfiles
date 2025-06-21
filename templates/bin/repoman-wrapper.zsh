@@ -17,15 +17,15 @@ function <reponame>() {
     repoman \
         --calling-name <reponame> \
         --db-container-name "<reponame container>" \
-        --clean-cmd "echo clean" \
-        --nuke-cmd "echo nuke" \
-        --install-cmd "echo install" \
-        --build-cmd "echo build" \
-        --db-up-cmd "echo db-up" \
-        --migrations-cmd "echo migrations" \
-        --generate-schema-cmd "echo generate-schema" \
-        --unit-tests-cmd "echo unit-test" \
-        --integration-tests-cmd "echo integration-test" \
+        --clean-cmd "print clean" \
+        --nuke-cmd "print nuke" \
+        --install-cmd "print install" \
+        --build-cmd "print build" \
+        --db-up-cmd "print db-up" \
+        --migrations-cmd "print migrations" \
+        --generate-schema-cmd "print generate-schema" \
+        --unit-tests-cmd "print unit-test" \
+        --integration-tests-cmd "print integration-test" \
         --db-up-working-dir "docker/" \
         --migrations-working-dir "docker/" \
         --generate-schema-working-dir "docker/" \
