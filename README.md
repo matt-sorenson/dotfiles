@@ -36,7 +36,16 @@ ${INSTALL_COMMAND_FROM_ABOVE} \
 ```
 # since shellcheck doesn't natively support zsh we tell it to treat it as bash
 # and exclude some warnings that are wrong in zsh.
-shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash
+shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash ${file}
+```
+Or 
+```
+for file in bin/*(.); do
+  if head -n 1 "$file" | grep -q '^#!/usr/bin/env zsh$'; then
+    echo "Running shellcheck on $file"
+    shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash "$file"
+  fi
+done
 ```
 
 # LLM saved memory Prompts

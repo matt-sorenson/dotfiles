@@ -513,6 +513,7 @@ Options:${mac_specific_help}${apt_specific_help}
             fi
         fi
     fi
+    git config --file "${DOTFILES}/local/gitconfig" core.hooksPath "${DOTFILES}/.githooks"
 
     if (( flags[do_hammerspoon] )); then
         print-header green "Setting up hammerspoon"

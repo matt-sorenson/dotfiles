@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 emulate -L zsh
-set -euo pipefail
+set -uo pipefail
 setopt typeset_to_unset
 
 # Get list of staged files in bin/ directory
@@ -9,19 +9,38 @@ if ! staged_files=($(git diff --cached --name-only --diff-filter=ACM | grep '^bi
   return 0
 fi
 
-files=()
+pre_commit_found_error=0
+errors_found=0
 
 for file in $staged_files; do
-    # Only check regular files that exist (in case they're deleted or moved)
-    if [[ -f "$file" ]] && grep -nH '\becho\b' "$file"; then
-        files+=("$file")
+    if [[ ! -f "$file" ]]; then
+        continue
+    fi
+
+    file_errors=()
+
+    if head -n 1 "$file" | grep -q '^#!/usr/bin/env zsh$'; then
+        file_errors+=("$(zsh --no-exec "$file" 2>&1 || true)")
+
+        grep -nH '\becho\b' "$file" | while IFS=: read -r fname lineno _; do
+            file_errors+=("$fname:$lineno:'echo' used. Use 'print' instead")
+        done
+    fi
+
+    file_errors=("${(@)file_errors:#}")
+    if (( ${#file_errors} )); then
+        if (( ! pre_commit_found_error )); then
+            print-header -e "Errors in '${file}'"
+            pre_commit_found_error=1
+        fi
+
+        (( errors_found+=${#file_errors} ))
+
+        printf '%s\n' "${file_errors[@]}"
     fi
 done
 
-if (( ${#files} )); then
-    print-header -e "Found 'echo' in these files"
-    printf "%s\n" $files
-
+if (( errors_found )); then
     return 1
 fi
 
