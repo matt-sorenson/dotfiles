@@ -102,17 +102,8 @@ TRAPEXIT() {
         cd ${(q)_repoman_starting_dir} &> /dev/null || print-header -e ">>> failed to return to starting directory."
     fi
 
-    _repoman-unset-f() {
-        while (( $# )) do
-            if [[ "$(type -w $1)" == *": function" ]]; then
-                unset -f "$1"
-            fi
-            shift
-        done
-    }
-
     unset _repoman_starting_dir
-    _repoman-unset-f _repoman-run-task _repoman-usage _repoman-override-tasks _repoman-unset-f
+    exit_trap_emulate_local_function _repoman-run-task _repoman-usage _repoman-override-tasks
 }
 
 local -i any_set=0
@@ -489,11 +480,6 @@ _repoman-override-tasks nuke generate_schema migrations
 
 local finished_tasks=()
 _repoman-run-task() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
-
     local task header
     local quiet=0
     local _repoman_run_task_usage="Usage: _repoman-run-task <task> [<header>] [-q]"

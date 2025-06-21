@@ -54,6 +54,15 @@ if command -v rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
 
+exit_trap_emulate_local_function() {
+    while (( $# )) do
+        if [[ "$(type -w $1)" == *": function" ]]; then
+            unset -f "$1"
+        fi
+        shift
+    done
+}
+
 is-emoji() {
     emulate -L zsh
     set -uo pipefail

@@ -179,7 +179,7 @@ function prompt_ender_preexec() {
     _prompt_ender_start_time="${SECONDS}"
 }
 
-function +vi-git-untracked(){
+function +vi-git-untracked() {
     if [[ $(git rev-parse --is-inside-work-tree 2> /dev/null) == 'true' ]] && \
         git status --porcelain | grep -q '^?? ' 2> /dev/null ; then
         # This will show the marker if there are any untracked files in repo.

@@ -2,14 +2,16 @@
 
 # Expect the following variables to be set:
 
+emulate -L zsh
+set -euo pipefail
+setopt typeset_to_unset
+
 if ! command -v print-header &> /dev/null; then
     autoload -Uz colors && colors
 
-    function print-header(){
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return
+    export local_print_header=1
 
+    print-header() {
         local color=''
         local prefix=''
         if [[ $1 == '-e' ]]; then
@@ -28,99 +30,94 @@ if ! command -v print-header &> /dev/null; then
     }
 fi
 
-function main() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
+safe-cp() {
+    local src="${1}"
+    local dest="${2}"
 
-    function safe-cp() {
-        local src="${1}"
-        local dest="${2}"
+    if [[ -f "$dest" ]]; then
+        print "${dest} already exists, skipping copy."
+        return
+    fi
 
-        if [[ -f "$dest" ]]; then
-            print "${dest} already exists, skipping copy."
-            return
-        fi
+    cp ${(q)src} ${(q)dest}
+}
 
-        cp ${(q)src} ${(q)dest}
-    }
+safe-set-link() {
+    local dest="${1}"
+    local src="${2}"
 
-    function safe-set-link() {
-        local dest="${1}"
-        local src="${2}"
+    # If the destination is already linked to the source do nothing
+    if [[ "${dest}" -ef "${src}" ]]; then
+        return 0
+    elif [[ -f "${dest}" ]]; then
+        mv "${dest}" "${dest}.bak"
+        print "${dest} backed up to ${dest}.bak"
+    fi
 
-        # If the destination is already linked to the source do nothing
-        if [[ "${dest}" -ef "${src}" ]]; then
-            return 0
-        elif [[ -f "${dest}" ]]; then
-            mv "${dest}" "${dest}.bak"
-            print "${dest} backed up to ${dest}.bak"
-        fi
+    ln -s "${src}" "${dest}"
+}
 
-        ln -s "${src}" "${dest}"
-    }
+safe-git-clone() {
+    local url dest
+    local extra_args=()
 
-    function safe-git-clone(){
-        local url dest
-        local extra_args=()
-
-        while (( $# )); do
-            case "$1" in
-                -s|--shallow)
-                    extra_args+=(--depth 1)
-                    ;;
-                -*)
-                    print-header -e "Unknown option: $1"
-                    return 1
-                    ;;
-                *)
-                    if [[ ! -v url ]]; then
-                        url="$1"
-                    elif [[ ! -v dest ]]; then
-                        dest="$1"
-                    else
-                        print-header -e "Too many arguments: $1"
-                        return 1
-                    fi
-                    ;;
-            esac
-            shift
-        done
-
-
-        # if the destination exists check to see if one of it's remotes is the given URL
-        # if so skip cloning
-        if [[ -d "${dest}" ]]; then
-            if git -C "${dest}" rev-parse --is-inside-work-tree &> /dev/null; then
-                local urls=("$url")
-                # If it's a github repo check for either the https or ssh URL
-                # Otherwise just use the URL as is.
-                if [[ "${url}" =~ '^git@github.com:(.+)$' ]]; then
-                    urls+=("https://github.com/${match[1]}")
-                elif [[ "${url}" =~ '^https://github.com/(.+)$' ]]; then
-                    urls+=("git@github.com:${match[1]}")
-                fi
-
-                local remote
-                for remote in "${urls[@]}"; do
-                    if git -C "${dest}" remote -v | grep -q -- "${remote}"; then
-                        print-header green "✅ Destination directory ${dest} already exists with remote ${remote}"
-                        return 0
-                    fi
-                done
-                unset remote
-            fi
-
-            if [[ -n "$(ls -A "${dest}" 2> /dev/null)" ]]; then
-                print-header -e "safe-git-clone: Destination directory ${dest} already exists and is not empty"
+    while (( $# )); do
+        case "$1" in
+            -s|--shallow)
+                extra_args+=(--depth 1)
+                ;;
+            -*)
+                print-header -e "Unknown option: $1"
                 return 1
+                ;;
+            *)
+                if [[ ! -v url ]]; then
+                    url="$1"
+                elif [[ ! -v dest ]]; then
+                    dest="$1"
+                else
+                    print-header -e "Too many arguments: $1"
+                    return 1
+                fi
+                ;;
+        esac
+        shift
+    done
+
+
+    # if the destination exists check to see if one of it's remotes is the given URL
+    # if so skip cloning
+    if [[ -d "${dest}" ]]; then
+        if git -C "${dest}" rev-parse --is-inside-work-tree &> /dev/null; then
+            local urls=("$url")
+            # If it's a github repo check for either the https or ssh URL
+            # Otherwise just use the URL as is.
+            if [[ "${url}" =~ '^git@github.com:(.+)$' ]]; then
+                urls+=("https://github.com/${match[1]}")
+            elif [[ "${url}" =~ '^https://github.com/(.+)$' ]]; then
+                urls+=("git@github.com:${match[1]}")
             fi
+
+            local remote
+            for remote in "${urls[@]}"; do
+                if git -C "${dest}" remote -v | grep -q -- "${remote}"; then
+                    print-header green "✅ Destination directory ${dest} already exists with remote ${remote}"
+                    return 0
+                fi
+            done
+            unset remote
         fi
 
-        git clone "${extra_args[@]}" "${url}" "${dest}"
-    }
+        if [[ -n "$(ls -A "${dest}" 2> /dev/null)" ]]; then
+            print-header -e "safe-git-clone: Destination directory ${dest} already exists and is not empty"
+            return 1
+        fi
+    fi
 
+    git clone "${extra_args[@]}" "${url}" "${dest}"
+}
+
+main() {
     local app_install_list=(
         fzf
         git

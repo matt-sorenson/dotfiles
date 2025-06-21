@@ -1,6 +1,6 @@
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
-run-test(){
+run-test() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
