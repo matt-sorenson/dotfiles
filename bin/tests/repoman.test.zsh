@@ -13,7 +13,7 @@ generate_schema_dir="generate_schema"
 unit_tests_dir="unit_tests"
 integration_tests_dir="integration_tests"
 
-function repoman-happycase() {
+happycase() {
     repoman \
         --calling-name dotfiles \
         --path "$root" \
@@ -38,7 +38,7 @@ function repoman-happycase() {
         -ncibdmguI
 }
 
-function repoman-task-fails() {
+task-fails() {
     repoman \
         --calling-name dotfiles \
         --path "$root" \
@@ -82,8 +82,8 @@ function main() {
     local out=0
     local testee='repoman'
     local -a test_cases=(
-        'repoman-happycase'
-        'repoman-task-fails'
+        happycase
+        task-fails
     )
 
     for element in "${test_cases[@]}"; do
