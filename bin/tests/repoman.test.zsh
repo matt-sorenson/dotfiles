@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/run-test.zsh"
+source "${DOTFILES}/bin/tests/harness.zsh"
 
 root="${DOTFILES}/bin/tests/env"
 clean_dir="clean"

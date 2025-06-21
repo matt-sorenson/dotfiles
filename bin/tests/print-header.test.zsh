@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/run-test.zsh"
+source "${DOTFILES}/bin/tests/harness.zsh"
 
 # For the tests here since they deal with the colors directly leave the color codes in the expected_results files
 

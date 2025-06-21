@@ -1,33 +1,33 @@
 #!/usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/run-test.zsh"
+source "${DOTFILES}/bin/tests/harness.zsh"
 
-function jwt-print-happycase() {
+function happycase() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ.GSMSgnCTkgkE0gufLXxWInLlgH1NYr0wfgSLGmtRk4k"
     jwt-print "$jwt"
 }
 
-function jwt-print-no-header() {
+function no-header() {
     local jwt=".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     jwt-print "$jwt"
 }
 
-function jwt-print-no-payload() {
+function no-payload() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     jwt-print "$jwt"
 }
 
-function jwt-print-no-issued-at() {
+function no-issued-at() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6MTUxNjI0MDAwMH0.XNgaJiftieRy3GWKcIUjH1dAZpNrKNCDMVDxres-mCM"
     jwt-print "$jwt"
 }
 
-function jwt-print-no-expire-at() {
+function no-expire-at() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     jwt-print "$jwt"
 }
 
-function jwt-print-no-sig() {
+function no-sig() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ."
     jwt-print "$jwt"
 }
@@ -36,12 +36,12 @@ function main() {
     local out=0
     local testee='jwt-print'
     local -a test_cases=(
-        jwt-print-happycase
-        jwt-print-no-header
-        jwt-print-no-payload
-        jwt-print-no-issued-at
-        jwt-print-no-expire-at
-        jwt-print-no-sig
+        happycase
+        no-header
+        no-payload
+        no-issued-at
+        no-expire-at
+        no-sig
     )
 
     for element in "${test_cases[@]}"; do
