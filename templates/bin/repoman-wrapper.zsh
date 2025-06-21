@@ -16,17 +16,22 @@ export DOT_DEFAULT_REPO="<reponame>"
 function <reponame>() {
     repoman \
         --calling-name <reponame> \
-        --clean-cmd "make clean" \
-        --nuke-cmd "make nuke" \
-        --install-cmd "make install" \
-        --build-cmd "make build" \
-        --migrations-subdir "" \
-        --db-up-cmd "make db-up" \
-        --migrations-cmd "make migrations" \
-        --unit-tests-cmd "make unit-test" \
-        --integration-tests-cmd "make integration-test" \
         --db-container-name "<reponame container>" \
-        --verbose-opts "unit-tests" \
+        --clean-cmd "echo clean" \
+        --nuke-cmd "echo nuke" \
+        --install-cmd "echo install" \
+        --build-cmd "echo build" \
+        --db-up-cmd "echo db-up" \
+        --migrations-cmd "echo migrations" \
+        --generate-schema-cmd "echo generate-schema" \
+        --unit-tests-cmd "echo unit-test" \
+        --integration-tests-cmd "echo integration-test" \
+        --db-up-working-dir "docker/" \
+        --migrations-working-dir "docker/" \
+        --generate-schema-working-dir "docker/" \
+        --unit-test-verbose \
+        --db-up-does-migration \
         "$@"
 }
+
 compdef _repoman <reponame>
