@@ -68,7 +68,6 @@ Extras:
     print "Usage: ${calling_name} [options]
 
 Options:
-
   -h, --help               Show this help message
 
 General Options:
