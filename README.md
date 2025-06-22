@@ -32,18 +32,24 @@ ${INSTALL_COMMAND_FROM_ABOVE} \
     --git-email 'foo@example.com'
 ```
 
-# Shellcheck command
+# Linting
 ```
 # since shellcheck doesn't natively support zsh we tell it to treat it as bash
 # and exclude some warnings that are wrong in zsh.
 shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash ${file}
 ```
-Or 
+Or
+```
+# This checks the file for syntax errors.
+zsh --no-exec "$file"
+```
+
+## All files in bin
+
 ```
 for file in bin/*(.); do
   if head -n 1 "$file" | grep -q '^#!/usr/bin/env zsh$'; then
-    echo "Running shellcheck on $file"
-    shellcheck --exclude=SC2296 --exclude=SC2066 --shell=bash "$file"
+    <linter> ${file}
   fi
 done
 ```
