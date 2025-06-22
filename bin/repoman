@@ -136,7 +136,7 @@ local -A task_requires_task=()
 local -A icons=(
     [git_clean]=🧹
     [clean]=🧹
-    [nuke]=🧹
+    [nuke]=☢️
     [install]=📦
     [build]=🛠️
     [db_up]=💾
@@ -187,6 +187,7 @@ case "$1" in
 --?*-cmd) ;& # fallthrough
 --?*-working-dir) ;& # fallthrough
 --?*-verbose-arg) ;& # fallthrough
+--?*-verbose) ;& #fallthrough
 --?*-requires)
     if (( $# < 2 )); then
         print-header -e "missing argument for $1"
@@ -208,6 +209,10 @@ case "$1" in
         fi
 
         task_verbose_args[$key]="$2"
+    elif [[ $key == *_verbose ]] && [[ -v tasks[${key/%_verbose/}] ]]; then
+        key="${key/%_verbose/}"
+
+        task_verbose_args[$key]="--verbose"
     elif [[ $key == *_cmd ]] && [[ -v tasks[${key%_cmd}] ]]; then
         key="${key%_cmd}"
         if [[ -v task_commands[$key] ]]; then
@@ -235,7 +240,7 @@ case "$1" in
             return 1
         fi
 
-        task_requires_task[$task1]="$2"
+        task_requires_task[$task1]="${2//-/_}"
 
         unset pattern task1 task2
     elif [[ -v opts[$key] ]]; then
@@ -297,7 +302,7 @@ case "$1" in
         unset key
     fi
     ;;
--[!-]?*)
+-[!-]*)
     local arg_list=( "${(@s::)1#-}" )
 
     # Process by popping front each time
@@ -305,7 +310,6 @@ case "$1" in
         local arg=${arg_list[1]}
         # Pop the front of the list
         arg_list=("${arg_list[@]:1}")
-
         case "${arg}" in
         b) any_set=1; tasks[build]=1 ;;
         c) any_set=1; tasks[clean]=1 ;;
@@ -493,7 +497,6 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
 }
 
 # Logic overrides
-_repoman-override-tasks -q migrations cloud_signon
 _repoman-override-tasks clean build install
 _repoman-override-tasks clean unit_tests install
 _repoman-override-tasks clean unit_tests build
@@ -504,9 +507,10 @@ _repoman-override-tasks nuke generate_schema db_up
 _repoman-override-tasks nuke generate_schema migrations
 
 local task required_task
-for task in ("${(k)tasks[#]}"); do
+for task in "${(k)tasks[@]}"; do
     if (( tasks[$task] )) && [[ -v task_requires_task[$task] ]]; then
-        for required_task in ${(s:;:)task_requires_task[$task]}; do
+        for required_task in "${(s:;:)task_requires_task[$task]}"; do
+            echo 'req: $required_task'
             if (( ! task[$required_task] )); then
                 task[$required_task]=2
             fi
