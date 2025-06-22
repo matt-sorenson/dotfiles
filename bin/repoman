@@ -145,10 +145,6 @@ local -A task_commands=(
     git_clean         'git clean -fdx'
 )
 
-if command -v aws &> /dev/null; then
-    task_commands[aws_signon]='aws-signon dev'
-fi
-
 local -A task_verbose_args=()
 local -A task_working_dirs=()
 
@@ -390,7 +386,7 @@ if [[ ! -d "${repo_dir}" ]]; then
 fi
 
 local starting_dir="${PWD:A}"
-local key
+local key val
 for key in ${(k)task_working_dirs}; do
     val="${repo_dir}/${task_working_dirs[$key]}"
     val="${val:A}"
@@ -403,7 +399,7 @@ for key in ${(k)task_working_dirs}; do
         return 1
     fi
 done
-unset key starting_dir
+unset key starting_dir val
 
 # Canonicalize the repo dir
 repo_dir="$repo_dir:A"
@@ -426,6 +422,13 @@ if (( tasks[tests] )); then
 
     if (( ! tasks[integration_tests] )); then
         tasks[integration_tests]=2
+    fi
+fi
+
+
+if [[ ! -v task_commands[aws_signon] ]]; then
+    if command -v aws &> /dev/null; then
+        task_commands[aws_signon]='aws-signon dev'
     fi
 fi
 
@@ -571,6 +574,7 @@ _repoman-run-task() {
     fi
 
     if [[ -v task_does_task[$task] ]]; then
+        local implied_task
         for implied_task in ${(s:;:)task_does_task[$task]}; do
             if (( ${finished_tasks[(I)$implied_task]} )); then
                 print-header "Invalid case: --${task}-does-${implied_task}, '${implied_task}' already finished."
@@ -585,6 +589,7 @@ _repoman-run-task() {
                 tasks[$implied_task]=0
             fi
         done
+        unset implied_task
     fi
 
     finished_tasks+=("$task")
