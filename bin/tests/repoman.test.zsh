@@ -30,7 +30,7 @@ happycase() {
         --nuke-cmd 'print "nuke $(pwd)"' \
         --install-cmd 'print "install $(pwd)"' \
         --build-cmd 'print "build $(pwd)"' \
-        --aws-signon-cmd 'print "aws-signon $(pwd)"' \
+        --cloud-signon-cmd 'print "aws-signon $(pwd)"' \
         --db-up-cmd 'print "db $(pwd)"-up' \
         --migrations-cmd 'print "migration $(pwd)"' \
         --generate-schema-cmd 'print "generate $(pwd)"-schema' \
@@ -56,7 +56,7 @@ task-fails() {
         --nuke-cmd 'print "nuke $(pwd)"' \
         --install-cmd 'false' \
         --build-cmd 'print "build $(pwd)"' \
-        --aws-signon-cmd 'print "aws-signon $(pwd)"' \
+        --cloud-signon-cmd 'print "aws-signon $(pwd)"' \
         --db-up-cmd 'print "db $(pwd)"-up' \
         --migrations-cmd 'print "migration $(pwd)"' \
         --generate-schema-cmd 'print "generate $(pwd)"-schema' \

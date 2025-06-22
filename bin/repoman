@@ -8,10 +8,10 @@
 # - External tools:
 #   - git
 #   - docker (for --db-container-name support)
-#   - realpath (optional, better path handling)
 # - Custom functions:
-#   - aws-signon (optional, be signed in already, or provide a --aws-signon-cmd)
+#   - aws-signon (optional, be signed in already, or provide a command with --aws-signon-cmd)
 #   - print-header
+#   - exit_trap_emulate_local_function - Iterates through all parameters and deletes the function if they exist
 
 emulate -L zsh
 set -uo pipefail
@@ -112,6 +112,12 @@ TRAPEXIT() {
 }
 
 local -i any_set=0
+
+# A task set to
+# 0 - disabled
+# 1 - requested
+# 2 - not requested, but one of the requested requires it to run
+# 3 - requested by group flag (like -t/--test), skippable if no command provided
 local -A tasks=(
     git_clean           0
     nuke                0
@@ -189,7 +195,7 @@ case "$1" in
 --?*-verbose-arg) ;& # fallthrough
 --?*-verbose) ;& #fallthrough
 --?*-requires)
-    if (( $# < 2 )); then
+    if (( $# < 2 )) || [[ -z $2 ]]; then
         print-header -e "missing argument for $1"
         _repoman-usage
         return 1
@@ -257,7 +263,6 @@ case "$1" in
     fi
 
     unset key
-
     shift
     ;;
 --?*)
@@ -275,30 +280,14 @@ case "$1" in
         unset pattern task1 task2
     else
         local key="${${1#--}//-/_}"
-        if [[ -z "$key" ]]; then
+        if [[ -z "$key" || ! -v "tasks[$key]" ]]; then
             print-header -e "Unknown option: '$1'"
             _repoman-usage
             return 1
         fi
 
-        if [[ -v "tasks[$key]" ]]; then
-            tasks[$key]=1
-            any_set=1
-        elif [[ -v "tasks[${key/%_verbose/}]" ]]; then
-            key="${key/%_verbose/}"
-            if [[ -v task_verbose_args[$key] ]]; then
-                print-header -e "Option '$1' is already set to '${task_verbose_args[$key]}'."
-                return 1
-            fi
-
-            tasks[$key]='--verbose'
-            any_set=1
-        else
-            print-header -e "Unknown option: '$1'"
-            _repoman-usage
-            return 1
-        fi
-
+        tasks[$key]=1
+        any_set=1
         unset key
     fi
     ;;
@@ -331,7 +320,7 @@ case "$1" in
                 return 1
             fi
 
-            if (( $# < 2 )); then
+            if (( $# < 2 )) || [[ -z $2 ]]; then
                 print-header -e "missing argument for '-${arg}'"
                 _repoman-usage
                 return 1
@@ -394,8 +383,8 @@ local repo_dir
 if [[ -n "${opts[path]}" ]]; then
     repo_dir="${opts[path]}"
 else
-    if [[ -z "${WORKSPACE_ROOT_DIR}" ]]; then
-        print "Error: WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
+    if [[ ! -v WORKSPACE_ROOT_DIR ||  -z "${WORKSPACE_ROOT_DIR}" ]]; then
+        print-header -e "Error: WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
         if [[ -z "${default_repo}" ]]; then
             print "       When -r/--repo is not specified, \"${WORKSPACE_ROOT_DIR}/${default_repo}\" is used."
         fi
@@ -408,25 +397,28 @@ if [[ ! -d "${repo_dir}" ]]; then
     print-header -e "The directory '${repo_dir}' does not exist. Please check the path or repo name."
     return 1
 fi
+# Canonicalize the repo dir
+repo_dir="${repo_dir:A}"
 
-local starting_dir="${PWD:A}"
 local key val
 for key in ${(k)task_working_dirs}; do
-    val="${repo_dir}/${task_working_dirs[$key]}"
+    if [[ ${task_working_dirs[$key]} == /* ]]; then
+        val="${task_working_dirs[$key]}"
+    else
+        val="${repo_dir}/${task_working_dirs[$key]}"
+    fi
+
     val="${val:A}"
-    if [[ -z $val || ${val} == "${starting_dir}" ]]; then
+    if [[ "${val}" == "${repo_dir}" ]]; then
         unset "task_working_dirs[$key]"
-    elif [[ -d "$val" ]]; then
+    elif [[ -d "${val}" ]]; then
         task_working_dirs[$key]="$val"
     else
         print-header -e "'$val' from --${key//_/-}-working-dir not a directory."
         return 1
     fi
 done
-unset key starting_dir val
-
-# Canonicalize the repo dir
-repo_dir="$repo_dir:A"
+unset key val
 
 if (( ! any_set )); then
     print-header -e "You must specify at least one option"
@@ -448,7 +440,6 @@ if (( tasks[tests] )); then
         tasks[integration_tests]=2
     fi
 fi
-
 
 if [[ ! -v task_commands[cloud_signon] ]]; then
     if command -v aws &> /dev/null; then
@@ -491,7 +482,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         fi
 
         if (( ! tasks[$1] )); then
-            tasks[$1]=2
+            tasks[$1]=3
         fi
     fi
 }
@@ -510,7 +501,6 @@ local task required_task
 for task in "${(k)tasks[@]}"; do
     if (( tasks[$task] )) && [[ -v task_requires_task[$task] ]]; then
         for required_task in "${(s:;:)task_requires_task[$task]}"; do
-            echo 'req: $required_task'
             if (( ! task[$required_task] )); then
                 task[$required_task]=2
             fi
@@ -567,30 +557,18 @@ _repoman-run-task() {
     elif (( ! tasks[$task] )); then
         return 0
     elif [[ ! -v task_commands[$task] ]]; then
-        if (( tasks[$task] == 2 )); then
+        if (( tasks[$task] == 3 )); then
             print-header cyan --icon "${icon}" "${header}: Command not found, skipping"
             return 0
         else
             print-header -e --icon "${icon}" "${header}: Command not found"
             return 1
         fi
-    elif [[ -z "$task_commands[$task]" ]]; then
-        print-header -e --icon "${icon}" "${header}: Command not found"
-        return 1
     fi
 
-    local working_dir
+    local working_dir="${repo_dir}"
     if [[ -v task_working_dirs[$task] ]]; then
         working_dir="${task_working_dirs[$task]}"
-    else
-        working_dir="${repo_dir}"
-    fi
-
-    if command -v realpath &> /dev/null; then
-        if ! working_dir="$(realpath ${(a)working_dir})"; then
-            print-header -e --icon "${icon}" "${header}: Can't resolve path ${working_dir}"
-            return 1
-        fi
     fi
 
     if (( ! quiet )); then
