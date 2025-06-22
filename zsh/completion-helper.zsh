@@ -35,7 +35,3 @@ typeset -a _repoman_tasks_args=(
     '(-I --integration-tests)'{-I,--integration-tests}'[Run integration tests]'
     '(-t --tests)'{-t,--tests}'[Run all tests]'
 )
-
-repoman-test() {
-
-}
