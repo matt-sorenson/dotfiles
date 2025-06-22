@@ -56,10 +56,10 @@ no-cleanup() {
         --done-filename no-cleanup.done \
         --no-cleanup
 
-    if [[ ! -f "${root}/no-cleanup.done" ]]; then
-        print-header -e "--no-cleanup passed in but file is missing"
-    else
+    if [[ -f "${root}/no-cleanup.done" ]]; then
         rm -f "${root}/no-cleanup.done"
+    else
+        print-header -e "--no-cleanup passed in but file is missing"
     fi
 }
 
