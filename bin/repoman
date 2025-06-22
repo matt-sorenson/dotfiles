@@ -18,6 +18,8 @@ set -uo pipefail
 setopt err_return
 setopt typeset_to_unset
 unsetopt auto_pushd
+setopt warn_create_global
+unsetopt short_loops
 
 local default_repo="${DOT_DEFAULT_REPO:-}"
 local calling_name="repoman"

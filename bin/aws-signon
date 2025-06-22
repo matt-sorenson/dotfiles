@@ -6,6 +6,8 @@ set -uo pipefail
 setopt err_return
 setopt typeset_to_unset
 setopt null_glob
+setopt warn_create_global
+unsetopt short_loops
 
 local _usage="Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
@@ -111,7 +113,7 @@ if (( ! force )); then
         logged_in_command='aws sts get-caller-identity --profile'
     fi
 
-    logged_in_cmd_array=("${(z)logged_in_command}")
+    local logged_in_cmd_array=("${(z)logged_in_command}")
     if ! command -v "${logged_in_cmd_array[1]}" &> /dev/null; then
         print-header -e "Command '${logged_in_cmd_array[1]}' not found"
         return 1

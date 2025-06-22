@@ -6,6 +6,8 @@ set -uo pipefail
 setopt nullglob
 setopt err_return
 setopt typeset_to_unset
+setopt warn_create_global
+unsetopt short_loops
 
 local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto [time-limit-in-hours]]
 

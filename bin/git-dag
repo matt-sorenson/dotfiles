@@ -4,6 +4,8 @@
 emulate -L zsh
 set -uo pipefail
 setopt err_return
+setopt warn_create_global
+unsetopt short_loops
 
 local format='%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)'
 

@@ -6,6 +6,8 @@ autoload -Uz colors && colors
 emulate -L zsh
 set -uo pipefail
 setopt err_return
+setopt warn_create_global
+unsetopt short_loops
 
 local _usage="Usage: git-popb [-h|--help]
 

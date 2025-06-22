@@ -5,6 +5,8 @@ emulate -L zsh
 set -uo pipefail
 setopt err_return
 setopt typeset_to_unset
+setopt warn_create_global
+unsetopt short_loops
 
 local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
 

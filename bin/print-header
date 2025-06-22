@@ -1,6 +1,13 @@
 #!/usr/bin/env zsh
 #compdef print-header
 
+emulate -L zsh
+set -uo pipefail
+setopt err_return
+setopt typeset_to_unset
+setopt warn_create_global
+unsetopt short_loops
+
 autoload -Uz colors && colors
 
 if ! command -v is-emoji &> /dev/null; then
@@ -17,11 +24,6 @@ if ! command -v is-emoji &> /dev/null; then
            (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
     }
 fi
-
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt typeset_to_unset
 
 local _usage="Usage: print-header [-h|--help] [-i <indent>|--indent <indent>] [<color>...] [--] <message>
 

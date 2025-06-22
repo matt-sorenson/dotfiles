@@ -5,6 +5,8 @@ emulate -L zsh
 set -uo pipefail
 setopt err_return
 setopt null_glob
+setopt warn_create_global
+unsetopt short_loops
 
 local flag_remove=0
 local flag_quiet=0

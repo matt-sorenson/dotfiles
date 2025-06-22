@@ -34,7 +34,7 @@ process_url() {
 
 # Check args
 if [ $# -lt 1 ]; then
-    printf 'Usage: %s <URL or file containing URLs>\n' "$0"
+    printf 'Usage: video-downloader <URL or file containing URLs>\n'
     exit 1
 fi
 

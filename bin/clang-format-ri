@@ -5,6 +5,8 @@ emulate -L zsh
 set -uo pipefail
 setopt err_return
 setopt typeset_to_unset
+setopt warn_create_global
+unsetopt short_loops
 
 if ! command -v clang-format > /dev/null; then
     print-header -e "ERROR: clang-format not found. Please install clang-format to use this script."
