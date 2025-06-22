@@ -54,7 +54,7 @@ force-not-signed-on() {
     aws-signon --force --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_not_signed_on dev
 }
 
-function main() {
+main() {
     local out=0
     local testee='aws-signon'
     local -a test_cases=(

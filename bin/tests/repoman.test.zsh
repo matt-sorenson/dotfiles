@@ -2,7 +2,7 @@
 
 source "${DOTFILES}/bin/tests/harness.zsh"
 
-root="${DOTFILES}/bin/tests/env"
+root="${DOTFILES}/bin/tests/repoman-env"
 clean_dir="clean"
 nuke_dir="nuke"
 install_dir="install"
@@ -65,7 +65,7 @@ task-fails() {
         -ncibdmguI
 }
 
-function main() {
+main() {
     mkdir -p "${root}/${clean_dir}"
     mkdir -p "${root}/${nuke_dir}"
     mkdir -p "${root}/${install_dir}"

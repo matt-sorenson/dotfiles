@@ -91,6 +91,7 @@ run-test() {
 
     if (( sanitize_dotfiles_dir )); then
         result="${result//${DOTFILES}/\$\{DOTFILES\}}"
+        result="${result//${WORKSPACE_ROOT_DIR}\/dotfiles/\$\{DOTFILES\}}"
     fi
     if (( sanitize_colors )); then
         result="$(print -n "$result" | strip-color-codes)"

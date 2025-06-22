@@ -8,7 +8,7 @@ setopt typeset_to_unset
 setopt warn_create_global
 unsetopt short_loops
 
-local _unset="Usage <name>
+local _usage="Usage <name>
 
 Options:
 "

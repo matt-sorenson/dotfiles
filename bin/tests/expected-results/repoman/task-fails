@@ -1,8 +1,8 @@
-aws-signon ${DOTFILES}/bin/tests/env
+aws-signon ${DOTFILES}/bin/tests/repoman-env
 ================================================================================
 = 🧹 Nuke: Command: `print "nuke $(pwd)"`                                      =
 ================================================================================
-nuke ${DOTFILES}/bin/tests/env/nuke
+nuke ${DOTFILES}/bin/tests/repoman-env/nuke
 ================================================================================
 = Clean: Skipped because Nuke already did it.                                  =
 ================================================================================

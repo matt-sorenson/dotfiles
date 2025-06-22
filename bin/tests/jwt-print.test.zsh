@@ -2,37 +2,37 @@
 
 source "${DOTFILES}/bin/tests/harness.zsh"
 
-function happycase() {
+happycase() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ.GSMSgnCTkgkE0gufLXxWInLlgH1NYr0wfgSLGmtRk4k"
     jwt-print "$jwt"
 }
 
-function no-header() {
+no-header() {
     local jwt=".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     jwt-print "$jwt"
 }
 
-function no-payload() {
+no-payload() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     jwt-print "$jwt"
 }
 
-function no-issued-at() {
+no-issued-at() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6MTUxNjI0MDAwMH0.XNgaJiftieRy3GWKcIUjH1dAZpNrKNCDMVDxres-mCM"
     jwt-print "$jwt"
 }
 
-function no-expire-at() {
+no-expire-at() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
     jwt-print "$jwt"
 }
 
-function no-sig() {
+no-sig() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ."
     jwt-print "$jwt"
 }
 
-function main() {
+main() {
     local out=0
     local testee='jwt-print'
     local -a test_cases=(
