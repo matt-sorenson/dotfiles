@@ -1,32 +1,25 @@
 # Setup
 
-In ./local/zshrc.zsh make sure to add `DOT_DEFAULT_REPO='<whatever repo name>'`
-if you plan on using repoman. See templates/ for an example of how to use it.
+## Requirements
+- zsh
+- curl
 
 ## Ubuntu Install
-Run `apt install -y zsh` first
+Run `apt install -y zsh curl` first
 
-## wget install
-```sh
-wget -q -O - https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/main/init.zsh | zsh
-```
-
-### curl install
+### Install
 ```sh
 curl -sSL https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/main/init.zsh | zsh
 ```
 
 ## Matt's default Init flags
 ```sh
-wget -q -O - https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/main/init.zsh | zsh --git-email-matt --work
-```
-```sh
 curl -sSL https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/main/init.zsh | zsh --git-email-matt --work
 ```
 
 ## Other example
 
-```zsh
+```sh
 ${INSTALL_COMMAND_FROM_ABOVE} \
     --work \
     --git-email 'foo@example.com'

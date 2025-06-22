@@ -3,7 +3,6 @@
 
 # Requirements:
 # - Environment variables:
-#   - DOT_DEFAULT_REPO (optional, fallback repo name)
 #   - WORKSPACE_ROOT_DIR (used to resolve --repo/-r to a path)
 # - External tools:
 #   - git
@@ -22,7 +21,7 @@ setopt warn_create_global
 unsetopt auto_pushd
 unsetopt short_loops
 
-local default_repo="${DOT_DEFAULT_REPO:-}"
+local default_repo
 local calling_name="repoman"
 
 _repoman-usage() {
@@ -65,7 +64,7 @@ Extras:
     fi
 
     local default_repo_str=""
-    if [[ -n "${default_repo}" ]]; then
+    if [[ -v default_repo ]]; then
         default_repo_str=" (default: ${default_repo})"
     fi
 
@@ -99,6 +98,10 @@ Examples:
   ${calling_name} -cibt -p /path/to/repo     Run clean, install, build, and test in the specified repo"
 }
 
+_repoman-format-header() {
+    $(print "$*" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig')
+}
+
 export _repoman_starting_dir="${PWD}"
 
 # emulate `local -F` since it doesn't exist & return to starting directory.
@@ -108,7 +111,11 @@ TRAPEXIT() {
     fi
 
     unset _repoman_starting_dir
-    exit_trap_emulate_local_function _repoman-run-task _repoman-usage _repoman-override-tasks
+    exit_trap_emulate_local_function \
+        _repoman-format-header \
+        _repoman-override-tasks \
+        _repoman-run-task \
+        _repoman-usage
 }
 
 local -i any_set=0
@@ -165,7 +172,7 @@ local -A opts=(
     dump_commands       0
 
     path              ''
-    repo              "${default_repo}"
+    repo              ''
 
     db_container_name ''
 )
@@ -186,6 +193,15 @@ case "$1" in
 
     calling_name="$2"
     shift
+    ;;
+--default-repo)
+    if (( $# < 2 )) || [[ -z $2 ]]; then
+        print-header -e "missing argument for $1"
+        _repoman-usage
+        return 1
+    fi
+
+    default_repo="$2"
     ;;
 --repo|-r) ;& # fallthrough
 --path|-p) ;& # fallthrough
@@ -549,7 +565,7 @@ _repoman-run-task() {
         header="${(C)task//_/ }"
     fi
     # uppercase db if it's a seperate word.
-    header=${$(print "$header" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig')}
+    header="$(_repoman-format-header "$header")"
 
     if [[ ! -v tasks[$task] ]]; then
         print-header -e "${header}: Invalid task: ${task}"
@@ -597,7 +613,7 @@ _repoman-run-task() {
 
             if (( tasks[$implied_task] )); then
                 local implied_header="${(C)implied_task//_/ }"
-                implied_header=${$(print "$implied_header" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig')}
+                implied_header="$(_repoman-format-header "$implied_header")"
                 print-header cyan "${implied_header}: Skipped because ${header} already did it."
 
                 tasks[$implied_task]=0

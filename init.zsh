@@ -101,7 +101,7 @@ safe-git-clone() {
             local remote
             for remote in "${urls[@]}"; do
                 if git -C "${dest}" remote -v | grep -q -- "${remote}"; then
-                    print-header green --icon ✅ "Destination directory ${dest} already exists with remote ${remote}"
+                    print-header green "✅ Destination directory ${dest} already exists with remote ${remote}"
                     return 0
                 fi
             done
@@ -146,6 +146,10 @@ main() {
         [zsh-autosuggestions]="shallow=https://github.com/zsh-users/zsh-autosuggestions"
         [zsh-syntax-highlighting]="shallow=https://github.com/zsh-users/zsh-syntax-highlighting.git"
     )
+
+    if [[ ! -v DOTFILES ]]; then
+        print-header green "\${DOTFILES} is not defined, using '${HOME}/.dotfiles'"
+    fi
 
     export DOTFILES="${DOTFILES:-${HOME}/.dotfiles}"
     local LOCAL_DOTFILES
@@ -430,6 +434,9 @@ Options:${mac_specific_help}${apt_specific_help}
     fi
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
+    # print-header from the dotfiles is more robust so :shrug:
+    unset print-header
+    PATH="${DOTFILES}/bin:${PATH}"
 
     # '-p' options makes all the directories that don't exist, but
     # more importantly it doesn't error if the directory already exists.
@@ -471,10 +478,7 @@ Options:${mac_specific_help}${apt_specific_help}
         mkdir -p "${DOTFILES}/local/bin"
         mkdir -p "${DOTFILES}/local/zsh/completions"
 
-        if [[ ! -f "${DOTFILES}/local/zsh/zshenv.zsh" ]]; then
-            print "# export DOT_DEFAULT_REPO=<SETME>" > "${DOTFILES}/local/zsh/zshenv.zsh"
-        fi
-
+        touch "${DOTFILES}/local/zsh/zshenv.zsh"
         touch "${DOTFILES}/local/zsh/zshrc.zsh"
         touch "${DOTFILES}/local/gitconfig"
 
@@ -513,7 +517,9 @@ Options:${mac_specific_help}${apt_specific_help}
             fi
         fi
     fi
-    git config --file "${DOTFILES}/local/gitconfig" core.hooksPath "${DOTFILES}/.githooks"
+
+    print-header -i 2 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
+    git -C "${DOTFILES}/" config core.hooksPath "${DOTFILES}/.githooks"
 
     if (( flags[do_hammerspoon] )); then
         print-header green "Setting up hammerspoon"
