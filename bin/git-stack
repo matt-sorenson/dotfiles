@@ -67,7 +67,7 @@ local stack_file="${repo_root}/.ms-popb-stack"
 
 if (( clear_stack )); then
     if [[ -f "$stack_file" ]]; then
-        rm -f "${stack_file}"
+        rm "${stack_file}"
     fi
     print-header green "Cleared branch stack."
 else

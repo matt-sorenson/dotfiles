@@ -99,7 +99,7 @@ Examples:
 }
 
 _repoman-format-header() {
-    $(print "$*" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig')
+    print "$*" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig'
 }
 
 export _repoman_starting_dir="${PWD}"

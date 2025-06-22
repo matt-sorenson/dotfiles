@@ -69,7 +69,7 @@ fi
 
 # if now empty, delete it
 if [[ ! -s "${stack_file}" ]]; then
-    rm -f "${stack_file}"
+    rm "${stack_file}"
 fi
 
 local current_branch

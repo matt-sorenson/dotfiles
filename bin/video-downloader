@@ -284,5 +284,5 @@ done
 print-header green "Successfully downloaded all videos"
 if [[ -f "${done_filename}" ]] && (( $flags[cleanup] )); then
     print "removing ${done_filename}."
-    rm -f "${done_filename}"
+    rm "${done_filename}"
 fi

@@ -5,7 +5,7 @@ autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
 
 if [[ -f "${HOME}/.zcompdump" ]]; then
     print-header cyan "Removing old zcompdump file."
-    rm -f "${HOME}/.zcompdump"
+    rm "${HOME}/.zcompdump"
 fi
 
 # on macOS /etc/zprofile stomps on the path. Clean it back up.
@@ -32,7 +32,7 @@ if [[ "${OSTYPE}" == darwin* ]]; then
         print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"
         print "this is the git autocomplete provided by git, deleting this to" \
             "fallback to the one provided by zsh"
-        rm -f /opt/homebrew/share/zsh/site-functions/_git
+        rm /opt/homebrew/share/zsh/site-functions/_git
     fi
 
     # Disable Apple's "save/restore shell state" feature.

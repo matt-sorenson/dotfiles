@@ -22,7 +22,7 @@ url-and-file() {
         print-header -e "${PWD}/video-downloader.done file not cleaned up"
     fi
 
-    rm -f "${root}/url-and-file"
+    rm "${root}/url-and-file"
 
     return 0
 }
@@ -46,7 +46,7 @@ file() {
         print-header -e "${root}/test-file.done file not cleaned up"
     fi
 
-    rm -f "${root}/test-file"
+    rm "${root}/test-file"
 }
 
 no-cleanup() {
@@ -57,7 +57,7 @@ no-cleanup() {
         --no-cleanup
 
     if [[ -f "${root}/no-cleanup.done" ]]; then
-        rm -f "${root}/no-cleanup.done"
+        rm "${root}/no-cleanup.done"
     else
         print-header -e "--no-cleanup passed in but file is missing"
     fi
