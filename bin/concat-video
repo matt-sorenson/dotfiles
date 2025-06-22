@@ -158,4 +158,4 @@ if ! "${cmd[@]};" then
     return $status
 fi
 
-print-header green "✅ Successfully created ${final_filename}"
+print-header green --icon ✅ "Successfully created ${final_filename}"

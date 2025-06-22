@@ -36,7 +36,7 @@ while (( $# )); do
         ;;
     -b|--branch)
         if (( $# < 2 )); then
-            print-header red "Missing argument for '$1'"
+            print-header -e "Missing argument for '$1'"
             print "${_usage}"
             return 1
         elif [ -z "${new_branch}" ]; then
@@ -44,7 +44,7 @@ while (( $# )); do
             arguments+=("$1" "$2")
             shift
         else
-            print-header red "Invalid '$1' - a branch has already been provided '${new_branch}'"
+            print-header -e "Invalid '$1' - a branch has already been provided '${new_branch}'"
             print "${_usage}"
             return 1
         fi
@@ -64,7 +64,7 @@ while (( $# )); do
             new_branch="$1"
             arguments+=("$1")
         else
-            print-header red "Unknown argument: $1"
+            print-header -e "Unknown argument: $1"
             print "a branch has already been provided."
             print "${_usage}"
             return 1
@@ -75,7 +75,7 @@ while (( $# )); do
 done
 
 if [[ -z "${new_branch}" ]]; then
-    print-header red "No branch specified."
+    print-header -e "No branch specified."
     print "Please provide a branch name to check out."
     print "${_usage}"
     return 1

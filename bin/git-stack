@@ -31,7 +31,7 @@ while (( $# )); do
         quiet=1
         ;;
     *)
-        print-header red "Unknown option: $1"
+        print-header -e "Unknown option: $1"
         print "${_usage}"
         return 1
         ;;
@@ -42,7 +42,7 @@ done
 # Find repo root
 local repo_root
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-    print-header red "Not a git repository.";
+    print-header -e "Not a git repository.";
     return 1;
 }
 

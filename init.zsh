@@ -101,7 +101,7 @@ safe-git-clone() {
             local remote
             for remote in "${urls[@]}"; do
                 if git -C "${dest}" remote -v | grep -q -- "${remote}"; then
-                    print-header green "✅ Destination directory ${dest} already exists with remote ${remote}"
+                    print-header green --icon ✅ "Destination directory ${dest} already exists with remote ${remote}"
                     return 0
                 fi
             done

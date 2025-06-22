@@ -76,7 +76,7 @@ local current_branch
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "${current_branch}" = "${target_branch}" ]]; then
-    (( ! quiet )) && print-header green "✅ You are already on '${target_branch}'"
+    (( ! quiet )) && print-header green --icon ✅ "You are already on '${target_branch}'"
     return 0
 fi
 
