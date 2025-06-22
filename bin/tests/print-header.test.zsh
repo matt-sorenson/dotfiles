@@ -50,7 +50,7 @@ main() {
     )
 
     for element in "${(k)test_cases[@]}"; do
-        run-test --no-strip-colors "$testee" "$element" || (( out += 1 ))
+        run-test --no-sanitize-colors "$testee" "$element" || (( out += 1 ))
     done
 
     return $out

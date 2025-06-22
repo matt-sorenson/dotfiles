@@ -8,14 +8,42 @@ run-test() {
     setopt err_return
     setopt typeset_to_unset
 
-    local _unset="Usage run-test <command to test> <test-function-name>"
+    local _unset="Usage run-test <command to test> <test-function-name>
+  <command-to-test>     the name of the command being tested (just effects logging)
+  <test-function-name>  function or command that the test will call and compare the output of
+                        to the value in ./expected-values/<command-to-test>/<test-function-name>
+
+On a test failure the received output will be dumped to failed-results/<command-to-test>/<test-function-name>
+
+Options:
+  -h, --help    Display this message
+
+  --bootstrap   Don't test against expected results, instead write the expected result
+
+  --differ-cmd  Provide a command that takes in 2 arguments
+                <expected-output> and <received-output>. Should
+                return 0 if the values match.
+                This is useful if you need to do fuzzy matching or ignore timestamps
+
+Sanitization Options:
+  --no-sanitize-current-dir   Disable sanitize-current-dir
+  --no-sanitize-dotfiles-dir  Disable sanitize-dotfiles-dir
+  --no-sanitize-colors        Disable sanitize-colors
+
+sanitize-current-dir changes any instances of the string matching the current directory with the literal \${PWD}
+sanitize-dotfiles-dir changes any instance matching the path in \$DOTFILES with the literal \${dotfiles}
+sanitize-colors strips any terminal color codes from the output. Should only be disabled when you're specifically testing color"
 
     local testee_name
     local test_name
-    local sanitize_dotfiles_dir=1
-    local sanitize_colors=1
-    local bootstrap_test=0
     local differ_cmd
+
+    local -A flags=(
+        ['sanitize_current_dir']=1
+        ['sanitize_dotfiles_dir']=1
+        ['sanitize_colors']=1
+        ['bootstrap_test']=0
+    )
 
     while (( $# )); do
     case $1 in
@@ -23,15 +51,18 @@ run-test() {
         print "${_usage}"
         return 0
         ;;
-    --no-sanitize-dotfiles-dir)
-        sanitize_dotfiles_dir=0
+    --no-*)
+        local key="${${1#--no-}//-/_}"
+        if [[ -v flags[$key] ]]; then
+            flags[$key]=0
+        else
+            print-header -e "Unexpected flag '$1'"
+            print "${_usage}"
+            return 1
+        fi
         ;;
-    --no-strip-colors)
-        sanitize_colors=0
-        ;;
-    --bootstrap) ;& # fallthrough
-    --bootstrap-test)
-        bootstrap_test=1
+    --bootstrap)
+        flags[bootstrap_test]=1
         ;;
     --differ-cmd)
         shift
@@ -89,17 +120,20 @@ run-test() {
 
     local result="$($test_name 2>&1)"
 
-    if (( sanitize_dotfiles_dir )); then
+    if (( flags[sanitize_dotfiles_dir] )); then
         result="${result//${DOTFILES}/\$\{DOTFILES\}}"
         result="${result//${WORKSPACE_ROOT_DIR}\/dotfiles/\$\{DOTFILES\}}"
     fi
-    if (( sanitize_colors )); then
+    if (( flags[sanitize_current_dir] )); then
+        result="${result//${PWD}/\$\{PWD\}}"
+    fi
+    if (( flags[sanitize_colors] )); then
         result="$(print -n "$result" | strip-color-codes)"
     fi
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/${testee}/${test_name}"
 
-    if (( bootstrap_test )); then
+    if (( flags[bootstrap_test] )); then
         mkdir -p "${DOTFILES}/bin/tests/expected-results/${testee}"
         print -n "$result" >! "${expected_filename}"
         return 0
