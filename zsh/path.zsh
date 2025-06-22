@@ -9,7 +9,7 @@ add-to-path() {
     local operation="prepend"
     local dir=""
 
-    local cmd="$0"
+    local cmd="add-to-path"
     local fpath_opt_str="[-f|--fpath] "
     local fpath_des_str="
         -f, --fpath         Add to fpath instead of path"
