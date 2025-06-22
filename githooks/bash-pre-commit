@@ -1,0 +1,81 @@
+#!/usr/bin/env zsh
+
+bash-pre-commit() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local -a file_errors=()
+    local staged_file="$1"
+    local filename="$2"
+
+    is_bash_or_sh_file() {
+        local staged_file="$1"
+        local filename="$2"
+
+        if [[ "$filename" == *.bash ]]; then
+            return 0
+        fi
+
+        local first_line=''
+        IFS= read -r first_line < "$staged_file"
+        if [[ $first_line == '#!'* ]]; then
+            first_line="$(printf "%s" "${first_line#\#!}" | awk '{$1=$1;print}')"
+            if [[ $first_line == *'/sh' || "$first_line" == *bash || "$first_line" == *dash || "$first_line" == *ksh ]]; then
+                return 0
+            fi
+        fi
+
+        return 1
+    }
+
+    if ! is_bash_or_sh_file "$staged_file" "$filename"; then
+        unset -f is_bash_or_sh_file
+        return 0
+    fi
+    unset -f is_bash_or_sh_file
+
+    # || true due to zsh returning an error on any errors, which we specifically want.
+    local shellcheck_errors
+    if ! shellcheck_errors="$(shellcheck "$staged_file" 2>&1)"; then
+        shellcheck_errors="${shellcheck_errors//$staged_file/$filename}"
+        if [[ -n $shellcheck_errors ]]; then
+            file_errors+=("$shellcheck_errors")
+        fi
+    fi
+
+    local first_line
+    IFS= read -r first_line < "$staged_file"
+    if [[ "$first_line" == '#!'* ]]; then
+        first_line="$(printf '%s' "${first_line#\#!}" | awk '{$1=$1;print}')"
+        if [[ "$first_line" != '/bin/sh' && "$first_line" != /usr/bin/env* ]]; then
+            file_errors+=("${filename}:1:#!/bin/(ba|da|k)sh' used. Use '#! /usr/bin/env (ba|da|k)sh' instead")
+        fi
+    fi
+
+    # remove empty elements
+    local -a file_errors_tmp=()
+    for e in "${file_errors[@]}"; do
+        if [[ -n "$e" ]]; then
+            file_errors_tmp+=("$e")
+        fi
+    done
+
+    file_errors=()
+    if (( ${#file_errors_tmp} )); then
+        file_errors=("${file_errors_tmp[@]}")
+    fi
+    unset file_errors_tmp
+
+    if (( ${#file_errors} )); then
+        print-header -e "Errors in '${filename}'"
+        printf '%s\n' "${file_errors[@]}"
+    fi
+
+    return ${#file_errors}
+}
+
+bash-pre-commit "$@"

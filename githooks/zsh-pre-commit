@@ -1,0 +1,70 @@
+#! /usr/bin/env zsh
+
+zsh-pre-commit() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local staged_file="$1"
+    local filename="$2"
+
+    is_zsh_file() {
+        local staged_file="$1"
+        local filename="$2"
+
+        if [[ "$filename" == *.zsh ]]; then
+            return 0
+        fi
+
+        local first_line=''
+        IFS= read -r first_line < "$staged_file"
+        if [[ "$first_line" == '#!/bin/zsh' || "$first_line" == '#! /bin/zsh' ]]; then
+            return 0
+        elif [[ $first_line == '#! /usr/bin/env zsh' ]]; then
+            return 0
+        fi
+
+        return 1
+    }
+
+    if ! is_zsh_file "$staged_file" "$filename"; then
+        unset -f is_zsh_file
+        return 0
+    fi
+    unset -f is_zsh_file
+
+    local -a file_errors=()
+    local -a zsh_errors=()
+    # || true due to zsh returning an error on any errors, which we specifically want.
+    zsh_errors="$(zsh --no-exec "$staged_file" 2>&1 || true)"
+    zsh_errors="${zsh_errors//$staged_file/$filename}"
+    if [[ -n $zsh_errors ]]; then
+        file_errors+=("$zsh_errors")
+    fi
+
+    local fname lineno
+    while IFS=: read -r fname lineno _; do
+        file_errors+=("$fname:$lineno:'e""cho' used. Use 'print' instead")
+    done < <(grep -nH '\becho\b' "$staged_file")
+
+    local first_line
+    IFS= read -r first_line < "$staged_file"
+    if [[ "$first_line" == '#!/bin/zsh' || "$first_line" == '#! /bin/zsh' ]]; then
+        file_errors+=("$filename:1:'#!/bin/zsh' used. Use '#! /usr/bin/env zsh' instead")
+    fi
+
+    # remove empty elements
+    file_errors=("${(@)file_errors:#}")
+
+    if (( ${#file_errors} )); then
+        print-header -e "Errors in '${filename}'"
+        printf '%s\n' "${file_errors[@]}"
+    fi
+
+    return ${#file_errors}
+}
+
+zsh-pre-commit "$@"

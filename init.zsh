@@ -443,6 +443,9 @@ Options:${mac_specific_help}${apt_specific_help}
     mkdir -p "${DOTFILES}/deps"
     mkdir -p "${DOTFILES}/tmp"
 
+    print-header -i 2 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
+    git -C "${DOTFILES}/" config core.hooksPath "${DOTFILES}/githooks"
+
     print-header blue "Setting up zsh & plugins"
 
     local name url
@@ -517,9 +520,6 @@ Options:${mac_specific_help}${apt_specific_help}
             fi
         fi
     fi
-
-    print-header -i 2 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
-    git -C "${DOTFILES}/" config core.hooksPath "${DOTFILES}/.githooks"
 
     if (( flags[do_hammerspoon] )); then
         print-header green "Setting up hammerspoon"

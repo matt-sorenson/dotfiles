@@ -1,0 +1,36 @@
+#! /usr/bin/env zsh
+
+emulate -L zsh
+set -uo pipefail
+setopt err_return
+setopt typeset_to_unset
+setopt warn_create_global
+unsetopt short_loops
+
+pre-commit() {
+    local all_staged_files=("${(@f)$(git diff --cached --name-only --diff-filter=ACM)}")
+
+    local -i errors_found=0
+
+    local file staged_file
+    for file in "${all_staged_files[@]}"; do
+        # Skip non-existent or non-regular files (can happen with deletions or renames)
+        [[ -f $file ]] || continue
+
+        staged_file=$(mktemp)
+        # Get the staged instance of the file instead of the
+        git show ":${file}" > "${staged_file}"
+
+        if ! "${DOTFILES}/githooks/zsh-pre-commit" "$staged_file" "$file"; then
+            errors_found=1
+        elif ! "${DOTFILES}/githooks/bash-pre-commit" "$staged_file" "$file"; then
+            errors_found=1
+        fi
+
+        rm "$staged_file"
+    done
+
+    return $errors_found
+}
+
+pre-commit "$@"
