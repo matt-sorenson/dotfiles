@@ -4,18 +4,22 @@
 emulate -L zsh
 set -uo pipefail
 setopt err_return
+setopt typeset_to_unset
 setopt warn_create_global
+setopt extended_glob
 unsetopt short_loops
 
-local _usage="Usage: git-stack [-h|--help]
+local _usage="Usage: git-stack [-h|--help] [-<d>]
 
 Display the saved branch stack (oldest at the top, newest at the bottom).
 
   -c, --clear           Clear the branch stack
-  -h, --help            Show this help message"
+  -h, --help            Show this help message
+  -<d>                  Show a maximum of <d> elements of the stack"
 
 local -i clear_stack=0
 local -i quiet=0
+local -i max_lines
 
 # Parse options
 while (( $# )); do
@@ -29,6 +33,19 @@ while (( $# )); do
         ;;
     -q|--quiet)
         quiet=1
+        ;;
+    -[0-9]##)
+        if [[ -v max_lines ]]; then
+            print-header -e "Already passed in a max number of lines: $1"
+            print "${_usage}"
+            return 1
+        else (( ${1#-} < 1 ))
+            print-header -e "max lines to display must be greater than 0"
+            print "${_usage}"
+            return 1
+        fi
+
+        max_lines=${1#-}
         ;;
     *)
         print-header -e "Unknown option: $1"
@@ -49,12 +66,18 @@ repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
 local stack_file="${repo_root}/.ms-popb-stack"
 
 if (( clear_stack )); then
-    rm -f "${stack_file}"
+    if [[ -f "$stack_file" ]]; then
+        rm -f "${stack_file}"
+    fi
     print-header green "Cleared branch stack."
 else
     if [[ ! -s "${stack_file}" ]]; then
         (( ! quiet )) && print-header yellow "Branch stack is empty."
     else
-        cat -n "${stack_file}"
+        if [[ -v max_lines ]]; then
+            cat -n "${stack_file}" | tail -n $max_lines
+        else
+            cat -n "${stack_file}"
+        fi
     fi
 fi

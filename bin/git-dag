@@ -9,8 +9,15 @@ unsetopt short_loops
 
 local format='%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)'
 
-local _usage="Usage: git-dag [-h|--help] [<branch> <branch> ...]
+local _usage="Usage: git-dag [-h|--help] [-a|--all] [<branch> <branch> ...]
 Displays the git commit history in a directed acyclic graph format.
+
+Arguments:
+  <branch>      A git branch to include in the dag
+
+Options:
+  -h, --help    Show this message
+  -a, --all     Show all branches
 
 If no branches are specified it will show the current branch and if they exist master and main."
 
