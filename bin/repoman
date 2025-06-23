@@ -72,11 +72,9 @@ Extras:
         print "Usage: ${calling_name} [options]
 
 Options:
-  -h, --help               Show this help message
-
-General Options:
   -r <repo>, --repo <repo> The directory under \$WORKSPACE_ROOT_DIR containing the repo. ${default_repo_str}
   -p <path>, --path <path> The path to the repo. Overrides -r/--repo.
+  -h, --help               Show this help message
 
 Tasks:
   --git-clean              Clean untracked/ignored files from repo
@@ -92,6 +90,11 @@ Tasks:
   -I, --integration-tests  Run integration tests
   -t, --tests              Run all tests${extra_args}
 
+Other Options:
+  --verbose          Print verbose output (default: false)
+  --dump-commands    Print the commands for each task and exit
+  --dotfiles         Allow running in the \$DOTFILES directory (default: false)
+
 Examples:
   ${calling_name} -cib                       Run clean and install
   ${calling_name} --clean --install --build  Run clean and install
@@ -101,6 +104,20 @@ Examples:
 
     _repoman-format-header() {
         print "$*" | sed -E 's/(^|[[:space:]])(db)([[:space:]]|$)/\1DB\3/Ig'
+    }
+
+    _repoman-dump-commands() {
+        local max_key_length=0 key
+        for key in "${(@k)task_commands}"; do
+            (( ${#key} > max_key_length )) && max_key_length=${#key}
+        done
+
+        # Print the key-value pairs aligned
+        for key in "${(@k)task_commands}"; do
+            printf "%-${max_key_length}s → %s\n" "$key" "${task_commands[$key]}"
+        done
+
+        return 0
     }
 
     export _repoman_starting_dir="${PWD}"
@@ -113,6 +130,7 @@ Examples:
 
         unset _repoman_starting_dir
         exit_trap_emulate_local_function \
+            _repoman-dump-commands \
             _repoman-format-header \
             _repoman-override-tasks \
             _repoman-run-task \
@@ -168,9 +186,10 @@ Examples:
     local -A task_working_dirs=()
 
     local -A opts=(
-        help                0
-        verbose             0
-        dump_commands       0
+        help          0
+        verbose       0
+        dump_commands 0
+        dotfiles      0
 
         path              ''
         repo              ''
@@ -369,20 +388,16 @@ Examples:
         else
             _repoman-usage
         fi
+
+        if (( opts[dump_commands] )); then
+            _repoman-dump-commands
+        fi
+
         return 0
     fi
 
     if (( opts[dump_commands] )); then
-        local max_key_length=0 key
-        for key in "${(@k)task_commands}"; do
-            (( ${#key} > max_key_length )) && max_key_length=${#key}
-        done
-
-        # Print the key-value pairs aligned
-        for key in "${(@k)task_commands}"; do
-            printf "%-${max_key_length}s → %s\n" "$key" "${task_commands[$key]}"
-        done
-
+        _repoman-dump-commands
         return 0
     fi
 
@@ -407,15 +422,25 @@ Examples:
             fi
             _repoman-usage 1
         fi
-        repo_dir="${WORKSPACE_ROOT_DIR}/${opts[repo]}"
+
+        repo_dir="${WORKSPACE_ROOT_DIR}/${opts[repo]:-${default_repo:-}}"
     fi
 
     if [[ ! -d "${repo_dir}" ]]; then
         print-header -e "The directory '${repo_dir}' does not exist. Please check the path or repo name."
         return 1
     fi
+
     # Canonicalize the repo dir
     repo_dir="${repo_dir:A}"
+
+    if [[ -v DOTFILES ]]; then
+        if (( ! opts[dotfiles] )) && [[ repo_dir == "${DOTFILES:A}" ]]; then
+            print-header -e "The repo directory '${repo_dir}' is the same as the DOTFILES directory."
+            print "This is 99.999% chance it's a mistake. use --dotfiles to override this check."
+            return 1
+        fi
+    fi
 
     local key val
     for key in ${(k)task_working_dirs}; do
@@ -663,4 +688,4 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     print-header green "All steps completed successfully"
 }
 
-repoman "#@"
+repoman "$@"
