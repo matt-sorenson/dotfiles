@@ -1,78 +1,82 @@
 #!/usr/bin/env zsh
 #compdef git-dag
 
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt warn_create_global
-unsetopt short_loops
+git-dag() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt warn_create_global
+    unsetopt short_loops
 
-local format='%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)'
+    local format='%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)'
 
-local _usage="Usage: git-dag [-h|--help] [-a|--all] [<branch> <branch> ...]
-Displays the git commit history in a directed acyclic graph format.
+    local _usage="Usage: git-dag [-h|--help] [-a|--all] [<branch> <branch> ...]
+    Displays the git commit history in a directed acyclic graph format.
 
-Arguments:
-  <branch>      A git branch to include in the dag
+    Arguments:
+    <branch>      A git branch to include in the dag
 
-Options:
-  -h, --help    Show this message
-  -a, --all     Show all branches
+    Options:
+    -h, --help    Show this message
+    -a, --all     Show all branches
 
-If no branches are specified it will show the current branch and if they exist master and main."
+    If no branches are specified it will show the current branch and if they exist master and main."
 
-git rev-parse --show-toplevel &> /dev/null || {
-    print-header -e 'Not a git repository.' >&2
-    return 1
+    git rev-parse --show-toplevel &> /dev/null || {
+        print-header -e 'Not a git repository.' >&2
+        return 1
+    }
+
+    local all=0
+    local flags=()
+    local branches=()
+
+    while (( $# )); do
+        case "$1" in
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        -a|--all)
+            all=1
+            flags+=("--all")
+            ;;
+        *)
+            branches+=("$1")
+
+            if ! git show-ref --verify --quiet "$1" &> /dev/null; then
+                print-header -w "Branch '$1' does not exist." >&2
+            fi
+            ;;
+        esac
+        shift
+    done
+
+    if (( all == 1 && $#branches > 0 )); then
+        print-header -e "Cannot use --all and provide branch names together."
+        print "${_usage}"
+        return 1
+    fi
+
+    if (( ! all )); then
+        flags+=("${branches[@]}")
+
+        local current_branch
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
+        if (( branches[(i)$current_branch] == 0 )) && [[ $current_branch != master && $current_branch != main ]]; then
+            flags+=("${current_branch}")
+        fi
+
+        if (( branches[(i)master] == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then
+            flags+=(master)
+        fi
+
+        if (( branches[(i)main] == 0 )) && git show-ref --verify --quiet refs/heads/main &> /dev/null; then
+            flags+=(main)
+        fi
+    fi
+
+    git log --graph --abbrev-commit --decorate --format=format:"${format}" "${flags[@]}"
 }
 
-local all=0
-local flags=()
-local branches=()
-
-while (( $# )); do
-    case "$1" in
-    -h|--help)
-        print "${_usage}"
-        return 0
-        ;;
-    -a|--all)
-        all=1
-        flags+=("--all")
-        ;;
-    *)
-        branches+=("$1")
-
-        if ! git show-ref --verify --quiet "$1" &> /dev/null; then
-            print-header -w "Branch '$1' does not exist." >&2
-        fi
-        ;;
-    esac
-    shift
-done
-
-if (( all == 1 && $#branches > 0 )); then
-    print-header -e "Cannot use --all and provide branch names together."
-    print "${_usage}"
-    return 1
-fi
-
-if (( ! all )); then
-    flags+=("${branches[@]}")
-
-    local current_branch
-    current_branch=$(git rev-parse --abbrev-ref HEAD)
-    if (( branches[(i)$current_branch] == 0 )) && [[ $current_branch != master && $current_branch != main ]]; then
-        flags+=("${current_branch}")
-    fi
-
-    if (( branches[(i)master] == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then
-        flags+=(master)
-    fi
-
-    if (( branches[(i)main] == 0 )) && git show-ref --verify --quiet refs/heads/main &> /dev/null; then
-        flags+=(main)
-    fi
-fi
-
-git log --graph --abbrev-commit --decorate --format=format:"${format}" "${flags[@]}"
+git-dag "$@"

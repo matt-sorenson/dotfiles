@@ -1,83 +1,87 @@
 #!/usr/bin/env zsh
 #compdef git-stack
 
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt typeset_to_unset
-setopt warn_create_global
-setopt extended_glob
-unsetopt short_loops
+git-stack() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt warn_create_global
+    setopt extended_glob
+    unsetopt short_loops
 
-local _usage="Usage: git-stack [-h|--help] [-<d>]
+    local _usage="Usage: git-stack [-h|--help] [-<d>]
 
-Display the saved branch stack (oldest at the top, newest at the bottom).
+    Display the saved branch stack (oldest at the top, newest at the bottom).
 
-  -c, --clear           Clear the branch stack
-  -h, --help            Show this help message
-  -<d>                  Show a maximum of <d> elements of the stack"
+    -c, --clear           Clear the branch stack
+    -h, --help            Show this help message
+    -<d>                  Show a maximum of <d> elements of the stack"
 
-local -i clear_stack=0
-local -i quiet=0
-local -i max_lines
+    local -i clear_stack=0
+    local -i quiet=0
+    local -i max_lines
 
-# Parse options
-while (( $# )); do
-    case "$1" in
-    -c|--clear)
-        clear_stack=1
-        ;;
-    -h|--help)
-        print "${_usage}"
-        return 0
-        ;;
-    -q|--quiet)
-        quiet=1
-        ;;
-    -[0-9]##)
-        if [[ -v max_lines ]]; then
-            print-header -e "Already passed in a max number of lines: $1"
+    # Parse options
+    while (( $# )); do
+        case "$1" in
+        -c|--clear)
+            clear_stack=1
+            ;;
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        -q|--quiet)
+            quiet=1
+            ;;
+        -[0-9]##)
+            if [[ -v max_lines ]]; then
+                print-header -e "Already passed in a max number of lines: $1"
+                print "${_usage}"
+                return 1
+            else (( ${1#-} < 1 ))
+                print-header -e "max lines to display must be greater than 0"
+                print "${_usage}"
+                return 1
+            fi
+
+            max_lines=${1#-}
+            ;;
+        *)
+            print-header -e "Unknown option: $1"
             print "${_usage}"
             return 1
-        else (( ${1#-} < 1 ))
-            print-header -e "max lines to display must be greater than 0"
-            print "${_usage}"
-            return 1
+            ;;
+        esac
+        shift
+    done
+
+    # Find repo root
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        print-header -e "Not a git repository.";
+        return 1;
+    }
+
+    local stack_file="${repo_root}/.ms-popb-stack"
+
+    if (( clear_stack )); then
+        if [[ -f "$stack_file" ]]; then
+            rm "${stack_file}"
         fi
-
-        max_lines=${1#-}
-        ;;
-    *)
-        print-header -e "Unknown option: $1"
-        print "${_usage}"
-        return 1
-        ;;
-    esac
-    shift
-done
-
-# Find repo root
-local repo_root
-repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-    print-header -e "Not a git repository.";
-    return 1;
+        print-header green "Cleared branch stack."
+    else
+        if [[ ! -s "${stack_file}" ]]; then
+            (( ! quiet )) && print-header yellow "Branch stack is empty."
+        else
+            if [[ -v max_lines ]]; then
+                cat -n "${stack_file}" | tail -n $max_lines
+            else
+                cat -n "${stack_file}"
+            fi
+        fi
+    fi
 }
 
-local stack_file="${repo_root}/.ms-popb-stack"
-
-if (( clear_stack )); then
-    if [[ -f "$stack_file" ]]; then
-        rm "${stack_file}"
-    fi
-    print-header green "Cleared branch stack."
-else
-    if [[ ! -s "${stack_file}" ]]; then
-        (( ! quiet )) && print-header yellow "Branch stack is empty."
-    else
-        if [[ -v max_lines ]]; then
-            cat -n "${stack_file}" | tail -n $max_lines
-        else
-            cat -n "${stack_file}"
-        fi
-    fi
-fi
+git-stack "$@"

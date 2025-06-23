@@ -1,78 +1,82 @@
 #!/usr/bin/env zsh
 #compdef clang-format-ri
 
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt typeset_to_unset
-setopt warn_create_global
-unsetopt short_loops
+clang-format-ri() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
 
-if ! command -v clang-format > /dev/null; then
-    print-header -e "ERROR: clang-format not found. Please install clang-format to use this script."
-    return 1
-fi
+    if ! command -v clang-format > /dev/null; then
+        print-header -e "ERROR: clang-format not found. Please install clang-format to use this script."
+        return 1
+    fi
 
-local _usage="Usage: clang-format-ri [options] <source-path> -- [<clang-format-options>...]
-Recursively format C++ source files in place using clang-format.
+    local _usage="Usage: clang-format-ri [options] <source-path> -- [<clang-format-options>...]
+    Recursively format C++ source files in place using clang-format.
 
-Options:
-  -h, --help    Show this help message and exit"
+    Options:
+    -h, --help    Show this help message and exit"
 
-local extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )
-local srcpath
-while (( $# )); do
-    case "${1}" in
-    -h|--help)
-        print "${_usage}"
-        return 0
-        ;;
-    -e|--extensions)
-        if (( $# < 2 )); then
-            print-header -e "Error: --extensions requires at least one extension argument."
+    local extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )
+    local srcpath
+    while (( $# )); do
+        case "${1}" in
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        -e|--extensions)
+            if (( $# < 2 )); then
+                print-header -e "Error: --extensions requires at least one extension argument."
+                print "${_usage}"
+                return 1
+            fi
+            extensions=("${(@s/:/)$2}")
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            print-header -e "Unknown option: ${1}"
             print "${_usage}"
             return 1
-        fi
-        extensions=("${(@s/:/)$2}")
-        shift 2
-        ;;
-    --)
-        shift
-        break
-        ;;
-    -*)
-        print-header -e "Unknown option: ${1}"
+            ;;
+        *)
+            if [[ -n "${srcpath}" ]]; then
+                print-header -e "Source path already set: ${srcpath}"
+                print "${_usage}"
+                return 1
+            fi
+            srcpath="${1}"
+            shift
+            ;;
+        esac
+    done
+
+    if [[ ! -v "${srcpath}" ]]; then
+        print-header -e "Source path is required."
         print "${_usage}"
         return 1
-        ;;
-    *)
-        if [[ -n "${srcpath}" ]]; then
-            print-header -e "Source path already set: ${srcpath}"
-            print "${_usage}"
-            return 1
-        fi
-        srcpath="${1}"
-        shift
-        ;;
-    esac
-done
+    elif [[ ! -d "${srcpath}" ]]; then
+        print-header -e "Source path is not a directory: ${srcpath}"
+        return 1
+    fi
 
-if [[ ! -v "${srcpath}" ]]; then
-    print-header -e "Source path is required."
-    print "${_usage}"
-    return 1
-elif [[ ! -d "${srcpath}" ]]; then
-    print-header -e "Source path is not a directory: ${srcpath}"
-    return 1
-fi
+    local filters=()
+    local ext
+    for ext in "${extensions[@]}"; do
+        filters+=( -iname "${ext}" -o )
+    done
 
-local filters=()
-local ext
-for ext in "${extensions[@]}"; do
-    filters+=( -iname "${ext}" -o )
-done
+    # Remove the final '-o'
+    unset 'filters[-1]'
 
-# Remove the final '-o'
-unset 'filters[-1]'
+    find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$@" {} \;
+}
 
-find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$@" {} \;
+clang-format-ri "$@"

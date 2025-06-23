@@ -1,136 +1,140 @@
 #!/usr/bin/env zsh
 #compdef aws-signon
 
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt typeset_to_unset
-setopt null_glob
-setopt warn_create_global
-unsetopt short_loops
+aws-signon() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt null_glob
+    setopt warn_create_global
+    unsetopt short_loops
 
-local _usage="Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
+    local _usage="Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
-Options:
-  -f, --force                         Force login even if already signed in
-  -h, --help                          Show this help message
-  -c, --command <command>             Alternative command to use to sign on
-  --logged-in-command <command> Alternative command to use for checking if alreay logged in
-  <profile>                           AWS profile to sign into
+    Options:
+    -f, --force                         Force login even if already signed in
+    -h, --help                          Show this help message
+    -c, --command <command>             Alternative command to use to sign on
+    --logged-in-command <command> Alternative command to use for checking if alreay logged in
+    <profile>                           AWS profile to sign into
 
-Notes:
-the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
+    Notes:
+    the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
 
-If not provided with -c/--command/--logged-in-command will fall back to the aws cli.
+    If not provided with -c/--command/--logged-in-command will fall back to the aws cli.
 
-Examples:
-aws-signon -f dev
-aws-signon dev
-aws-signon dev -f"
+    Examples:
+    aws-signon -f dev
+    aws-signon dev
+    aws-signon dev -f"
 
-local force=0
-local profile
-local signup_command
-local logged_in_command
+    local force=0
+    local profile
+    local signup_command
+    local logged_in_command
 
-while (( $# )); do
-    case "$1" in
-    -h|--help)
-        print "${_usage}"
-        return 0
-        ;;
-    -f|--force)
-        force=1
-        ;;
-    -c|--command)
-        if (( $# < 2 )); then
-            print-header -e -- "$1 requires an argument."
-        elif [[ -v signup_command ]]; then
-            print-header -e "${1} passed in multiple times! New: ${2}, Old: ${signup_command}"
+    while (( $# )); do
+        case "$1" in
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        -f|--force)
+            force=1
+            ;;
+        -c|--command)
+            if (( $# < 2 )); then
+                print-header -e -- "$1 requires an argument."
+            elif [[ -v signup_command ]]; then
+                print-header -e "${1} passed in multiple times! New: ${2}, Old: ${signup_command}"
+                print "${_usage}"
+                return 1
+            fi
+            shift
+
+            signup_command="$1"
+            ;;
+        --logged-in-command)
+            if (( $# < 2 )); then
+                print-header -e -- "$1 requires an argument."
+            elif [[ -v logged_in_command ]]; then
+                print-header -e "$1 passed in multiple times! New: ${2}, Old: ${logged_in_command}"
+                print "${_usage}"
+                return 1
+            fi
+            shift
+
+            logged_in_command="$1"
+            ;;
+        -*)
+            print-header -e "Unknown option: $1"
             print "${_usage}"
             return 1
-        fi
+            ;;
+        *)
+            if [ -v profile ]; then
+                print-header -e "Profile passed in multiple times! New: ${1}, Old: ${profile}"
+                print "${_usage}"
+                return 1
+            fi
+            profile="$1"
+            ;;
+        esac
         shift
+    done
 
-        signup_command="$1"
-        ;;
-    --logged-in-command)
-        if (( $# < 2 )); then
-            print-header -e -- "$1 requires an argument."
-        elif [[ -v logged_in_command ]]; then
-            print-header -e "$1 passed in multiple times! New: ${2}, Old: ${logged_in_command}"
-            print "${_usage}"
-            return 1
-        fi
-        shift
-
-        logged_in_command="$1"
-        ;;
-    -*)
-        print-header -e "Unknown option: $1"
-        print "${_usage}"
-        return 1
-        ;;
-    *)
-        if [ -v profile ]; then
-            print-header -e "Profile passed in multiple times! New: ${1}, Old: ${profile}"
-            print "${_usage}"
-            return 1
-        fi
-        profile="$1"
-        ;;
-    esac
-    shift
-done
-
-if [[ ! -v signup_command ]]; then
-    signup_command="aws sso login --profile"
-fi
-
-local cmd_array=("${(z)signup_command}")
-if ! command -v "${cmd_array[1]}" &> /dev/null; then
-    print-header -e "Command '${cmd_array[1]}' not found"
-    return 1
-fi
-
-export AWS_PROFILE
-if [[ -v profile ]]; then
-    AWS_PROFILE="${profile}"
-    unset profile
-elif [[ -v AWS_PROFILE ]] && [[ -n "$AWS_PROFILE}" ]]; then
-    print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"
-else
-    unset AWS_PROFILE
-    print-header -e "No profile specified & \$AWS_PROFILE is not available!"
-    print "${_usage}"
-    return 1
-fi
-
-print-header green --icon 🔐 "Signing into AWS: ${AWS_PROFILE}"
-
-if (( ! force )); then
-    if [[ ! -v logged_in_command ]]; then
-        logged_in_command='aws sts get-caller-identity --profile'
+    if [[ ! -v signup_command ]]; then
+        signup_command="aws sso login --profile"
     fi
 
-    local logged_in_cmd_array=("${(z)logged_in_command}")
-    if ! command -v "${logged_in_cmd_array[1]}" &> /dev/null; then
-        print-header -e "Command '${logged_in_cmd_array[1]}' not found"
+    local cmd_array=("${(z)signup_command}")
+    if ! command -v "${cmd_array[1]}" &> /dev/null; then
+        print-header -e "Command '${cmd_array[1]}' not found"
         return 1
     fi
 
-    local logged_in_cmd="${logged_in_cmd_array[1]}"
-    local logged_in_args=("${logged_in_cmd_array[@]:1}" "${AWS_PROFILE}")
-
-    if $logged_in_cmd "${logged_in_args[@]}" > /dev/null; then
-        print "already signed in as ${AWS_PROFILE}"
-        return 0
+    export AWS_PROFILE
+    if [[ -v profile ]]; then
+        AWS_PROFILE="${profile}"
+        unset profile
+    elif [[ -v AWS_PROFILE ]] && [[ -n "$AWS_PROFILE}" ]]; then
+        print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"
+    else
+        unset AWS_PROFILE
+        print-header -e "No profile specified & \$AWS_PROFILE is not available!"
+        print "${_usage}"
+        return 1
     fi
 
-    print "not signed in, attempting SSO login for '${AWS_PROFILE}'..."
-fi
+    print-header green --icon 🔐 "Signing into AWS: ${AWS_PROFILE}"
 
-local cmd="${cmd_array[1]}"
-local args=("${cmd_array[@]:1}" "${AWS_PROFILE}")
+    if (( ! force )); then
+        if [[ ! -v logged_in_command ]]; then
+            logged_in_command='aws sts get-caller-identity --profile'
+        fi
 
-$cmd "${args[@]}"
+        local logged_in_cmd_array=("${(z)logged_in_command}")
+        if ! command -v "${logged_in_cmd_array[1]}" &> /dev/null; then
+            print-header -e "Command '${logged_in_cmd_array[1]}' not found"
+            return 1
+        fi
+
+        local logged_in_cmd="${logged_in_cmd_array[1]}"
+        local logged_in_args=("${logged_in_cmd_array[@]:1}" "${AWS_PROFILE}")
+
+        if $logged_in_cmd "${logged_in_args[@]}" > /dev/null; then
+            print "already signed in as ${AWS_PROFILE}"
+            return 0
+        fi
+
+        print "not signed in, attempting SSO login for '${AWS_PROFILE}'..."
+    fi
+
+    local cmd="${cmd_array[1]}"
+    local args=("${cmd_array[@]:1}" "${AWS_PROFILE}")
+
+    $cmd "${args[@]}"
+}
+
+aws-signon "$@"

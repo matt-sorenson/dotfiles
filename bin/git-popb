@@ -1,83 +1,85 @@
 #!/usr/bin/env zsh
 #compdef git-popb
 
-autoload -Uz colors && colors
+git-popb() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt warn_create_global
+    unsetopt short_loops
 
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt warn_create_global
-unsetopt short_loops
+    local _usage="Usage: git-popb [-h|--help]
 
-local _usage="Usage: git-popb [-h|--help]
+    Check out the last branch checked out with git-pushb and pops it from the stack.
 
-Check out the last branch checked out with git-pushb and pops it from the stack.
+    -q, --quiet          Suppress some output messages
+    -h, --help           Show this help message"
 
--q, --quiet          Suppress some output messages
--h, --help           Show this help message"
+    local -i quiet=0
 
-local -i quiet=0
+    while (( $# )); do
+        case "$1" in
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        -q|--quiet)
+            quiet=1
+            ;;
+        *)
+            print-header -e "Unknown argument: $1"
+            print "${_usage}"
+            return 1
+            ;;
+        esac
+        shift
+    done
 
-while (( $# )); do
-    case "$1" in
-    -h|--help)
-        print "${_usage}"
-        return 0
-        ;;
-    -q|--quiet)
-        quiet=1
-        ;;
-    *)
-        print-header -e "Unknown argument: $1"
-        print "${_usage}"
+    # find repo root
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        print 'Not a git repository.' >&2
         return 1
-        ;;
-    esac
-    shift
-done
+    }
 
-# find repo root
-local repo_root
-repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-    print 'Not a git repository.' >&2
-    return 1
-}
+    local stack_file="${repo_root}/.ms-popb-stack"
+    local target_branch
 
-local stack_file="${repo_root}/.ms-popb-stack"
-local target_branch
+    if [[ ! -s "${stack_file}" ]]; then
+        if git show-ref --quiet --verify refs/heads/master; then
+            target_branch=master
+        elif git show-ref --quiet --verify refs/heads/main; then
+            target_branch=main
+        else
+            print "Error: neither 'master' nor 'main' branch exists" >&2
+            return 1
+        fi
 
-if [[ ! -s "${stack_file}" ]]; then
-    if git show-ref --quiet --verify refs/heads/master; then
-        target_branch=master
-    elif git show-ref --quiet --verify refs/heads/main; then
-        target_branch=main
+        print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
     else
-        print "Error: neither 'master' nor 'main' branch exists" >&2
-        return 1
+        # read last entry
+        target_branch=$(tail -n 1 "${stack_file}")
+
+        local stack_contents
+        stack_contents="$(sed '$d' "${stack_file}")"
+        print -n "${stack_contents}" >! "${stack_file}"
+        unset stack_contents
     fi
 
-    print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
-else
-    # read last entry
-    target_branch=$(tail -n 1 "${stack_file}")
+    # if now empty, delete it
+    if [[ ! -s "${stack_file}" ]]; then
+        rm "${stack_file}" || print "Failed to remove stack file: ${stack_file}"
+    fi
 
-    local stack_contents
-    stack_contents="$(sed '$d' "${stack_file}")"
-    print -n "${stack_contents}" >! "${stack_file}"
-    unset stack_contents
-fi
+    local current_branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-# if now empty, delete it
-if [[ ! -s "${stack_file}" ]]; then
-    rm "${stack_file}" || print "Failed to remove stack file: ${stack_file}"
-fi
+    if [[ "${current_branch}" = "${target_branch}" ]]; then
+        (( ! quiet )) && print-header green --icon ✅ "You are already on '${target_branch}'"
+        return 0
+    fi
 
-local current_branch
-current_branch=$(git rev-parse --abbrev-ref HEAD)
+    git checkout "${target_branch}"
+}
 
-if [[ "${current_branch}" = "${target_branch}" ]]; then
-    (( ! quiet )) && print-header green --icon ✅ "You are already on '${target_branch}'"
-    return 0
-fi
-
-git checkout "${target_branch}"
+git-popb "$@"

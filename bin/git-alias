@@ -1,56 +1,60 @@
 #!/usr/bin/env zsh
 #compdef git-alias
 
-emulate -L zsh
-set -uo pipefail
-setopt err_return
-setopt null_glob
-setopt warn_create_global
-unsetopt short_loops
+git-alias() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt null_glob
+    setopt warn_create_global
+    unsetopt short_loops
 
-local _usage="Usage: git alias [-h|--help]
+    local _usage="Usage: git alias [-h|--help]
 
-List all git aliases configured in the repository.
+    List all git aliases configured in the repository.
 
-Options
-  -h, --help    Show this help message"
+    Options
+    -h, --help    Show this help message"
 
-while (( $# )); do
-    case "$1" in
-    -h|--help)
-        print "${_usage}"
-        return 0
-        ;;
-    *)
-        print-header -e "Unknown argument: $1"
-        print "${_usage}"
-        return 1
-        ;;
-    esac
+    while (( $# )); do
+        case "$1" in
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        *)
+            print-header -e "Unknown argument: $1"
+            print "${_usage}"
+            return 1
+            ;;
+        esac
 
-    # This is unreachable, but included so it's not missed
-    # if additional arguments are added.
-    # shellcheck disable=SC2317
-    shift
-done
+        # This is unreachable, but included so it's not missed
+        # if additional arguments are added.
+        # shellcheck disable=SC2317
+        shift
+    done
 
-local lines
-# Retrieve alias lines: "alias.aliasName command..."
-lines=("${(@f)$(git config --get-regexp "^alias\.")}")
-# Remove "alias." prefix from each line
-lines=("${lines[@]#alias.}")
+    local lines
+    # Retrieve alias lines: "alias.aliasName command..."
+    lines=("${(@f)$(git config --get-regexp "^alias\.")}")
+    # Remove "alias." prefix from each line
+    lines=("${lines[@]#alias.}")
 
-# Find longest alias name
-local max=0
-local line
-for line in "${lines[@]}"; do
-    local current="${line%% *}"
-    (( ${#current} > max )) && max=${#current}
-done
+    # Find longest alias name
+    local max=0
+    local line
+    for line in "${lines[@]}"; do
+        local current="${line%% *}"
+        (( ${#current} > max )) && max=${#current}
+    done
 
-# Print each with padding: two spaces between alias and command
-for line in "${lines[@]}"; do
-    local alias_name="${line%% *}"
-    local cmd="${line#* }"
-    printf "%-${max}s  %s\n" "${alias_name}" "${cmd}"
-done
+    # Print each with padding: two spaces between alias and command
+    for line in "${lines[@]}"; do
+        local alias_name="${line%% *}"
+        local cmd="${line#* }"
+        printf "%-${max}s  %s\n" "${alias_name}" "${cmd}"
+    done
+}
+
+git-alias "$@"
