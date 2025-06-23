@@ -83,7 +83,7 @@ local function redraw_button(self, deck, button_idx)
             if (not icn.width or not icn.height) and not icn.size then
                 icn.size = 'streamdeck_button'
             end
-    
+
             icn = sys_get_icon(icn)
         end
     else
@@ -112,13 +112,13 @@ local function redraw_encoder(self, deck, encoder_idx)
     deck:setScreenImage(encoder_idx, icn)
 end
 
-local function button_callback(self, deck, button, pressed)
+local function button_callback(self, deck, btn, pressed)
     local result
-    if self.buttons[button] then
+    if self.buttons[btn] then
         if pressed then
-            result = self.buttons[button]:on_press(deck)
+            result = self.buttons[btn]:on_press(deck)
         else
-            result = self.buttons[button]:on_release(deck)
+            result = self.buttons[btn]:on_release(deck)
         end
     end
 
@@ -127,16 +127,16 @@ local function button_callback(self, deck, button, pressed)
     end
 
     if result then
-        self:redraw_button(deck, button)
+        self:redraw_button(deck, btn)
     end
 
     return result
 end
 
-local function encoder_callback(self, deck, encoder, direction)
+local function encoder_callback(self, deck, enc, direction)
     local result
-    if self.encoders[encoder] then
-        result = self.encoders[encoder]:on_turn(deck, direction)
+    if self.encoders[enc] then
+        result = self.encoders[enc]:on_turn(deck, direction)
     end
 
     if result == nil then
@@ -144,7 +144,7 @@ local function encoder_callback(self, deck, encoder, direction)
     end
 
     if result then
-        self:redraw_encoder(deck, encoder)
+        self:redraw_encoder(deck, enc)
     end
 
     return result
@@ -167,19 +167,19 @@ end
 local function enter(self, deck)
     self:on_enter(deck)
 
-    deck:buttonCallback(function(deck, button, pressed)
-        button_callback(self, deck, button, pressed)
+    deck:buttonCallback(function(deck, btn, pressed) -- luacheck: ignore deck
+        button_callback(self, deck, btn, pressed)
     end)
 
-    deck:encoderCallback(function(deck, encoder, pressed, left, right)
+    deck:encoderCallback(function(deck, enc, pressed, left, right) -- luacheck: ignore deck
         if left then
-            encoder_callback(self, deck, encoder, 'left')
+            encoder_callback(self, deck, enc, 'left')
         elseif right then
-            encoder_callback(self, deck, encoder, 'right')
+            encoder_callback(self, deck, enc, 'right')
         elseif pressed then
-            self.encoders[encoder]:on_press(deck)
+            self.encoders[enc]:on_press(deck)
         else
-            self.encoders[encoder]:on_release(deck)
+            self.encoders[enc]:on_release(deck)
         end
     end)
 
@@ -217,11 +217,11 @@ end
 
 local deck_frame_mt = {
     __index = {
-        on_enter = function(self, deck) end,
-        on_exit = function(self, deck) end,
+        on_enter = function(_self, _deck) end,
+        on_exit = function(_self, _deck) end,
 
-        get_icon = function(self) end,
-        get_text = function(self) end,
+        get_icon = function(_self) end,
+        get_text = function(_self) end,
 
         enter = enter,
         exit = exit,
@@ -256,19 +256,19 @@ local function deck_frame_new(config, parent)
 
                 local get_icon
                 if btn.icon then
-                    get_icon = function(self) return btn.icon end
+                    get_icon = function(_self) return btn.icon end
                 elseif btn.get_icon then
                     get_icon = btn.get_icon
                 else
-                    get_icon = function(self) return sys_get_icon({ text = '📁' }) end
+                    get_icon = function(_self) return sys_get_icon({ text = '📁' }) end
                 end
 
                 out.buttons[i] = button.new({
-                  on_press = function(self, deck)
+                  on_press = function(_self, deck)
                       out:exit(deck)
                       child_frame:enter(deck)
                   end,
-                  get_text = function(self)
+                  get_text = function(_self)
                       return child_frame:get_text()
                   end,
                   get_icon = get_icon,
@@ -289,18 +289,18 @@ local function deck_frame_new(config, parent)
         end
 
         out.buttons[1] = button.new({
-            on_press = function(self, deck)
+            on_press = function(_self, deck)
                 out:exit(deck)
                 parent:enter(deck)
             end,
-            get_icon = function(self) return up_icon end,
+            get_icon = function(_self) return up_icon end,
         })
     end
 
     out.encoders = {}
     if config.encoders then
-        for i, config in pairs(config.encoders) do
-            out.encoders[i] = encoder.new(config, out, i)
+        for i, encoder_config in pairs(config.encoders) do
+            out.encoders[i] = encoder.new(encoder_config, out, i)
         end
     end
 

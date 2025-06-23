@@ -1,5 +1,3 @@
-local print = require('ms.logger').new('config.keymap')
-
 local audio     = require 'ms.audio'
 local caffeine  = require 'ms.caffeine'
 local fs        = require 'ms.fs'
@@ -56,6 +54,8 @@ local function layout_has_sections_fn(section)
         return not window.layout.current_layout_has_section(section)
     end
 end
+
+--luacheck: no max line length
 
 local config = {
     {

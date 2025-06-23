@@ -1,5 +1,6 @@
 globals={
     'hs',
+
     'table.keys',
     'table.append',
     'table.ifind',
@@ -13,5 +14,9 @@ globals={
     'table.deep_copy',
     'table.compact',
     'table.tostring',
-    'toarray'
+
+    'toarray',
+
+    'REMOTE_SHARES',
+    'REMOTE_HOME',
 }

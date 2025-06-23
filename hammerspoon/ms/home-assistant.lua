@@ -1,6 +1,5 @@
 local print = require('ms.logger').new('ms.home-assistant')
 
-local sys = require 'ms.sys'
 local fs = require 'ms.fs'
 
 local function get_ha_config()
@@ -89,7 +88,7 @@ local function post(event, data, options)
 
     local url = get_trigger_url(event, options)
 
-    local body = hs.json.encode({
+    local post_body = hs.json.encode({
         event = event,
         data = data,
     })
@@ -107,19 +106,19 @@ local function post(event, data, options)
     local callback = options.callback
 
     if not callback then
-        callback = function(status, body, headers)
+        callback = function(status, response_body, response_headers)
             print:debug("Home Assistant Response", {
                 event = event,
                 status = status,
-                body = body,
-                headers = headers,
+                body = response_body,
+                headers = response_headers,
             })
         end
     end
 
-    print:debug("HA POST", { url = url, body = body, headers = headers })
+    print:debug("HA POST", { url = url, body = post_body, headers = headers })
 
-    hs.http.asyncPost(url, body, headers, callback)
+    hs.http.asyncPost(url, post_body, headers, callback)
 end
 
 return {

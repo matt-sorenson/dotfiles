@@ -230,7 +230,7 @@ local function modal_print_help(self)
     local formatted_msgs = table.map(messages, function(msg)
         if 'string' == type(msg) then
             local shortcut = string.rep('─', max_shortcut)
-            local msg = string.rep('─', max_msg)
+            msg = string.rep('─', max_msg)
 
             return string.format('%s%s%s%s%s', '├', shortcut, '┼', msg, '┤')
         end

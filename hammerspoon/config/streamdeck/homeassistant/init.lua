@@ -11,14 +11,14 @@ return {
             icon = helpers.button_icon('mdi-roller-shade-open.png'),
             buttons = {
                 [2] = {
-                    on_press = function(self, deck)
+                    on_press = function(_self, _deck)
                         ha.post('matt-office-blackout-shades:open')
                     end,
 
                     icon = helpers.button_icon_label('mdi-roller-shade-open.png', 'Blackout', 'top'),
                 },
                 [6] = {
-                    on_press = function(self, deck)
+                    on_press = function(_self, _deck)
                         ha.post('matt-office-blackout-shades:close')
                     end,
 
@@ -26,7 +26,7 @@ return {
                 },
 
                 [3] = {
-                    on_press = function(self, deck)
+                    on_press = function(_self, _deck)
                         ha.post('matt-office-sheer-shades:home')
                     end,
 
@@ -41,14 +41,14 @@ return {
                     }
                 },
                 [4] = {
-                    on_press = function(self, deck)
+                    on_press = function(_self, _deck)
                         ha.post('matt-office-sheer-shades:open')
                     end,
 
                     icon = helpers.button_icon_label('mdi-roller-shade-open.png', 'Sheer', 'top'),
                 },
                 [8] = {
-                    on_press = function(self, deck)
+                    on_press = function(_self, _deck)
                         ha.post('matt-office-sheer-shades:close')
                     end,
 
@@ -58,7 +58,7 @@ return {
         },
 
         [3] = {
-            on_press = function(self, deck)
+            on_press = function(_self, _deck)
                 ha.post('matt-office:start-day')
             end,
 
@@ -68,7 +68,7 @@ return {
             },
         },
         [7] = {
-            on_press = function(self, deck)
+            on_press = function(_self, _deck)
                 ha.post('matt-office:end-day')
             end,
 
@@ -79,7 +79,7 @@ return {
         },
 
         [4] = {
-            on_press = function(self, deck)
+            on_press = function(_self, _deck)
                 ha.post('matt-office-sunlight:toggle')
             end,
 
@@ -89,7 +89,7 @@ return {
             },
         },
         [8] = {
-            on_press = function(self, deck)
+            on_press = function(_self, _deck)
                 ha.post('matt-office-keylight:toggle')
             end,
 

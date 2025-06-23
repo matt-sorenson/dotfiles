@@ -1,5 +1,3 @@
-local print = require('ms.logger').new('ms.caffeine')
-
 local timer
 
 --[[export]]

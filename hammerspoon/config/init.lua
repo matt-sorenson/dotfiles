@@ -1,12 +1,10 @@
-local print      = require('ms.logger').new('config.init')
-
 local audio      = require 'ms.audio'
 local bind       = require 'ms.bind'
 local fs         = require 'ms.fs'
 local streamdeck = require 'ms.streamdeck'
 local sys        = require 'ms.sys'
 
-REMOTE_SHARES    = {}
+REMOTE_SHARES = {}
 
 if not sys.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
@@ -33,6 +31,7 @@ local _audio_device_configs = {
 hs.window.animationDuration = 0
 
 local modal = bind.init(require('config.keymap'))
+--luacheck: no unused
 local deck = streamdeck.new(require('config.streamdeck'))
 
 if REMOTE_HOME then

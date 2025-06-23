@@ -55,9 +55,10 @@ lua-pre-commit() {
     fi
 
     local results
-    if results="$(luacheck '$filename')"; then
+    if ! results="$(luacheck "$staged_file")"; then
         print-header -e "Errors in '${filename}'"
         print "${results}"
+        return 1
     fi
 }
 

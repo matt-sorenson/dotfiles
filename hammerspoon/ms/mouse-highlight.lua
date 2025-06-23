@@ -58,9 +58,9 @@ local function mouse_highlight()
                 return
             end
 
-            local mouse_pos = hs.mouse.absolutePosition()
+            local new_mouse_pos = hs.mouse.absolutePosition()
             circle:setFrame(
-                hs.geometry.rect(mouse_pos.x - 30, mouse_pos.y - 30, 60,  60)
+                hs.geometry.rect(new_mouse_pos.x - 30, new_mouse_pos.y - 30, 60,  60)
             )
         end
     )

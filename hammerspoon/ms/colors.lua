@@ -37,8 +37,6 @@ local function rgb(r, g, b)
 end
 
 local function get_colors()
-    local system_colors = hs.drawing.color.lists().System
-
     local colors = {
         -- magenta is used as 'missing' color as it's bright and obvious
         missing = rgb(255, 0, 255),

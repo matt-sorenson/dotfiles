@@ -2,6 +2,8 @@ local logger = require('ms.logger.logger')
 
 local system_logger = logger.system_logger
 
+ -- luacheck: ignore print printf
+
 -- Kludge some of the default hammerspoon logging into this system
 print = function(...)
     local args = table.pack(...)

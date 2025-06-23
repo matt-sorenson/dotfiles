@@ -85,7 +85,7 @@ end
 table.filter = function(t, fn)
     local out = {}
 
-    for k, v in pairs(t) do
+    for _, v in pairs(t) do
         if fn(v) then
             table.insert(out, v)
         end

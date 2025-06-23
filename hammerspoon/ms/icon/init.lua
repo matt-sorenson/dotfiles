@@ -70,7 +70,7 @@ local function get_icon(options)
 
             if not width or not height then
                 print:warn('No width or height provided, using default', options)
-                local resolution = builtin_resolutions['default']
+                resolution = builtin_resolutions['default']
                 width = resolution.width
                 height = resolution.height
             end
@@ -105,7 +105,7 @@ local _get_icon_mt = {
     __index = {
         clear_canvas_cache = get_canvas_from_canvas.clear_canvas_cache,
     },
-    __call = function(self, elements)
+    __call = function(_self, elements)
         return get_icon(elements)
     end,
 }

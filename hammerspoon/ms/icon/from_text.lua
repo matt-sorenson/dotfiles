@@ -1,5 +1,3 @@
-local print  = require('ms.logger').new('ms.icon.from_text')
-
 local colors = require('ms.colors').streamdeck
 
 local function get_canvas_from_text(text, options)
