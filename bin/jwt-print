@@ -67,7 +67,8 @@ jwt-print() {
 
     local parts=("${(@s/./)jwt}")
 
-    if (( ${#parts} != 3 )); then
+    # We silently ignore the signature part missing and treat it as a warning.
+    if (( ${#parts} < 2 )); then
         print-header -e "Invalid JWT format. Expected 3 parts separated by dots ('.')."
         return 1
     fi
@@ -76,6 +77,14 @@ jwt-print() {
     local payload_b64="${parts[2]}"
     local sig="${parts[3]:-}"
     unset parts
+
+    if [[ -z "${header_b64}" ]]; then
+        print-header -e "JWT header is empty."
+        return 1
+    elif [[ -z "${payload_b64}" ]]; then
+        print-header -e "JWT payload is empty."
+        return 1
+    fi
 
     local header='' payload='' issued_at='' expire_at=''
     header="$(   print "${header_b64}"  | jq -R '@base64d | fromjson')" || true
@@ -86,7 +95,7 @@ jwt-print() {
 
     local -i has_errors=0
 
-    if [[ ! -z header || ! -z payload ]]; then
+    if [[ -z "${header}" || -z "${payload}" ]]; then
         print-header -e 'Failed to parse JWT'
         print "jwt: ${jwt}"
         return 1
