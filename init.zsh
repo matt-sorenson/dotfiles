@@ -439,8 +439,8 @@ Options:${mac_specific_help}${apt_specific_help}
     elif command -v brew &> /dev/null; then
         local git_brew_root
         if git_brew_root="$(brew --prefix git)"; then
-            if [[ -f "${git_brew_root}share/git-core/contrib/diff-highlight" ]]; then
-                cp "${git_brew_root}share/git-core/contrib/diff-highlight" ~/bin/diff-highlight
+            if [[ -f "${git_brew_root}/share/git-core/contrib/diff-highlight/diff-highlight" ]]; then
+                cp "${git_brew_root}/share/git-core/contrib/diff-highlight/diff-highlight" ~/bin/diff-highlight
             fi
         fi
     fi
@@ -454,7 +454,7 @@ Options:${mac_specific_help}${apt_specific_help}
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
     # print-header from the dotfiles is more robust so :shrug:
-    unset print-header
+    unset -f print-header
     PATH="${DOTFILES}/bin:${PATH}"
 
     # '-p' options makes all the directories that don't exist, but
