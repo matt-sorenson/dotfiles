@@ -69,7 +69,7 @@ fi
 
 # if now empty, delete it
 if [[ ! -s "${stack_file}" ]]; then
-    rm "${stack_file}"
+    rm "${stack_file}" || print "Failed to remove stack file: ${stack_file}"
 fi
 
 local current_branch
