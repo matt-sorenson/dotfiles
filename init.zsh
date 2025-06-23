@@ -401,7 +401,7 @@ Options:${mac_specific_help}${apt_specific_help}
         print-header green "installing items from brew"
         print "Install List: ${(q)app_install_list[@]} ${(q)brew_install_list[@]}"
         brew install -q ${(q)app_install_list[@]} ${(q)brew_install_list[@]}
-    elif (( flags[do_brew] )); then
+    elif (( flags[do_apt] )); then
         print-header green "Installing apt packages"
         # Only add docker if it's not already installed.
         if (( flags[do_docker] )) && ! command -v docker &> /dev/null; then
@@ -431,6 +431,25 @@ Options:${mac_specific_help}${apt_specific_help}
 
         sudo apt update
         sudo apt install -y ${(q)app_install_list[@]} ${(q)apt_install_list[@]}
+    fi
+
+    mkdir -p ~/bin
+    if [[ -f /usr/share/doc/git/contrib/diff-highlight/diff-highlight ]]; then
+        cp /usr/share/doc/git/contrib/diff-highlight/diff-highlight ~/bin/diff-highlight
+    elif command -v brew &> /dev/null; then
+        local git_brew_root
+        if git_brew_root="$(brew --prefix git)"; then
+            if [[ -f "${git_brew_root}share/git-core/contrib/diff-highlight" ]]; then
+                cp "${git_brew_root}share/git-core/contrib/diff-highlight" ~/bin/diff-highlight
+            fi
+        fi
+    fi
+
+    if [[ -f ~/bin/diff-highlight ]]; then
+        chmod u+wrx ~/bin/diff-highlight # give user read/write/execute
+        chmod +rx ~/bin/diff-highlight   # give everyone read/execute
+    else
+        print-header red "Failed to find diff-highlight"
     fi
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
