@@ -62,9 +62,11 @@ zsh-pre-commit() {
     if (( ${#file_errors} )); then
         print-header -e "Errors in '${filename}'"
         printf '%s\n' "${file_errors[@]}"
+        return 1
+    else
+        print "No errors found in ${filename}."
+        return 0
     fi
-
-    return ${#file_errors}
 }
 
 zsh-pre-commit "$@"

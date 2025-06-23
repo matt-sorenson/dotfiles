@@ -1,9 +1,10 @@
 #!/usr/bin/env zsh
 
-bash-pre-commit() {
+shell-pre-commit() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
+    setopt null_glob
     setopt typeset_to_unset
     setopt warn_create_global
     unsetopt short_loops
@@ -57,25 +58,16 @@ bash-pre-commit() {
     fi
 
     # remove empty elements
-    local -a file_errors_tmp=()
-    for e in "${file_errors[@]}"; do
-        if [[ -n "$e" ]]; then
-            file_errors_tmp+=("$e")
-        fi
-    done
-
-    file_errors=()
-    if (( ${#file_errors_tmp} )); then
-        file_errors=("${file_errors_tmp[@]}")
-    fi
-    unset file_errors_tmp
+    file_errors=("${(@)file_errors:#}")
 
     if (( ${#file_errors} )); then
         print-header -e "Errors in '${filename}'"
         printf '%s\n' "${file_errors[@]}"
+        return 1
+    else
+        print "No errors found in ${filename}."
+        return 0
     fi
-
-    return ${#file_errors}
 }
 
-bash-pre-commit "$@"
+shell-pre-commit "$@"
