@@ -56,7 +56,6 @@ local function layout_has_sections_fn(section)
 end
 
 --luacheck: no max line length
-
 local config = {
     {
         title = 'global',

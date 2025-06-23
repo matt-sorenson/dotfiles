@@ -54,8 +54,17 @@ lua-pre-commit() {
         return 0
     fi
 
+    local config=''
+    local first_dir=${filename%%/*}
+    if [[ $filename != */* ]]; then
+        first_dir=""
+    elif [[ -f "${first_dir}/.luacheckrc" ]]; then
+        config=(--config "${first_dir}/.luacheckrc")
+    fi
+
     local results
-    if ! results="$(luacheck "$staged_file")"; then
+    if ! results="$(luacheck "$staged_file" ${config[@]})"; then
+        results="${results//$staged_file/$filename}"
         print-header -e "Errors in '${filename}'"
         print "${results}"
         return 1
