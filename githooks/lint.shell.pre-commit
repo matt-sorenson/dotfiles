@@ -45,11 +45,11 @@ shell-pre-commit() {
 
     local -a file_errors=()
 
-    is_bash_or_sh_file() {
+    is_shell_file() {
         local staged_file="$1"
         local filename="$2"
 
-        if [[ "$filename" == *.bash ]]; then
+        if [[ "$filename" == *.bash || "$filename" == *.sh ]]; then
             return 0
         fi
 
@@ -65,11 +65,11 @@ shell-pre-commit() {
         return 1
     }
 
-    if ! is_bash_or_sh_file "$staged_file" "$filename"; then
-        unset -f is_bash_or_sh_file
+    if ! is_shell_file "$staged_file" "$filename"; then
+        unset -f is_shell_file
         return 0
     fi
-    unset -f is_bash_or_sh_file
+    unset -f is_shell_file
 
     # || true due to zsh returning an error on any errors, which we specifically want.
     local shellcheck_errors
