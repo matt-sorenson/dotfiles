@@ -5,5 +5,8 @@
         "hs",
         "toarray",
         "printf"
-    ]
+    ],
+    "files.exclude": {
+        "/deps/**": true
+    }
 }
