@@ -8,8 +8,39 @@ zsh-pre-commit() {
     setopt warn_create_global
     unsetopt short_loops
 
-    local staged_file="$1"
-    local filename="$2"
+    local _usage="Usage lint.shell.pre-commit [-h|--help] [--verbose] <staged_file> <filename>"
+
+    local staged_file
+    local filename
+    local verbose=0
+
+    while (( $# )); do
+        case "$1" in
+            --verbose)
+                verbose=1
+                ;;
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            *)
+                if [[ ! -v staged_file ]]; then
+                    staged_file="$1"
+                elif [[ ! -v filename ]]; then
+                    filename="$1"
+                else
+                    print-header -e "Unexpected argument '$1'."
+                    print "$_usage"
+                    return 1
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    if (( verbose )); then
+        print "lint.zsh.pre-commit: '$filename'"
+    fi
 
     is_zsh_file() {
         local staged_file="$1"
@@ -21,9 +52,7 @@ zsh-pre-commit() {
 
         local first_line=''
         IFS= read -r first_line < "$staged_file"
-        if [[ "$first_line" == '#!/bin/zsh' || "$first_line" == '#! /bin/zsh' ]]; then
-            return 0
-        elif [[ $first_line == '#! /usr/bin/env zsh' ]]; then
+        if [[ "$first_line" == *'zsh' ]]; then
             return 0
         fi
 
@@ -64,7 +93,6 @@ zsh-pre-commit() {
         printf '%s\n' "${file_errors[@]}"
         return 1
     else
-        print "No errors found in ${filename}."
         return 0
     fi
 }

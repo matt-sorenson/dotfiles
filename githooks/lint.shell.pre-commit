@@ -9,9 +9,41 @@ shell-pre-commit() {
     setopt warn_create_global
     unsetopt short_loops
 
+    local _usage="Usage lint.shell.pre-commit [-h|--help] [--verbose] <staged_file> <filename>"
+
+    local staged_file
+    local filename
+    local verbose=0
+
+    while (( $# )); do
+        case "$1" in
+            --verbose)
+                verbose=1
+                ;;
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            *)
+                if [[ ! -v staged_file ]]; then
+                    staged_file="$1"
+                elif [[ ! -v filename ]]; then
+                    filename="$1"
+                else
+                    print-header -e "Unexpected argument '$1'."
+                    print "$_usage"
+                    return 1
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    if (( verbose )); then
+        print "lint.shell.pre-commit: '$filename'"
+    fi
+
     local -a file_errors=()
-    local staged_file="$1"
-    local filename="$2"
 
     is_bash_or_sh_file() {
         local staged_file="$1"
@@ -65,7 +97,6 @@ shell-pre-commit() {
         printf '%s\n' "${file_errors[@]}"
         return 1
     else
-        print "No errors found in ${filename}."
         return 0
     fi
 }

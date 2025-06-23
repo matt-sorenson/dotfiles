@@ -9,6 +9,27 @@ pre-commit() {
     setopt warn_create_global
     unsetopt short_loops
 
+    local _usage="Usage pre-commit [-h|--help] [--verbose]"
+    local verbose=''
+
+    while (( $# )); do
+        case "$1" in
+            --verbose)
+                verbose='--verbose'
+                ;;
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            *)
+                print-header -e "Unexpected argument '$1'."
+                print "$_usage"
+                return 1
+                ;;
+        esac
+        shift
+    done
+
     local -a checks=("${DOTFILES}/githooks/"*.pre-commit)
 
     if (( ! ${#checks[@]} )); then
@@ -24,9 +45,8 @@ pre-commit() {
     fi
 
     local -i errors_found=0
+    local -i new_errors_found
     local file staged_file precommit_check
-
-
     for file in "${all_staged_files[@]}"; do
         # Skip non-existent or non-regular files (can happen with deletions or renames)
         [[ -f $file ]] || continue
@@ -35,9 +55,17 @@ pre-commit() {
         # Get the staged instance of the file instead of the
         git show ":${file}" > "${staged_file}"
 
+        new_errors_found=0
         for precommit_check in "${checks[@]}"; do
-            "$precommit_check" "$staged_file" "$file"
+            if ! "$precommit_check" "$staged_file" "$file" $verbose; then
+                new_errors_found=1
+                errors_found=1
+            fi
         done
+
+        if (( ! new_errors_found )); then
+            print "No Errors found in '$file'"
+        fi
 
         rm "$staged_file"
     done
