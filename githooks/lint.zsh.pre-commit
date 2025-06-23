@@ -74,15 +74,19 @@ zsh-pre-commit() {
         file_errors+=("$zsh_errors")
     fi
 
-    local fname lineno
-    while IFS=: read -r fname lineno _; do
-        file_errors+=("$fname:$lineno:'e""cho' used. Use 'print' instead")
-    done < <(grep -nH '\becho\b' "$staged_file")
+    if [[ -s "${staged_file}" ]]; then
+        local fname lineno
+        while IFS=: read -r fname lineno _; do
+            file_errors+=("$fname:$lineno:'e""cho' used. Use 'print' instead")
+        done < <(grep -nH '\becho\b' "$staged_file")
 
-    local first_line
-    IFS= read -r first_line < "$staged_file"
-    if [[ "$first_line" == '#!/bin/zsh' || "$first_line" == '#! /bin/zsh' ]]; then
-        file_errors+=("$filename:1:'#!/bin/zsh' used. Use '#! /usr/bin/env zsh' instead")
+        local first_line
+        IFS= read -r first_line < "$staged_file"
+        if [[ "$first_line" == '#!/bin/zsh' || "$first_line" == '#! /bin/zsh' ]]; then
+            file_errors+=("$filename:1:'#!/bin/zsh' used. Use '#! /usr/bin/env zsh' instead")
+        fi
+    else
+        file_errors+=("$filename:0:File is empty")
     fi
 
     # remove empty elements
