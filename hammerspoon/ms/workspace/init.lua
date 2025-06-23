@@ -1,6 +1,6 @@
 local print = require('ms.logger').new('ms.workspace.init')
 
--- Apple doesn't like others messing with workspace creation so 
+-- Apple doesn't like others messing with workspace creation so
 -- we sleep to allow the hacky way to interact with workspaces to work.
 local function sleep()
     local one_second_in_useconds = 1000000

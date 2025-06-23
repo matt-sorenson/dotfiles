@@ -85,7 +85,7 @@ local function toggle_select_app_fn(app_name, win_name, new_window)
             end
         end
 
-        local new_window = select_app(app_name, win_name, new_window)
+        new_window = select_app(app_name, win_name, new_window)
 
         if new_window ~= focused_window then
             prev_window = focused_window

@@ -6,7 +6,7 @@ local function messages_slack_window_rect(win)
     local slackBundleId = 'com.tinyspeck.slackmacgap'
 
     local inBundleId = win:application():bundleID()
-    
+
     if inBundleId == slackBundleId then
         if hs.application.find(messagesBundleId) then
             return { 0, 1/2, 7/8, 1/2 }

@@ -131,7 +131,9 @@ end
 
 --[[ export:layout_mt ]]
 local function _layout_apply(self, category, windows)
-    windows = hs.window.allWindows()
+    if not windows then
+        windows = hs.window.allWindows()
+    end
 
     table.ieach(windows, function(window)
         _layout_apply_to_window(self, category, window)
@@ -214,11 +216,11 @@ local _layout_mt = {
 
 local function _layout_new(input, name)
     local self = {
-        name = function(self) return name end,
-        sections = function(self) return input.sections end,
-        layout = function(self) return input.layout end,
-        is_work_computer = function(self) return input.is_work_computer == true end,
-        is_fallback = function(self) return input.fallback == true end,
+        name = function(_self) return name end,
+        sections = function(_self) return input.sections end,
+        layout = function(_self) return input.layout end,
+        is_work_computer = function(_self) return input.is_work_computer == true end,
+        is_fallback = function(_self) return input.fallback == true end,
     }
 
     _layout_init_layout(self)

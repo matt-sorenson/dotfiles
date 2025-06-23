@@ -82,6 +82,7 @@ shell-pre-commit() {
         fi
     else
         print-header cyan "shellcheck not found, skipping checks."
+        return 0
     fi
 
     local first_line

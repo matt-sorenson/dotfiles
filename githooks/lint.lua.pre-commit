@@ -1,0 +1,64 @@
+#!/usr/bin/env zsh
+
+lua-pre-commit() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt null_glob
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage lint.lua.pre-commit [-h|--help] [--verbose] <staged_file> <filename>"
+
+    local staged_file
+    local filename
+    local verbose=0
+
+    while (( $# )); do
+        case "$1" in
+            --verbose)
+                verbose=1
+                ;;
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            *)
+                if [[ ! -v staged_file ]]; then
+                    staged_file="$1"
+                elif [[ ! -v filename ]]; then
+                    filename="$1"
+                else
+                    print-header -e "Unexpected argument '$1'."
+                    print "$_usage"
+                    return 1
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    if (( verbose )); then
+        print "lint.lua.pre-commit: '$filename'"
+    fi
+
+    local -a file_errors=()
+
+    if [[ $filename != *.lua ]]; then
+        return 0
+    fi
+
+    if ! command -v luacheck &> /dev/null; then
+        print-header cyan "luacheck not found, skipping checks."
+        return 0
+    fi
+
+    local results
+    if results="$(luacheck '$filename')"; then
+        print-header -e "Errors in '${filename}'"
+        print "${results}"
+    fi
+}
+
+lua-pre-commit "$@"

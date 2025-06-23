@@ -1,5 +1,3 @@
-local print = require('ms.logger').new('ms.grid')
-
 local sys = require 'ms.sys'
 
 hs.grid.setMargins(hs.geometry.size(0, 0))

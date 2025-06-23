@@ -192,7 +192,7 @@ end
 local INDENT = '  '
 
 --- Convert a table to a string representation
--- 
+--
 -- In cases of circular references the inner reference will be replaced with
 -- the literal "'<circular>'".
 --
