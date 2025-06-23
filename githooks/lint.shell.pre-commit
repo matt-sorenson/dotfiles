@@ -71,13 +71,17 @@ shell-pre-commit() {
     fi
     unset -f is_shell_file
 
-    # || true due to zsh returning an error on any errors, which we specifically want.
-    local shellcheck_errors
-    if ! shellcheck_errors="$(shellcheck "$staged_file" 2>&1)"; then
-        shellcheck_errors="${shellcheck_errors//$staged_file/$filename}"
-        if [[ -n $shellcheck_errors ]]; then
-            file_errors+=("$shellcheck_errors")
+    if command -v shellcheck &> /dev/null; then
+        # || true due to zsh returning an error on any errors, which we specifically want.
+        local shellcheck_errors
+        if ! shellcheck_errors="$(shellcheck "$staged_file" 2>&1)"; then
+            shellcheck_errors="${shellcheck_errors//$staged_file/$filename}"
+            if [[ -n $shellcheck_errors ]]; then
+                file_errors+=("$shellcheck_errors")
+            fi
         fi
+    else
+        print-header cyan "shellcheck not found, skipping checks."
     fi
 
     local first_line
