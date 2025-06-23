@@ -82,9 +82,10 @@ brew-find-leafs() {
     fi
 
     local -a formulas=()
+    local formula
     local -A depended_on=()
 
-    local deps
+    local deps dep
     while IFS=: read -r formula deps; do
         formulas+=("$formula")
 
@@ -93,9 +94,7 @@ brew-find-leafs() {
             depended_on[$dep]=1
         done
     done < <(brew deps --installed)
-    unset deps
 
-    local formula
     for formula in $formulas; do
         if [[ ! -v depended_on[$formula] ]]; then
             if (( flag_remove )); then
@@ -104,8 +103,6 @@ brew-find-leafs() {
                     print
                     brew remove "${formula}"
                     check_formulas $(brew deps --1 --installed "${formula}")
-                else
-                    print
                 fi
                 unset input
             else
