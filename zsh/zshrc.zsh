@@ -44,7 +44,15 @@ if [[ "${OSTYPE}" == darwin* ]]; then
     ssh-add --apple-load-keychain
 fi
 
-LESSHISTFILE="${DOTFILES}/tmp/less-history" # Disable less history file
+# less
+# -F - quit if one screen
+# -M - show a detailed prompt at the bottom
+# -R - display ANSI color codes and other control characters (raw)
+# -i - ignore case when searching
+# -X - don't clear the screen on exit
+# -N - number lines
+export LESS='-NFMRiXN'
+export LESSHISTFILE="${DOTFILES}/tmp/less-history"
 
 # History settings
 HISTFILE="${DOTFILES}/tmp/zsh-history"

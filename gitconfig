@@ -9,7 +9,7 @@
     ui = always
 
 [core]
-    pager = diff-highlight | less -FMRiX
+    pager = diff-highlight | less -+N
     excludesfile = ~/.dotfiles/gitignore
 
 [pull]

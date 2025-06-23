@@ -1,7 +1,6 @@
 # These aliases are sourced in zshrc.zsh, so only available in interactive shells.
 
 alias ls='ls --color=auto'
-alias less='less -XF'
 alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
