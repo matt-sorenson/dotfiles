@@ -67,7 +67,13 @@ pre-commit() {
             print "No Errors found in '$file'"
         fi
 
-        rm "$staged_file"
+        # Don't fail the commit cause it can't cleanup the file
+        # The OS should clean it up eventually if it's left hanging about.
+        rm "$staged_file" || {
+            if [[ -n "$verbose" ]]; then
+                print "error removing temporary file: '$staged_file'"
+            fi
+        } || true
     done
 
     return $errors_found
