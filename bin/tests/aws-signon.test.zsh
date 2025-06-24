@@ -79,7 +79,7 @@ main() {
             unset AWS_PROFILE
         fi
 
-        run-test --bootstrap "$testee" "$test_fn" || (( out += 1 ))
+        run-test "$testee" "$test_fn" || (( out += 1 ))
     done
 
     if [[ -v previous_AWS_PROFILE ]]; then

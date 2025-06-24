@@ -20,11 +20,6 @@ Options:
 
   --bootstrap   Don't test against expected results, instead write the expected result
 
-  --differ-cmd  Provide a command that takes in 2 arguments
-                <expected-output> and <received-output>. Should
-                return 0 if the values match.
-                This is useful if you need to do fuzzy matching or ignore timestamps
-
 Sanitization Options:
   --no-sanitize-current-dir   Disable sanitize-current-dir
   --no-sanitize-dotfiles-dir  Disable sanitize-dotfiles-dir
@@ -36,7 +31,6 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     local testee_name
     local test_name
-    local differ_cmd
 
     local -A flags=(
         ['sanitize_current_dir']=1
@@ -63,12 +57,6 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
         ;;
     --bootstrap)
         flags[bootstrap_test]=1
-        ;;
-    --differ-cmd)
-        shift
-        if (( ! $# )); then
-            print-header -e -- "--differ-cmd requires an argument."
-        fi
         ;;
     -[!-]*)
         local arg_list=( "${(@s::)1#-}" )
@@ -120,6 +108,13 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     local result="$($test_name 2>&1)"
 
+    local do_bootstrap=0
+
+    if [[ "$result" == 'DOTFILES_TEST_BOOTSTRAP=1'$'\n'* ]]; then
+        do_bootstrap=1
+        result=${result#*$'\n'}
+    fi
+
     if (( flags[sanitize_dotfiles_dir] )); then
         result="${result//${DOTFILES}/\$\{DOTFILES\}}"
         result="${result//${WORKSPACE_ROOT_DIR}\/dotfiles/\$\{DOTFILES\}}"
@@ -133,28 +128,23 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/${testee}/${test_name}"
 
-    if (( flags[bootstrap_test] )); then
+    if (( flags[bootstrap_test] || do_bootstrap )); then
+        set -x
         mkdir -p "${DOTFILES}/bin/tests/expected-results/${testee}"
-        print -n "$result" >! "${expected_filename}"
+        print -n "$result" > "${expected_filename}"
         return 0
     fi
 
+    local matches=0
     if [[ ! -f "$expected_filename" ]]; then
         print-header -e "File ${expected_filename}: does not exist"
     elif [[ ! -r "$expected_filename" ]]; then
         print-header -e "File ${expected_filename}: not readable"
-    fi
-
-    expected=$(< "${expected_filename}")
-
-    local matches
-    if [[ -v differ_cmd ]]; then
-        $differ_cmd "${result}" "${expected}"
-        matches=$?
-    elif [[ "$result" != "${expected}" ]]; then
-        matches=0
     else
-        matches=1
+        expected=$(< "${expected_filename}")
+        if [[ "$result" == "${expected}" ]]; then
+            matches=1
+        fi
     fi
 
     if (( ! matches )); then
@@ -163,7 +153,9 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
         local failed_filename="${DOTFILES}/bin/tests/failed-results/${testee_name}/${test_name}"
         print -n "${result}" >! "${failed_filename}"
 
-        diff "${expected_filename}" "${failed_filename}"
+        if [[ -r "$expected_filename" ]]; then
+            diff "${expected_filename}" "${failed_filename}"
+        fi
 
         return 1
     fi
