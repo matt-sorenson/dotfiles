@@ -133,11 +133,13 @@ main() {
     local -a apt_install_list=(
         emacs-nox # emacs-nox is the terminal only version of emacs
         silversearcher-ag
+        fdfind
     )
 
     local -a brew_install_list=(
         awscli
         emacs
+        fd
         the_silver_searcher
     )
 
@@ -450,6 +452,10 @@ Options:${mac_specific_help}${apt_specific_help}
         chmod +rx ~/bin/diff-highlight   # give everyone read/execute
     else
         print-header red "Failed to find diff-highlight"
+    fi
+
+    if command -v fdfind &> /dev/null; then
+        ln -s "$(which fdfind)" "${HOME}/bin/fd"
     fi
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
