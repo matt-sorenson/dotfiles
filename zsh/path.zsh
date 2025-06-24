@@ -75,13 +75,13 @@ add-to-path() {
         return 1
     fi
 
-    # Resolve to an absolute path
-    dir="${dir:A}"
-
     # Check that it exists and is a directory
     if [[ ! -d "${dir}" ]]; then
         return 1
     fi
+
+    # Resolve to an absolute path
+    dir="${dir:A}"
 
     if (( do_fpath )); then
         # Check that it's not in the fpath already
