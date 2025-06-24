@@ -155,6 +155,7 @@ dot-check-for-update() {
         local time_limit_in_seconds=$(( 60 * 60 * auto_limit_in_hours ))
         local current_time=$(date +%s)
         local cutoff_time=$(( current_time - time_limit_in_seconds ))
+        unset current_time
 
         local -i last_update
         local update_filename="${DOTFILES}/tmp/dotfile-update"
