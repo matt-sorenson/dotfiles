@@ -77,3 +77,16 @@ Please add these to your saved memories
 - zsh does support hyphens in function names but not variable names
 - assume `setopt typeset_to_unset` & `setopt err_return` are enabled for zsh snippets
 - If a zsh snippet has `#compdef <script name>` as it's second line then file level variables should be marked as local, zsh's autoload will properly handle it.
+
+# ZSH Function Starting Point
+```
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt extended_glob
+    setopt local_options
+    setopt null_glob
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+```
