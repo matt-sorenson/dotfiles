@@ -4,7 +4,7 @@
 dot-check-for-update() {
     emulate -L zsh
     set -uo pipefail
-    setopt nullglob
+    setopt null_glob
     setopt err_return
     setopt typeset_to_unset
     setopt warn_create_global
