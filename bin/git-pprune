@@ -1,0 +1,106 @@
+#!/usr/bin/env zsh
+#compdef git-pprune
+
+git-pprune() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt extended_glob
+    setopt local_loops
+    setopt null_glob
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local _usage='Usage: git-pprune [options]
+
+Prune local branches that have been deleted on the remote.
+
+Options:
+  -h, --help      Show this help message
+  -f, --force     Force delete branches without confirmation'
+
+    local force=0
+    local -a exclude_names=()
+    local -a exclude_patterns=()
+
+    while (( $# )); do
+        case $1 in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            -f|--force)
+                force=1
+                ;;
+            -e|--exclude)
+                if (( $# < 2 )); then
+                    print "Error: $1 requires an argument."
+                    return 1
+                fi
+
+                shift
+                exclude_names+=("$1")
+                ;;
+            -p|--exclude-pattern)
+                if (( $# < 2 )); then
+                    print "Error: $1 requires an argument."
+                    return 1
+                fi
+
+                shift
+                exclude_patterns+=("$1")
+                ;;
+            *)
+                print "Unknown option: $1"
+                print "$_usage"
+                return 1
+                ;;
+        esac
+        shift
+    done
+
+    git pull --prune
+
+    local lines branch
+    if ! lines=$(git branch -vv | grep '\[.*: gone\]'); then
+        print "No branches to prune."
+        return
+    fi
+
+    print-header cyan "Branches to prune:"
+
+    local exclude_name exclude_pattern
+    awk '{print $1}' <<< "$lines" | while read -r branch; do
+        for exclude_name in "${exclude_names[@]}"; do
+            if [[ "$branch" == "$exclude_name" ]]; then
+                print "Skipping branch '$branch' due to exclude name '$exclude_name'."
+                continue 2
+            fi
+        done
+
+        for exclude_pattern in "${exclude_patterns[@]}"; do
+            if [[ "$branch" == $~exclude_pattern ]]; then
+                print "Skipping branch '$branch' due to exclude pattern '$exclude_pattern'."
+                continue 2
+            fi
+        done
+
+        if (( force )); then
+            if ! git branch -D "$branch"; then
+                print-header -e "Failed to delete branch '$branch'. It may not be fully merged."
+            fi
+        else
+            print -n "Delete branch '$branch'? [y/N] "
+            if read -q; then
+                if ! git branch -D "$branch"; then
+                    print-header -e "Failed to delete branch '$branch'. It may not be fully merged."
+                fi
+            else
+                print "Skipped branch '$branch'."
+            fi
+        fi
+    done
+}
+
+git-pprune "$@"
