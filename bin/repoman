@@ -81,6 +81,7 @@ Tasks:
   -n, --nuke               clean:nuke, cleanup lots more of the environment
   -c, --clean              Basic clean of the workspace
   -i, --install            Install dependencies
+  -l, --lint               Run linters
   -b, --build              Build
   --cloud-signon           Login to the cloud if needed
   -d, --db-up              Start the DB up.
@@ -149,6 +150,7 @@ Examples:
         nuke                0
         clean               0
         install             0
+        lint                0
         build               0
         cloud_signon        0
         db_up               0
@@ -170,6 +172,7 @@ Examples:
         [clean]=🧹
         [nuke]=☢️
         [install]=📦
+        [lint]=🧼
         [build]=🛠️
         [db_up]=💾
         [migrations]=💾
@@ -341,6 +344,7 @@ Examples:
             d) any_set=1; tasks[db_up]=1 ;;
             g) any_set=1; tasks[generate_schema]=1 ;;
             i) any_set=1; tasks[install]=1 ;;
+            l) any_set=1; tasks[lint]=1 ;;
             I) any_set=1; tasks[integration_tests]=1 ;;
             m) any_set=1; tasks[migrations]=1 ;;
             n) any_set=1; tasks[nuke]=1 ;;
@@ -530,6 +534,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     }
 
     # Logic overrides
+    _repoman-override-tasks clean lint install
     _repoman-override-tasks clean build install
     _repoman-override-tasks clean unit_tests install
     _repoman-override-tasks clean unit_tests build
@@ -661,6 +666,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     _repoman-run-task nuke
     _repoman-run-task clean
     _repoman-run-task install
+    _repoman-run-task lint
 
     if (( tasks[db_up] )); then
         if [[ -n "${opts[db_container_name]}" ]]; then
