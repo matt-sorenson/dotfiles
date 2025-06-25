@@ -163,8 +163,8 @@ function prompt_ender_precmd() {
     local exit_code=$?
     _prompt_ender_current_bg="NONE"
 
-    setopt LOCAL_OPTIONS
-    unsetopt XTRACE KSH_ARRAYS
+    setopt local_options
+    unsetopt xtrace ksh_arrays
 
     vcs_info
 
@@ -223,8 +223,8 @@ function prompt_ender_setup() {
     autoload -Uz add-zsh-hook
     autoload -Uz vcs_info
 
-    setopt LOCAL_OPTIONS
-    unsetopt XTRACE KSH_ARRAYS
+    setopt local_options
+    unsetopt xtrace ksh_arrays
     prompt_opts=(cr percent subst)
 
     # Load required functions.
