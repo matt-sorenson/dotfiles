@@ -5,6 +5,7 @@ _arguments \
     '(-s --soft-link --no-link)'{-s,--soft-link}'[Directory to create a soft link to the repo]:soft_link_dir:_directories' \
     '(-r --root)'{-r,--root}'[Directory to clone into a subfolder of]:root_dir:_directories' \
     '(-s --soft-link --no-link)--no-link[Disable automatic softlink creation]' \
+    '--code[Open the cloned repo in VS Code]'
     '1:Repo URL: ' \
     '2::Repo Name: ' \
     && return 0
