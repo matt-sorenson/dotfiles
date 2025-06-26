@@ -1,0 +1,95 @@
+#!/usr/bin/env zsh
+#compdef git-stack-init
+
+git-stack-init() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage git stack-init [-h|--help][--no-clear]
+
+    Options:
+        --no-clear  Do not clear the stack before initializing"
+
+    local -A flags=(
+        [clear]=1
+    )
+
+    while (( $# )); do
+        case $1 in
+        -h|--help)
+            print "${_usage}"
+            return 0
+            ;;
+        --no-*)
+            local flag="${1#--no-}"
+            if [[ -v 'flags[$flag]' ]]; then
+                flags[$flag]=0
+            else
+                print-header -e "Unexpected flag '$1'"
+                print "${_usage}"
+                return 1
+            fi
+            ;;
+        --*)
+            print-header -e "Unexpected flag '$1'"
+            print "${_usage}"
+            return 1
+            ;;
+        *)
+            print-header -e "Unexpected argument '$1'"
+            print "${_usage}"
+            return 1
+            ;;
+        esac
+        shift
+    done
+
+    local -a branch_list
+    branch_list=("${(@f)$(git log -g HEAD --format="%gs" \
+        | grep '^checkout: moving from ' \
+        | sed 's/^checkout: moving from //' \
+        | awk '
+            BEGIN { FS = " to "; prev = "" }
+            NF == 2 {
+                if ($2 != prev) {
+                    print $2
+                    prev = $2
+                }
+            }
+            NF != 2 {
+                print "ERROR: unrecognized format -> \"" $0 "\"" > "/dev/stderr"
+            }
+        ')}")
+
+    if (( ${#branch_list[@]} == 0 )); then
+        print-header -e "No branches found to add to stack. Stack Unchanged."
+        return 1
+    fi
+
+    if (( flags[clear] )); then
+        git stack --clear || {
+            print-header -e "Failed to clear the stack."
+            return 1
+        }
+    fi
+
+    local branch
+    for branch in "${(@Oa)branch_list}"; do
+        if [[ -z "$branch" ]]; then
+            continue
+        fi
+
+        if git pushb --no-checkout "$branch"; then
+            print-header green "Added branch '$branch' to stack."
+        else
+            print-header -e "Failed to add branch '$branch' to stack."
+            return 1
+        fi
+    done
+}
+
+git-stack-init "$@"

@@ -27,6 +27,9 @@ git-pushb() {
 
     local new_branch=
     local -a arguments=()
+    local -A flags=(
+        [checkout]=1
+    )
 
     # Help check
     while (( $# )); do
@@ -46,6 +49,16 @@ git-pushb() {
                 shift
             else
                 print-header -e "Invalid '$1' - a branch has already been provided '${new_branch}'"
+                print "${_usage}"
+                return 1
+            fi
+            ;;
+        --no-*)
+            local flag="${1#--no-}"
+            if [[ -v flags[$flag] ]]; then
+                flags[$flag]=0
+            else
+                print-header -e "Unexpected flag '$1'"
                 print "${_usage}"
                 return 1
             fi
@@ -96,18 +109,24 @@ git-pushb() {
         return 1
     }
 
+    local stack_file="${repo_root}/.ms-popb-stack"
+    if (( ! flags[checkout] )); then
+        # ensure stack exists, then push current branch
+        print "${new_branch}" >> "${stack_file}"
+        return 0
+    fi
+
     # if user asked to pushb into the same branch, do nothing
     if [[ "${new_branch}" = "${current_branch}" ]]; then
         return 0
     fi
 
-    local stack_file="${repo_root}/.ms-popb-stack"
-
     # ensure stack exists, then push current branch
-    mkdir -p "$(dirname "${stack_file}")"
     print "${current_branch}" >> "${stack_file}"
 
-    git checkout "${arguments[@]}"
+    if (( flags[checkout] )); then
+        git checkout "${arguments[@]}"
+    fi
 }
 
 git-pushb "$@"

@@ -76,9 +76,9 @@ git-stack() {
             (( ! quiet )) && print-header yellow "Branch stack is empty."
         else
             if [[ -v max_lines ]]; then
-                cat -n "${stack_file}" | tail -n $max_lines
+                nl -n rz -w 3 "${stack_file}" | tail -n $max_lines
             else
-                cat -n "${stack_file}"
+                nl -n rn -w 3 "${stack_file}"
             fi
         fi
     fi
