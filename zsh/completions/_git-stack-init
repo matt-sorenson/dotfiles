@@ -1,0 +1,8 @@
+#compdef git-stack-init
+#description Use the reflog to initialize a stack file for git-stack
+
+_arguments \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-q --quiet)'{-q,--quiet}'[Less output]' \
+    "--no-clear[Don't clear the stack file first]" \
+    && return 0
