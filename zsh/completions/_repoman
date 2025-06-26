@@ -6,6 +6,7 @@ _repoman() {
         'nuke'
         'clean'
         'install'
+        'lint'
         'build'
         'aws-signon'
         'db-up'
