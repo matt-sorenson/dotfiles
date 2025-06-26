@@ -1,7 +1,5 @@
 #compdef aws-signon
 
-typeset -A opt_args
-
 _arguments \
     '(-f --force)'{-f,--force}'[force login even if already signed in]' \
     '(-h --help)'{-h,--help}'[show help message]' \
