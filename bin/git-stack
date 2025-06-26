@@ -18,22 +18,21 @@ git-stack() {
     -h, --help            Show this help message
     -<d>                  Show a maximum of <d> elements of the stack"
 
-    local -i clear_stack=0
-    local -i quiet=0
     local -i max_lines
+
+    local -A flags=(
+        [clear]=0
+        [quiet]=0
+    )
 
     # Parse options
     while (( $# )); do
         case "$1" in
-        -c|--clear)
-            clear_stack=1
-            ;;
+        -c|--clear) flags[clear]=1 ;;
+        -q|--quiet) flags[quiet]=1 ;;
         -h|--help)
             print "${_usage}"
             return 0
-            ;;
-        -q|--quiet)
-            quiet=1
             ;;
         -[0-9]##)
             if [[ -v max_lines ]]; then
@@ -66,14 +65,19 @@ git-stack() {
 
     local stack_file="${repo_root}/.ms-popb-stack"
 
-    if (( clear_stack )); then
+    if (( flags[clear] )); then
         if [[ -f "$stack_file" ]]; then
             rm "${stack_file}"
+
+            if (( ! flags[quiet] )); then
+                print-header green "Cleared branch stack."
+            fi
         fi
-        print-header green "Cleared branch stack."
     else
         if [[ ! -s "${stack_file}" ]]; then
-            (( ! quiet )) && print-header yellow "Branch stack is empty."
+            if (( ! flags[quiet] )); then
+                print-header yellow "Branch stack is empty."
+            fi
         else
             if [[ -v max_lines ]]; then
                 nl -n rz -w 3 "${stack_file}" | tail -n $max_lines

@@ -11,11 +11,15 @@ git-stack-init() {
 
     local _usage="Usage git stack-init [-h|--help][--no-clear]
 
-    Options:
-        --no-clear  Do not clear the stack before initializing"
+Options:
+  -q, --quiet Suppress some output messages
+  -h, --help  Show this help message
+
+  --no-clear  Do not clear the stack before initializing"
 
     local -A flags=(
         [clear]=1
+        [quiet]=0
     )
 
     while (( $# )); do
@@ -35,9 +39,14 @@ git-stack-init() {
             fi
             ;;
         --*)
-            print-header -e "Unexpected flag '$1'"
-            print "${_usage}"
-            return 1
+            local flag="${1#--}"
+            if [[ -v 'flags[$flag]' ]]; then
+                flags[$flag]=1
+            else
+                print-header -e "Unexpected flag '$1'"
+                print "${_usage}"
+                return 1
+            fi
             ;;
         *)
             print-header -e "Unexpected argument '$1'"
@@ -66,12 +75,17 @@ git-stack-init() {
         ')}")
 
     if (( ${#branch_list[@]} == 0 )); then
-        print-header -e "No branches found to add to stack. Stack Unchanged."
+        print-header cyan "No branches found to add to stack. Stack Unchanged."
         return 1
     fi
 
     if (( flags[clear] )); then
-        git stack --clear || {
+        local -a args=()
+        if (( flags[quiet] )); then
+            args+=('--quiet')
+        fi
+
+        git stack --clear ${args[@]} || {
             print-header -e "Failed to clear the stack."
             return 1
         }
@@ -79,15 +93,11 @@ git-stack-init() {
 
     local branch
     for branch in "${(@Oa)branch_list}"; do
-        if [[ -z "$branch" ]]; then
-            continue
-        fi
-
-        if git pushb --no-checkout "$branch"; then
-            print-header green "Added branch '$branch' to stack."
-        else
-            print-header -e "Failed to add branch '$branch' to stack."
-            return 1
+        if [[ -n "$branch" ]]; then
+            if ! git pushb --no-checkout "$branch"; then
+                print-header -e "Failed to add branch '$branch' to stack."
+                return 1
+            fi
         fi
     done
 }

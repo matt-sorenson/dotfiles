@@ -10,20 +10,22 @@ git-pushb() {
 
     local _usage="Usage: git-pushb [-h|--help] [-b <branch> | <branch>]
 
-    Push a branch onto the stach and check it out.
+Push a branch onto the stach and check it out.
 
-    Arguments:
-    <Branch>    The branch to check out.
+Arguments:
+  <Branch>    The branch to check out.
 
-    Options:
-    -b <branch>   Create a new branch and check it out.
-    -h, --help    Show this help message
+Options:
+  -b <branch>   Create a new branch and check it out.
+  -h, --help    Show this help message
 
-    any flag from 'git checkout' that doesn't take a value can be passed in as an
-    option (unless the value is passed in as part of the same argument, ie '--conflict=<style>').
+  --no-checkout Do not check out the branch, just push the name onto the stack.
 
-    The only un-named argument can be the branch name (if -b is not used). If
-    multiple positional arguments are provided then the command will fail."
+any flag from 'git checkout' that doesn't take a value can be passed in as an
+option (unless the value is passed in as part of the same argument, ie '--conflict=<style>').
+
+The only un-named argument can be the branch name (if -b is not used). If
+multiple positional arguments are provided then the command will fail."
 
     local new_branch=
     local -a arguments=()

@@ -10,12 +10,17 @@ git-popb() {
 
     local _usage="Usage: git-popb [-h|--help]
 
-    Check out the last branch checked out with git-pushb and pops it from the stack.
+  Check out the last branch checked out with git-pushb and pops it from the stack.
 
-    -q, --quiet          Suppress some output messages
-    -h, --help           Show this help message"
+  -q, --quiet          Suppress some output messages
+  -h, --help           Show this help message
 
-    local -i quiet=0
+  --no-init            Do not initialize the stack file if it does not exist"
+
+    local -A flags=(
+        [quiet]=0
+        [init]=1
+    )
 
     while (( $# )); do
         case "$1" in
@@ -24,7 +29,17 @@ git-popb() {
             return 0
             ;;
         -q|--quiet)
-            quiet=1
+            flags[quiet]=1
+            ;;
+        --no-*)
+            local flag="${1#--no-}"
+            if [[ -v 'flags[$flag]' ]]; then
+                flags[$flag]=0
+            else
+                print-header -e "Unknown flag: $1"
+                print "${_usage}"
+                return 1
+            fi
             ;;
         *)
             print-header -e "Unknown argument: $1"
@@ -46,16 +61,29 @@ git-popb() {
     local target_branch
 
     if [[ ! -s "${stack_file}" ]]; then
-        if git show-ref --quiet --verify refs/heads/master; then
+        if (( flags[init] )); then
+            print-header cyan "Stack is empty, initializing stack"
+            local -a args=()
+            if (( flags[quiet] )); then
+                args+=('--quiet')
+            fi
+
+            git stack-init ${args[@]}
+
+            # retry popping the stack now that it's been initialized
+            git popb --no-init ${args[@]}
+
+            return 0
+        elif git show-ref --quiet --verify refs/heads/master; then
             target_branch=master
+            print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
         elif git show-ref --quiet --verify refs/heads/main; then
             target_branch=main
+            print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
         else
             print "Error: neither 'master' nor 'main' branch exists" >&2
             return 1
         fi
-
-        print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
     else
         # read last entry
         target_branch=$(tail -n 1 "${stack_file}")
@@ -75,7 +103,7 @@ git-popb() {
     current_branch=$(git rev-parse --abbrev-ref HEAD)
 
     if [[ "${current_branch}" = "${target_branch}" ]]; then
-        (( ! quiet )) && print-header green --icon ✅ "You are already on '${target_branch}'"
+        (( ! flags[quiet] )) && print-header green --icon ✅ "You are already on '${target_branch}'"
         return 0
     fi
 
