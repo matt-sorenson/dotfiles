@@ -111,26 +111,7 @@ function prompt_ender_seg_is_root() {
     prompt_ender_segment_print white black $SU_PROMPT
 }
 
-function prompt_ender_build_prompt1() {
-    prompt_ender_seg_last_call_status $1
-    # History Size
-    prompt_ender_segment_print white black "%h"
-    # Hostname
-    prompt_ender_segment_print black default "%m"
-    prompt_ender_seg_dir
-
-    prompt_ender_end_segment
-}
-
-function prompt_ender_build_prompt2() {
-    prompt_ender_seg_SEA_time
-    prompt_ender_seg_git_info
-    prompt_ender_seg_is_root
-
-    prompt_ender_end_segment
-}
-
-function prompt_ender_print_elapsed_time() {
+function prompt_ender_seg_elapsed_time() {
     local end_time=$(( SECONDS - _prompt_ender_start_time ))
 
     local color="green"
@@ -149,14 +130,37 @@ function prompt_ender_print_elapsed_time() {
         local seconds=$(( end_time % 60 ))
         color='yellow'
         msg="${minutes}m${seconds}s"
-    elif (( end_time >= 5 )); then
+    elif (( end_time > 5 )); then
+        color='blue'
+        msg="${end_time}s"
+    elif (( end_time > 0 )); then
         color='green'
         msg="${end_time}s"
     fi
 
-    if [[ -n "${msg}" ]]; then
-        print -P "%B%F{$color}>>> elapsed time ${msg}%b"
+    if [[ -n "$msg" ]]; then
+        prompt_ender_segment_print $color black "$msg"
     fi
+}
+
+function prompt_ender_build_prompt1() {
+    prompt_ender_seg_last_call_status $1
+    prompt_ender_seg_elapsed_time $1
+    # History Size
+    prompt_ender_segment_print white black "%h"
+    # Hostname
+    prompt_ender_segment_print black default "%m"
+    prompt_ender_seg_dir
+
+    prompt_ender_end_segment
+}
+
+function prompt_ender_build_prompt2() {
+    prompt_ender_seg_SEA_time
+    prompt_ender_seg_git_info
+    prompt_ender_seg_is_root
+
+    prompt_ender_end_segment
 }
 
 function prompt_ender_precmd() {
@@ -167,9 +171,6 @@ function prompt_ender_precmd() {
     unsetopt xtrace ksh_arrays
 
     vcs_info
-
-    # Calculate and print the elapsed time.
-    prompt_ender_print_elapsed_time
 
     PROMPT="${(e)$(prompt_ender_build_prompt1 $exit_code)}
 ${(e)$(prompt_ender_build_prompt2)} "
