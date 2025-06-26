@@ -1,0 +1,133 @@
+#!/usr/bin/env zsh
+###compdef ws-clone
+
+ws-clone() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt extended_glob
+    setopt null_glob
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local _usage="ws-clone [-h|--help][-s|--softlink <ln-dir>][-r|--root <root-dir>] <remote_url> [<local name>] [-- <git clone extra args>]
+
+Arguments:
+  remote_url    The url to clone the repo from
+  name          The folder under \$WORKSPACE_ROOT_DIR to clone into
+
+Options:
+  -h, --help                Display this message
+  -s, --soft-link <ln-dir>  Root of directory to create softlink in
+  -r, --root <root-dir>     Root workspace directory, will clone into subdirectory. (default: \$WORKSPACE_ROOT_DIR)
+  --no-link                 Disable setting a softlink
+  --                        Any arguments after this are passed directly to the git clone
+
+Notes:
+If a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set then --soft-link will default to \$WORKSPACE_ROOT_DIR"
+
+    local remote_url
+    local name
+    local softlink_root
+    local root
+    local do_softlink=1
+    local code=0
+    while (( $# )); do
+        case "$1" in
+            -h|--help)
+                print "$_usage"
+                return 0
+                ;;
+            --code)
+                code=1
+                ;;
+            --no-link)
+                do_softlink=0
+                ;;
+            -r|--root)
+                if (( $# < 2 )); then
+                    print-header -e "'$1' requires an argument"
+                    return 1
+                elif [[ -v softlink_root ]]; then
+                    print-header -e "'-r'|'--root' provided multiple times"
+                fi
+
+                shift
+                root="$1"
+                ;;
+            -s|--soft-link)
+                if (( $# < 2 )); then
+                    print-header -e "'$1' requires an argument"
+                    return 1
+                elif [[ -v softlink_root ]]; then
+                    print-header -e "'-s'|'--soft-link' provided multiple times"
+                fi
+
+                shift
+                softlink_root="$1"
+                ;;
+            --)
+                # Remove the -- and break from the loop.
+                # The remaining arguments will be passed through to git clone
+                shift
+                break
+                ;;
+            *)
+                if [[ ! -v remote_url ]]; then
+                    remote_url="$1"
+                elif [[ ! -v name ]]; then
+                    name="$1"
+                else
+                    print-header -e "Unexpected parameter '${1}'"
+                    print "$_usage"
+                    return 1
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    if [[ ! -v remote_url || -z "${remote_url}" ]]; then
+        print-header -e "Remote URL not provided."
+        print "$_usage"
+        return 1
+    fi
+
+    if [[ -v softlink_root ]]; then
+        if [[ ! -e "$softlink_root" ]]; then
+            print-header -e "soft link root '$softlink_root' does not exist"
+            return 1
+        elif [[ ! -d "$softlink_root" ]]; then
+            print-header -e "soft link root '$softlink_root' is not a directory"
+            return 1
+        fi
+    fi
+
+    root="${root:-"$WORKSPACE_ROOT_DIR"}"
+    name="${name:-"${remote_url:t:r}"}"
+
+    # Run this in a subshell so the cd isn't carried over in the event of an error.
+    (
+        setopt err_return
+
+        cd ${(q)WORKSPACE_ROOT_DIR}
+        git clone "${remote_url}" "${name}" "$@"
+    )
+
+    local root="${root:A}"
+    local ws_dir="${WORKSPACE_ROOT_DIR:A}"
+    if (( do_softlink )) && [[ ! -v softlink_root && "${root}" != "${ws_dir}" ]]; then
+        softlink_root="${ws_dir}"
+    fi
+
+    if [[ -v softlink_root ]]; then
+        ln -s "${WORKSPACE_ROOT_DIR}/${name}" "${softlink_root}/${name}"
+    fi
+
+    if (( code )); then
+        wscode "${name}"
+    fi
+}
+
+ws-clone "$@"

@@ -1,6 +1,5 @@
 /tmp
 /local
-/local.*
 /deps
 /bin/tests/failed-results
 /bin/tests/env
