@@ -5,8 +5,14 @@ alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
-ws()      { cd   "${WORKSPACE_ROOT_DIR}/${1}" }
-ws-code() { code "${WORKSPACE_ROOT_DIR}/${1}" }
+ws() {
+    cd   "${WORKSPACE_ROOT_DIR}/${1}"
+}
+
+ws-code() {
+    code "${WORKSPACE_ROOT_DIR}/${1}"
+}
+
 ws-ls() {
     local args=()
     local subdir=''

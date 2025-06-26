@@ -121,15 +121,8 @@ Examples:
         return 0
     }
 
-    export _repoman_starting_dir="${PWD}"
-
     # emulate `local -F` since it doesn't exist & return to starting directory.
     TRAPEXIT() {
-        if [[ "${PWD:A}" != "${_repoman_starting_dir:A}" ]]; then
-            cd ${(q)_repoman_starting_dir} &> /dev/null || print-header -e ">>> failed to return to starting directory."
-        fi
-
-        unset _repoman_starting_dir
         exit_trap_emulate_local_function \
             _repoman-dump-commands \
             _repoman-format-header \
@@ -622,17 +615,28 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
             print-header green --icon "${icon}" "${header}: Command: \`${task_commands[$task]}\`"
         fi
 
-        if [[ "${PWD:A}" != "${working_dir}" ]]; then
+        # Run this in a subshell so the `cd` doesn't effect anything outside of
+        # the command expecting to be in that directory
+        (
+            emulate -L zsh
+            set -uo pipefail
+            setopt err_return
+            setopt extended_glob
+            setopt typeset_to_unset
+            setopt warn_create_global
+            unsetopt auto_pushd
+            unsetopt short_loops
+
             cd ${(q)working_dir} || {
                 print-header -e --icon "${icon}" "${header}: Failed to change directory to '${working_dir}'"
                 return 1
             }
-        fi
 
-        if ! eval ${task_commands[$task]}; then
-            print-header -e --icon "${icon}" "${header} failed"
-            return 1
-        fi
+            if ! eval ${task_commands[$task]}; then
+                print-header -e --icon "${icon}" "${header} failed"
+                return 1
+            fi
+        )
 
         if [[ -v task_does_task[$task] ]]; then
             local implied_task

@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-###compdef ws-clone
+#compdef ws-clone
 
 ws-clone() {
     emulate -L zsh
@@ -11,33 +11,47 @@ ws-clone() {
     setopt warn_create_global
     unsetopt short_loops
 
-    local _usage="ws-clone [-h|--help][-s|--softlink <ln-dir>][-r|--root <root-dir>] <remote_url> [<local name>] [-- <git clone extra args>]
+    _ws-clone-usage() {
+        local cmd_name="$1"
+
+        local softlink_line="\n  -s, --soft-link <ln-dir>  Root of directory to create softlink in"
+        local notes="\n\nNotes:\nIf a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set then --soft-link will default to \$WORKSPACE_ROOT_DIR"
+
+        if [[ "ws-clone" != "$cmd_name" ]]; then
+            softlink_line=''
+            notes=''
+        fi
+
+        print "${cmd_name} [-h|--help][-s|--softlink <ln-dir>][-r|--root <root-dir>] <remote_url> [<local name>] [-- <git clone extra args>]
 
 Arguments:
   remote_url    The url to clone the repo from
   name          The folder under \$WORKSPACE_ROOT_DIR to clone into
 
 Options:
-  -h, --help                Display this message
-  -s, --soft-link <ln-dir>  Root of directory to create softlink in
+  -h, --help                Display this message${softlink_line}
   -r, --root <root-dir>     Root workspace directory, will clone into subdirectory. (default: \$WORKSPACE_ROOT_DIR)
   --no-link                 Disable setting a softlink
-  --                        Any arguments after this are passed directly to the git clone
+  --                        Any arguments after this are passed directly to the git clone${notes}"
+    }
 
-Notes:
-If a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set then --soft-link will default to \$WORKSPACE_ROOT_DIR"
+    TRAPEXIT() {
+        exit_trap_emulate_local_function "_ws-clone-usage"
+    }
 
+    local cmd_name
     local remote_url
     local name
     local softlink_root
     local root
     local do_softlink=1
     local code=0
+    local help=0
+    local help_errors=0
     while (( $# )); do
         case "$1" in
             -h|--help)
-                print "$_usage"
-                return 0
+                help=1
                 ;;
             --code)
                 code=1
@@ -45,16 +59,29 @@ If a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set
             --no-link)
                 do_softlink=0
                 ;;
+            --cmd-name)
+                if (( $# < 2 )); then
+                    print-header -e "'$1' requires an argument"
+                    help_errors=1
+                elif [[ -v cmd_name ]]; then
+                    print-header -e "'$1' provided multiple times"
+                    shift
+                else
+                    shift
+                    cmd_name="$1"
+                fi
+                ;;
             -r|--root)
                 if (( $# < 2 )); then
                     print-header -e "'$1' requires an argument"
-                    return 1
+                    help_errors=1
                 elif [[ -v softlink_root ]]; then
                     print-header -e "'-r'|'--root' provided multiple times"
+                    shift
+                else
+                    shift
+                    root="$1"
                 fi
-
-                shift
-                root="$1"
                 ;;
             -s|--soft-link)
                 if (( $# < 2 )); then
@@ -62,10 +89,12 @@ If a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set
                     return 1
                 elif [[ -v softlink_root ]]; then
                     print-header -e "'-s'|'--soft-link' provided multiple times"
+                    help_errors=1
+                    shift
+                else
+                    softlink_root="$2"
+                    shift
                 fi
-
-                shift
-                softlink_root="$1"
                 ;;
             --)
                 # Remove the -- and break from the loop.
@@ -80,17 +109,24 @@ If a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set
                     name="$1"
                 else
                     print-header -e "Unexpected parameter '${1}'"
-                    print "$_usage"
-                    return 1
+                    help_errors=1
                 fi
                 ;;
         esac
         shift
     done
 
+    cmd_name="${cmd_name:-ws-clone}"
+
+    if (( help || help_errors )); then
+        _ws-clone-usage "$cmd_name"
+
+        return $help_errors
+    fi
+
     if [[ ! -v remote_url || -z "${remote_url}" ]]; then
         print-header -e "Remote URL not provided."
-        print "$_usage"
+        _usage
         return 1
     fi
 
