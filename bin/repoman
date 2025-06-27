@@ -632,7 +632,9 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
                 return 1
             }
 
-            if ! ${task_commands[$task]}; then
+            local cmd=("${(z)task_commands[$task]}")
+
+            if ! "$cmd[@]"; then
                 print-header -e --icon "${icon}" "${header} failed"
                 return 1
             fi
@@ -674,7 +676,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
 
     if (( tasks[db_up] )); then
         if [[ -n "${opts[db_container_name]}" ]]; then
-            db_container_id=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
+            local db_container_id=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
             if [[ -n $db_container_id ]]; then
                 print "DB Docker container is already running"
 
