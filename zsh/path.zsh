@@ -115,7 +115,7 @@ add-to-fpath() {
 # osx /etc/zprofile borks the path so fix it...
 if [[ -x /usr/libexec/path_helper ]]; then
     path=()
-    eval `/usr/libexec/path_helper -s`
+    eval "$(/usr/libexec/path_helper -s)"
 fi
 
 add-to-path "/usr/local/bin"
