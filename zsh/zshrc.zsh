@@ -72,8 +72,7 @@ setopt inc_append_history_time  # Append to history file instead of replacing it
 setopt auto_pushd           # treat cd as pushd allowing popd to go back to previous directory
 setopt auto_cd              # If provided a valid directory and no command treat it as cd
 setopt pushd_to_home        # Push to home when no directories in stack
-
-unsetopt pushd_silent       # Print the new directory stack after pushd or popd.
+setopt pushd_silent       # Print the new directory stack after pushd or popd.
 
 # when a trap is set in a function it will be restored when the function exits.
 setopt local_traps
