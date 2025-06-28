@@ -2,4 +2,5 @@ wsl-clone() {
     ws-clone --cmd-name "wsl-clone" --root /mnt/d/ws --soft-link "${WORKSPACE_ROOT_DIR}" "$@"
 }
 
-compdef _ws-clone wsl-clone
+# Because [_ws-clone] has the '-' in it we use this strange syntax...
+typeset 'dotfiles_completion_functions[_ws-clone]'='wsl-clone'

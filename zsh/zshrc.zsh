@@ -15,6 +15,8 @@ if [[ -f "${DOTFILES}/local/is-work" ]]; then
     AT_WORK=1
 fi
 
+typeset -A dotfiles_completion_functions=()
+
 if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
@@ -111,6 +113,11 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*:descriptions' format '[%d]'
 
 autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
+typeset dot_comp_key dot_comp_value
+for dot_comp_key dot_comp_value in ${(kv)dotfiles_completion_functions}; do
+    compdef "$dot_comp_key" "$dot_comp_value"
+done
+unset dot_comp_key dot_comp_value dotfiles_completion_functions
 
 if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' group-name ''
