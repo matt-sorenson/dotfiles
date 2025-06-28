@@ -3,8 +3,9 @@
 setopt prompt_subst
 
 # Define variables.
+export _prompt_ender_preexec_time=${_prompt_ender_preexec_time:-$SECONDS}
+
 _prompt_ender_current_bg='NONE'
-_prompt_ender_start_time=$SECONDS
 _prompt_ender_seperator=""
 _prompt_ender_plus_minus="±" #"\u00b1"
 _prompt_ender_plus="+"
@@ -112,7 +113,7 @@ function prompt_ender_seg_is_root() {
 }
 
 function prompt_ender_seg_elapsed_time() {
-    local end_time=$(( SECONDS - _prompt_ender_start_time ))
+    local end_time=$(( SECONDS - _prompt_ender_preexec_time ))
 
     local color="green"
     local msg=""
@@ -177,7 +178,7 @@ ${(e)$(prompt_ender_build_prompt2)} "
 }
 
 function prompt_ender_preexec() {
-    _prompt_ender_start_time="${SECONDS}"
+    _prompt_ender_preexec_time="${SECONDS}"
 }
 
 function +vi-git-untracked() {
