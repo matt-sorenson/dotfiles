@@ -31,4 +31,4 @@ function <reponame>() {
         "$@"
 }
 
-compdef _repoman_wrapper <reponame>
+compdef _repoman-wrapper <reponame>
