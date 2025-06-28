@@ -12,29 +12,28 @@ dot-check-for-update() {
 
     local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto [time-limit-in-hours]]
 
-    Options:
-    --auto [limit]      Automatically update dotfiles if they haven't been updated recently
+Options:
+  --auto [limit]      Automatically update dotfiles if they haven't been updated recently
+  --no-replace-shell  On success do not replace the shell with a new instance.
+                      This is normally used so the shell the user has is updated,
+                      but does lose some state.
+  -h, --help          Show this help message and exit
 
-    --dotfiles          Update dotfiles reposito
-    --deps              Update \$DOTFILES/deps/* folders
-    -l, --local         Update local scripts
-    -b, --brew          Update brew
-    -d, --doom          Update doom emacs
+Tasks:
+  --[no]-dotfiles     Update dotfiles reposito
+  --[no]-deps         Update \$DOTFILES/deps/* folders
+  -l, --[no-]local    Update local scripts
+  -b, --[no-]brew     Update brew
+  -d, --[no-]doom     Update doom emacs
 
-    --no-dotfiles       Do not update dotfiles repositories
-    --no-deps           Do not update \$DOTFILES/deps/* folders
-    +g, --no-git        Do not update git repositories
-    +l, --no-local      Do not update local scripts
-    +b, --no-brew       Do not update brew
-    +d, --no-doom       Do not update doom emacs
+If no tasks are provided then it's treated as if all flags are set.
+For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
-    -h, --help          Show this help message and exit
-
-    If no flags are provided then it's treated as if all flags are set."
-
-    local auto_limit_in_hours
     local -A flags=(
-        ["auto"]=0
+        ["replace_zsh"]=1
+    )
+
+    local -A tasks=(
         ["dotfiles"]=0
         ['deps']=0
         ["local"]=0
@@ -43,7 +42,7 @@ dot-check-for-update() {
         ["local"]=0
     )
 
-    local -A no_flags=(
+    local -A no_tasks=(
         ["dotfiles"]=0
         ['deps']=0
         ["local"]=0
@@ -52,8 +51,8 @@ dot-check-for-update() {
         ["local"]=0
     )
 
-    local specified_flag=0
-    local specified_no_flag=0
+    local specified_task=0
+    local specified_no_task=0
 
     while (( $# )); do
         case $1 in
@@ -64,27 +63,29 @@ dot-check-for-update() {
         --auto)
             if [[ $# -gt 1 ]]; then
                 if [[ $2 == <-> ]]; then
-                    if [[ -v auto_limit_in_hours ]]; then
-                        print-header -e "Multiple time limits provided."
-                        print "${_usage}"
+                    if [[ -v 'flags[auto]' ]]; then
+                        --auto provided multiple times.
                         return 1
                     fi
 
-                    auto_limit_in_hours="$2"
+                    flags[auto]=$2
                     shift
+                else
+                    flags[auto]=15
                 fi
-
-                auto_limit_in_hours="15"
-                flags[auto]=1
             fi
             ;;
         --*)
-            if [[ -v flags[${1##--}] ]]; then
+            if [[ -v tasks[${1##--}] ]]; then
+                tasks[${1##--}]=1
+                specified_task=1
+            elif [[ -v no_tasks[${1##--no-}] ]]; then
+                no_tasks[${1##--no-}]=1
+                specified_no_task=1
+            elif [[ -v flags[${1##--}] ]]; then
                 flags[${1##--}]=1
-                specified_flag=1
-            elif [[ -v no_flags[${1##--no-}] ]]; then
-                no_flags[${1##--no-}]=1
-                specified_no_flag=1
+            elif [[ -v flags[${1##--no-}] ]]; then
+                flags[${1##--no-}]=0
             else
                 print-header -e "Unknown option '$1'"
                 print "${_usage}"
@@ -142,7 +143,7 @@ dot-check-for-update() {
         shift
     done
 
-    if (( flags[auto] )); then
+    if [[ -v 'flags[auto]' ]]; then
         local date_cmd=()
         if command -v gdate > /dev/null; then
             date_cmd=(gdate -d)
@@ -152,7 +153,7 @@ dot-check-for-update() {
             date_cmd=(date -j -f "%Y-%m-%dT%H:%M:%SZ")
         fi
 
-        local time_limit_in_seconds=$(( 60 * 60 * auto_limit_in_hours ))
+        local time_limit_in_seconds=$(( 60 * 60 * ${flags[auto]} ))
         local current_time=$(date +%s)
         local cutoff_time=$(( current_time - time_limit_in_seconds ))
         unset current_time
@@ -168,36 +169,38 @@ dot-check-for-update() {
         fi
 
         if (( last_update < cutoff_time )); then
-            local RUN_UPDATE
-            read -q "RUN_UPDATE?It's been a while, update dotfiles? "
+            local REPLY
+            print -n "It's been a while, update dotfiles? "
+            read -q
             print ''
-            if [[ "${RUN_UPDATE:l}" != "y" ]]; then
+            if [[ "${REPLY}" != "y" ]]; then
                 return 0
             fi
+            unset REPLY
         else
             return 0
         fi
     fi
-    unset 'flags[auto]'
 
     local key
-    if (( ! specified_flag )); then
-        for key in "${(@k)flags}"; do
-            if (( ! no_flags[$key] )); then
-                flags[$key]=1
+    if (( ! specified_task )); then
+        for key in "${(@k)tasks}"; do
+            if (( ! no_tasks[$key] )); then
+                tasks[$key]=1
             fi
         done
-    elif (( specified_no_flag )); then
-        for key in "${(@k)flags}"; do
-            if (( no_flags[$key] && flags[$key] )); then
+    elif (( specified_no_task )); then
+        for key in "${(@k)tasks}"; do
+            if (( no_tasks[$key] && tasks[$key] )); then
                 _error -h "Specified flag --no-${key//_/-} but also specified -${key//_/-} or --${key//_/-}, please choose one."
             fi
         done
     fi
+    unset no_tasks
 
     local -i all_true=1
-    for key in "${(@k)flags}"; do
-        if (( ! flags[$key] )); then
+    for key in "${(@k)tasks}"; do
+        if (( ! tasks[$key] )); then
             all_true=0
         fi
     done
@@ -206,8 +209,8 @@ dot-check-for-update() {
     # everything even if one fails
     local -i out=0
 
-    if (( flags[dotfiles] )); then
-        print-header green "Updating git repositories."
+    if (( tasks[dotfiles] )); then
+        print-header green "Updating dotfiles repo."
         if [[ -d "${DOTFILES}" ]]; then
             if dot-check-for-update-git -i 2 "${DOTFILES}"; then
                 # If hammerspoon exists we may have updated the config while updating
@@ -224,7 +227,7 @@ dot-check-for-update() {
         fi
     fi
 
-    if (( flags[deps] )); then
+    if (( tasks[deps] )); then
         local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo quiet
         for repo in "${repos_to_update[@]}"; do
@@ -238,7 +241,7 @@ dot-check-for-update() {
         done
     fi
 
-    if [[ flags[brew] -eq 1 && "${OSTYPE}" == darwin* ]]; then
+    if [[ tasks[brew] -eq 1 && "${OSTYPE}" == darwin* ]]; then
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 
@@ -253,7 +256,7 @@ dot-check-for-update() {
             fi
         else
             local flag='-w'
-            if (( ! specified_flag )); then
+            if (( ! specified_task )); then
                 flag='-e'
                 out=1
             fi
@@ -261,7 +264,7 @@ dot-check-for-update() {
         fi
     fi
 
-    if (( flags[local] )); then
+    if (( tasks[local] )); then
         if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local"; then
             out=1
         fi
@@ -275,7 +278,7 @@ dot-check-for-update() {
         fi
     fi
 
-    if (( flags[doom] )); then
+    if (( tasks[doom] )); then
         local doomemacs_bin="${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}"
         if command -v "${doomemacs_bin}" > /dev/null; then
             print-header green "Updating doom emacs."
@@ -294,6 +297,10 @@ dot-check-for-update() {
         local current_time
         current_time="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
         print -n "${current_time}" >! "${update_filename}"
+    fi
+
+    if (( flags[replace_zsh] )); then
+        exec zsh
     fi
 
     return $out
