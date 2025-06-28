@@ -1,14 +1,13 @@
 ZSH_COMPDUMP="${DOTFILES}/tmp/zsh-compdump-${ZSH_VERSION}"
 zstyle ':completion::complete:*' cache-path "${DOTFILES}/tmp/zsh-compcache"
 
-autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
-
 if [[ -f "${HOME}/.zcompdump" ]]; then
     print-header cyan "Removing old zcompdump file."
     rm "${HOME}/.zcompdump"
 fi
 
-# on macOS /etc/zprofile stomps on the path. Clean it back up.
+# macOS and some other OSs stomp on the path in /etc/zprofile or /etc/profile.
+# Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
 export AT_WORK=0
@@ -111,6 +110,8 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 zstyle ':completion:*:descriptions' format '[%d]'
 
+autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
+
 if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' group-name ''
     zstyle ':fzf-tab:*' group-colors '1'
@@ -124,20 +125,18 @@ if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
 fi
 
-compinit -d "${ZSH_COMPDUMP}"
-
 # This has some arrays/maps that are used for auto-completion
 source "${DOTFILES}/zsh/completion-helper.zsh"
-
-if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
-    source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
-fi
 
 if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
     source "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
 
     bindkey '^ ' autosuggest-accept
+fi
+
+if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
+    source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
 fi
 
 source "${DOTFILES}/zsh/ender.zsh-theme"

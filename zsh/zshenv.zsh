@@ -13,6 +13,9 @@ source "${DOTFILES}/zsh/zshenv.nvm.zsh"
 
 if [[ "${OSTYPE}" == darwin* ]]; then
     export BROWSER='open'
+elif [[ "${OSTYPE}" == *linux* ]]; then
+    # Debian likes to call compinit with...
+    skip_global_compinit=1
 fi
 
 if command -v brew &> /dev/null; then
