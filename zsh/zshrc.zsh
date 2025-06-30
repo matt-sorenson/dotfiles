@@ -112,11 +112,11 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*:descriptions' format '[%d]'
 
 autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
-typeset dot_comp_key dot_comp_value
-for dot_comp_key dot_comp_value in ${(kv)dotfiles_completion_functions}; do
-    compdef "$dot_comp_key" "$dot_comp_value"
+typeset fn_to_complete completion_fn
+for fn_to_complete completion_fn in ${(kv)dotfiles_completion_functions}; do
+    compdef "$completion_fn" "$fn_to_complete"
 done
-unset dot_comp_key dot_comp_value dotfiles_completion_functions
+unset fn_to_complete completion_fn dotfiles_completion_functions
 
 if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' group-name ''
