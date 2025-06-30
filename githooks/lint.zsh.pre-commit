@@ -54,6 +54,9 @@ zsh-pre-commit() {
         IFS= read -r first_line < "$staged_file"
         if [[ "$first_line" == *'zsh' ]]; then
             return 0
+        elif [[ $first_line == '#compdef '* ]]; then
+            # zsh auto completion files
+            return 0
         fi
 
         return 1
