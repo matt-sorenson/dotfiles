@@ -64,6 +64,7 @@ lua-pre-commit() {
 
     local results
     if ! results="$(luacheck "$staged_file" ${config[@]})"; then
+        # Replace any staged file paths to the user visible filename
         results="${results//$staged_file/$filename}"
         print-header -e "Errors in '${filename}'"
         print "${results}"
