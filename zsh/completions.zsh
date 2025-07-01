@@ -66,7 +66,6 @@ _git-pprune() {
         '(-e --exclude)'{-e,--exclude}'[Exclude a branch by name]:exclude:__git_heads' \
         '(-p --exclude-pattern)'{-p,--exclude-pattern}'[Exclude branch names with a zsh glob]:exclude_pattern: '
 }
-zstyle ':completion:*:*:git:*' user-commands pprune:'Pull and prune local branches that have been deleted on the remote.'
 
 _git-popb() {
     _arguments \
@@ -74,22 +73,18 @@ _git-popb() {
         '(-q --quiet)'{-q,--quiet}'[Less output]' \
         "--no-init[Don't initialize the stack file if it's empty]"
 }
-zstyle ':completion:*:*:git:*' user-commands popb:'pop the last branch off your git stack and check it out'
 
 _git-pushb() {
     # While it's not a perfect 1:1 as calling git-checkout it does for pretty much
     # all my use cases so reuse the _git-checkout completion function
     _git-checkout
 }
-zstyle ':completion:*:*:git:*' user-commands pushb:'push the current branch to the top of the stack and checkout the new branch'
 
 _git-stack() {
     _arguments \
         '(-c, --clean)'{-c,--clean}'[Clear the branch stack]' \
         '(-h --help)'{-h,--help}'[Show help]'
 }
-zstyle ':completion:*:*:git:*' user-commands stack:'show your current git branch stack'
-
 
 _git-stack-init() {
     _arguments \
@@ -97,8 +92,22 @@ _git-stack-init() {
         '(-q --quiet)'{-q,--quiet}'[Less output]' \
         "--no-clear[Don't clear the stack file first]"
 }
-zstyle ':completion:*:*:git:*' user-commands stack-init:'Use the reflog to initialize a stack file for git-stack'
 
+zstyle ':completion:*:*:git:*' user-commands \
+    'dag:Displays the git commit history in a directed acyclic graph format' \
+    'pprune:Pull and prune local branches that have been deleted on the remote' \
+    'popb:pop the last branch off your git stack and check it out' \
+    'pushb:push the current branch to the top of the stack and checkout the new branch' \
+    'stack:show your current git branch stack' \
+    'stack-init:Use the reflog to initialize a stack file for git-stack' \
+    'pushf:Push the current branch to the default remote, use --force-with-lease to try to force push' \
+    'gcf:Run a heavy duty cleanup of the local repo. Will clear the reflog, prune all branches, and delete all untracked files and directories.' \
+    'authors:List all the authors of the current git repository' \
+    'olog:Show the git commit history in a one-line format' \
+    'amend:Amend the staged files to the last commit' \
+    'tracking:Show the current branch and its upstream tracking branch' \
+    'wipe:Add all the files to a commit with message "WIPE SAVEPOINT" and then go back to HEAD' \
+    'alias:List all of the git aliases configured'
 
 _print-header() {
     _arguments \
