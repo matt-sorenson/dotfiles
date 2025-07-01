@@ -55,24 +55,28 @@ fi
 export LESS='-NFMRiXN'
 export LESSHISTFILE="${DOTFILES}/tmp/less-history"
 
+################################################################################
 # History settings
+################################################################################
 HISTFILE="${DOTFILES}/tmp/zsh-history"
 HISTSIZE=101000
 SAVEHIST=100000
-setopt extended_history         # Write the history file in the ':start:elapsed;command' format.
-setopt hist_expire_dups_first   # Expire a duplicate event first when trimming history.
-setopt hist_reduce_blanks       # Remove superfluous blanks from each command line being added to the history list.
-setopt hist_ignore_dups         # Do not record an event that was just recorded again.
-setopt hist_find_no_dups        # Do not display a previously found event.
-setopt hist_verify              # For multiline history don’t execute the line directly; instead, perform history expansion and reload the line into the editing buffer.
-setopt share_history            # Share history between all sessions.
-setopt inc_append_history_time  # Append to history file instead of replacing it.
+setopt extended_history        # Write the history file in the ':start:elapsed;command' format.
+setopt hist_expire_dups_first  # Expire a duplicate event first when trimming history.
+setopt hist_reduce_blanks      # Remove superfluous blanks from each command line being added to the history list.
+setopt hist_ignore_dups        # Do not record an event that was just recorded again.
+setopt hist_find_no_dups       # Do not display a previously found event.
+setopt hist_verify             # For multiline history don’t execute the line directly; instead, perform history expansion and reload the line into the editing buffer.
+setopt share_history           # Share history between all sessions.
+setopt inc_append_history_time # Append to history file instead of replacing it.
 
-# Directory stack options
-setopt auto_pushd           # treat cd as pushd allowing popd to go back to previous directory
-setopt auto_cd              # If provided a valid directory and no command treat it as cd
-setopt pushd_to_home        # Push to home when no directories in stack
-setopt pushd_silent       # Print the new directory stack after pushd or popd.
+################################################################################
+# cd/pushd/popd/dirs settings
+################################################################################
+setopt auto_pushd    # treat cd as pushd allowing popd to go back to previous directory
+setopt auto_cd       # If provided a valid directory and no command treat it as cd
+setopt pushd_to_home # Push to home when no directories in stack
+setopt pushd_silent  # Print the new directory stack after pushd or popd.
 
 # when a trap is set in a function it will be restored when the function exits.
 setopt local_traps
@@ -84,17 +88,15 @@ setopt extended_glob        # Treat the ‘#’, ‘~’ and ‘^’ characters 
 setopt interactive_comments # treat comments as comments in interactive shell
 setopt clobber              # Allow `>` to truncate files
 setopt multios              # Perform implicit tees or cats when multiple redirections are attempted
+# This isn't enabled by default because it can cause issues with some commands
+# setopt null_glob             # If no matches are found, return an empty string instead of the pattern.
+
 
 unsetopt beep               # Disable "pc speaker" beep
 
 dot-check-for-update --auto 15 # check for updates every 15 hours
 
 bindkey -e
-
-if [[ -d "${HOME}/.nvm" ]]; then
-    # This loads nvm bash_completion
-    [ -s "${NVM_DIR}/bash_completion" ] && source "${NVM_DIR}/bash_completion"
-fi
 
 # Don't sort the completions for some commands
 # which auto completion has been provided in a manual order
@@ -111,12 +113,29 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 zstyle ':completion:*:descriptions' format '[%d]'
 
+################################################################################
+# Initialize completion system
+################################################################################
+
 autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
+
+# This has some arrays/maps that are used for auto-completion
+source "${DOTFILES}/zsh/completion-helper.zsh"
+
 typeset fn_to_complete completion_fn
 for fn_to_complete completion_fn in ${(kv)dotfiles_completion_functions}; do
     compdef "$completion_fn" "$fn_to_complete"
 done
 unset fn_to_complete completion_fn dotfiles_completion_functions
+
+if [[ -d "${HOME}/.nvm" ]]; then
+    # This loads nvm bash_completion
+    [ -s "${NVM_DIR}/bash_completion" ] && source "${NVM_DIR}/bash_completion"
+fi
+
+################################################################################
+# Initialize plugins
+################################################################################
 
 if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' group-name ''
@@ -131,9 +150,6 @@ if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
 fi
 
-# This has some arrays/maps that are used for auto-completion
-source "${DOTFILES}/zsh/completion-helper.zsh"
-
 if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
     source "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
@@ -144,5 +160,9 @@ fi
 if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
     source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
 fi
+
+################################################################################
+# Initialize ender zsh theme
+################################################################################
 
 source "${DOTFILES}/zsh/ender.zsh-theme"
