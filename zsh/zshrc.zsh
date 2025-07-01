@@ -24,7 +24,6 @@ fi
 source "${DOTFILES}/zsh/aliases.zsh"
 
 # These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
-add-to-fpath "${DOTFILES}/zsh/completions"
 add-to-fpath "${DOTFILES}/local/zsh/completions"
 
 if [[ "${OSTYPE}" == darwin* ]]; then
@@ -128,6 +127,8 @@ for fn_to_complete completion_fn in ${(kv)dotfiles_completion_functions}; do
 done
 unset fn_to_complete completion_fn dotfiles_completion_functions
 
+source "${DOTFILES}/zsh/completions.zsh"
+
 if [[ -d "${HOME}/.nvm" ]]; then
     # This loads nvm bash_completion
     [ -s "${NVM_DIR}/bash_completion" ] && source "${NVM_DIR}/bash_completion"
@@ -166,3 +167,7 @@ fi
 ################################################################################
 
 source "${DOTFILES}/zsh/ender.zsh-theme"
+
+# To run timer also uncomment lines at start of zshenv.zsh
+#print $(( ( EPOCHREALTIME - ZSHENV_START_TIME ) * 1000 ))
+#unset ZSHENV_START_TIME

@@ -1,8 +1,0 @@
-#compdef git-alias
-#description show All the git aliases configured.
-
-_git-alias() {
-    _arguments '(-h --help)'{-h,--help}'[Show help]'
-}
-
-_git-alias "$@"

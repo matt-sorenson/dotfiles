@@ -1,3 +1,6 @@
+#zmodload zsh/datetime
+#ZSHENV_START_TIME=$EPOCHREALTIME
+
 autoload -Uz colors && colors
 
 export LANG=en_US.UTF-8
