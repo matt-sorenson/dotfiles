@@ -1,8 +1,11 @@
 #compdef git-popb
 #description pop the last branch off your git stack and check it out
 
-_arguments \
-    '(-h --help)'{-h,--help}'[Show help]' \
-    '(-q --quiet)'{-q,--quiet}'[Less output]' \
-    "--no-init[Don't initialize the stack file if it's empty]" \
-    && return 0
+_git-popb() {
+    _arguments \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-q --quiet)'{-q,--quiet}'[Less output]' \
+        "--no-init[Don't initialize the stack file if it's empty]"
+}
+
+_git-popb "$@"

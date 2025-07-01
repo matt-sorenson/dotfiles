@@ -1,5 +1,9 @@
-#compdef repoman-test
+#compdef repoman-wrapper
 
-_arguments -S -C \
+_repoman-wrapper() {
+    _arguments -S -C \
         "${_repoman_general_opts[@]}" \
         "${_repoman_tasks_args[@]}"
+}
+
+_repoman-wrapper "$@"
