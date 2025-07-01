@@ -70,7 +70,7 @@ Options:
 
     print-header cyan "Branches to prune:"
 
-    local exclude_name exclude_pattern
+    local exclude_name exclude_pattern REPLY
     awk '{print $1}' <<< "$lines" | while read -r branch; do
         for exclude_name in "${exclude_names[@]}"; do
             if [[ "$branch" == "$exclude_name" ]]; then
