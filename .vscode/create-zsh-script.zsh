@@ -35,7 +35,7 @@ mkdir -p bin
 
 # Replace <name> with the input value
 sed "s/<name>/${name}/g" "$template" > "$target"
-chmod 700 "$target"
+chmod 755 "$target"
 
 code ${(q)target}
 
