@@ -1,5 +1,5 @@
-#zmodload zsh/datetime
-#ZSHENV_START_TIME=$EPOCHREALTIME
+zmodload zsh/datetime
+ZSHENV_START_TIME=$EPOCHREALTIME
 
 autoload -Uz colors && colors
 

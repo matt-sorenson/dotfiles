@@ -6,6 +6,8 @@ if [[ -f "${HOME}/.zcompdump" ]]; then
     rm "${HOME}/.zcompdump"
 fi
 
+typeset -g DOTFILES_ZCOMPILE_FILES=()
+
 # macOS and some other OSs stomp on the path in /etc/zprofile or /etc/profile.
 # Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
@@ -21,7 +23,7 @@ if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
 
-source "${DOTFILES}/zsh/aliases.zsh"
+source "${DOTFILES}/zsh/zshrc.aliases.zsh"
 
 # These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
 add-to-fpath "${DOTFILES}/local/zsh/completions"
@@ -119,15 +121,14 @@ zstyle ':completion:*:descriptions' format '[%d]'
 autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
 
 # This has some arrays/maps that are used for auto-completion
-source "${DOTFILES}/zsh/completion-helper.zsh"
+source "${DOTFILES}/zsh/completions.helper.zsh"
+source "${DOTFILES}/zsh/completions.zsh"
 
 typeset fn_to_complete completion_fn
 for fn_to_complete completion_fn in ${(kv)dotfiles_completion_functions}; do
     compdef "$completion_fn" "$fn_to_complete"
 done
 unset fn_to_complete completion_fn dotfiles_completion_functions
-
-source "${DOTFILES}/zsh/completions.zsh"
 
 if [[ -d "${HOME}/.nvm" ]]; then
     # This loads nvm bash_completion
@@ -169,5 +170,5 @@ fi
 source "${DOTFILES}/zsh/ender.zsh-theme"
 
 # To run timer also uncomment lines at start of zshenv.zsh
-#print $(( ( EPOCHREALTIME - ZSHENV_START_TIME ) * 1000 ))
-#unset ZSHENV_START_TIME
+print $(( ( EPOCHREALTIME - ZSHENV_START_TIME ) * 1000 ))
+unset ZSHENV_START_TIME

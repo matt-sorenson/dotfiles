@@ -31,6 +31,75 @@ _dot-check-for-update-git() {
 }
 compdef _dot-check-for-update-git dot-check-for-update-git
 
+_dot-zcompile() {
+    _arguments \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-f --force)'{-f,--force}'[Force recompilation of the zcompdump file]'
+}
+compdef _dot-zcompile dot-zcompile
+
+_git-alias() {
+    _arguments '(-h --help)'{-h,--help}'[Show help]'
+}
+zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
+
+_git-dag() {
+    _arguments \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-a --all)'{-a,--all}'[Show all branches]' \
+        '*:branch name:->branch' \
+        && return 0
+
+    case $state in
+        branch)
+            local branchs=( ${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads)"} )
+            compadd -a ms_branchs
+            ;;
+    esac
+}
+zstyle ':completion:*:*:git:*' user-commands dag:'Show the git history as a directed acyclic graph'
+
+_git-pprune() {
+    _arguments -C \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-f --force)'{-f,--force}'[Delete any branches identified without asking]' \
+        '(-e --exclude)'{-e,--exclude}'[Exclude a branch by name]:exclude:__git_heads' \
+        '(-p --exclude-pattern)'{-p,--exclude-pattern}'[Exclude branch names with a zsh glob]:exclude_pattern: '
+}
+zstyle ':completion:*:*:git:*' user-commands pprune:'Pull and prune local branches that have been deleted on the remote.'
+
+_git-popb() {
+    _arguments \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-q --quiet)'{-q,--quiet}'[Less output]' \
+        "--no-init[Don't initialize the stack file if it's empty]"
+}
+zstyle ':completion:*:*:git:*' user-commands popb:'pop the last branch off your git stack and check it out'
+
+_git-pushb() {
+    # While it's not a perfect 1:1 as calling git-checkout it does for pretty much
+    # all my use cases so reuse the _git-checkout completion function
+    _git-checkout
+}
+zstyle ':completion:*:*:git:*' user-commands pushb:'push the current branch to the top of the stack and checkout the new branch'
+
+_git-stack() {
+    _arguments \
+        '(-c, --clean)'{-c,--clean}'[Clear the branch stack]' \
+        '(-h --help)'{-h,--help}'[Show help]'
+}
+zstyle ':completion:*:*:git:*' user-commands stack:'show your current git branch stack'
+
+
+_git-stack-init() {
+    _arguments \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-q --quiet)'{-q,--quiet}'[Less output]' \
+        "--no-clear[Don't clear the stack file first]"
+}
+zstyle ':completion:*:*:git:*' user-commands stack-init:'Use the reflog to initialize a stack file for git-stack'
+
+
 _print-header() {
     _arguments \
         '(-h --help)'{-h,--help}'[Show help]' \
@@ -106,64 +175,3 @@ _ws-clone() {
         '2::Repo Name: '
 }
 compdef _ws-clone ws-clone
-
-_git-alias() {
-    _arguments '(-h --help)'{-h,--help}'[Show help]'
-}
-zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
-
-_git-dag() {
-    _arguments \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-a --all)'{-a,--all}'[Show all branches]' \
-        '*:branch name:->branch' \
-        && return 0
-
-    case $state in
-        branch)
-            local branchs=( ${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads)"} )
-            compadd -a ms_branchs
-            ;;
-    esac
-}
-zstyle ':completion:*:*:git:*' user-commands dag:'Show the git history as a directed acyclic graph'
-
-_git-pprune() {
-    _arguments -C \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-f --force)'{-f,--force}'[Delete any branches identified without asking]' \
-        '(-e --exclude)'{-e,--exclude}'[Exclude a branch by name]:exclude:__git_heads' \
-        '(-p --exclude-pattern)'{-p,--exclude-pattern}'[Exclude branch names with a zsh glob]:exclude_pattern: '
-}
-zstyle ':completion:*:*:git:*' user-commands pprune:'Pull and prune local branches that have been deleted on the remote.'
-
-_git-popb() {
-    _arguments \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-q --quiet)'{-q,--quiet}'[Less output]' \
-        "--no-init[Don't initialize the stack file if it's empty]"
-}
-zstyle ':completion:*:*:git:*' user-commands popb:'pop the last branch off your git stack and check it out'
-
-_git-pushb() {
-    # While it's not a perfect 1:1 as calling git-checkout it does for pretty much
-    # all my use cases so reuse the _git-checkout completion function
-    _git-checkout
-}
-zstyle ':completion:*:*:git:*' user-commands pushb:'push the current branch to the top of the stack and checkout the new branch'
-
-_git-stack() {
-    _arguments \
-        '(-c, --clean)'{-c,--clean}'[Clear the branch stack]' \
-        '(-h --help)'{-h,--help}'[Show help]'
-}
-zstyle ':completion:*:*:git:*' user-commands stack:'show your current git branch stack'
-
-
-_git-stack-init() {
-    _arguments \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-q --quiet)'{-q,--quiet}'[Less output]' \
-        "--no-clear[Don't clear the stack file first]"
-}
-zstyle ':completion:*:*:git:*' user-commands stack-init:'Use the reflog to initialize a stack file for git-stack'

@@ -1,0 +1,141 @@
+#!/usr/bin/env zsh
+#compdef dot-zcompile
+
+dot-zcompile() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+    setopt typeset_to_unset
+    setopt warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage dot-zcompile [--verbose] [-h|--help]
+
+Options:
+  --[no-]verbose           Enable verbose output
+  -f, --[no-]force         Force recompile even if the .zwc file is newer than the source file
+  -h, --help               Show this help message and exit
+
+Environment Variables:
+  \$DOTFILES_ZCOMPILE_FILES  An array of files to compile with zcompile in addition to the default files."
+
+    local -a zcompile_files=(
+        "${DOTFILES}/zsh/completions.zsh"
+        "${DOTFILES}/zsh/path.zsh"
+        "${DOTFILES}/zsh/zshenv.nvm.zsh"
+        "${DOTFILES}/zsh/zshrc.aliases.zsh"
+        "${DOTFILES}/zsh/ender.zsh-theme"
+    )
+
+    if [[ -v DOTFILES_ZCOMPILE_FILES ]]; then
+        if [[ "$(typeset -p DOTFILES_ZCOMPILE_FILES)" == *" -a "* ]]; then
+            zcompile_files+=( "${DOTFILES_ZCOMPILE_FILES[@]}" )
+        else
+            print-header -e "DOTFILES_ZCOMPILE_FILES is not an array, expected an array of files to compile with zcompile."
+            print "${_usage}"
+            return 1
+        fi
+    fi
+
+    local -A flags=(
+        [verbose]=0
+        [force]=0
+    )
+    local -A options=()
+
+    local flag arg arg_list
+    while (( $# )); do
+        case $1 in
+        --help)
+            print "${_usage}"
+            return 0
+            ;;
+        -f|--force)
+            flags[force]=1
+            ;;
+        -[!-]*)
+            arg_list=( "${(@s::)1#-}" )
+            while (( ${#arg_list} )); do
+                arg=${arg_list[1]}
+                # Pop the front of the list
+                arg_list=("${arg_list[@]:1}")
+                case "${arg}" in
+                h)
+                    print "${_usage}"
+                    return 0
+                    ;;
+                *)
+                    print-header -e "Unexpected flag '-$arg' in '$1'"
+                    print "${_usage}"
+                    return 1
+                    ;;
+                esac
+            done
+            ;;
+        --no-*)
+            flag="${${1#--no-}//-/_}"
+            if [[ -v 'flags[$flag]' ]]; then
+                flags[$flag]=0
+            else
+                print-header -e "Unknown flag: $1"
+                print "${_usage}"
+                return 1
+            fi
+            ;;
+        --*)
+            flag="${${1#--}//-/_}"
+            if [[ -v 'flags[$flag]' ]]; then
+                flags[$flag]=1
+            else
+                print-header -e "Unknown flag: $1"
+                print "${_usage}"
+                return 1
+            fi
+            ;;
+        *)
+            print-header -e "Unexpected argument '$1'"
+            print "${_usage}"
+            return 1
+            ;;
+        esac
+        shift
+    done
+    unset flag arg arg_list
+
+    local out=0
+    local file log_file zwc_file
+    for file in "${zcompile_files[@]}"; do
+        log_file="\${DOTFILES}/${file#$DOTFILES/}"
+
+        if [[ -f "${file}" ]]; then
+            if [[ -f "${file}.zwc" ]] && [[ "${file}.zwc" -nt "${file}" ]]; then
+                if (( ! flags[force] )); then
+                    print "${log_file}.zwc is new than ${log_file}, compiling anyways."
+                else
+                    if (( flags[verbose] )); then
+                        print "Skipping '${log_file}' as it is already compiled and up to date."
+                    fi
+                    continue
+                fi
+            else
+                print "Compiling '${log_file}' with zcompile."
+            fi
+
+            if ! zcompile -zR "${file}"; then
+                print-header -e "Failed to compile '${log_file}' with zcompile."
+                out=1
+            fi
+        else
+            print-header -w "File '${log_file}' does not exist, skipping zcompile."
+            continue
+        fi
+    done
+
+    if (( ! out && flags[verbose] )); then
+        print-header green "Compiled ${#zcompile_files[@]} files with zcompile."
+    fi
+
+    return $out
+}
+
+dot-zcompile "$@"

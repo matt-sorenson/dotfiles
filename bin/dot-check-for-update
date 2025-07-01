@@ -222,6 +222,16 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
             else
                 out=1
             fi
+
+            if command -v "dot-zcompile" > /dev/null; then
+                print-header green "Compiling zsh files."
+                if ! dot-zcompile; then
+                    print-header -e -i 2 "Failed to compile zsh files."
+                    out=1
+                fi
+            else
+                print-header -w "dot-zcompile not found, skipping zsh compilation."
+            fi
         else
             print-header -w "${DOTFILES} does not exist, skipping dotfiles update."
         fi
