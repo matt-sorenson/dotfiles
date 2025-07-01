@@ -16,6 +16,7 @@ Options:
 local -A flags=()
 local -A options=()
 
+local flag arg arg_list
 while (( $# )); do
     case $1 in
     --help)
@@ -23,9 +24,9 @@ while (( $# )); do
         return 0
         ;;
     -[!-]*)
-        local arg_list=( "${(@s::)1#-}" )
+        arg_list=( "${(@s::)1#-}" )
         while (( ${#arg_list} )); do
-            local arg=${arg_list[1]}
+            arg=${arg_list[1]}
             # Pop the front of the list
             arg_list=("${arg_list[@]:1}")
             case "${arg}" in
@@ -42,7 +43,7 @@ while (( $# )); do
         done
         ;;
     --no-*)
-        local flag="${${1#--no-}//-/_}"
+        flag="${${1#--no-}//-/_}"
         if [[ -v 'flags[$flag]' ]]; then
             flags[$flag]=0
         else
@@ -52,7 +53,7 @@ while (( $# )); do
         fi
         ;;
     --*)
-        local flag="${${1#--}//-/_}"
+        flag="${${1#--}//-/_}"
         if [[ -v 'flags[$flag]' ]]; then
             flags[$flag]=1
         else
@@ -69,4 +70,4 @@ while (( $# )); do
     esac
     shift
 done
-
+unset flag arg arg_list
