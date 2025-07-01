@@ -40,10 +40,26 @@ while (( $# )); do
                 ;;
             esac
         done
+        ;;
+    --no-*)
+        local flag="${${1#--no-}//-/_}"
+        if [[ -v 'flags[$flag]' ]]; then
+            flags[$flag]=0
+        else
+            print-header -e "Unknown flag: $1"
+            print "${_usage}"
+            return 1
+        fi
+        ;;
     --*)
-        print-header -e "Unexpected flag '$1'"
-        print "${_usage}"
-        return 1
+        local flag="${${1#--}//-/_}"
+        if [[ -v 'flags[$flag]' ]]; then
+            flags[$flag]=1
+        else
+            print-header -e "Unknown flag: $1"
+            print "${_usage}"
+            return 1
+        fi
         ;;
     *)
         print-header -e "Unexpected argument '$1'"
