@@ -25,7 +25,7 @@ return {
         { -- Primary Horizontal Screen
             screen = {'3840x1600', '3440x1440'},
 
-            { app = {'Code', 'DataGrip', 'IntelliJ IDEA', 'TablePlus'}, section = 1 },
+            { app = {'Code', 'DataGrip', 'IntelliJ IDEA', 'TablePlus', 'Bruno' }, section = 1 },
             -- TablePlus "New Workspace" window
             { app = 'TablePlus', window = '', resize_center = { 898, 556 } },
 
