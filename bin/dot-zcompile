@@ -109,7 +109,7 @@ Environment Variables:
 
         if [[ -f "${file}" ]]; then
             if [[ -f "${file}.zwc" ]] && [[ "${file}.zwc" -nt "${file}" ]]; then
-                if (( ! flags[force] )); then
+                if (( flags[force] )); then
                     print "${log_file}.zwc is new than ${log_file}, compiling anyways."
                 else
                     if (( flags[verbose] )); then
