@@ -48,6 +48,7 @@ Options:
                 return 1
             fi
             ;;
+        -q) flags[quiet]=1 ;;
         *)
             print-header -e "Unexpected argument '$1'"
             print "${_usage}"
@@ -57,22 +58,21 @@ Options:
         shift
     done
 
-    local -a branch_list
-    branch_list=("${(@f)$(git log -g HEAD --format="%gs" \
+    local -a branch_list=()
+    local prev_branch=""
+    local branch
+    for branch in ${(f)"$(git log -g HEAD --format="%gs" \
         | grep '^checkout: moving from ' \
         | sed 's/^checkout: moving from //' \
-        | awk '
-            BEGIN { FS = " to "; prev = "" }
-            NF == 2 {
-                if ($2 != prev) {
-                    print $2
-                    prev = $2
-                }
-            }
-            NF != 2 {
-                print "ERROR: unrecognized format -> \"" $0 "\"" > "/dev/stderr"
-            }
-        ')}")
+        | awk -F ' to ' 'NF==2 { print $2 }')"}; do
+
+        if git show-ref --verify --quiet "refs/heads/${branch}"; then
+            if [[ "$branch" != "$prev_branch" ]]; then
+                branch_list+=("$branch")
+                prev_branch="$branch"
+            fi
+        fi
+    done
 
     if (( ${#branch_list[@]} == 0 )); then
         print-header cyan "No branches found to add to stack. Stack Unchanged."
@@ -91,15 +91,32 @@ Options:
         }
     fi
 
-    local branch
-    for branch in "${(@Oa)branch_list}"; do
-        if [[ -n "$branch" ]]; then
+    local current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
+    local -i added_count
+    added_count=0
+    while (( ${#branch_list} )); do
+        branch="${branch_list[1]}"
+        branch_list=("${branch_list[@]:1}")
+
+        if (( ! ${#branch_list} )) && [[ "$branch" == "$current_branch_name" ]]; then
+            continue
+        elif [[ -n "$branch" ]]; then
             if ! git pushb --no-checkout "$branch"; then
                 print-header -e "Failed to add branch '$branch' to stack."
                 return 1
             fi
+
+            (( added_count += 1 ))
         fi
     done
+
+    if (( ! flags[quiet] )); then
+        if (( added_count > 0 )); then
+            print-header green "Added $added_count branches to the stack."
+        else
+            print-header cyan "No branches were added to the stack."
+        fi
+    fi
 }
 
 git-stack-init "$@"
