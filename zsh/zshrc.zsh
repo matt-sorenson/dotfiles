@@ -141,7 +141,6 @@ fi
 
 if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' group-name ''
-    zstyle ':fzf-tab:*' group-colors '1'
 
     # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
     zstyle ':completion:*' menu no
@@ -170,5 +169,8 @@ fi
 source "${DOTFILES}/zsh/ender.zsh-theme"
 
 # To run timer also uncomment lines at start of zshenv.zsh
-print $(( ( EPOCHREALTIME - ZSHENV_START_TIME ) * 1000 ))
+if [[ -v ZSHENV_BOOT_TIMER ]]; then
+    print -r -- "zshenv start time to zshrc end time: ${$(( (EPOCHREALTIME - ZSHENV_START_TIME) * 1000 ))%.*}ms"
+    unset ZSHENV_BOOT_TIMER
+fi
 unset ZSHENV_START_TIME
