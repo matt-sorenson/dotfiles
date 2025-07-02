@@ -86,7 +86,8 @@ zsh-pre-commit() {
         local first_line
         IFS= read -r first_line < "$staged_file"
         if [[ "$first_line" == '#!'* ]]; then
-            first_line="${first_line/#\#!([[:space:]])##/}"
+            first_line="${first_line/#\#!([[:space:]])##/}" # remove leading '#!' and any leading whitespace
+            first_line="${first_line%%[[:space:]]*}" # remove trailing whitespace
             if [[ "$first_line" == '/bin/zsh'* ]]; then
                 file_errors+=("$filename:1:'#! /bin/zsh' used. Use '#! /usr/bin/env zsh' instead")
             fi
