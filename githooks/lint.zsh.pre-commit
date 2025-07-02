@@ -85,8 +85,11 @@ zsh-pre-commit() {
 
         local first_line
         IFS= read -r first_line < "$staged_file"
-        if [[ "$first_line" == '#!/bin/zsh' || "$first_line" == '#! /bin/zsh' ]]; then
-            file_errors+=("$filename:1:'#!/bin/zsh' used. Use '#! /usr/bin/env zsh' instead")
+        if [[ "$first_line" == '#!'* ]]; then
+            first_line="${first_line/#\#!([[:space:]])##/}"
+            if [[ "$first_line" == '/bin/zsh'* ]]; then
+                file_errors+=("$filename:1:'#! /bin/zsh' used. Use '#! /usr/bin/env zsh' instead")
+            fi
         fi
     else
         file_errors+=("$filename:0:File is empty")

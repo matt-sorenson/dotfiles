@@ -1,4 +1,5 @@
 #! /usr/bin/env zsh
+#compdef concat-video
 
 concat-video() {
     emulate -L zsh

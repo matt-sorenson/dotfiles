@@ -41,7 +41,7 @@ zsh --no-exec "$file"
 
 ```
 for file in bin/*(.); do
-    if head -n 1 "$file" | grep -q '^#!/usr/bin/env zsh$'; then
+    if head -n 1 "$file" | grep -q '^#! /usr/bin/env zsh$'; then
         <linter> ${file}
     fi
 done

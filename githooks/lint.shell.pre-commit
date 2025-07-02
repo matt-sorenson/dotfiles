@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#! /usr/bin/env zsh
 
 shell-pre-commit() {
     emulate -L zsh
@@ -88,9 +88,10 @@ shell-pre-commit() {
     local first_line
     IFS= read -r first_line < "$staged_file"
     if [[ "$first_line" == '#!'* ]]; then
+        first_line="${first_line/#\#!([[:space:]])##/}"
         first_line="$(printf '%s' "${first_line#\#!}" | awk '{$1=$1;print}')"
         if [[ "$first_line" != '/bin/sh' && "$first_line" != /usr/bin/env* ]]; then
-            file_errors+=("${filename}:1:#!/bin/(ba|da|k)sh' used. Use '#! /usr/bin/env (ba|da|k)sh' instead")
+            file_errors+=("${filename}:1:#! /bin/(ba|da|k)sh' used. Use '#! /usr/bin/env (ba|da|k)sh' instead")
         fi
     fi
 

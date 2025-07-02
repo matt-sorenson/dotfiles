@@ -88,7 +88,23 @@ is-emoji() {
         (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
 }
 
-autoload \
+autoload -Uz \
     aws-signon \
+    brew-find-leafs \
+    clang-format-ri \
+    concat-video \
+    dot-check-for-update \
+    dot-check-for-update-git \
+    dot-zcompile \
+    git-alias \
+    git-dag \
+    git-popb \
+    git-pprune \
+    git-pushb \
+    git-stack \
+    git-stack-init \
+    jwt-print \
     print-header \
-    repoman
+    repoman \
+    video-downloader \
+    ws-clone
