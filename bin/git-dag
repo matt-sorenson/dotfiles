@@ -4,8 +4,8 @@
 git-dag() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt warn_create_global
+    setopt err_return typeset_to_unset warn_create_global
+
     unsetopt short_loops
 
     local format='%C(bold blue)%h%C(bold green) (%ar) %aN%C(reset) - %C(white)%s %C(bold yellow)%d%C(reset)'
@@ -27,56 +27,52 @@ git-dag() {
         return 1
     }
 
-    local all=0
-    local flags=()
-    local branches=()
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    flags[all]=0
 
-    while (( $# )); do
-        case "$1" in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -a|--all)
-            all=1
-            flags+=("--all")
-            ;;
-        *)
-            branches+=("$1")
+    max_positional_count=-1
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
-            if ! git show-ref --verify --quiet "$1" &> /dev/null; then
-                print-header -w "Branch '$1' does not exist." >&2
-            fi
-            ;;
-        esac
-        shift
-    done
-
-    if (( all == 1 && $#branches > 0 )); then
+    if (( flags[all] && $# )); then
         print-header -e "Cannot use --all and provide branch names together."
         print "${_usage}"
         return 1
     fi
 
-    if (( ! all )); then
-        flags+=("${branches[@]}")
+    local -a branches=()
+    while (( $# )); do
+        if ! git show-ref --quiet "$1" > /dev/null; then
+            print-header -w "Branch '$1' does not exist." >&2
+            return 1
+        fi
+
+        branches+=("$1")
+        shift
+    done
+
+    local -a git_flags=()
+
+    if (( ! flags[all] )); then
+        git_flags+=("${branches[@]}")
 
         local current_branch
         current_branch=$(git rev-parse --abbrev-ref HEAD)
         if (( branches[(i)$current_branch] == 0 )) && [[ $current_branch != master && $current_branch != main ]]; then
-            flags+=("${current_branch}")
+            git_flags+=("${current_branch}")
         fi
 
         if (( branches[(i)master] == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then
-            flags+=(master)
+            git_flags+=(master)
         fi
 
         if (( branches[(i)main] == 0 )) && git show-ref --verify --quiet refs/heads/main &> /dev/null; then
-            flags+=(main)
+            git_flags+=(main)
         fi
+    else
+        git_flags+=("--all")
     fi
 
-    git log --graph --abbrev-commit --decorate --format=format:"${format}" "${flags[@]}"
+    git log --graph --abbrev-commit --decorate --format=format:"${format}" "${git_flags[@]}" "${extra_args[@]}"
 }
 
 git-dag "$@"

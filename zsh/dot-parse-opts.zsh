@@ -5,10 +5,15 @@
 
 # TODO
 ## Scripts
+### add-to-path
 ### concat-video
-### dot-check-for-update
-### dot-check-for-update-git
-### git-dag
+### git-pprune
+### git-pushb
+### git-stack
+### harness
+### repoman
+### ws-clone
+### ws-ls
 
 local -a positional_args=()
 local -A set_flags=()

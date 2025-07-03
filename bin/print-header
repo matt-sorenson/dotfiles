@@ -58,7 +58,6 @@ Options:
     short_to_long_opts[i]=indent
 
     max_positional_count=-1
-
     extra_args_are_positional=1
 
     eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
