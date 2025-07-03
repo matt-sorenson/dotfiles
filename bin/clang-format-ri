@@ -15,56 +15,38 @@ clang-format-ri() {
     fi
 
     local _usage="Usage: clang-format-ri [options] <source-path> -- [<clang-format-options>...]
-    Recursively format C++ source files in place using clang-format.
+Recursively format C++ source files in place using clang-format.
 
-    Options:
-    -h, --help    Show this help message and exit"
+Options:
+  -e, --extension <exts>    List of extensions in a ':' seperated list
+                            ex: '.cpp:.h:.hpp'
+  -h, --help                Show this help message and exit"
 
-    local extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+
+    option_args[extensions]=1
+    short_to_long_opts[e]=extensions
+    max_position_count=1
+    allow_extra_args=1
+
+    source "${DOTFILES}/zsh/dot-parse-opts.zsh"
+
+    local -a extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )
     local srcpath
-    while (( $# )); do
-        case "${1}" in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -e|--extensions)
-            if (( $# < 2 )); then
-                print-header -e "Error: --extensions requires at least one extension argument."
-                print "${_usage}"
-                return 1
-            fi
-            extensions=("${(@s/:/)$2}")
-            shift 2
-            ;;
-        --)
-            shift
-            break
-            ;;
-        -*)
-            print-header -e "Unknown option: ${1}"
-            print "${_usage}"
-            return 1
-            ;;
-        *)
-            if [[ -n "${srcpath}" ]]; then
-                print-header -e "Source path already set: ${srcpath}"
-                print "${_usage}"
-                return 1
-            fi
-            srcpath="${1}"
-            shift
-            ;;
-        esac
-    done
 
-    if [[ ! -v "${srcpath}" ]]; then
+    if [[ -v 'options[extensions]' ]]; then
+        extensions=("${(@s/:/)options[extensions]}")
+    fi
+
+    if (( ! $# )); then
         print-header -e "Source path is required."
         print "${_usage}"
         return 1
-    elif [[ ! -d "${srcpath}" ]]; then
+    elif [[ ! -d "$1" ]]; then
         print-header -e "Source path is not a directory: ${srcpath}"
         return 1
+    else
+        srcpath="$1"
     fi
 
     local filters=()
@@ -76,7 +58,7 @@ clang-format-ri() {
     # Remove the final '-o'
     unset 'filters[-1]'
 
-    find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$@" {} \;
+    find "${srcpath}" -type f '(' "${filters[@]}" ')' -exec clang-format -i -style=file "$extra_args[@]" {} \;
 }
 
 clang-format-ri "$@"

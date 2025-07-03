@@ -15,40 +15,17 @@ git-popb() {
   -q, --quiet          Suppress some output messages
   -h, --help           Show this help message
 
-  --no-init            Do not initialize the stack file if it does not exist"
+  +i, --no-init            Do not initialize the stack file if it does not exist"
 
-    local -A flags=(
-        [quiet]=0
-        [init]=1
-    )
 
-    while (( $# )); do
-        case "$1" in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -q|--quiet)
-            flags[quiet]=1
-            ;;
-        --no-*)
-            local flag="${1#--no-}"
-            if [[ -v 'flags[$flag]' ]]; then
-                flags[$flag]=0
-            else
-                print-header -e "Unknown flag: $1"
-                print "${_usage}"
-                return 1
-            fi
-            ;;
-        *)
-            print-header -e "Unknown argument: $1"
-            print "${_usage}"
-            return 1
-            ;;
-        esac
-        shift
-    done
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+
+    short_to_long_flags[i]=init
+    short_to_long_flags[q]=quiet
+    flags[init]=1
+    flags[quiet]=0
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     # find repo root
     local repo_root
@@ -95,7 +72,7 @@ git-popb() {
     fi
 
     # if now empty, delete it
-    if [[ ! -s "${stack_file}" ]]; then
+    if [[ -f "${stack_file}" && ! -s "${stack_file}" ]]; then
         rm "${stack_file}" || print "Failed to remove stack file: ${stack_file}"
     fi
 

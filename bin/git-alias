@@ -16,24 +16,8 @@ git-alias() {
     Options
     -h, --help    Show this help message"
 
-    while (( $# )); do
-        case "$1" in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        *)
-            print-header -e "Unknown argument: $1"
-            print "${_usage}"
-            return 1
-            ;;
-        esac
-
-        # This is unreachable, but included so it's not missed
-        # if additional arguments are added.
-        # shellcheck disable=SC2317
-        shift
-    done
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     local lines
     # Retrieve alias lines: "alias.aliasName command..."

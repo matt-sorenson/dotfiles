@@ -17,46 +17,14 @@ Options:
 
   --no-clear  Do not clear the stack before initializing"
 
-    local -A flags=(
-        [clear]=1
-        [quiet]=0
-    )
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-    while (( $# )); do
-        case $1 in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        --no-*)
-            local flag="${1#--no-}"
-            if [[ -v 'flags[$flag]' ]]; then
-                flags[$flag]=0
-            else
-                print-header -e "Unexpected flag '$1'"
-                print "${_usage}"
-                return 1
-            fi
-            ;;
-        --*)
-            local flag="${1#--}"
-            if [[ -v 'flags[$flag]' ]]; then
-                flags[$flag]=1
-            else
-                print-header -e "Unexpected flag '$1'"
-                print "${_usage}"
-                return 1
-            fi
-            ;;
-        -q) flags[quiet]=1 ;;
-        *)
-            print-header -e "Unexpected argument '$1'"
-            print "${_usage}"
-            return 1
-            ;;
-        esac
-        shift
-    done
+    short_to_long_flags[c]=clear
+    short_to_long_flags[q]=quiet
+    flags[clear]=1
+    flags[quiet]=0
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     local -a branch_list=()
     local prev_branch=""

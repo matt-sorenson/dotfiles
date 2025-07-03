@@ -4,13 +4,8 @@
 brew-find-leafs() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt null_glob
-    setopt warn_create_global
+    setopt err_return extended_glob typeset_to_unset warn_create_global 
     unsetopt short_loops
-
-    local flag_remove=0
-    local flag_quiet=0
 
     local _usage="Usage: brew-find-leafs [-h|--help]
 
@@ -30,54 +25,21 @@ brew-find-leafs() {
         return 1
     fi
 
-    while (( $# )); do
-        case "$1" in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -r|--remove) flag_remove=1 ;;
-        -q|--quiet) flag_quiet=1 ;;
-        -[!-]*)
-            local arg_list=("${(@s::)1#-}")
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-            # Process by popping front each time
-            while (( ${#arg_list} )); do
-                local arg=${arg_list[1]}
-                # Pop the front of the list
-                arg_list=("${arg_list[@]:1}")
+    short_to_long_flags[q]=quiet
+    short_to_long_flags[r]=remove
+    flags[quiet]=0
+    flags[remove]=0
 
-                case $arg in
-                r) flag_remove=1 ;;
-                q) flag_quiet=1 ;;
-                h)
-                    print "${_usage}"
-                    return 0
-                    ;;
-                *)
-                    print-header -e "Unknown option: -${arg}"
-                    print "${_usage}"
-                    return 1
-                    ;;
-                esac
-            done
-            ;;
-        *)
-            print-header -e "Unknown option: $1"
-            print "${_usage}"
-            return 1
-            ;;
-        esac
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
-        shift
-    done
-
-    if (( flag_quiet && flag_remove )); then
+    if (( flags[quiet] && flags[remove] )); then
         print "Error: --quiet and --remove are mutually exclusive."
         exit 1
     fi
 
-    if (( ! flag_quiet )); then
+    if (( ! flags[quiet] )); then
         print-header green "Searching for formulas not depended on by other formulas..."
     fi
 
@@ -97,7 +59,7 @@ brew-find-leafs() {
 
     for formula in $formulas; do
         if [[ ! -v depended_on[$formula] ]]; then
-            if (( flag_remove )); then
+            if (( flags[remove] )); then
                 local input
                 if read -q "?Remove ${formula}? [Y/n] "; then
                     print
