@@ -14,7 +14,24 @@
 
 ## List of accepted arguments
 # local -A option_args=()
-## option_args[--foo]=1 # Enabled
+## option_args[--foo]=1 # Enabled (any string)
+### int, float, file, dir & mkdir are mutually exclusive but not check
+### It will only check one so 'int:file' might accept 1 but not /dev/null
+### or the other way around. Don't depend on the ordering of checks.
+## option_args[--foo]=int # Requires an integer
+## option_args[--foo]=float # Requires a float (or int)
+## option_args[--foo]=file # Requires a filename
+## option_args[--foo]=dir # Requires a directory
+## option_args[--foo]=mkdir # Requires a directory, but will create it if it doesn't exist
+## option_args[--foo]="array:<array_name>" # Each time it's received append to the named array
+                                           # Mutually exclusive with overwrite
+## option_args[--foo]="overwrite" # Each time it's received overwrite the value
+                                  # Usually that's an error but it's useful for some functions
+                                  # that expect to be wrapped by other helper functions
+                                  # Mutually exclusive with array.
+### Options are compinable so you can do:
+## option_args[--foo]="float:array:<array_name>" # Each time it's received append to the named array, require a float (or int)
+## option_args[--foo]="overwrite:int" # Each time it's received overwrite the value, require an integer
 
 ## Set max_position_count to -1 if you don't want to bound the input
 # local max_position_count=0
@@ -32,13 +49,14 @@
 cat <<'EOF'
 local -A short_to_long_flags=()
 local -A short_to_long_opts=()
+local -i allow_duplicate_flags=0
 local -A flags=()
 local -A option_args=()
-local max_position_count=0
-local min_position_count=0
+local -i max_position_count=0
+local -i min_position_count=0
 local -A options=()
-local allow_extra_args=0
-local extra_args_are_positional=0
+local -i allow_extra_args=0
+local -i extra_args_are_positional=0
 local -a extra_args=()
 
 local -A dot_parse_opts_errors=(

@@ -4,15 +4,6 @@
 # Make sure to `source ${DOTFILES}/zsh/zsh-parse-opts-init.zsh`
 
 # TODO
-## option_args
-### option_args[--foo]=r # required
-### option_args[--foo]="array:<array_name>" # Each time it's received append to the named array
-### option_args[--foo]="int" # require integer
-### option_args[--foo]="file" # require a valid filename
-### option_args[--foo]="dir" # require a valid directory
-### Required can be combined with types like so
-### option_args[--foo]="r:array:<array_name>" # Each time it's received append to the named array, require 1
-
 ## Scripts
 ### concat-video
 ### dot-check-for-update
@@ -23,7 +14,8 @@
 ### video-downloader
 
 local -a positional_args=()
-local flag arg arg_list flag_or_no_flag
+local -A set_flags=()
+local flag arg arg_list flag_or_no_flag arg_val array_name array_type
 while (( $# )); do
     case $1 in
     -h|--help)
@@ -33,20 +25,84 @@ while (( $# )); do
     --?*)
         flag="${${1#--}}"
         if [[ -v 'flags[$flag]' ]]; then
-            flags[$flag]=1
-        elif [[ -v 'flags[${flag#no-}]' ]]; then
-            flags[${flag#no-}]=0
-        elif [[ -v 'option_args[$flag]' ]]; then
-            if [[ -v 'options[$flag]' ]]; then
-                print-header -e "Unknown flag: $1"
+            if (( ! allow_duplicate_flags )) && [[ -v 'set_flags[$flag]' ]]; then
+                print-header -e "Flag '$1' has already been set."
                 print "${_usage}"
                 return 1
-            elif (( $# < 2 )); then
+            fi
+            flags[$flag]=1
+            set_flags[$flag]=1
+        elif [[ -v 'flags[${flag#no-}]' ]]; then
+            if (( ! allow_duplicate_flags )) && [[ -v 'set_flags[${flag#no-}]' ]]; then
+                print-header -e "Flag '$1' has already been set."
+                print "${_usage}"
+                return 1
+            fi
+            flags[${flag#no-}]=1
+            set_flags[${flag#no-}]=1
+       elif [[ -v 'option_args[$flag]' ]]; then
+            if (( $# < 2 )); then
                 print-header -e "Flag '$1' requires a value."
                 print "${_usage}"
                 return 0
+            fi
+            shift
+            if [[ ":${option_args[$flag]}:" == *:int:* ]]; then
+                if [[ ! $str =~ ^[-+]?[0-9]+$  ]]; then
+                    print-header -e "Flag '--$flag' requires an integer value."
+                    print "${_usage}"
+                    return 1
+                fi
+            elif [[ ":${option_args[$flag]}:" == *:float:* ]]; then
+                if [[ ! $str =~ ^[-+]?[0-9]*\.?[0-9]+$ ]]; then
+                    print-header -e "Flag '--$flag' requires a float value"
+                    print "${_usage}"
+                    return 1
+                fi
+            elif [[ ":${option_args[$flag]}:" == *:file:* ]]; then
+                if [[ ! -f $1 ]]; then
+                    print-header -e "Flag '--$flag' requires a valid file."
+                    print "${_usage}"
+                    return 1
+                fi
+            elif [[ ":${option_args[$flag]}:" == *:dir:* ]]; then
+                if [[ ! -d $1 ]]; then
+                    print-header -e "Flag '--$flag' requires a valid directory."
+                    print "${_usage}"
+                    return 1
+                fi
+            elif [[ ":${option_args[$flag]}:" == *:mkdir:* ]]; then
+                if [[ ! -d $1 ]]; then
+                    mkdir -p "$1" || {
+                        print-header -e "Flag '--$flag' requires a valid directory, but failed to create it."
+                        print "${_usage}"
+                        return 1
+                    }
+                fi
+            fi
+
+            if [[ ":${option_args[$flag]}:" == *:array:* ]]; then
+                array_name="${option_args[$flag]#*array:}"
+                if ! array_type=typeset $array_name > /dev/null; then
+                    print-header -e "Flag '$1' requires an array to be set."
+                    print "${_usage}"
+                    return 1
+                elif [[ array_type != *' -a '* ]]; then
+                    print-header -e "Flag '$1' requires an array to be set, but '${array_name}' is not an array."
+                    print "${_usage}"
+                    return 1
+                fi
+
+                eval "$array_name+=(${(q)1})"
             else
-                shift
+                if [[ -v 'options[$flag]' ]]; then
+                    if [[ ":$options[$flag]:" != ":overwrite:" ]]; then
+                        print-header -e "Flag: --$flag' has already been set to '${options[$flag]}'."
+                        print "${_usage}"
+                        return 1
+                    fi
+                fi
+
                 options[$flag]="$1"
             fi
         else
@@ -93,10 +149,6 @@ while (( $# )); do
                     print-header -e "Unexpected argument '+$arg'"
                     print "${_usage}"
                     return 1
-                elif [[ -v "options[$flag]" ]]; then
-                    print-header -e "Unknown flag: $1"
-                    print "${_usage}"
-                    return 1
                 elif (( $# < 2 )); then
                     print-header -e "Option '$1' requires a value."
                     print "${_usage}"
@@ -105,8 +157,11 @@ while (( $# )); do
                     print-header -e "Options can only be combined into short flags as the last flag."
                     return 1
                 else
-                    shift
-                    options[$flag]="$1"
+                    arg_val="$2"
+                    shift 2
+                    # Add the full named option to the front of the args
+                    # and continue to the next iteration
+                    argv=("--$flag" "$arg_val" "$@" )
                 fi
             else
                 print-header -e "Unexpected argument '-$arg'"
@@ -126,7 +181,15 @@ while (( $# )); do
         fi
         ;;
     esac
-    shift
+
+    if [[ -v arg_val ]]; then
+        # not using a sentinal value here because any value we choose is
+        # possibly valid so we use `unset`
+        unset arg_val
+        local arg_val
+    else
+        shift
+    fi
 done
 
 if [[ -v min_position_count ]] && (( ${#positional_args[@]} < min_position_count )); then
@@ -136,5 +199,16 @@ if [[ -v min_position_count ]] && (( ${#positional_args[@]} < min_position_count
     return 1
 fi
 
+local key
+for key in "${(@k)option_args}"; do
+  if [[ ":${option_args[$key]}:" == *:r:* ]]; then
+    if [[ ! -v "options[$key]" ]]; then
+      print-header -e "Option '$key' is required but wasn't provided."
+      print "${_usage}"
+      return 1
+    fi
+  fi
+done
+
 set -- "${positional_args[@]}"
-unset positional_args flag arg arg_list flag_or_no_flag
+unset positional_args set_flags flag arg arg_list flag_or_no_flag key array_name array_type arg_val
