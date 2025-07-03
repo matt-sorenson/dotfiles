@@ -1,6 +1,6 @@
 [DOWNLOADING] 'https://example.com/v/id'
 mock_video_downloader:  https://example.com/v/id
-[ok] 'https://example.com/v/id' recorded in '${DOTFILES}/video-downloader.done'
+[OK] 'https://example.com/v/id' recorded in '${DOTFILES}/video-downloader.done'
 ================================================================================
 = Successfully downloaded all videos                                           =
 ================================================================================

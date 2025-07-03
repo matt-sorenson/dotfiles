@@ -1,9 +1,9 @@
 [DOWNLOADING] 'https://example.com/v/1'
 mock_video_downloader:  https://example.com/v/1
-[ok] 'https://example.com/v/1' recorded in '${DOTFILES}/bin/tests/video-downloader-env/test-file.done'
+[OK] 'https://example.com/v/1' recorded in '${DOTFILES}/bin/tests/video-downloader-env/test-file.done'
 [DOWNLOADING] 'https://example.com/v/2'
 mock_video_downloader:  https://example.com/v/2
-[ok] 'https://example.com/v/2' recorded in '${DOTFILES}/bin/tests/video-downloader-env/test-file.done'
+[OK] 'https://example.com/v/2' recorded in '${DOTFILES}/bin/tests/video-downloader-env/test-file.done'
 ================================================================================
 = Successfully downloaded all videos                                           =
 ================================================================================

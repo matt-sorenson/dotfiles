@@ -9,7 +9,6 @@
 ### dot-check-for-update
 ### dot-check-for-update-git
 ### git-dag
-### video-downloader
 
 local -a positional_args=()
 local -A set_flags=()
