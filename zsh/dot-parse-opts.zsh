@@ -13,6 +13,16 @@
 ### Required can be combined with types like so
 ### option_args[--foo]="r:array:<array_name>" # Each time it's received append to the named array, require 1
 
+## Scripts
+### aws-signon
+### concat-video
+### dot-check-for-update
+### dot-check-for-update-git
+### git-dag
+### jwt-print
+### print-header
+### video-downloader
+
 local -a positional_args=()
 local flag no_flag arg arg_list flag_or_no_flag
 while (( $# )); do

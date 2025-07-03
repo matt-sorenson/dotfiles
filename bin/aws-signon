@@ -13,11 +13,11 @@ aws-signon() {
     local _usage="Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
     Options:
-    -f, --force                         Force login even if already signed in
-    -h, --help                          Show this help message
-    -c, --command <command>             Alternative command to use to sign on
+    -f, --force                   Force login even if already signed in
+    -h, --help                    Show this help message
+    -c, --command <command>       Alternative command to use to sign on
     --logged-in-command <command> Alternative command to use for checking if alreay logged in
-    <profile>                           AWS profile to sign into
+    <profile>                     AWS profile to sign into
 
     Notes:
     the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
