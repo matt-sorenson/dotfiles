@@ -13,7 +13,7 @@ dot-check-for-update() {
     local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto [time-limit-in-hours]]
 
 Options:
-  --auto [limit]      Automatically update dotfiles if they haven't been updated recently
+  --auto              Automatically update dotfiles if they haven't been updated recently (15 hours)
   --no-replace-shell  On success do not replace the shell with a new instance.
                       This is normally used so the shell the user has is updated,
                       but does lose some state.
@@ -29,121 +29,31 @@ Tasks:
 If no tasks are provided then it's treated as if all flags are set.
 For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
-    local -A flags=(
-        ["replace_zsh"]=1
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+
+    local -a tasks=(
+        dotfiles
+        deps
+        local
+        brew
+        doom
     )
 
-    local -A tasks=(
-        ["dotfiles"]=0
-        ['deps']=0
-        ["local"]=0
-        ["brew"]=0
-        ["doom"]=0
-        ["local"]=0
-    )
+    flags[replace-zsh]=1
+    flags[auto]=0
 
-    local -A no_tasks=(
-        ["dotfiles"]=0
-        ['deps']=0
-        ["local"]=0
-        ["brew"]=0
-        ["doom"]=0
-        ["local"]=0
-    )
-
-    local specified_task=0
-    local specified_no_task=0
-
-    while (( $# )); do
-        case $1 in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        --auto)
-            if [[ $# -gt 1 ]]; then
-                if [[ $2 == <-> ]]; then
-                    if [[ -v 'flags[auto]' ]]; then
-                        --auto provided multiple times.
-                        return 1
-                    fi
-
-                    flags[auto]=$2
-                    shift
-                else
-                    flags[auto]=15
-                fi
-            fi
-            ;;
-        --*)
-            if [[ -v tasks[${1##--}] ]]; then
-                tasks[${1##--}]=1
-                specified_task=1
-            elif [[ -v no_tasks[${1##--no-}] ]]; then
-                no_tasks[${1##--no-}]=1
-                specified_no_task=1
-            elif [[ -v flags[${1##--}] ]]; then
-                flags[${1##--}]=1
-            elif [[ -v flags[${1##--no-}] ]]; then
-                flags[${1##--no-}]=0
-            else
-                print-header -e "Unknown option '$1'"
-                print "${_usage}"
-                return 1
-            fi
-            ;;
-        +*)
-            local arg_list=("${(@s::)1#+}")
-
-            # Process by popping front each time
-            while (( ${#arg_list} )); do
-                local arg=${arg_list[1]}
-                # Pop the front of the list
-                arg_list=("${arg_list[@]:1}")
-
-                case $arg in
-                    l) argv+=('--no-local') ;;
-                    b) argv+=('--no-brew') ;;
-                    d) argv+=('--no-doom') ;;
-                    *)
-                        print-header -e "Unknown option '+$arg'"
-                        print "${_usage}"
-                        return 1
-                        ;;
-                esac
-            done
-            ;;
-        -[!-]*)
-            local arg_list=("${(@s::)1#-}")
-
-            # Process by popping front each time
-            while (( ${#arg_list} )); do
-                local arg=${arg_list[1]}
-                # Pop the front of the list
-                arg_list=("${arg_list[@]:1}")
-
-                case $arg in
-                l) argv+=('--local') ;;
-                b) argv+=('--brew') ;;
-                d) argv+=('--doom') ;;
-                *)
-                    print-header -e "Unknown option '-$arg'"
-                    print "${_usage}"
-                    return 1
-                    ;;
-                esac
-            done
-            ;;
-        *)
-            print-header -e "Unknown option '$1'."
-            print "${_usage}"
-            return 1
-            ;;
-        esac
-        shift
+    local task
+    for task in "${tasks[@]}"; do
+        flags[$task]=1
     done
 
-    if [[ -v 'flags[auto]' ]]; then
+    short_to_long_flags[l]=local
+    short_to_long_flags[b]=brew
+    short_to_long_flags[d]=doom
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+
+    if (( flags[auto] )); then
         local date_cmd=()
         if command -v gdate > /dev/null; then
             date_cmd=(gdate -d)
@@ -153,7 +63,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
             date_cmd=(date -j -f "%Y-%m-%dT%H:%M:%SZ")
         fi
 
-        local time_limit_in_seconds=$(( 60 * 60 * ${flags[auto]} ))
+        local time_limit_in_seconds=$(( 60 * 60 * 15 ))
         local current_time=$(date +%s)
         local cutoff_time=$(( current_time - time_limit_in_seconds ))
         unset current_time
@@ -182,26 +92,11 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
-    local key
-    if (( ! specified_task )); then
-        for key in "${(@k)tasks}"; do
-            if (( ! no_tasks[$key] )); then
-                tasks[$key]=1
-            fi
-        done
-    elif (( specified_no_task )); then
-        for key in "${(@k)tasks}"; do
-            if (( no_tasks[$key] && tasks[$key] )); then
-                _error -h "Specified flag --no-${key//_/-} but also specified -${key//_/-} or --${key//_/-}, please choose one."
-            fi
-        done
-    fi
-    unset no_tasks
-
     local -i all_true=1
-    for key in "${(@k)tasks}"; do
-        if (( ! tasks[$key] )); then
+    for task in "${tasks[@]}"; do
+        if (( ! flags[$task] )); then
             all_true=0
+            break
         fi
     done
 
@@ -209,7 +104,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     # everything even if one fails
     local -i out=0
 
-    if (( tasks[dotfiles] )); then
+    if (( flags[dotfiles] )); then
         print-header green "Updating dotfiles repo."
         if [[ -d "${DOTFILES}" ]]; then
             local dotfiles_starting_commit="$(git rev-parse --short HEAD)"
@@ -244,7 +139,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
-    if (( tasks[deps] )); then
+    if (( flags[deps] )); then
         local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo quiet
         for repo in "${repos_to_update[@]}"; do
@@ -258,7 +153,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         done
     fi
 
-    if [[ tasks[brew] -eq 1 && "${OSTYPE}" == darwin* ]]; then
+    if [[ flags[brew] -eq 1 && "${OSTYPE}" == darwin* ]]; then
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 
@@ -281,7 +176,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
-    if (( tasks[local] )); then
+    if (( flags[local] )); then
         if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local"; then
             out=1
         fi
@@ -295,7 +190,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
-    if (( tasks[doom] )); then
+    if (( flags[doom] )); then
         local doomemacs_bin="${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}"
         if command -v "${doomemacs_bin}" > /dev/null; then
             print-header green "Updating doom emacs."
@@ -316,7 +211,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         print -n "${current_time}" >! "${update_filename}"
     fi
 
-    if (( flags[replace_zsh] )); then
+    if (( flags[replace-zsh] )); then
         print-header green "Restarting zsh"
         exec zsh
     fi
