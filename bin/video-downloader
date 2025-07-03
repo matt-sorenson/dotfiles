@@ -44,7 +44,7 @@ local -A flags=(
     [quiet]=0
 )
 
-local -A opts=(
+local -A options=(
     # batch_file
     # cookie
     # cmd
@@ -67,7 +67,7 @@ while (( $# )); do
         fi
         ;;
     --cookie)
-        if [[ -v opts[cookie] ]]; then
+        if [[ -v options[cookie] ]]; then
             print-header -e -- "--cookie specified multiple times"
             return 1
         elif (( $# < 2 )); then
@@ -76,7 +76,7 @@ while (( $# )); do
         fi
         shift
 
-        opts[cookie]="$1"
+        options[cookie]="$1"
         ;;
     --downloader-cmd)
         if (( $# < 2 )); then
@@ -85,7 +85,7 @@ while (( $# )); do
         fi
         shift
 
-        opts[cmd]="${1}"
+        options[cmd]="${1}"
         ;;
     -o|--output)
         if (( $# < 2 )); then
@@ -94,8 +94,8 @@ while (( $# )); do
         fi
         shift
 
-        opts[output_dir]="$1"
-        mkdir -p "${opts[output_dir]}"
+        options[output_dir]="$1"
+        mkdir -p "${options[output_dir]}"
         ;;
     -[!-]*)
         local arg_list=( "${(@s::)1#-}" )
@@ -123,7 +123,7 @@ while (( $# )); do
         fi
         shift
 
-        opts[done_filename]="$1"
+        options[done_filename]="$1"
         ;;
     --*)
         local key="${${1#--}//-/_}"
@@ -144,7 +144,7 @@ while (( $# )); do
 
         ;& # fallthrough, re-use validation
     http*)
-        if [[ -v opts[batch_file] ]]; then
+        if [[ -v options[batch_file] ]]; then
             print-header -e "Specifying a URL and a batch-file are mutually exclusive"
             return 1
         else
@@ -160,7 +160,7 @@ while (( $# )); do
 
         ;& # fallthrough, re-use validation
     *)
-        if [[ -v opts[batch_file] ]]; then
+        if [[ -v options[batch_file] ]]; then
             print-header -e "You may only specify 1 file"
             return 1
         elif (( ${#urls} )); then
@@ -174,56 +174,56 @@ while (( $# )); do
             return 1
         fi
 
-        opts[batch_file]="$1"
+        options[batch_file]="$1"
     esac
     shift
 done
 
-if (( ! ${#urls[@]} )) && [[ ! -v opts[batch_file] ]]; then
+if (( ! ${#urls[@]} )) && [[ ! -v options[batch_file] ]]; then
     print-header -e "You must specify a url or a batch file"
     print "$_usage"
     return 1
 fi
 
 local done_filename
-if [[ -v opts[batch_file] ]]; then
-    urls+=("${(@f)$(< "${opts[batch_file]}")}")
-    done_filename="${opts[batch_file]}.done"
+if [[ -v options[batch_file] ]]; then
+    urls+=("${(@f)$(< "${options[batch_file]}")}")
+    done_filename="${options[batch_file]}.done"
 
-    if [[ ! -v opts[output_dir] ]]; then
-        opts[output_dir]="$(dirname "${opts[batch_file]}")"
+    if [[ ! -v options[output_dir] ]]; then
+        options[output_dir]="$(dirname "${options[batch_file]}")"
     fi
 fi
 
-if [[ ! -v opts[output_dir] ]]; then
-    opts[output_dir]="${PWD}"
+if [[ ! -v options[output_dir] ]]; then
+    options[output_dir]="${PWD}"
 fi
 
 if [[ ! -v done_filename ]]; then
-    if [[ -v opts[done_filename] ]]; then
-        done_filename="${opts[output_dir]}/${opts[done_filename]}"
+    if [[ -v options[done_filename] ]]; then
+        done_filename="${options[output_dir]}/${options[done_filename]}"
     else
-        done_filename="${opts[output_dir]}/video-downloader.done"
+        done_filename="${options[output_dir]}/video-downloader.done"
     fi
 fi
 
-if [[ ! -v opts[cmd] ]]; then
+if [[ ! -v options[cmd] ]]; then
     if command -v youtube-dl &> /dev/null; then
-        opts[cmd]="youtube-dl"
-        opts[cmd]+=" -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]'"
-        opts[cmd]+=" --output '${opts[output_dir]}/%(title)s.%(ext)s'"
-        opts[cmd]+=" --no-call-home"
+        options[cmd]="youtube-dl"
+        options[cmd]+=" -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]'"
+        options[cmd]+=" --output '${options[output_dir]}/%(title)s.%(ext)s'"
+        options[cmd]+=" --no-call-home"
     elif command -v yt-dlp &> /dev/null; then
-        opts[cmd]="yt-dlp"
-        opts[cmd]+=" -f bestvideo[ext=mp4]+bestaudio[ext=m4a]"
-        opts[cmd]+=" --path ${opts[output_dir]}"
-        opts[cmd]+=" --windows-filenames"
-        opts[cmd]+=" --add-chapters"
+        options[cmd]="yt-dlp"
+        options[cmd]+=" -f bestvideo[ext=mp4]+bestaudio[ext=m4a]"
+        options[cmd]+=" --path ${options[output_dir]}"
+        options[cmd]+=" --windows-filenames"
+        options[cmd]+=" --add-chapters"
 
         if (( $flags[firefox] )); then
-            opts[cmd]+=" --cookies-from-browser firefox"
+            options[cmd]+=" --cookies-from-browser firefox"
         elif (( $flags[chrome] )); then
-            opts[cmd]+=" --cookies-from-browser chrome"
+            options[cmd]+=" --cookies-from-browser chrome"
         fi
     else
         print-header "Cannot find a video downloader to use."
@@ -231,17 +231,17 @@ if [[ ! -v opts[cmd] ]]; then
     fi
 
     if (( flags[verbose] )); then
-        opts[cmd]+=" --verbose"
+        options[cmd]+=" --verbose"
     elif (( flags[quiet] )); then
-        opts[cmd]+=" --quiet"
+        options[cmd]+=" --quiet"
     fi
 
-    if [[ -v opts[cookie] ]]; then
-        opts[cmd]+=" --cookies '${opts[cookie]}'"
+    if [[ -v options[cookie] ]]; then
+        options[cmd]+=" --cookies '${options[cookie]}'"
     fi
 fi
 
-local cmd_array=("${(z)opts[cmd]}")
+local cmd_array=("${(z)options[cmd]}")
 if ! command -v "${cmd_array[1]}" &> /dev/null; then
     print-header -e "Command '${cmd_array[1]}' not found."
     return 1
@@ -278,7 +278,7 @@ _video-downloader-process-url() {
 
 local url
 for url in "${urls[@]}"; do
-    _video-downloader-process-url "$url" "${opts[cmd]}" "$done_filename"
+    _video-downloader-process-url "$url" "${options[cmd]}" "$done_filename"
 done
 
 print-header green "Successfully downloaded all videos"
