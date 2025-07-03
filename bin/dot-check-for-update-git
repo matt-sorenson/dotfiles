@@ -23,74 +23,21 @@ dot-check-for-update-git() {
     short_to_long_flags[q]=quiet
     short_to_long_flags[e]=extra-quiet
     flags[quiet]=0
-    flags[extra_quiet]=0
+    flags[extra-quiet]=0
 
     short_to_long_opts[i]=indent
     option_args[indent]=1
     max_position_count=1
+    min_position_count=1
+    dot_parse_opts_errors[too-many-positional]="Only 1 repo may be provided"
+    dot_parse_opts_errors[too-few-positional]="You must provide a directory to check for updates"
 
-    local extra_quiet=0
-    local quiet=0
-    local indent=0
-    local dir
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
-    while (( $# )); do
-        case $1 in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        --extra-quiet)
-            extra_quiet=1
-            quiet=1
-            ;;
-        -q|--quiet)
-            quiet=1
-            ;;
-        -i|--indent)
-            if (( $# < 2 )); then
-                print-header -e -i "$indent" "${dir:-Unknown Repo}: Expected an indent value after '$1'"
-                print "${_usage}"
-                return 1
-            fi
-            shift
-            indent="$1"
-            ;;
-        -qi)
-            quiet=1
-            if (( $# < 2 )); then
-                print-header -e -i "$indent" "${dir:-Unknown Repo}: Expected an indent value after '-qi'"
-                print "${_usage}"
-                return 1
-            fi
-            shift
-            indent="$1"
-            ;;
-        -*)
-            print-header -e -i "$indent" "${dir:-Unknown Repo}: Called dot-check-for-update with unknown option '$1'"
-            print "${_usage}"
-            return 1
-            ;;
-        *)
-            if [[ -v dir ]]; then
-                print-header -e -i "$indent" "${dir:-Unknown Repo}: Called dot-check-for-update with unexpected argument '$1'"
-                print "${_usage}"
-                return 1
-            fi
-
-            dir=$1
-            ;;
-        esac
-        shift
-    done
-
-    if [[ ! -v dir ]]; then
-        print-header -e -i "$indent" "Unknown Repo: Called dot-check-for-update-git without a directory"
-        return 1
-    fi
+    local dir="${1}"
 
     if [[ ! -d "${dir}" ]]; then
-        if (( ! extra_quiet )); then
+        if (( ! flags[extra-quiet] )); then
             print-header -w -i "$indent" "${dir}: Missing Directory"
         fi
         return 0
@@ -98,6 +45,7 @@ dot-check-for-update-git() {
 
     # canonicalize the directory path
     dir="${dir:A}"
+    local indent="${options[indent]:-0}"
 
     local log_dir="${dir}"
     case $dir in
@@ -107,8 +55,8 @@ dot-check-for-update-git() {
     esac
 
     if ! git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null; then
-        if (( ! extra_quiet )); then
-            if (( quiet )); then
+        if (( ! flags[extra-quiet] )); then
+            if (( flags[quiet] )); then
                 print-header -w -i "$indent" "${log_dir}: Directory not a git repo"
             else
                 print "${log_dir}: Directory not a git repo"
@@ -123,7 +71,7 @@ dot-check-for-update-git() {
     fi
 
     local remotes
-    if (( extra_quiet )); then
+    if (( flags[extra-quiet] )); then
         remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
         if (( ${#remotes} == 0 )); then
             return 0
@@ -134,7 +82,7 @@ dot-check-for-update-git() {
 
     remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
     if (( ${#remotes} == 0 )); then
-        if (( ! quiet )); then
+        if (( ! flags[quiet] )); then
             print-header -w -i "$indent" "${log_dir}: No git remote found, skipping update"
         else
             print "No git remote found, skipping update"
@@ -177,7 +125,7 @@ dot-check-for-update-git() {
             print-header -e -i "$indent" "${log_dir}: Branch is behind upstream by ${behind} commits"
             return 1
         elif (( ahead > 0 )); then
-            if (( ! quiet )); then
+            if (( ! flags[quiet] )); then
                 print "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
             fi
         fi

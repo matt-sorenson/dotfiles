@@ -101,7 +101,7 @@ while (( $# )); do
                     print-header -e "Option '$1' requires a value."
                     print "${_usage}"
                     return 0
-                elif (( ! ${#arg_list} )); then
+                elif (( ${#arg_list} )); then
                     print-header -e "Options can only be combined into short flags as the last flag."
                     return 1
                 else
