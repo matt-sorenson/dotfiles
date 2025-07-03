@@ -26,7 +26,7 @@ Options:
 
     option_args[extensions]=1
     short_to_long_opts[e]=extensions
-    max_position_count=1
+    max_positional_count=1
     allow_extra_args=1
 
     source "${DOTFILES}/zsh/dot-parse-opts.zsh"

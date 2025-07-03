@@ -33,9 +33,9 @@
 ## option_args[--foo]="float:array:<array_name>" # Each time it's received append to the named array, require a float (or int)
 ## option_args[--foo]="overwrite:int" # Each time it's received overwrite the value, require an integer
 
-## Set max_position_count to -1 if you don't want to bound the input
-# local max_position_count=0
-# local min_position_count=0
+## Set max_positional_count to -1 if you don't want to bound the input
+# local max_positional_count=0
+# local min_positional_count=0
 
 # local allow_extra_args=1
 
@@ -52,8 +52,8 @@ local -A short_to_long_opts=()
 local -i allow_duplicate_flags=0
 local -A flags=()
 local -A option_args=()
-local -i max_position_count=0
-local -i min_position_count=0
+local -i max_positional_count=0
+local -i min_positional_count=0
 local -A options=()
 local -i allow_extra_args=0
 local -i extra_args_are_positional=0

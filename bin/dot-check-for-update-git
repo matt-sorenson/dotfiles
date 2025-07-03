@@ -27,8 +27,8 @@ dot-check-for-update-git() {
 
     short_to_long_opts[i]=indent
     option_args[indent]=1
-    max_position_count=1
-    min_position_count=1
+    max_positional_count=1
+    min_positional_count=1
     dot_parse_opts_errors[too-many-positional]="Only 1 repo may be provided"
     dot_parse_opts_errors[too-few-positional]="You must provide a directory to check for updates"
 

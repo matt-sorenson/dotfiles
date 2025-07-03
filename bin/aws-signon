@@ -33,7 +33,7 @@ aws-signon() {
 
     short_to_long_flags[f]=force
     flags[force]=0
-    max_position_count=1
+    max_positional_count=1
     option_args[command]=1
     short_to_long_opts[c]=command
     option_args[logged-in-command]=1

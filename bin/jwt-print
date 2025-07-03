@@ -24,42 +24,27 @@ jwt-print() {
     Options:
         -h, --help    Show this help message and exit"
 
-    local jwt
-    while (( $# )); do
-        case "$1" in
-            -h|--help)
-                print "${_usage}"
-                return 0
-                ;;
-            -*)
-                print-header -e "Unknown argument: ${1}"
-                print "${_usage}"
-                return 1
-                ;;
-            *)
-                if [[ -v jwt ]]; then
-                    print-header -e "Too many arguments. Expected a single JWT or nothing to read from clipboard."
-                    print "${_usage}"
-                    return 1
-                fi
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-                jwt="$1"
-                ;;
-        esac
-        shift
-    done
+    max_positional_count=1
+    dot_parse_opts_errors[too-many-positional]="Too many arguments. Expected a single JWT or nothing to read from clipboard."
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     if ! command -v jq > /dev/null; then
         print-header -e "jq not found. Please install jq to use this script."
         return 1
     fi
 
-    if [[ ! -v jwt ]]; then
-        if ! command -v pbpaste > /dev/null; then
-            print-header -e "pbpaste not found. Must pass a JWT as an argument."
-            print "${_usage}"
-            return 1
-        fi
+    local jwt
+    if (( $# )); then
+        jwt="$1"
+        set --
+    elif ! command -v pbpaste > /dev/null; then
+        print-header -e "pbpaste not found. Must pass a JWT as an argument."
+        print "${_usage}"
+        return 1
+    else
         jwt=$(pbpaste)
 
         print "Read '${jwt}' from clipboard."

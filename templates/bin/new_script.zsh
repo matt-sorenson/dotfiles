@@ -18,12 +18,12 @@ Options:
     # short_to_long_flags[f]=foo
     # option_args[input]=1
     # short_to_long_opts[i]=input
-    # max_position_count=2
+    # max_positional_count=2
     # allow_extra_args=1
 
     source "${DOTFILES}/zsh/dot-parse-opts.zsh"
 
-    unset flag_or_no_flag max_position_count min_position_count option_args short_to_long_flags short_to_long_opts
+    unset flag_or_no_flag max_positional_count min_positional_count option_args short_to_long_flags short_to_long_opts
 
     ############################################################################
     ## Your implementation goes here

@@ -9,7 +9,6 @@
 ### dot-check-for-update
 ### dot-check-for-update-git
 ### git-dag
-### jwt-print
 ### print-header
 ### video-downloader
 
@@ -171,10 +170,10 @@ while (( $# )); do
         done
         ;;
     *)
-        if  [[ max_position_count == -1 ]] || (( ${#positional_args[@]} < max_position_count )); then
+        if  [[ max_positional_count == -1 ]] || (( ${#positional_args[@]} < max_positional_count )); then
             positional_args+=("$1")
         else
-            local error="$(printf "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_position_count]")"
+            local error="$(printf "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_positional_count]")"
             print-header -e "${error}"
             print "${_usage}"
             return 1
@@ -192,8 +191,8 @@ while (( $# )); do
     fi
 done
 
-if [[ -v min_position_count ]] && (( ${#positional_args[@]} < min_position_count )); then
-    local error="$(printf "${dot_parse_opts_errors[too-few-positional]}" "[min: $min_position_count]")"
+if [[ -v min_positional_count ]] && (( ${#positional_args[@]} < min_positional_count )); then
+    local error="$(printf "${dot_parse_opts_errors[too-few-positional]}" "[min: $min_positional_count]")"
     print-header -e "${error}"
     print "${_usage}"
     return 1
