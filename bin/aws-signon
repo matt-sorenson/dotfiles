@@ -29,75 +29,32 @@ aws-signon() {
     aws-signon dev
     aws-signon dev -f"
 
-    local force=0
-    local profile
-    local signup_command
-    local logged_in_command
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-    while (( $# )); do
-        case "$1" in
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -f|--force)
-            force=1
-            ;;
-        -c|--command)
-            if (( $# < 2 )); then
-                print-header -e -- "$1 requires an argument."
-            elif [[ -v signup_command ]]; then
-                print-header -e "${1} passed in multiple times! New: ${2}, Old: ${signup_command}"
-                print "${_usage}"
-                return 1
-            fi
-            shift
+    short_to_long_flags[f]=force
+    flags[force]=0
+    max_position_count=1
+    option_args[command]=1
+    short_to_long_opts[c]=command
+    option_args[logged_in_command]=1
+    dot_parse_opts_too_many_positional="Profile can only be specified once"
 
-            signup_command="$1"
-            ;;
-        --logged-in-command)
-            if (( $# < 2 )); then
-                print-header -e -- "$1 requires an argument."
-            elif [[ -v logged_in_command ]]; then
-                print-header -e "$1 passed in multiple times! New: ${2}, Old: ${logged_in_command}"
-                print "${_usage}"
-                return 1
-            fi
-            shift
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
-            logged_in_command="$1"
-            ;;
-        -*)
-            print-header -e "Unknown option: $1"
-            print "${_usage}"
-            return 1
-            ;;
-        *)
-            if [ -v profile ]; then
-                print-header -e "Profile passed in multiple times! New: ${1}, Old: ${profile}"
-                print "${_usage}"
-                return 1
-            fi
-            profile="$1"
-            ;;
-        esac
-        shift
-    done
-
-    if [[ ! -v signup_command ]]; then
-        signup_command="aws sso login --profile"
+    if [[ ! -v 'options[command]' ]]; then
+        options[command]="aws sso login --profile"
     fi
 
-    local cmd_array=("${(z)signup_command}")
+    local cmd_array=("${(z)options[command]}")
     if ! command -v "${cmd_array[1]}" &> /dev/null; then
         print-header -e "Command '${cmd_array[1]}' not found"
         return 1
     fi
 
     export AWS_PROFILE
-    if [[ -v profile ]]; then
-        AWS_PROFILE="${profile}"
-        unset profile
+    if (( $# )); then
+        AWS_PROFILE="$1"
+        set --
     elif [[ -v AWS_PROFILE ]] && [[ -n "$AWS_PROFILE}" ]]; then
         print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"
     else
@@ -109,12 +66,12 @@ aws-signon() {
 
     print-header green --icon 🔐 "Signing into AWS: ${AWS_PROFILE}"
 
-    if (( ! force )); then
-        if [[ ! -v logged_in_command ]]; then
-            logged_in_command='aws sts get-caller-identity --profile'
+    if (( ! flags[force] )); then
+        if [[ ! -v 'options[logged_in_command]' ]]; then
+            options[logged_in_command]='aws sts get-caller-identity --profile'
         fi
 
-        local logged_in_cmd_array=("${(z)logged_in_command}")
+        local logged_in_cmd_array=("${(z)options[logged_in_command]}")
         if ! command -v "${logged_in_cmd_array[1]}" &> /dev/null; then
             print-header -e "Command '${logged_in_cmd_array[1]}' not found"
             return 1

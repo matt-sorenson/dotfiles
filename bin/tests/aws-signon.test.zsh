@@ -21,11 +21,11 @@ mock_aws_logged_on_cmd_not_signed_on() {
 }
 
 profile-signed-on() {
-    aws-signon --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_signed_on dev
+    aws-signon dev --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_signed_on
 }
 
 profile-not-signed-on() {
-    aws-signon --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_not_signed_on dev
+    aws-signon dev --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_not_signed_on
 }
 
 no-profile-AWS_PROFILE-fallback_signed-on() {
@@ -54,6 +54,10 @@ force-not-signed-on() {
     aws-signon --force --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_not_signed_on dev
 }
 
+too-many-profiles() {
+    aws-signon dev staging prod --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_signed_on
+}
+
 main() {
     local out=0
     local testee='aws-signon'
@@ -66,6 +70,7 @@ main() {
         no-profile-fallback-not-signed-on
         force-signed-on
         force-not-signed-on
+        too-many-profiles
     )
 
     local previous_AWS_PROFILE

@@ -14,7 +14,6 @@
 ### option_args[--foo]="r:array:<array_name>" # Each time it's received append to the named array, require 1
 
 ## Scripts
-### aws-signon
 ### concat-video
 ### dot-check-for-update
 ### dot-check-for-update-git
@@ -118,7 +117,8 @@ while (( $# )); do
         if  [[ max_position_count == -1 ]] || (( ${#positional_args[@]} < max_position_count )); then
             positional_args+=("$1")
         else
-            print-header -e "Too many positional arguments [max: $max_position_count]"
+            local error="$(printf "${dot_parse_opts_too_many_positional}" "[max: $max_position_count]")"
+            print-header -e "${error}"
             print "${_usage}"
             return 1
         fi
@@ -128,7 +128,8 @@ while (( $# )); do
 done
 
 if [[ -v min_position_count ]] && (( ${#positional_args[@]} < min_position_count )); then
-    print-header -e "Too few positional arguments [expected at least $min_position_count]"
+    local error="$(printf "${dot_parse_opts_too_few_positional}" "[min: $min_position_count]")"
+    print-header -e "${error}"
     print "${_usage}"
     return 1
 fi
