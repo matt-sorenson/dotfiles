@@ -12,10 +12,10 @@ git-popb() {
 
   Check out the last branch checked out with git-pushb and pops it from the stack.
 
+  +i, --no-init        Do not initialize the stack file if it does not exist
   -q, --quiet          Suppress some output messages
-  -h, --help           Show this help message
 
-  +i, --no-init            Do not initialize the stack file if it does not exist"
+  -h, --help           Show this help message"
 
 
     eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"

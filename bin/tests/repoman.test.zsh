@@ -33,9 +33,9 @@ happycase() {
         --cloud-signon-cmd 'print "aws-signon $(pwd)"' \
         --db-up-cmd 'print "db $(pwd)"-up' \
         --migrations-cmd 'print "migration $(pwd)"' \
-        --generate-schema-cmd 'print "generate $(pwd)"-schema' \
-        --unit-tests-cmd 'print "unit $(pwd)"-tests' \
-        --integration-tests-cmd 'print "integration $(pwd)"-tests' \
+        --generate-schema-cmd 'print "generate-schema $(pwd)"' \
+        --unit-tests-cmd 'print "unit-tests $(pwd)"' \
+        --integration-tests-cmd 'print "integration-tests $(pwd)"' \
         -ncibdmguI
 }
 
@@ -59,9 +59,9 @@ task-fails() {
         --cloud-signon-cmd 'print "aws-signon $(pwd)"' \
         --db-up-cmd 'print "db $(pwd)"-up' \
         --migrations-cmd 'print "migration $(pwd)"' \
-        --generate-schema-cmd 'print "generate $(pwd)"-schema' \
-        --unit-tests-cmd 'print "unit $(pwd)"-tests' \
-        --integration-tests-cmd 'print "integration $(pwd)"-tests' \
+        --generate-schema-cmd 'print "generate-schema $(pwd)"' \
+        --unit-tests-cmd 'print "unit-tests $(pwd)"' \
+        --integration-tests-cmd 'print "integration-tests $(pwd)"' \
         -ncibdmguI
 }
 

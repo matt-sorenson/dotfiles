@@ -47,11 +47,11 @@ no-profile-fallback-not-signed-on() {
 }
 
 force-signed-on() {
-    aws-signon --force --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_signed_on dev
+    aws-signon --force  dev --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_signed_on
 }
 
 force-not-signed-on() {
-    aws-signon --force --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_not_signed_on dev
+    aws-signon --force  dev --command mock_aws_signon_cmd --logged-in-command mock_aws_logged_on_cmd_not_signed_on
 }
 
 too-many-profiles() {

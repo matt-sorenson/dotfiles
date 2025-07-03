@@ -632,9 +632,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
                 return 1
             }
 
-            local cmd=("${(z)task_commands[$task]}")
-
-            if ! "$cmd[@]"; then
+            if ! eval "${task_commands[$task]}"; then
                 print-header -e --icon "${icon}" "${header} failed"
                 return 1
             fi

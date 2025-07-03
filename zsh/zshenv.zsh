@@ -108,3 +108,38 @@ autoload -Uz \
     repoman \
     video-downloader \
     ws-clone
+
+dot-print-map() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return
+
+    local _usage="Usage: dot-print-map <map_name>"
+
+    if (( $# != 1 )); then
+        print "${_usage}"
+        return 1
+    fi
+
+    local map_name=$1
+
+    local type
+    if ! type="$(typeset -p "$map_name" 2>/dev/null)"; then
+        print-header -e "Error: '$map_name' is not defined."
+        return 1
+    fi
+
+    if [[ "$type" != *-A* ]]; then
+        print-header -e "Error: '$map_name' is not an associative array."
+        return 1
+    fi
+
+    local keys
+    eval "keys=(\"\${(@k)$map_name}\")"
+    local key value cmd
+    for key in "${keys[@]}"; do
+        cmd='${'"$map_name"'[$key]}'
+        value=$(eval "print \"$cmd\"")
+        printf "%s => %s\n" "$key" "$value"
+    done
+}

@@ -23,7 +23,7 @@
 ### video-downloader
 
 local -a positional_args=()
-local flag no_flag arg arg_list flag_or_no_flag
+local flag arg arg_list flag_or_no_flag
 while (( $# )); do
     case $1 in
     -h|--help)
@@ -31,14 +31,13 @@ while (( $# )); do
         return 0
         ;;
     --?*)
-        no_flag="${${1#--no-}//-/_}"
-        flag="${${1#--}//-/_}"
-        if [[ -v "flags[$no_flag]" ]]; then
-            flags[$no_flag]=0
-        elif [[ -v "flags[$flag]" ]]; then
+        flag="${${1#--}}"
+        if [[ -v 'flags[$flag]' ]]; then
             flags[$flag]=1
-        elif [[ -v "option_args[$flag]" ]]; then
-            if [[ -v "options[$flag]" ]]; then
+        elif [[ -v 'flags[${flag#no-}]' ]]; then
+            flags[${flag#no-}]=0
+        elif [[ -v 'option_args[$flag]' ]]; then
+            if [[ -v 'options[$flag]' ]]; then
                 print-header -e "Unknown flag: $1"
                 print "${_usage}"
                 return 1
@@ -99,9 +98,12 @@ while (( $# )); do
                     print "${_usage}"
                     return 1
                 elif (( $# < 2 )); then
-                    print-header -e "Flag '$1' requires a value."
+                    print-header -e "Option '$1' requires a value."
                     print "${_usage}"
                     return 0
+                elif (( ! ${#arg_list} )); then
+                    print-header -e "Options can only be combined into short flags as the last flag."
+                    return 1
                 else
                     shift
                     options[$flag]="$1"
@@ -135,4 +137,4 @@ if [[ -v min_position_count ]] && (( ${#positional_args[@]} < min_position_count
 fi
 
 set -- "${positional_args[@]}"
-unset positional_args flag no_flag arg arg_list flag_or_no_flag
+unset positional_args flag arg arg_list flag_or_no_flag

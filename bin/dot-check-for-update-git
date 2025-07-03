@@ -14,10 +14,20 @@ dot-check-for-update-git() {
     Options:
     -h, --help            Show this help message
     -q, --quiet           Suppress some warnings.
-    --extra-quiet         Suppress all output if directory not a repo or has no remotes.
+    -e, --extra-quiet         Suppress all output if directory not a repo or has no remotes.
     -i, --indent <indent> Set the indent level for headers messages (default: 0)
 
     If no flags are provided then it's treated as if all flags are set."
+
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    short_to_long_flags[q]=quiet
+    short_to_long_flags[e]=extra-quiet
+    flags[quiet]=0
+    flags[extra_quiet]=0
+
+    short_to_long_opts[i]=indent
+    option_args[indent]=1
+    max_position_count=1
 
     local extra_quiet=0
     local quiet=0

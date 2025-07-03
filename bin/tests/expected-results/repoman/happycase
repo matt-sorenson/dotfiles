@@ -19,21 +19,21 @@ db ${DOTFILES}/bin/tests/repoman-env/db_up-up
 ================================================================================
 migration ${DOTFILES}/bin/tests/repoman-env/migrations
 ================================================================================
-= 💾 Generate Schema: Command: `print "generate $(pwd)"-schema`                =
+= 💾 Generate Schema: Command: `print "generate-schema $(pwd)"`                =
 ================================================================================
-generate ${DOTFILES}/bin/tests/repoman-env/generate_schema-schema
+generate-schema ${DOTFILES}/bin/tests/repoman-env/generate_schema
 ================================================================================
 = 🛠️  Build: Command: `print "build $(pwd)"`                                   =
 ================================================================================
 build ${DOTFILES}/bin/tests/repoman-env/build
 ================================================================================
-= 🧪 Unit Tests: Command: `print "unit $(pwd)"-tests`                          =
+= 🧪 Unit Tests: Command: `print "unit-tests $(pwd)"`                          =
 ================================================================================
-unit ${DOTFILES}/bin/tests/repoman-env/unit_tests-tests
+unit-tests ${DOTFILES}/bin/tests/repoman-env/unit_tests
 ================================================================================
-= 🧪 Integration Tests: Command: `print "integration $(pwd)"-tests`            =
+= 🧪 Integration Tests: Command: `print "integration-tests $(pwd)"`            =
 ================================================================================
-integration ${DOTFILES}/bin/tests/repoman-env/integration_tests-tests
+integration-tests ${DOTFILES}/bin/tests/repoman-env/integration_tests
 ================================================================================
 = All steps completed successfully                                             =
 ================================================================================

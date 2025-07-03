@@ -36,7 +36,7 @@ aws-signon() {
     max_position_count=1
     option_args[command]=1
     short_to_long_opts[c]=command
-    option_args[logged_in_command]=1
+    option_args[logged-in-command]=1
     dot_parse_opts_too_many_positional="Profile can only be specified once"
 
     eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
@@ -67,11 +67,11 @@ aws-signon() {
     print-header green --icon 🔐 "Signing into AWS: ${AWS_PROFILE}"
 
     if (( ! flags[force] )); then
-        if [[ ! -v 'options[logged_in_command]' ]]; then
-            options[logged_in_command]='aws sts get-caller-identity --profile'
+        if [[ ! -v 'options[logged-in-command]' ]]; then
+            options[logged-in-command]='aws sts get-caller-identity --profile'
         fi
 
-        local logged_in_cmd_array=("${(z)options[logged_in_command]}")
+        local logged_in_cmd_array=("${(z)options[logged-in-command]}")
         if ! command -v "${logged_in_cmd_array[1]}" &> /dev/null; then
             print-header -e "Command '${logged_in_cmd_array[1]}' not found"
             return 1
