@@ -119,7 +119,7 @@ while (( $# )); do
         if  [[ max_position_count == -1 ]] || (( ${#positional_args[@]} < max_position_count )); then
             positional_args+=("$1")
         else
-            local error="$(printf "${dot_parse_opts_too_many_positional}" "[max: $max_position_count]")"
+            local error="$(printf "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_position_count]")"
             print-header -e "${error}"
             print "${_usage}"
             return 1
@@ -130,7 +130,7 @@ while (( $# )); do
 done
 
 if [[ -v min_position_count ]] && (( ${#positional_args[@]} < min_position_count )); then
-    local error="$(printf "${dot_parse_opts_too_few_positional}" "[min: $min_position_count]")"
+    local error="$(printf "${dot_parse_opts_errors[too-few-positional]}" "[min: $min_position_count]")"
     print-header -e "${error}"
     print "${_usage}"
     return 1

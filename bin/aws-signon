@@ -37,7 +37,7 @@ aws-signon() {
     option_args[command]=1
     short_to_long_opts[c]=command
     option_args[logged-in-command]=1
-    dot_parse_opts_too_many_positional="Profile can only be specified once"
+    dot_parse_opts_errors[too-many-positional]="Profile can only be specified once"
 
     eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 

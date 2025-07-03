@@ -41,6 +41,8 @@ local allow_extra_args=0
 local extra_args_are_positional=0
 local -a extra_args=()
 
-local dot_parse_opts_too_many_positional="Too many positional arguments"
-local dot_parse_opts_too_few_positional="Too few positional arguments"
+local -A dot_parse_opts_errors=(
+    [too-many-positional]="Too many positional arguments"
+    [too-few-positional]="Too few positional arguments"
+)
 EOF
