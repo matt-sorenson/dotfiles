@@ -9,7 +9,6 @@
 ### dot-check-for-update
 ### dot-check-for-update-git
 ### git-dag
-### print-header
 ### video-downloader
 
 local -a positional_args=()
@@ -37,7 +36,7 @@ while (( $# )); do
                 print "${_usage}"
                 return 1
             fi
-            flags[${flag#no-}]=1
+            flags[${flag#no-}]=0
             set_flags[${flag#no-}]=1
        elif [[ -v 'option_args[$flag]' ]]; then
             if (( $# < 2 )); then
@@ -47,13 +46,13 @@ while (( $# )); do
             fi
             shift
             if [[ ":${option_args[$flag]}:" == *:int:* ]]; then
-                if [[ ! $str =~ ^[-+]?[0-9]+$  ]]; then
+                if [[ ! $1 =~ ^[-+]?[0-9]+$  ]]; then
                     print-header -e "Flag '--$flag' requires an integer value."
                     print "${_usage}"
                     return 1
                 fi
             elif [[ ":${option_args[$flag]}:" == *:float:* ]]; then
-                if [[ ! $str =~ ^[-+]?[0-9]*\.?[0-9]+$ ]]; then
+                if [[ ! $1 =~ ^[-+]?[0-9]*\.?[0-9]+$ ]]; then
                     print-header -e "Flag '--$flag' requires a float value"
                     print "${_usage}"
                     return 1
@@ -82,12 +81,14 @@ while (( $# )); do
 
             if [[ ":${option_args[$flag]}:" == *:array:* ]]; then
                 array_name="${option_args[$flag]#*array:}"
-                if ! array_type=typeset $array_name > /dev/null; then
+                if array_type="$(typeset -p "$array_name")"; then
+                    if [[ "${array_type}" != *' -a '* ]]; then
+                        print-header -e "Flag '$1' requires an array to be set, but '${array_name}' is not an array."
+                        print "${_usage}"
+                        return 1
+                    fi
+                else
                     print-header -e "Flag '$1' requires an array to be set."
-                    print "${_usage}"
-                    return 1
-                elif [[ array_type != *' -a '* ]]; then
-                    print-header -e "Flag '$1' requires an array to be set, but '${array_name}' is not an array."
                     print "${_usage}"
                     return 1
                 fi
@@ -170,7 +171,7 @@ while (( $# )); do
         done
         ;;
     *)
-        if  [[ max_positional_count == -1 ]] || (( ${#positional_args[@]} < max_positional_count )); then
+        if  (( max_positional_count == -1 || ${#positional_args[@]} < max_positional_count )); then
             positional_args+=("$1")
         else
             local error="$(printf "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_positional_count]")"

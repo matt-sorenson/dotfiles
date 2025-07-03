@@ -43,91 +43,61 @@ Options:
   --                             (optional) Marks the end of flags, anything after this is treated as the message.
                                  If your message starts with '--' it must either contain a space or come after the -- flag"
 
-    local -i to_stderr=0
-    local -i do_colors=1
-    local -i indent=0
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+
+    flags[color]=1
+    flags[stderr]=0
+    flags[error]=0
+    flags[warn]=0
+    short_to_long_flags[e]=error
+    short_to_long_flags[w]=warn
+
+    local -a icons=()
+    option_args[icon]='array:icons'
+    option_args[indent]=int
+    short_to_long_opts[i]=indent
+
+    max_positional_count=-1
+
+    extra_args_are_positional=1
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+
     local color=''
     local -a parts=()
-    local icon=''
 
     while (( $# )); do
         case "$1" in
-        -h|--help)
-            print "${_usage}"
-            return 0
+        black|red|green|yellow|blue|magenta|cyan|white)
+            color="${color}${fg_bold[${1}]}"
             ;;
-        -i|--indent|-wi|-we)
-            if (( $# < 2 )); then
-                print-header -e "Error: '$1' requires an argument."
-                print "${_usage}"
-                return 1
-            fi
-
-            if [[ "$1" == "-wi" || "$1" == "-ei" ]]; then
-                # add -w or -e to the argv array
-                argv+=("-${1[2]}")
-            fi
-
-            indent="$2"
-            shift
+        bgblack|bgred|bggreen|bgyellow|bgblue|bgmagenta|bgcyan|bgwhite)
+            color="${color}${bg[${1#bg}]}"
             ;;
-        --no-color)
-            do_colors=0
-            ;;
-        --icon)
-            if (( $# < 2 )); then
-                print-header -e "Error: '$1' requires an argument."
-                print "${_usage}"
-                return 1
-            fi
-
-            icon="${icon}$2"
-            shift
-            ;;
-        -w|--warn)
-            color="${fg_bold[yellow]}"
-            icon="⚠️${icon}"
-            ;;
-        -e|--error)
-            color="${fg_bold[red]}"
-            icon="❌${icon}"
-            ;;
-        --stderr)
-            to_stderr=1
-            ;;
-        --)
-            shift
-            parts=("$@")
-            set --
-            break;
-            ;;
-        -*)
-            if [[ "$1" == *" "* ]]; then
-                # This case helps catch messages like '--foo expects an argument'
-                parts+=("$1")
-            else
-                print-header -e "Unknown option: $1"
-                print "${_usage}"
-                return 1
-            fi
-            ;;
-        *)
-            case "$1" in
-            black|red|green|yellow|blue|magenta|cyan|white)
-                color="${color}${fg_bold[${1}]}"
-                ;;
-            bgblack|bgred|bggreen|bgyellow|bgblue|bgmagenta|bgcyan|bgwhite)
-                color="${color}${bg[${1#bg}]}"
-                ;;
-            *)
-                parts+=("$1")
-            esac
-            ;;
+        *) break ;;
         esac
         shift
     done
 
-    local message="= ${icon:+$icon }"
+    parts+=("$@")
+    set --
+
+    if (( flags[error] )); then
+        color="${fg_bold[red]}"
+        icons=("❌" "${icons[@]}")
+    elif (( flags[warn] )); then
+        color="${fg_bold[yellow]}"
+        icons=("⚠️" "${icons[@]}")
+    fi
+
+    if [[ ! -v 'options[indent]' ]]; then
+        options[indent]=0
+    fi
+
+    local message="= "
+    if (( #icons )); then
+        message+="${(j::)icons} "
+    fi
     if (( ${#parts[@]} )); then
         message+="${(j: :)parts}"
     else
@@ -148,7 +118,7 @@ Options:
     done
 
     local header_length=$(( msg_length > 80 ? msg_length: 80 ))
-    local indent_space="${(l:$indent:: :):-}"
+    local indent_space="${(l:${options[indent]}:: :):-}"
     local header="${(l:$header_length::=:):-}"
 
     # \uFE0F renders as a zero-width space so we add a space after it to
@@ -161,12 +131,12 @@ Options:
     message+="${(l:$(( header_length - msg_length )):: :):-} ="
 
     local arg=''
-    if (( to_stderr )); then
+    if (( flags[stderr] )); then
         arg='-u2'
     fi
 
     local reset_color=${reset_color}
-    if (( ! do_colors )) || [[ -z $color ]]; then
+    if (( ! flags[color] )) || [[ -z $color ]]; then
         color=''
         reset_color=''
     fi
