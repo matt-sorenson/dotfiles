@@ -24,12 +24,13 @@ jwt-print() {
     Options:
         -h, --help    Show this help message and exit"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     max_positional_count=1
     dot_parse_opts_errors[too-many-positional]="Too many arguments. Expected a single JWT or nothing to read from clipboard."
 
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
 
     if ! command -v jq > /dev/null; then
         print-header -e "jq not found. Please install jq to use this script."

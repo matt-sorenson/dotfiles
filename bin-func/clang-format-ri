@@ -22,14 +22,15 @@ Options:
                             ex: '.cpp:.h:.hpp'
   -h, --help                Show this help message and exit"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     option_args[extensions]=1
     short_to_long_opts[e]=extensions
     max_positional_count=1
     allow_extra_args=1
 
-    source "${DOTFILES}/zsh/dot-parse-opts.zsh"
+    dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
 
     local -a extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )
     local srcpath

@@ -45,7 +45,7 @@ Options:
   --                             (optional) Marks the end of flags, anything after this is treated as the message.
                                  If your message starts with '--' it must either contain a space or come after the -- flag"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     flags[color]=1
     flags[stderr]=0
@@ -62,7 +62,8 @@ Options:
     max_positional_count=-1
     extra_args_are_positional=1
 
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
 
     local color=''
     local -a parts=()

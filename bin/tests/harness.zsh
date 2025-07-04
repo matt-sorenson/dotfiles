@@ -27,7 +27,7 @@ sanitize-current-dir changes any instances of the string matching the current di
 sanitize-dotfiles-dir changes any instance matching the path in \$DOTFILES with the literal \${dotfiles}
 sanitize-colors strips any terminal color codes from the output. Should only be disabled when you're specifically testing color"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     flags[sanitize-current-dir]=1
     flags[sanitize-dotfiles-dir]=1
@@ -37,11 +37,10 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
     min_positional_count=2
     max_positional_count=2
 
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
 
-    local testee_name="$1"
-    local test_name="$2"
-    set --
+    local testee_name="${positional_args[1]}"
+    local test_name="${positional_args[2]}"
 
     if [[ ! -v testee_name ]]; then
         print-header -e -- "run-test requires the name of the command being tested."

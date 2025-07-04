@@ -89,24 +89,18 @@ is-emoji() {
 }
 
 autoload -Uz \
-    aws-signon \
-    brew-find-leafs \
-    clang-format-ri \
-    concat-video \
-    dot-check-for-update \
-    dot-check-for-update-git \
-    dot-zcompile \
-    git-alias \
-    git-dag \
-    git-popb \
-    git-pprune \
-    git-pushb \
-    git-stack \
-    git-stack-init \
-    jwt-print \
-    print-header \
-    repoman \
-    video-downloader \
+    aws-signon\
+    brew-find-leafs\
+    clang-format-ri\
+    concat-video\
+    dot-check-for-update\
+    dot-check-for-update-git\
+    dot-parse-opts\
+    dot-zcompile\
+    jwt-print\
+    print-header\
+    repoman\
+    video-downloader\
     ws-clone
 
 dot-print-map() {

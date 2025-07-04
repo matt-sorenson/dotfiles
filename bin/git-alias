@@ -16,8 +16,8 @@ git-alias() {
     Options
     -h, --help    Show this help message"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+    dot-parse-opts "$@"
 
     local lines
     # Retrieve alias lines: "alias.aliasName command..."

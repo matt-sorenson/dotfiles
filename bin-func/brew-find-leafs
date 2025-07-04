@@ -25,14 +25,14 @@ brew-find-leafs() {
         return 1
     fi
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     short_to_long_flags[q]=quiet
     short_to_long_flags[r]=remove
     flags[quiet]=0
     flags[remove]=0
 
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
 
     if (( flags[quiet] && flags[remove] )); then
         print "Error: --quiet and --remove are mutually exclusive."

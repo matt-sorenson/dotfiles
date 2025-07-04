@@ -45,17 +45,3 @@ if ! command -v pbpaste > /dev/null; then
         alias pbcopy='xclip -selection clipboard'
     fi
 fi
-
-autoload \
-    aws-signon \
-    brew-find-leafs \
-    clang-format-ri \
-    dot-check-for-update \
-    dot-check-for-update-git \
-    git-alias \
-    git-dag \
-    git-popb \
-    git-pushb \
-    git-stack \
-    jwt-print \
-    repoman

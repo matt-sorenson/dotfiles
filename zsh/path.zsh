@@ -122,5 +122,5 @@ fi
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
 
-add-to-fpath "${DOTFILES}/bin"
+add-to-fpath "${DOTFILES}/bin-func"
 add-to-fpath "${DOTFILES}/local/bin"

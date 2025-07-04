@@ -26,7 +26,7 @@ Tasks:
 If no tasks are provided then it's treated as if all flags are set.
 For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     local -a tasks=(
         dotfiles
@@ -48,7 +48,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     short_to_long_flags[b]=brew
     short_to_long_flags[d]=doom
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
 
     if (( flags[auto] )); then
         local date_cmd=()

@@ -17,14 +17,14 @@ Options:
 
   --no-clear  Do not clear the stack before initializing"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     short_to_long_flags[c]=clear
     short_to_long_flags[q]=quiet
     flags[clear]=1
     flags[quiet]=0
 
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
 
     local -a branch_list=()
     local prev_branch=""

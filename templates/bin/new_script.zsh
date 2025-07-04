@@ -12,7 +12,7 @@
 Options:
   -h, --help    Show this message"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     # flags[foo]=0
     # short_to_long_flags[f]=foo
@@ -21,7 +21,7 @@ Options:
     # max_positional_count=2
     # allow_extra_args=1
 
-    source "${DOTFILES}/zsh/dot-parse-opts.zsh"
+    dot-parse-opts "$@"
 
     unset flag_or_no_flag max_positional_count min_positional_count option_args short_to_long_flags short_to_long_opts
 

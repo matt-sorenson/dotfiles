@@ -12,11 +12,6 @@ typeset -g DOTFILES_ZCOMPILE_FILES=()
 # Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-################################################################################
-# Check for updates every 15 hours
-################################################################################
-dot-check-for-update --auto
-
 export AT_WORK=0
 if [[ -f "${DOTFILES}/local/is-work" ]]; then
     AT_WORK=1
@@ -169,6 +164,11 @@ fi
 ################################################################################
 
 source "${DOTFILES}/zsh/ender.zsh-theme"
+
+################################################################################
+# Check for updates every 15 hours
+################################################################################
+dot-check-for-update --auto
 
 # To run timer also uncomment lines at start of zshenv.zsh
 if [[ -v ZSHENV_BOOT_TIMER ]]; then

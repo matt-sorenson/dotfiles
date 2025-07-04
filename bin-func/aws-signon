@@ -12,24 +12,24 @@ aws-signon() {
 
     local _usage="Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
-    Options:
-    -f, --force                   Force login even if already signed in
-    -h, --help                    Show this help message
-    -c, --command <command>       Alternative command to use to sign on
-    --logged-in-command <command> Alternative command to use for checking if alreay logged in
-    <profile>                     AWS profile to sign into
+Options:
+  -f, --force                   Force login even if already signed in
+  -h, --help                    Show this help message
+  -c, --command <command>       Alternative command to use to sign on
+  --logged-in-command <command> Alternative command to use for checking if alreay logged in
+  <profile>                     AWS profile to sign into
 
-    Notes:
-    the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
+Notes:
+the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
 
-    If not provided with -c/--command/--logged-in-command will fall back to the aws cli.
+If not provided with -c/--command/--logged-in-command will fall back to the aws cli.
 
-    Examples:
-    aws-signon -f dev
-    aws-signon dev
-    aws-signon dev -f"
+Examples:
+  aws-signon -f dev
+  aws-signon dev
+  aws-signon dev -f"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     short_to_long_flags[f]=force
     flags[force]=0
@@ -39,7 +39,8 @@ aws-signon() {
     option_args[logged-in-command]=1
     dot_parse_opts_errors[too-many-positional]="Profile can only be specified once"
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
 
     if [[ ! -v 'options[command]' ]]; then
         options[command]="aws sso login --profile"
@@ -52,8 +53,8 @@ aws-signon() {
     fi
 
     export AWS_PROFILE
-    if (( $# )); then
-        AWS_PROFILE="$1"
+    if (( ${#positional_args[@]} )); then
+        AWS_PROFILE="$positional_args[1]"
         set --
     elif [[ -v AWS_PROFILE ]] && [[ -n "$AWS_PROFILE}" ]]; then
         print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"

@@ -27,11 +27,12 @@ git-dag() {
         return 1
     }
 
-    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
     flags[all]=0
 
     max_positional_count=-1
-    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
 
     if (( flags[all] && $# )); then
         print-header -e "Cannot use --all and provide branch names together."
