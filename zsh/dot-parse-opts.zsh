@@ -8,7 +8,6 @@
 ### add-to-path
 ### concat-video
 ### git-pushb
-### git-stack
 ### repoman
 ### ws-clone
 ### ws-ls

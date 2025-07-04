@@ -16,45 +16,22 @@ git-stack() {
 
     -c, --clear           Clear the branch stack
     -h, --help            Show this help message
-    -<d>                  Show a maximum of <d> elements of the stack"
+    -l, --lines <lines>   Show a maximum of <d> elements of the stack"
 
     local -i max_lines
 
-    local -A flags=(
-        [clear]=0
-        [quiet]=0
-    )
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-    # Parse options
-    while (( $# )); do
-        case "$1" in
-        -c|--clear) flags[clear]=1 ;;
-        -q|--quiet) flags[quiet]=1 ;;
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -[0-9]##)
-            if [[ -v max_lines ]]; then
-                print-header -e "Already passed in a max number of lines: $1"
-                print "${_usage}"
-                return 1
-            else (( ${1#-} < 1 ))
-                print-header -e "max lines to display must be greater than 0"
-                print "${_usage}"
-                return 1
-            fi
+    flags[clear]=0
+    flags[quiet]=0
+    short_to_long_flags[c]=clear
+    short_to_long_flags[q]=quiet
 
-            max_lines=${1#-}
-            ;;
-        *)
-            print-header -e "Unknown option: $1"
-            print "${_usage}"
-            return 1
-            ;;
-        esac
-        shift
-    done
+    option_args[lines]=int
+    short_to_long_opts[l]=lines
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+
 
     # Find repo root
     local repo_root
@@ -79,8 +56,8 @@ git-stack() {
                 print-header yellow "Branch stack is empty."
             fi
         else
-            if [[ -v max_lines ]]; then
-                nl -n rz -w 3 "${stack_file}" | tail -n $max_lines
+            if [[ -v 'options[lines]' ]]; then
+                nl -n rz -w 3 "${stack_file}" | tail -n ${options[lines]}
             else
                 nl -n rn -w 3 "${stack_file}"
             fi
