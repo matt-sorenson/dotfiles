@@ -11,81 +11,46 @@ concat-video() {
 
     local _usage="Usage: concat-video [OPTIONS]
 
-    Required:
-    -f, --file FILENAME        filename to base concat off of
+Required:
+  -f, --file <filename>        filename to base concat off of
 
-    Options:
-    -o, --output <EXTENSION>   output file extension (default: .m4v)
-    -c, --crop w:h:x:y         crop to dimensions w:h:x:y
-    -t, --trim <SECONDS>       trim intro from 2nd,3rd... in seconds (default: 0)
-    -h, --help                 show this help and exit"
+Options:
+  -e, --extension <.extension>  output file extension (default: .m4v)
+  -c, --crop w:h:x:y            crop to dimensions w:h:x:y
+  -t, --trim <seconds>          trim intro from 2nd,3rd... in seconds (default: 0)
+  -h, --help                    show this help and exit"
 
-    local output_ext='.m4v'
-    local trim=0
-    local crop
-    local filename
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-    while (( $# )); do
-        case "$1" in
-        -f|--file) ;& # fall through
-        -o|--output) ;& # fall through
-        -c|--crop) ;& # fall through
-        -t|--trim)
-            if (( $# < 2 )); then
-                print-header -e "Missing argument for $1" >&2
-                print "${_usage}"
-                return 1
-            fi
+    option_args[extension]=1
+    option_args[file]=file
+    option_args[crop]=1
+    option_args[trim]=1
+    short_to_long_opts[e]=extension
+    short_to_long_opts[f]=r:file
+    short_to_long_opts[c]=crop
+    short_to_long_opts[t]=trim
 
-            case "$1" in
-            -f|--file) filename="${2}" ;;
-            -o|--output) output_ext="${2}" ;;
-            -c|--crop) crop="${2}" ;;
-            -t|--trim) trim="${2}" ;;
-            esac
-            shift
-            ;;
-        -h|--help)
-            print "${_usage}"
-            return 0
-            ;;
-        -*)
-            print-header -e "Unknown option: ${1}" >&2
-            print "${_usage}"
-            return 1
-            ;;
-        *)
-            print-header -e "Unknown argument: ${1}" >&2
-            print "${_usage}"
-            return 1
-            ;;
-        esac
-        shift
-    done
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
-    if [[ ! -v filename ]]; then
-        print-header -e '--file is required' >&2
-        print "${_usage}"
-        return 1
-    fi
+    options[extension]="${options[extension]:-.m4v}"
 
-    local base=${filename:t}  # Base filename without path
-    local dir=${filename:A:h} # Absolute path to directory
+    local base=${options[file]:t}  # Base filename without path
+    local dir=${options[file]:A:h} # Absolute path to directory
 
     # Validate filename format
     if ! print "${base}" | grep -Eq '^(.*?) *pt\.?([0-9]+)(\..*)$'; then
-        print "Could not parse filename for part: ${filename}" >&2
+        print "Could not parse filename for part: ${options[file]}" >&2
         return 1
     fi
 
     # Extract prefix
-    local prefix
-    prefix=$(sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/' <<< "${base}")
+    local prefix=$(sed -E 's/^(.*?) *pt\.?[0-9]+(\..*)$/\1/' <<< "${base}")
 
     # Prepare output
     local outdir="${dir}/converted"
     mkdir -p "${outdir}"
-    local final_filename="${outdir}/${prefix}${output_ext}"
+    local final_filename="${outdir}/${prefix}${options[extension]}"
 
     # Gather & sort parts
     local files_partlist=()
@@ -110,8 +75,7 @@ concat-video() {
     for f in "${files_partlist[@]}"; do
         files+=("${f#* }")
     done
-    unset files_partlist
-    unset n
+    unset files_partlist n
 
     # Build ffmpeg inputs
     local cmd=("ffmpeg")
@@ -124,14 +88,14 @@ concat-video() {
     local -i i=0
     for f in "${files[@]}"; do
         # Don't trim the first part.
-        local start_trim=$(( i ? trim : 0 ))
+        local start_trim=$(( i ? options[trim] : 0 ))
 
         filter_complex="${filter_complex}[$i:v]setpts=PTS-STARTPTS,trim=start=$start_trim"
-        [[ -v crop ]] && filter_complex="${filter_complex},crop=$crop"
+        [[ -v 'options[crop]' ]] && filter_complex="${filter_complex},crop=${options[crop]}"
         filter_complex="${filter_complex}[v$i]; "
 
         filter_complex="${filter_complex}[$i:a]asetpts=PTS-STARTPTS"
-        ((start_trim )) && filter_complex="${filter_complex},atrim=start=$start_trim"
+        (( start_trim )) && filter_complex="${filter_complex},atrim=start=$start_trim"
         filter_complex="${filter_complex}[a$i]; "
 
         i=$((i + 1))
@@ -152,7 +116,6 @@ concat-video() {
     cmd+=(-preset veryslow)
     cmd+=(-map '[out]')
     cmd+=("${final_filename}")
-
 
     if ! "${cmd[@]}"; then
         local status=$?
