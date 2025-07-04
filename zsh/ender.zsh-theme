@@ -12,7 +12,7 @@ fi
 
 _prompt_ender_current_bg='NONE'
 _prompt_ender_seperator=""
-_prompt_ender_plus_minus="±" #"\u00b1"
+_prompt_ender_plus_minus="±"
 _prompt_ender_plus="+"
 _prompt_ender_vcs_branch=""
 _prompt_ender_vcs_detached="➦"
@@ -244,9 +244,6 @@ function prompt_ender_setup() {
     setopt local_options
     unsetopt xtrace ksh_arrays
     prompt_opts=(cr percent subst)
-
-    # Load required functions.
-    autoload -Uz add-zsh-hook
 
     # Add hook for calling git-info before each command.
     add-zsh-hook preexec prompt_ender_preexec

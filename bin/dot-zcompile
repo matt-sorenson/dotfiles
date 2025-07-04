@@ -20,6 +20,7 @@ Environment Variables:
   \$DOTFILES_ZCOMPILE_FILES  An array of files to compile with zcompile in addition to the default files."
 
     local -a zcompile_files=(
+        "${DOTFILES}/zsh/completions.helper.zsh"
         "${DOTFILES}/zsh/completions.zsh"
         "${DOTFILES}/zsh/path.zsh"
         "${DOTFILES}/zsh/zshenv.nvm.zsh"
