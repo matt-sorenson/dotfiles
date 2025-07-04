@@ -2,8 +2,13 @@
 
 setopt prompt_subst
 
-# Define variables.
-export _prompt_ender_preexec_time=${_prompt_ender_preexec_time:-$SECONDS}
+zmodload zsh/datetime
+
+export _prompt_ender_preexec_time=${_prompt_ender_preexec_time:-0}
+
+if (( ! _prompt_ender_preexec_time )); then
+    _prompt_ender_preexec_time=$EPOCHREALTIME
+fi
 
 _prompt_ender_current_bg='NONE'
 _prompt_ender_seperator=""
@@ -113,30 +118,41 @@ function prompt_ender_seg_is_root() {
 }
 
 function prompt_ender_seg_elapsed_time() {
-    local end_time=$(( SECONDS - _prompt_ender_preexec_time ))
+    local -F epoch="$EPOCHREALTIME"
+    local -F delta=$((epoch - _prompt_ender_preexec_time ))
+    local total_time_s="${delta%.*}"
+    local milliseconds="${$(( (".${delta#*.}" * 1000) ))%.*}"
 
     local color="green"
     local msg=""
 
-    if (( end_time >= 3600 )); then
-        local hours=$(( end_time / 3600 ))
-        local remainder=$(( end_time % 3600 ))
-        local minutes=$(( remainder / 60 ))
-        local seconds=$(( remainder % 60 ))
+    if (( total_time_s >= 3600 )); then
+        local -i hours=$((total_time_s / 3600))
+        local -i remainder=$((total_time_s % 3600))
+        local -i minutes=$((remainder / 60))
+        local -i seconds=$((remainder % 60))
 
         color='red'
         msg="${hours}h${minutes}m${seconds}s"
-    elif (( end_time >= 60 )); then
-        local minutes=$(( end_time / 60 ))
-        local seconds=$(( end_time % 60 ))
-        color='yellow'
+    elif (( total_time_s >= 60 )); then
+        local -i minutes=$((total_time_s / 60))
+        local -i seconds=$((total_time_s % 60))
+
+        if (( total_time_s > 600 )); then
+            color='red'
+        else
+            color='yellow'
+        fi
         msg="${minutes}m${seconds}s"
-    elif (( end_time > 5 )); then
+    elif (( total_time_s > 5 )); then
         color='blue'
-        msg="${end_time}s"
-    elif (( end_time > 0 )); then
+        msg="${total_time_s}s"
+    elif (( total_time_s > 1 )); then
+        color='cyan'
+        msg="${total_time_s}s"
+    else
         color='green'
-        msg="${end_time}s"
+        msg="${total_time_s}s${milliseconds}ms"
     fi
 
     if [[ -n "$msg" ]]; then
@@ -178,7 +194,7 @@ ${(e)$(prompt_ender_build_prompt2)} "
 }
 
 function prompt_ender_preexec() {
-    _prompt_ender_preexec_time="${SECONDS}"
+    _prompt_ender_preexec_time="${EPOCHREALTIME}"
 }
 
 function +vi-git-untracked() {
