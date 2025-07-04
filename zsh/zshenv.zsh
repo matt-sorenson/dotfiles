@@ -96,7 +96,6 @@ autoload -Uz \
     dot-check-for-update\
     dot-check-for-update-git\
     dot-parse-opts\
-    dot-zcompile\
     jwt-print\
     print-header\
     repoman\

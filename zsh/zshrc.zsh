@@ -6,8 +6,6 @@ if [[ -f "${HOME}/.zcompdump" ]]; then
     rm "${HOME}/.zcompdump"
 fi
 
-typeset -g DOTFILES_ZCOMPILE_FILES=()
-
 # macOS and some other OSs stomp on the path in /etc/zprofile or /etc/profile.
 # Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
@@ -115,7 +113,7 @@ zstyle ':completion:*:descriptions' format '[%d]'
 # Initialize completion system
 ################################################################################
 
-autoload -U compinit && compinit -i -d "${ZSH_COMPDUMP}"
+autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
 
 # This has some arrays/maps that are used for auto-completion
 source "${DOTFILES}/zsh/completions.helper.zsh"

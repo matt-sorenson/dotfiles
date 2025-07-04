@@ -31,13 +31,6 @@ _dot-check-for-update-git() {
 }
 compdef _dot-check-for-update-git dot-check-for-update-git
 
-_dot-zcompile() {
-    _arguments \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-f --force)'{-f,--force}'[Force recompilation of the zcompdump file]'
-}
-compdef _dot-zcompile dot-zcompile
-
 _git-alias() {
     _arguments '(-h --help)'{-h,--help}'[Show help]'
 }
