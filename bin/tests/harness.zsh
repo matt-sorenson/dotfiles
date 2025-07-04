@@ -5,8 +5,7 @@ alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 run-test() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
+    setopt err_return extended_glob typeset_to_unset warn_create_global
 
     local _unset="Usage run-test <command to test> <test-function-name>
   <command-to-test>     the name of the command being tested (just effects logging)
@@ -17,7 +16,6 @@ On a test failure the received output will be dumped to failed-results/<command-
 
 Options:
   -h, --help    Display this message
-
   --bootstrap   Don't test against expected results, instead write the expected result
 
 Sanitization Options:
@@ -29,73 +27,21 @@ sanitize-current-dir changes any instances of the string matching the current di
 sanitize-dotfiles-dir changes any instance matching the path in \$DOTFILES with the literal \${dotfiles}
 sanitize-colors strips any terminal color codes from the output. Should only be disabled when you're specifically testing color"
 
-    local testee_name
-    local test_name
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
-    local -A flags=(
-        ['sanitize_current_dir']=1
-        ['sanitize_dotfiles_dir']=1
-        ['sanitize_colors']=1
-        ['bootstrap_test']=0
-    )
+    flags[sanitize-current-dir]=1
+    flags[sanitize-dotfiles-dir]=1
+    flags[sanitize-colors]=1
+    flags[bootstrap]=0
 
-    while (( $# )); do
-    case $1 in
-    --help)
-        print "${_usage}"
-        return 0
-        ;;
-    --no-*)
-        local key="${${1#--no-}//-/_}"
-        if [[ -v flags[$key] ]]; then
-            flags[$key]=0
-        else
-            print-header -e "Unexpected flag '$1'"
-            print "${_usage}"
-            return 1
-        fi
-        ;;
-    --bootstrap)
-        flags[bootstrap_test]=1
-        ;;
-    -[!-]*)
-        local arg_list=( "${(@s::)1#-}" )
-        while (( ${#arg_list} )); do
-            local arg=${arg_list[1]}
-            # Pop the front of the list
-            arg_list=("${arg_list[@]:1}")
-            case "${arg}" in
-            h)
-                print "${_usage}"
-                return 0
-                ;;
-            *)
-                print-header -e "Unexpected flag '-$arg' in '$1'"
-                print "${_usage}"
-                return 1
-                ;;
-            esac
-        done
-        ;;
-    --*)
-        print-header -e "Unexpected flag '$1'"
-        print "${_usage}"
-        return 1
-        ;;
-    *)
-        if [[ ! -v testee_name ]]; then
-            testee_name="$1"
-        elif [[ ! -v test_name ]]; then
-            test_name="$1"
-        else
-            print-header -e "Unexpected argument '$1'"
-            print "${_usage}"
-            return 1
-        fi
-        ;;
-    esac
-    shift
-    done
+    min_positional_count=2
+    max_positional_count=2
+
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+
+    local testee_name="$1"
+    local test_name="$2"
+    set --
 
     if [[ ! -v testee_name ]]; then
         print-header -e -- "run-test requires the name of the command being tested."
@@ -108,28 +54,20 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     local result="$($test_name 2>&1)"
 
-    local do_bootstrap=0
-
-    if [[ "$result" == 'DOTFILES_TEST_BOOTSTRAP=1'$'\n'* ]]; then
-        do_bootstrap=1
-        result=${result#*$'\n'}
-    fi
-
-    if (( flags[sanitize_dotfiles_dir] )); then
+    if (( flags[sanitize-dotfiles-dir] )); then
         result="${result//${DOTFILES}/\$\{DOTFILES\}}"
         result="${result//${WORKSPACE_ROOT_DIR}\/dotfiles/\$\{DOTFILES\}}"
     fi
-    if (( flags[sanitize_current_dir] )); then
+    if (( flags[sanitize-current-dir] )); then
         result="${result//${PWD}/\$\{PWD\}}"
     fi
-    if (( flags[sanitize_colors] )); then
+    if (( flags[sanitize-colors] )); then
         result="$(print -n "$result" | strip-color-codes)"
     fi
 
     local expected_filename="${DOTFILES}/bin/tests/expected-results/${testee}/${test_name}"
 
-    if (( flags[bootstrap_test] || do_bootstrap )); then
-        set -x
+    if (( flags[bootstrap] )); then
         mkdir -p "${DOTFILES}/bin/tests/expected-results/${testee}"
         print -n "$result" > "${expected_filename}"
         return 0
@@ -141,7 +79,7 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
     elif [[ ! -r "$expected_filename" ]]; then
         print-header -e "File ${expected_filename}: not readable"
     else
-        expected=$(< "${expected_filename}")
+        local expected=$(< "${expected_filename}")
         if [[ "$result" == "${expected}" ]]; then
             matches=1
         fi

@@ -10,7 +10,6 @@
 ### git-pprune
 ### git-pushb
 ### git-stack
-### harness
 ### repoman
 ### ws-clone
 ### ws-ls
