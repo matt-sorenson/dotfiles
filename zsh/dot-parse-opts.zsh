@@ -38,7 +38,7 @@ while (( $# )); do
             fi
             flags[${flag#no-}]=0
             set_flags[${flag#no-}]=1
-       elif [[ -v 'option_args[$flag]' ]]; then
+    elif [[ -v 'option_args[$flag]' ]]; then
             if (( $# < 2 )); then
                 print-header -e "Flag '$1' requires a value."
                 print "${_usage}"
@@ -176,6 +176,7 @@ while (( $# )); do
         else
             local error="$(printf "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_positional_count]")"
             print-header -e "${error}"
+            unset error
             print "${_usage}"
             return 1
         fi
@@ -201,14 +202,15 @@ fi
 
 local key
 for key in "${(@k)option_args}"; do
-  if [[ ":${option_args[$key]}:" == *:r:* ]]; then
+if [[ ":${option_args[$key]}:" == *:r:* ]]; then
     if [[ ! -v "options[$key]" ]]; then
-      print-header -e "Option '$key' is required but wasn't provided."
-      print "${_usage}"
-      return 1
+    print-header -e "Option '$key' is required but wasn't provided."
+    print "${_usage}"
+    return 1
     fi
-  fi
+fi
 done
 
 set -- "${positional_args[@]}"
+
 unset positional_args set_flags flag arg arg_list flag_or_no_flag key array_name array_type arg_val

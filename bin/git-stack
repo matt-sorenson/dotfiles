@@ -20,7 +20,7 @@ git-stack() {
 
     local -i max_lines
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     flags[clear]=0
     flags[quiet]=0
@@ -30,7 +30,7 @@ git-stack() {
     option_args[lines]=int
     short_to_long_opts[l]=lines
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
 
     # Find repo root

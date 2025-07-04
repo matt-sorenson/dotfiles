@@ -30,22 +30,6 @@ add-to-path() {
                 fpath_opt_str=''
                 fpath_des_str=''
                 ;;
-            -o|--operation)
-                shift
-                case "$1" in
-                    prepend|append)
-                        operation="$1"
-                        ;;
-                    *)
-                        if [[ -z "$1" ]]; then
-                            print "Error: No operation specified for --operation."
-                        else
-                            print "Unknown operation: '%1'. Valid operations are 'prepend' or 'append'.\n"
-                        fi
-                        parse_error=1
-                        ;;
-                esac
-                ;;
             *)
                 if [[ -z "${dir}" ]]; then
                     dir="$1"
@@ -61,8 +45,7 @@ add-to-path() {
     local usage="Usage: $cmd [-o|--operation prepend|append] ${fpath_opt_str}<directory>
 
     Options:
-        -h, --help          Show this help message${fpath_des_str}
-        -o, --operation     Specify operation: 'prepend' or 'append' (default: 'prepend')"
+        -h, --help          Show this help message${fpath_des_str}"
     # Make sure an argument was provided
     if (( show_help )); then
         print "${usage}"
@@ -88,9 +71,9 @@ add-to-path() {
         if [[ ":$FPATH:" != *":${dir}:"* ]]; then
             # Prepend it to path
             if [[ "${operation}" == "prepend" ]]; then
-                fpath=("${dir}" "${fpath[@]}")
+                FPATH="${dir}:${FPATH}"
             else
-                fpath+=("${dir}")
+                FPATH="${FPATH}:${dir}"
             fi
         fi
     else
@@ -98,9 +81,9 @@ add-to-path() {
         if [[ ":$PATH:" != *":${dir}:"* ]]; then
             # Prepend it to path
             if [[ "${operation}" == "prepend" ]]; then
-                path=("${dir}" "${path[@]}")
+                PATH="${dir}:${PATH}"
             else
-                path+=("${dir}")
+                PATH="${PATH}:${dir}"
             fi
         fi
     fi

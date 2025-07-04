@@ -46,7 +46,6 @@
 ## This will be any arguments passed in after a lone '--'
 # local -a extra_args=()
 
-cat <<'EOF'
 local -A short_to_long_flags=()
 local -A short_to_long_opts=()
 local -i allow_duplicate_flags=0
@@ -63,4 +62,3 @@ local -A dot_parse_opts_errors=(
     [too-many-positional]="Too many positional arguments"
     [too-few-positional]="Too few positional arguments"
 )
-EOF

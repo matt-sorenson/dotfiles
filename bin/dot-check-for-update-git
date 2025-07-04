@@ -19,7 +19,7 @@ dot-check-for-update-git() {
 
     If no flags are provided then it's treated as if all flags are set."
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
     short_to_long_flags[q]=quiet
     short_to_long_flags[e]=extra-quiet
     flags[quiet]=0
@@ -32,7 +32,7 @@ dot-check-for-update-git() {
     dot_parse_opts_errors[too-many-positional]="Only 1 repo may be provided"
     dot_parse_opts_errors[too-few-positional]="You must provide a directory to check for updates"
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     local dir="${1}"
 

@@ -4,10 +4,7 @@
 dot-check-for-update() {
     emulate -L zsh
     set -uo pipefail
-    setopt null_glob
-    setopt err_return
-    setopt typeset_to_unset
-    setopt warn_create_global
+    setopt null_glob err_return typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto [time-limit-in-hours]]
@@ -29,7 +26,7 @@ Tasks:
 If no tasks are provided then it's treated as if all flags are set.
 For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     local -a tasks=(
         dotfiles
@@ -51,7 +48,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     short_to_long_flags[b]=brew
     short_to_long_flags[d]=doom
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     if (( flags[auto] )); then
         local date_cmd=()

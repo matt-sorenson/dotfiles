@@ -12,7 +12,7 @@
 Options:
   -h, --help    Show this message"
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     # flags[foo]=0
     # short_to_long_flags[f]=foo

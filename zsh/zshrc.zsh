@@ -12,6 +12,11 @@ typeset -g DOTFILES_ZCOMPILE_FILES=()
 # Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
+################################################################################
+# Check for updates every 15 hours
+################################################################################
+dot-check-for-update --auto
+
 export AT_WORK=0
 if [[ -f "${DOTFILES}/local/is-work" ]]; then
     AT_WORK=1
@@ -92,10 +97,7 @@ setopt multios              # Perform implicit tees or cats when multiple redire
 # This isn't enabled by default because it can cause issues with some commands
 # setopt null_glob             # If no matches are found, return an empty string instead of the pattern.
 
-
 unsetopt beep               # Disable "pc speaker" beep
-
-dot-check-for-update --auto # check for updates every 15 hours
 
 bindkey -e
 
@@ -118,7 +120,7 @@ zstyle ':completion:*:descriptions' format '[%d]'
 # Initialize completion system
 ################################################################################
 
-autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
+autoload -U compinit && compinit -i -d "${ZSH_COMPDUMP}"
 
 # This has some arrays/maps that are used for auto-completion
 source "${DOTFILES}/zsh/completions.helper.zsh"

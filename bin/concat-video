@@ -20,7 +20,7 @@ Options:
   -t, --trim <seconds>          trim intro from 2nd,3rd... in seconds (default: 0)
   -h, --help                    show this help and exit"
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     option_args[extension]=1
     option_args[file]=file
@@ -31,7 +31,7 @@ Options:
     short_to_long_opts[c]=crop
     short_to_long_opts[t]=trim
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     options[extension]="${options[extension]:-.m4v}"
 

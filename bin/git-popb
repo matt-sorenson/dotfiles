@@ -18,14 +18,14 @@ git-popb() {
   -h, --help           Show this help message"
 
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     short_to_long_flags[i]=init
     short_to_long_flags[q]=quiet
     flags[init]=1
     flags[quiet]=0
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     # find repo root
     local repo_root

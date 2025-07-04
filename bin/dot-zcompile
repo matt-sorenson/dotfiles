@@ -40,13 +40,13 @@ Environment Variables:
         fi
     fi
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     short_to_long_flags[f]=force
     flags[force]=0
     flags[verbose]=0
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     local out=0
     local file log_file zwc_file

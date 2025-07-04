@@ -24,7 +24,7 @@ Options:
   -e, --exclude         Exclude by name
   -p, --exclude-pattern Exclude by glob pattern (make sure to quote it!)'
 
-    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+    eval "$(<"${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
 
     local -a exclude_names=()
     local -a exclude_patterns=()
@@ -37,7 +37,7 @@ Options:
     short_to_long_opts[e]='exclude'
     short_to_long_opts[p]='exclude-pattern'
 
-    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
+    eval "$(< "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     git pull --prune
 
