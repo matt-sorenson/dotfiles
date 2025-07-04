@@ -7,7 +7,6 @@
 ## Scripts
 ### add-to-path
 ### concat-video
-### git-pprune
 ### git-pushb
 ### git-stack
 ### repoman

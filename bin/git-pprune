@@ -16,49 +16,28 @@ git-pprune() {
 
 Prune local branches that have been deleted on the remote.
 
-Options:
+Flags:
   -h, --help      Show this help message
-  -f, --force     Force delete branches without confirmation'
+  -f, --force     Force delete branches without confirmation
 
-    local force=0
+Options:
+  -e, --exclude         Exclude by name
+  -p, --exclude-pattern Exclude by glob pattern (make sure to quote it!)'
+
+    eval "$(zsh "${DOTFILES}/zsh/dot-parse-opts-init.zsh")"
+
     local -a exclude_names=()
     local -a exclude_patterns=()
 
-    while (( $# )); do
-        case $1 in
-            -h|--help)
-                print "$_usage"
-                return 0
-                ;;
-            -f|--force)
-                force=1
-                ;;
-            -e|--exclude)
-                if (( $# < 2 )); then
-                    print "Error: $1 requires an argument."
-                    return 1
-                fi
+    flags[force]=0
+    short_to_long_flags[f]=force
 
-                shift
-                exclude_names+=("$1")
-                ;;
-            -p|--exclude-pattern)
-                if (( $# < 2 )); then
-                    print "Error: $1 requires an argument."
-                    return 1
-                fi
+    option_args[exclude]='array:exclude_names'
+    option_args[exclude-pattern]='array:exclude_patterns'
+    short_to_long_opts[e]='exclude'
+    short_to_long_opts[p]='exclude-pattern'
 
-                shift
-                exclude_patterns+=("$1")
-                ;;
-            *)
-                print "Unknown option: $1"
-                print "$_usage"
-                return 1
-                ;;
-        esac
-        shift
-    done
+    eval "$(cat "${DOTFILES}/zsh/dot-parse-opts.zsh")"
 
     git pull --prune
 
@@ -86,7 +65,7 @@ Options:
             fi
         done
 
-        if (( force )); then
+        if (( flags[force] )); then
             if ! git branch -D "$branch"; then
                 print-header -e "Failed to delete branch '$branch'. It may not be fully merged."
             fi

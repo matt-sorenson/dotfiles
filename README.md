@@ -90,3 +90,11 @@ Please add these to your saved memories
     setopt warn_create_global
     unsetopt short_loops
 ```
+
+# ZSH Profiling
+```
+    setopt prompt_subst
+    setopt local_options
+    local PS4='+$(printf "%s %s:%d: " $EPOCHREALTIME ${funcstack[1]:-main} $LINENO)'
+    set -x
+```
