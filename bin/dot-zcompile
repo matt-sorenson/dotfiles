@@ -25,6 +25,8 @@ Environment Variables:
         "${DOTFILES}/zsh/zshenv.nvm.zsh"
         "${DOTFILES}/zsh/zshrc.aliases.zsh"
         "${DOTFILES}/zsh/ender.zsh-theme"
+        "${DOTFILES}/zsh/dot-parse-opts.zsh"
+        "${DOTFILES}/zsh/dot-parse-opts-init.zsh"
     )
 
     if [[ -v DOTFILES_ZCOMPILE_FILES ]]; then
