@@ -1,0 +1,114 @@
+#! /usr/bin/env zsh
+#compdef ws
+
+ws() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    unsetopt short_loops
+
+    function _ws-usage() {
+        local -A commands=(
+            [ls]="list the contents of \${WORKSPACE_ROOT_DIR} or subdirectory"
+            [code]="Open a vs code window in the given project's directory"
+        )
+
+        local -i max_len=0
+        local cmd key
+        for cmd in ${(f)"$(whence -m 'ws-*')"}; do
+            key="${cmd#ws-}"
+            commands[$key]="$($cmd --describe)"
+        done
+
+        for key in ${(k)commands}; do
+            if (( ${#key} > max_len )); then
+                max_len=${#key}
+            fi
+        done
+
+        local command_str=''
+        for key in ${(ok)commands}; do
+            command_str+="$(printf "  %-${max_len}s  %s" "$key" "${commands[$key]}")"
+        done
+
+        local _usage="Usage ws [-h|--help] [<command> <args>|<project>]
+
+Arguments:
+  <project>   If no command is given then ws attempts 'cd \${WORKSPACE_ROOT_DIR}/<project>'
+  <command>   If the ws-<command> exists then it is called with the remaining arguments
+  <args>      Any extra args are passed directly to the command
+
+If no arguments are received them ws does 'cd \${WORKSPACE_ROOT_DIR}'
+
+Commands
+${command_str}
+Options:
+  -h, --help    Show this message"
+
+        print "${_usage}"
+    }
+
+    TRAPEXIT() {
+        exit_trap_emulate_local_function _ws-usage
+    }
+
+    if (( ! $# )); then
+        cd "$WORKSPACE_ROOT_DIR"
+        return
+    fi
+
+    if command -v "ws-$1" &> /dev/null; then
+        local cmd="ws-$1"
+        shift
+        $cmd "$@"
+        return
+    elif [[ "$1" == code ]]; then
+        if [[ "$2" == --help || "$2" == -h ]]; then
+            print 'Usage: ws code <project>
+
+Open a vscode window with the given "${WORKSPACE_ROOT_DIR}/<project>" working directory'
+            return 0
+        fi
+        local dir="${WORKSPACE_ROOT_DIR}/${2}"
+        shift 2
+
+        code "${dir}" $@
+        return
+    elif [[ "$1" == ls ]]; then
+        shift
+        if [[ "$2" == --help || "$2" == -h ]]; then
+            print 'Usage: ws ls <project> <args>
+
+Calls "ls <args> ${WORKSPACE_ROOT_DIR}/<project>" working directory'
+            return 0
+        fi
+
+        local args=()
+        local subdir=''
+
+        while (( $# )); do
+            case "$1" in
+                -*|--*)
+                    args+=("$1")
+                    ;;
+                *)
+                    if [[ -n "${subdir}" ]]; then
+                        print-header -e "Subdirectory already set '${subdir}'."
+                        return 1
+                    fi
+
+                    subdir="$1"
+                    ;;
+            esac
+            shift
+        done
+
+        ls "${args[@]}" "${WORKSPACE_ROOT_DIR}/${subdir}"
+        return
+    elif [[ -d "${WORKSPACE_ROOT_DIR}/$1" ]]; then
+        cd "${WORKSPACE_ROOT_DIR}/${1}"
+        return
+    fi
+}
+
+ws "$@"

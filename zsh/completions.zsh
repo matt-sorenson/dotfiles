@@ -1,5 +1,5 @@
 _aws-signon() {
-    _arguments \
+    _arguments -s \
         '(-f --force)'{-f,--force}'[force login even if already signed in]' \
         '(-h --help)'{-h,--help}'[show help message]' \
         '1:profile:(${_dot_cdk_profiles})'
@@ -7,7 +7,7 @@ _aws-signon() {
 compdef _aws-signon aws-signon
 
 _dot-check-for-update() {
-    _arguments \
+    _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(--dotfiles --no-dotfiles)--dotfiles[Update dotfiles repo]' \
         '(--deps --no-deps)--deps[Update dependencies]' \
@@ -25,19 +25,19 @@ _dot-check-for-update() {
 compdef _dot-check-for-update dot-check-for-update
 
 _dot-check-for-update-git() {
-    _arguments \
+    _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-i --indent)'{-i,--indent}'[Indent the header 'n' spaces.]'
 }
 compdef _dot-check-for-update-git dot-check-for-update-git
 
 _git-alias() {
-    _arguments '(-h --help)'{-h,--help}'[Show help]'
+    _arguments -s '(-h --help)'{-h,--help}'[Show help]'
 }
 zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
 
 _git-dag() {
-    _arguments \
+    _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-a --all)'{-a,--all}'[Show all branches]' \
         '*:branch name:->branch' \
@@ -53,7 +53,7 @@ _git-dag() {
 zstyle ':completion:*:*:git:*' user-commands dag:'Show the git history as a directed acyclic graph'
 
 _git-pprune() {
-    _arguments -C \
+    _arguments -C -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-f --force)'{-f,--force}'[Delete any branches identified without asking]' \
         '(-e --exclude)'{-e,--exclude}'[Exclude a branch by name]:exclude:__git_heads' \
@@ -61,7 +61,7 @@ _git-pprune() {
 }
 
 _git-popb() {
-    _arguments \
+    _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-q --quiet)'{-q,--quiet}'[Less output]' \
         "--no-init[Don't initialize the stack file if it's empty]"
@@ -74,13 +74,13 @@ _git-pushb() {
 }
 
 _git-stack() {
-    _arguments \
+    _arguments -s \
         '(-c, --clean)'{-c,--clean}'[Clear the branch stack]' \
         '(-h --help)'{-h,--help}'[Show help]'
 }
 
 _git-stack-init() {
-    _arguments \
+    _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-q --quiet)'{-q,--quiet}'[Less output]' \
         "--no-clear[Don't clear the stack file first]"
@@ -103,7 +103,7 @@ zstyle ':completion:*:*:git:*' user-commands \
     'alias:List all of the git aliases configured'
 
 _print-header() {
-    _arguments \
+    _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-i --indent)'{-i,--indent}'[Indent the header by 'n' spaces]' \
         '(-w --warn)'{-w,--warn}'[Format the header as a warning]' \
@@ -147,7 +147,7 @@ _repoman() {
         '--migrations-does-generate-schema[Implies that if --migrations is passed in then "generate-schema" should be skipped]'
     )
 
-    _arguments -S -C \
+    _arguments -s -S -C \
         "${_repoman_general_opts[@]}" \
         "${_repoman_tasks_args[@]}" \
         "${_repoman_args[@]}"
@@ -155,25 +155,58 @@ _repoman() {
 compdef _repoman repoman
 
 _repoman-wrapper() {
-    _arguments -S -C \
+    _arguments -s -S -C \
         "${_repoman_general_opts[@]}" \
         "${_repoman_tasks_args[@]}"
 }
 # this will be used in '${DOTFILES}/local/zsh/*' files for functions, so none defined here.
 
-_ws() {
-    _files -W /${WORKSPACE_ROOT_DIR}/
-}
-compdef _ws ws
-
 _ws-clone() {
-    _arguments \
+    _arguments -s -C \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-s --soft-link --no-link)'{-s,--soft-link}'[Directory to create a soft link to the repo]:soft_link_dir:_directories' \
         '(-r --root)'{-r,--root}'[Directory to clone into a subfolder of]:root_dir:_directories' \
         '(-s --soft-link --no-link)--no-link[Disable automatic softlink creation]' \
-        '--code[Open the cloned repo in VS Code]' \
-        '1:Repo URL: ' \
-        '2::Repo Name: '
+        '--code[Open the cloned repo in VS Code]'
 }
 compdef _ws-clone ws-clone
+
+_ws() {
+    local -a subcommands=()
+
+    local -a commands=(ls code)
+
+    local cmd key
+    for cmd in ${(f)"$(whence -m 'ws-*')"}; do
+        commands+=("${cmd#ws-}")
+    done
+
+    print start > test.txt
+
+    if (( ${#words} > 1 )); then
+        if (( ${commands[(I)$words[2]]} )); then
+            local fn="_ws-${words[2]}"
+            if command -v "${fn}" > /dev/null; then
+                words=("${fn#_}" "${words[@]:2}")
+                CURRENT=$(( CURRENT - 1 ))
+
+                $fn
+                return
+            fi
+        fi
+    fi
+
+    local -a _descriptions=(
+        "ls:list the contents of \${WORKSPACE_ROOT_DIR} or subdirectory"
+        "code:Open a vs code window in the given project's directory"
+    )
+    for cmd in ${(f)"$(whence -m 'ws-*')"}; do
+        _descriptions+=("${cmd#ws-}:$($cmd --describe)")
+    done
+
+    printf '%s\n' "${_descriptions[@]}" >> test.txt
+
+    _files -W /${WORKSPACE_ROOT_DIR}/
+    _describe -t commands "ws subcommands" _descriptions
+}
+compdef _ws ws

@@ -100,6 +100,7 @@ autoload -z \
     print-header \
     repoman \
     video-downloader \
+    ws \
     ws-clone \
     ws-init
 
