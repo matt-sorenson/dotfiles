@@ -39,10 +39,13 @@ if [[ "${OSTYPE}" == darwin* ]]; then
     SHELL_SESSIONS_DISABLE=1
 
     export CLICOLOR=1
-    export LSCOLORS=GxFxCxDxBxegedabagaced
-
     ssh-add --apple-load-keychain
 fi
+
+# BSD Style
+export LSCOLORS=GxFxCxDxBxegedabagaced
+# GNU Style
+export LS_COLORS="di=1;36:ln=1;35:so=1;32:pi=1;33:ex=1;31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=34;43"
 
 # less
 # -F - quit if one screen
@@ -94,26 +97,11 @@ unsetopt beep               # Disable "pc speaker" beep
 
 bindkey -e
 
-# Don't sort the completions for some commands
-# which auto completion has been provided in a manual order
-zstyle ':completion:*:aws-signon:*' sort false
-zstyle ':completion:*:repoman:*' sort false
-zstyle ':completion:*:repoman-test:*' sort false
-
-# Autocomplete will complete past '-'
-zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
-zstyle ':completion:*' group-name ''
-
-# set list-colors to enable filename colorizing
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-
-zstyle ':completion:*:descriptions' format '[%d]'
-
 ################################################################################
 # Initialize completion system
 ################################################################################
 
-autoload -U compinit && compinit -d "${ZSH_COMPDUMP}"
+autoload -U compinit && compinit -i -d "${ZSH_COMPDUMP}"
 
 # This has some arrays/maps that are used for auto-completion
 source "${DOTFILES}/zsh/completions.helper.zsh"
@@ -134,16 +122,34 @@ fi
 # Initialize plugins
 ################################################################################
 
-if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
-    zstyle ':fzf-tab:*' group-name ''
+# Don't sort the completions for some commands
+# which auto completion has been provided in a manual order
+zstyle ':completion:*:aws-signon:*' sort false
+zstyle ':completion:*:repoman:*' sort false
 
+# Autocomplete will complete past '-'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
+zstyle ':completion:*' group-name ''
+
+# set list-colors to enable filename colorizing
+zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"
+
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' preserve-prefix '//[^/]##/'
+zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
+
+if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
     zstyle ':completion:*' menu no
 
+    source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
+
     # switch group using `<` and `>`
     zstyle ':fzf-tab:*' switch-group '<' '>'
+    zstyle ':fzf-tab:complete:*:*' fzf-flags --ansi
+    zstyle ':fzf-tab:*' list-colors ${(s.:.)LS_COLORS}
 
-    source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
+    zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
 fi
 
 if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
