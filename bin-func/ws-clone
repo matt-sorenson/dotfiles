@@ -7,6 +7,11 @@ ws-clone() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
+    if (( $# )) && [[ "$1" == --describe ]]; then
+        print -n "Clone a git repo into a subdirectory of \${WORKSPACE_ROOT_DIR}"
+        return 0
+    fi
+
     _ws-clone-usage() {
         local cmd_name="${1:-ws-clone}"
 
@@ -27,6 +32,7 @@ Arguments:
 Options:
   -h, --help                Display this message${softlink_line}
   -r, --root <root-dir>     Root workspace directory, will clone into subdirectory. (default: \$WORKSPACE_ROOT_DIR)
+  -s, --soft-link           Directory to create the softlink in
   --no-link                 Disable setting a softlink
   --                        Any arguments after this are passed directly to the git clone${notes}"
     }
@@ -45,8 +51,12 @@ Options:
     flags[help]=0
 
     option_args[cmd-name]=1
-    option_args[softlink-root]=dir
+    option_args[soft-link]=dir
     option_args[root]=dir
+    short_to_long_opts[s]='soft-link'
+    short_to_long_opts[r]='root'
+
+    allow_extra_args=1
 
     if ! dot-parse-opts "$@"; then
         flags[error]=$?
@@ -74,11 +84,11 @@ Options:
         return 1
     fi
 
-    if [[ -v options[softlink-root] ]]; then
-        if [[ ! -e "${options[softlink-root]}" ]]; then
+    if [[ -v options[soft-link] ]]; then
+        if [[ ! -e "${options[soft-link]}" ]]; then
             print-header -e "soft link root '$softlink_root' does not exist"
             return 1
-        elif [[ ! -d "${options[softlink-root]}" ]]; then
+        elif [[ ! -d "${options[soft-link]}" ]]; then
             print-header -e "soft link root '$softlink_root' is not a directory"
             return 1
         fi
@@ -87,22 +97,25 @@ Options:
     local root="${options[root]:-"$WORKSPACE_ROOT_DIR"}"
     local name="${2:-"${remote_url:t:r}"}"
 
+    if realpath "${root}" > /dev/null; then
+        root="$(realpath "${root}")"
+    fi
+
     # Run this in a subshell so the cd isn't carried over in the event of an error.
     (
         setopt err_return
 
-        cd ${(q)WORKSPACE_ROOT_DIR}
-        git clone "${remote_url}" "${name}" "$@"
+        cd ${(q)root}
+        git clone "${remote_url}" "${name}" "${extra_args[@]}"
     )
 
-    local root="${root:A}"
     local ws_dir="${WORKSPACE_ROOT_DIR:A}"
-    if (( do_softlink )) && [[ ! -v options[softlink-root] && "${root}" != "${ws_dir}" ]]; then
-        options[softlink-root]="${ws_dir}"
+    if (( do_softlink )) && [[ ! -v options[soft-link] && "${root}" != "${ws_dir}" ]]; then
+        options[soft-link]="${ws_dir}"
     fi
 
-    if [[ -v options[softlink-root] ]]; then
-        ln -s "${WORKSPACE_ROOT_DIR}/${name}" "${options[softlink-root]}/${name}"
+    if [[ -v options[soft-link] ]]; then
+        ln -s "${WORKSPACE_ROOT_DIR}/${name}" "${options[soft-link]}/${name}"
     fi
 
     if (( code )); then
