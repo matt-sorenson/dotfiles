@@ -31,6 +31,7 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     flags[sanitize-current-dir]=1
     flags[sanitize-dotfiles-dir]=1
+    flags[sanitize-workspace-dir]=1
     flags[sanitize-colors]=1
     flags[bootstrap]=0
 
@@ -38,18 +39,10 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
     max_positional_count=2
 
     dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
 
-    local testee_name="${positional_args[1]}"
-    local test_name="${positional_args[2]}"
-
-    if [[ ! -v testee_name ]]; then
-        print-header -e -- "run-test requires the name of the command being tested."
-        return 1
-    fi
-    if [[ ! -v test_name ]]; then
-        print-header -e -- "run-test requires the name of the function to call to test the command."
-        return 1
-    fi
+    local testee_name="$1"
+    local test_name="$2"
 
     local result="$($test_name 2>&1)"
 
@@ -60,6 +53,10 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
     if (( flags[sanitize-current-dir] )); then
         result="${result//${PWD}/\$\{PWD\}}"
     fi
+    if (( flags[sanitize-workspace-dir] )); then
+        result="${result//${WORKSPACE_ROOT_DIR}/\$\{WORKSPACE_ROOT_DIR\}}"
+    fi
+
     if (( flags[sanitize-colors] )); then
         result="$(print -n "$result" | strip-color-codes)"
     fi
