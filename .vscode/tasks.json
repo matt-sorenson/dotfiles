@@ -5,7 +5,23 @@
       "label": "Create ZSH Script",
       "type": "process",
       "command": "./.vscode/create-zsh-script.zsh",
-      "args": ["${input:scriptName}"],
+      "args": ["${input:scriptName}", "--type", "bin"],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Create ZSH Function",
+      "type": "process",
+      "command": "./.vscode/create-zsh-script.zsh",
+      "args": ["${input:scriptName}", "--type", "function"],
       "problemMatcher": [],
       "group": {
         "kind": "build",

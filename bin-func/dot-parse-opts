@@ -101,8 +101,12 @@ local -A dot_parse_opts_errors=(
     while (( $# )); do
         case $1 in
         -h|--help)
-            print "${_usage}"
-            return 0
+            if [[ -v flags[help] ]]; then
+                flags[help]=1
+            else
+                print "${_usage}"
+                return 0
+            fi
             ;;
         --?*)
             flag="${${1#--}}"
@@ -117,7 +121,9 @@ local -A dot_parse_opts_errors=(
             elif [[ -v flags[${flag#no-}] ]]; then
                 if (( ! allow_duplicate_flags )) && [[ -v 'set_flags[${flag#no-}]' ]]; then
                     print-header -e "Flag '$1' has already been set."
-                    print "${_usage}"
+                    if [[ ! -v flags[help] ]]; then
+                       print "${_usage}"
+                    fi
                     return 1
                 fi
                 flags[${flag#no-}]=0
@@ -125,39 +131,51 @@ local -A dot_parse_opts_errors=(
         elif [[ -v option_args[$flag] ]]; then
                 if (( $# < 2 )); then
                     print-header -e "Flag '$1' requires a value."
-                    print "${_usage}"
+                    if [[ ! -v flags[help] ]]; then
+                       print "${_usage}"
+                    fi
                     return 1
                 fi
                 shift
                 if [[ ":${option_args[$flag]}:" == *:int:* ]]; then
                     if [[ ! $1 =~ ^[-+]?[0-9]+$  ]]; then
                         print-header -e "Flag '--$flag' requires an integer value."
+                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
+                        fi
                         return 1
                     fi
                 elif [[ ":${option_args[$flag]}:" == *:float:* ]]; then
                     if [[ ! $1 =~ ^[-+]?[0-9]*\.?[0-9]+$ ]]; then
                         print-header -e "Flag '--$flag' requires a float value"
+                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
+                        fi
                         return 1
                     fi
                 elif [[ ":${option_args[$flag]}:" == *:file:* ]]; then
                     if [[ ! -f $1 ]]; then
                         print-header -e "Flag '--$flag' requires a valid file."
+                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
+                        fi
                         return 1
                     fi
                 elif [[ ":${option_args[$flag]}:" == *:dir:* ]]; then
                     if [[ ! -d $1 ]]; then
                         print-header -e "Flag '--$flag' requires a valid directory."
+                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
+                        fi
                         return 1
                     fi
                 elif [[ ":${option_args[$flag]}:" == *:mkdir:* ]]; then
                     if [[ ! -d $1 ]]; then
                         mkdir -p "$1" || {
                             print-header -e "Flag '--$flag' requires a valid directory, but failed to create it."
-                            print "${_usage}"
+                            if [[ ! -v flags[help] ]]; then
+                                print "${_usage}"
+                            fi
                             return 1
                         }
                     fi
@@ -168,12 +186,16 @@ local -A dot_parse_opts_errors=(
                     if array_type="$(typeset -p "$array_name")"; then
                         if [[ "${array_type}" != *' -a '* ]]; then
                             print-header -e "Flag '$1' requires an array to be set, but '${array_name}' is not an array."
+                        if [[ ! -v flags[help] ]]; then
                             print "${_usage}"
+                        fi
                             return 1
                         fi
                     else
                         print-header -e "Flag '$1' requires an array to be set."
-                        print "${_usage}"
+                        if [[ ! -v flags[help] ]]; then
+                            print "${_usage}"
+                        fi
                         return 1
                     fi
 
@@ -182,7 +204,9 @@ local -A dot_parse_opts_errors=(
                     if [[ -v 'options[$flag]' ]]; then
                         if [[ ":$options[$flag]:" != ":overwrite:" ]]; then
                             print-header -e "Flag: --$flag' has already been set to '${options[$flag]}'."
-                            print "${_usage}"
+                            if [[ ! -v flags[help] ]]; then
+                                print "${_usage}"
+                            fi
                             return 1
                         fi
                     fi
@@ -224,19 +248,29 @@ local -A dot_parse_opts_errors=(
                 arg_list=("${arg_list[@]:1}")
 
                 if [[ $arg == 'h' ]]; then
-                    print "${_usage}"
-                    return 0
+                    if [[ -v flags[help] ]]; then
+                        flags[help]=1
+                    else
+                        if [[ ! -v flags[help] ]]; then
+                        print "${_usage}"
+                        fi
+                        return 0
+                    fi
                 elif [[ -v "short_to_long_flags[$arg]" ]]; then
                     flags[${short_to_long_flags[$arg]}]=${flag_or_no_flag}
                 elif [[ -v "short_to_long_opts[$arg]" ]]; then
                     flag="${short_to_long_opts[$arg]}"
                     if (( ! flag_or_no_flag )); then
                         print-header -e "Unexpected argument '+$arg'"
+                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
+                        fi
                         return 1
                     elif (( $# < 2 )); then
                         print-header -e "Option '$1' requires a value."
+                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
+                        fi
                         return 1
                     elif (( ${#arg_list} )); then
                         print "Options can only be combined into short flags as the last flag."

@@ -23,8 +23,8 @@ Options:
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
-    max_positional_count=1
     min_positional_count=1
+    max_positional_count=1
 
     flags[vscode]=0
     flags[cd]=0

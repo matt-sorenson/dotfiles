@@ -8,7 +8,7 @@ ws-clone() {
     unsetopt short_loops
 
     _ws-clone-usage() {
-        local cmd_name="$1"
+        local cmd_name="${1:-ws-clone}"
 
         local softlink_line="\n  -s, --soft-link <ln-dir>  Root of directory to create softlink in"
         local notes="\n\nNotes:\nIf a --root is provided that's not \$WORKSPACE_ROOT_DIR and --no-link is not set then --soft-link will default to \$WORKSPACE_ROOT_DIR"
@@ -35,90 +35,38 @@ Options:
         exit_trap_emulate_local_function "_ws-clone-usage"
     }
 
-    local cmd_name
-    local remote_url
-    local name
-    local softlink_root
-    local root
-    local do_softlink=1
-    local code=0
-    local help=0
-    local help_errors=0
-    while (( $# )); do
-        case "$1" in
-            -h|--help)
-                help=1
-                ;;
-            --code)
-                code=1
-                ;;
-            --no-link)
-                do_softlink=0
-                ;;
-            --cmd-name)
-                if (( $# < 2 )); then
-                    print-header -e "'$1' requires an argument"
-                    help_errors=1
-                elif [[ -v cmd_name ]]; then
-                    print-header -e "'$1' provided multiple times"
-                    shift
-                else
-                    shift
-                    cmd_name="$1"
-                fi
-                ;;
-            -r|--root)
-                if (( $# < 2 )); then
-                    print-header -e "'$1' requires an argument"
-                    help_errors=1
-                elif [[ -v softlink_root ]]; then
-                    print-header -e "'-r'|'--root' provided multiple times"
-                    shift
-                else
-                    shift
-                    root="$1"
-                fi
-                ;;
-            -s|--soft-link)
-                if (( $# < 2 )); then
-                    print-header -e "'$1' requires an argument"
-                    return 1
-                elif [[ -v softlink_root ]]; then
-                    print-header -e "'-s'|'--soft-link' provided multiple times"
-                    help_errors=1
-                    shift
-                else
-                    softlink_root="$2"
-                    shift
-                fi
-                ;;
-            --)
-                # Remove the -- and break from the loop.
-                # The remaining arguments will be passed through to git clone
-                shift
-                break
-                ;;
-            *)
-                if [[ ! -v remote_url ]]; then
-                    remote_url="$1"
-                elif [[ ! -v name ]]; then
-                    name="$1"
-                else
-                    print-header -e "Unexpected parameter '${1}'"
-                    help_errors=1
-                fi
-                ;;
-        esac
-        shift
-    done
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
 
-    cmd_name="${cmd_name:-ws-clone}"
+    min_positional_count=1
+    max_positional_count=2
 
-    if (( help || help_errors )); then
-        _ws-clone-usage "$cmd_name"
+    flags[link]=1
+    flags[code]=0
+    flags[help]=0
 
-        return $help_errors
+    option_args[cmd-name]=1
+    option_args[softlink-root]=dir
+    option_args[root]=dir
+
+    if ! dot-parse-opts "$@"; then
+        flags[error]=$?
     fi
+
+    if (( flags[help] )); then
+        if [[ -v options[cmd-name] ]]; then
+            _ws-clone-usage "$options[cmd-name]"
+        else
+            _ws-clone-usage
+        fi
+
+        if [[ -v flags[error] ]]; then
+            return $flags[error]
+        fi
+    fi
+
+    set -- "${positional_args[@]}"
+
+    local remote_url=$1
 
     if [[ ! -v remote_url || -z "${remote_url}" ]]; then
         print-header -e "Remote URL not provided."
@@ -126,18 +74,18 @@ Options:
         return 1
     fi
 
-    if [[ -v softlink_root ]]; then
-        if [[ ! -e "$softlink_root" ]]; then
+    if [[ -v options[softlink-root] ]]; then
+        if [[ ! -e "${options[softlink-root]}" ]]; then
             print-header -e "soft link root '$softlink_root' does not exist"
             return 1
-        elif [[ ! -d "$softlink_root" ]]; then
+        elif [[ ! -d "${options[softlink-root]}" ]]; then
             print-header -e "soft link root '$softlink_root' is not a directory"
             return 1
         fi
     fi
 
-    root="${root:-"$WORKSPACE_ROOT_DIR"}"
-    name="${name:-"${remote_url:t:r}"}"
+    local root="${options[root]:-"$WORKSPACE_ROOT_DIR"}"
+    local name="${2:-"${remote_url:t:r}"}"
 
     # Run this in a subshell so the cd isn't carried over in the event of an error.
     (
@@ -149,12 +97,12 @@ Options:
 
     local root="${root:A}"
     local ws_dir="${WORKSPACE_ROOT_DIR:A}"
-    if (( do_softlink )) && [[ ! -v softlink_root && "${root}" != "${ws_dir}" ]]; then
-        softlink_root="${ws_dir}"
+    if (( do_softlink )) && [[ ! -v options[softlink-root] && "${root}" != "${ws_dir}" ]]; then
+        options[softlink-root]="${ws_dir}"
     fi
 
-    if [[ -v softlink_root ]]; then
-        ln -s "${WORKSPACE_ROOT_DIR}/${name}" "${softlink_root}/${name}"
+    if [[ -v options[softlink-root] ]]; then
+        ln -s "${WORKSPACE_ROOT_DIR}/${name}" "${options[softlink-root]}/${name}"
     fi
 
     if (( code )); then
