@@ -88,19 +88,20 @@ is-emoji() {
         (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
 }
 
-autoload -Uz \
-    aws-signon\
-    brew-find-leafs\
-    clang-format-ri\
-    concat-video\
-    dot-check-for-update\
-    dot-check-for-update-git\
-    dot-parse-opts\
-    jwt-print\
-    print-header\
-    repoman\
-    video-downloader\
-    ws-clone
+autoload -z \
+    aws-signon \
+    brew-find-leafs \
+    clang-format-ri \
+    concat-video \
+    dot-check-for-update \
+    dot-check-for-update-git \
+    dot-parse-opts \
+    jwt-print \
+    print-header \
+    repoman \
+    video-downloader \
+    ws-clone \
+    ws-init
 
 dot-print-map() {
     emulate -L zsh

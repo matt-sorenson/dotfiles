@@ -1,0 +1,90 @@
+#! /usr/bin/env zsh
+#compdef ws-init
+
+ws-init() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    unsetopt short_loops
+
+    local _usage="Usage ws-init [-c|--vscode] [-h|--help] [-m|--message <message>] <name>
+
+Create a folder under \$WORKSPACE_ROOT_DIR and initialize it with git
+
+Arguments
+  <name> name of folder to create in the workspace root
+
+Options:
+  -b, --branch <branch>     Branch name to use (to override configured default)
+  -m, --message <message>   the message to pass as the first commit. (default: 'Initial Commit')
+  -c, --vscode              Open the created directory in vscode
+  -d, --cd                  Change the current shells working directory to the newly created directory
+  -h, --help                Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    max_positional_count=1
+    min_positional_count=1
+
+    flags[vscode]=0
+    flags[cd]=0
+    short_to_long_flags[c]=vscode
+    short_to_long_flags[d]=cd
+
+    dot_parse_opts_errors[too-many-positional]="Too many arguments. Can only create 1 project at a time."
+    dot_parse_opts_errors[too-few-positional]="You must supply a project name."
+
+    dot-parse-opts "$@"
+
+    local project="${positional_args[1]}"
+    if [[ ! ( "${project}" =~ '^[a-zA-Z0-9._-]+$' ) ]]; then
+        print-header -e "Invalid project Name"
+        print "Name can only contain alpha-numeric, periods, underscores, or hyphens"
+        return 1
+    fi
+
+    local dir="${WORKSPACE_ROOT_DIR}/${project}"
+
+    if [[ -f "${dir}" ]]; then
+        print-header -e "\${WORKSPACE_ROOT_DIR}/${project} is already a plain file!"
+        return 1
+    elif [[ -d "${dir}" && -n "$(ls -A -- "${dir}")" ]]; then
+        # If the directory is empty then we continue
+        print-header -e "\${WORKSPACE_ROOT_DIR}/${project} is already a directory!"
+        return 1
+    fi
+
+    mkdir -p "${dir}" || {
+        print-header -e "Failed to create '\${WORKSPACE_ROOT_DIR}/${project}'"
+
+        return 1
+    }
+
+    local -a git_args=()
+    if [[ -v 'options[branch]' ]]; then
+        git_args+=(-b "${options[branch]}")
+    fi
+
+    git -C "${dir}" init "${git_args[@]}" || {
+        print-header -e "Failed to initialize git repo"
+        return 1
+    }
+
+    if (( flags[vscode] )); then
+        if command -v code > /dev/null; then
+            if ! code "${dir}"; then
+                print-header -w "Error running code \"${dir}\""
+            fi
+        else
+            print-header -w "VSCode isn't installed."
+        fi
+    fi
+
+    if (( flags[cd] )); then
+        cd "${dir}" || {
+            print-header -w "Failed to change directory to '\${WORKSPACE_ROOT_DIR}/${project}'"
+        }
+    fi
+}
+
+ws-init "$@"
