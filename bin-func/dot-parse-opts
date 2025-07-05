@@ -34,9 +34,11 @@
                                   # Usually that's an error but it's useful for some functions
                                   # that expect to be wrapped by other helper functions
                                   # Mutually exclusive with array.
+## option_args[--foo]="r"         # Required
 ### Options are compinable so you can do:
 ## option_args[--foo]="float:array:<array_name>" # Each time it's received append to the named array, require a float (or int)
 ## option_args[--foo]="overwrite:int" # Each time it's received overwrite the value, require an integer
+## option_args[--foo]="r:float" # Validate that it's a numeber and error out if not received.
 
 ## Set max_positional_count to -1 if you don't want to bound the input
 # local max_positional_count=0
@@ -92,6 +94,8 @@ local -A dot_parse_opts_errors=(
         return 0
     fi
 
+    local _usage="${_usage:-No usage info provided.}"
+
     local -A set_flags=()
     local flag arg arg_list flag_or_no_flag arg_val array_name array_type
     while (( $# )); do
@@ -110,7 +114,7 @@ local -A dot_parse_opts_errors=(
                 fi
                 flags[$flag]=1
                 set_flags[$flag]=1
-            elif [[ -v 'flags[${flag#no-}]' ]]; then
+            elif [[ -v flags[${flag#no-}] ]]; then
                 if (( ! allow_duplicate_flags )) && [[ -v 'set_flags[${flag#no-}]' ]]; then
                     print-header -e "Flag '$1' has already been set."
                     print "${_usage}"
@@ -118,11 +122,11 @@ local -A dot_parse_opts_errors=(
                 fi
                 flags[${flag#no-}]=0
                 set_flags[${flag#no-}]=1
-        elif [[ -v 'option_args[$flag]' ]]; then
+        elif [[ -v option_args[$flag] ]]; then
                 if (( $# < 2 )); then
                     print-header -e "Flag '$1' requires a value."
                     print "${_usage}"
-                    return 0
+                    return 1
                 fi
                 shift
                 if [[ ":${option_args[$flag]}:" == *:int:* ]]; then
@@ -233,7 +237,7 @@ local -A dot_parse_opts_errors=(
                     elif (( $# < 2 )); then
                         print-header -e "Option '$1' requires a value."
                         print "${_usage}"
-                        return 0
+                        return 1
                     elif (( ${#arg_list} )); then
                         print "Options can only be combined into short flags as the last flag."
                         return 1
@@ -242,7 +246,7 @@ local -A dot_parse_opts_errors=(
                         shift 2
                         # Add the full named option to the front of the args
                         # and continue to the next iteration
-                        argv=("--$flag" "$arg_val" "$@" )
+                        set -- "--$flag" "$arg_val" "$@"
                     fi
                 else
                     print-header -e "Unexpected argument '-$arg'"
@@ -282,13 +286,13 @@ local -A dot_parse_opts_errors=(
 
     local key
     for key in "${(@k)option_args}"; do
-    if [[ ":${option_args[$key]}:" == *:r:* ]]; then
-        if [[ ! -v "options[$key]" ]]; then
-        print-header -e "Option '$key' is required but wasn't provided."
-        print "${_usage}"
-        return 1
+        if [[ ":${option_args[$key]}:" == *:r:* ]]; then
+            if [[ ! -v options[$key] ]]; then
+                print-header -e "Option '$key' is required but wasn't provided."
+                print "${_usage}"
+                return 1
+            fi
         fi
-    fi
     done
 }
 
