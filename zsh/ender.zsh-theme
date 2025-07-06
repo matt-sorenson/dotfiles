@@ -3,6 +3,7 @@
 setopt prompt_subst
 
 zmodload zsh/datetime
+zmodload zsh/regex
 
 export _prompt_ender_preexec_time=${_prompt_ender_preexec_time:-0}
 
@@ -245,11 +246,12 @@ function +vi-git-branch() {
 function _prompt_ender_git_count() {
     local title="$1"
     local count=$2
+    local wrapper="${3:-()}"
 
     if (( count > 1 )); then
-        hook_com[misc]+="(${title}=${count})"
+        hook_com[misc]+="${wrapper[1]}${title}=${count}${wrapper[2]}"
     elif (( count )); then
-        hook_com[misc]+="(${title})"
+        hook_com[misc]+="${wrapper[1]}${title}${wrapper[2]}"
     fi
 }
 
@@ -260,14 +262,34 @@ function +vi-git-stash() {
     [[ -s ${hook_com[base]}/.git/refs/stash ]] || return 0
     stashes=$(git stash list 2>/dev/null | wc -l)
 
-    _prompt_ender_git_count S $stashes
+    _prompt_ender_git_count S $stashes '[]'
 }
 
+# Show count of commits from the tracking branch that start with '--<text>--'
+# and display the count for each <text>
 function +vi-git-wip() {
     local base_commit="$(git merge-base @{u} HEAD)" || return 0
-    local wip_count=$(git olog --grep='^--WIP--' | wc -l)
+    local lines=$(git log --pretty=format:"%s" @{u}..HEAD --regexp-ignore-case --grep='^--[a-zA-Z0-9]*--')
 
-    _prompt_ender_git_count WIP $wip_count
+    local -A counts=()
+
+    local line
+    while read -r line; do
+        if [[ $line =~ --([A-Z0-9_]+)--* ]]; then
+            key=$match[1]
+
+            if [[ -v counts[$key] ]]; then
+                counts[$key]=$(( counts[$key] + 1 ))
+            else
+                counts[$key]=1
+            fi
+        fi
+    done <<< "${lines:u}"
+
+    local key
+    for key in ${(ok)counts}; do
+        _prompt_ender_git_count "$key" "$counts[$key]"
+    done
 }
 
 function prompt_ender_setup() {
@@ -289,7 +311,7 @@ function prompt_ender_setup() {
     zstyle ':vcs_info:*' branchformat '%b'
     zstyle ':vcs_info:*' actionformats '%b|%a'
     zstyle ':vcs_info:*' formats '%b %c%u%m'
-
+ 
     zstyle ':vcs_info:*' stagedstr '$_prompt_ender_vsc_staged'
     zstyle ':vcs_info:*' unstagedstr '$_prompt_ender_vsc_unstaged'
     zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-wip git-branch
