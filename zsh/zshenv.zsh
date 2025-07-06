@@ -13,6 +13,7 @@ fi
 
 source "${DOTFILES}/zsh/path.zsh"
 source "${DOTFILES}/zsh/zshenv.nvm.zsh"
+source "${DOTFILES}/zsh/zshenv.aliases.zsh"
 
 if [[ "${OSTYPE}" == darwin* ]]; then
     export BROWSER='open'

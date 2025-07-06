@@ -283,7 +283,7 @@ Options:${mac_specific_help}${apt_specific_help}
                         return 1
                     fi
 
-                    LOCAL_DOTFILES="${DOTFILES}/deps/local"
+                    LOCAL_DOTFILES="${DOTFILES}/plugins/local"
                 fi
                 ;;
             --local-git)
@@ -297,7 +297,7 @@ Options:${mac_specific_help}${apt_specific_help}
                 fi
 
                 plugins[local]="$1"
-                LOCAL_DOTFILES="${DOTFILES}/deps/local"
+                LOCAL_DOTFILES="${DOTFILES}/plugins/local"
                 ;;
             --local-ref)
                 shift
@@ -465,7 +465,7 @@ Options:${mac_specific_help}${apt_specific_help}
 
     # '-p' options makes all the directories that don't exist, but
     # more importantly it doesn't error if the directory already exists.
-    mkdir -p "${DOTFILES}/deps"
+    mkdir -p "${DOTFILES}/plugins"
     mkdir -p "${DOTFILES}/tmp"
 
     print-header -i 2 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
@@ -479,9 +479,9 @@ Options:${mac_specific_help}${apt_specific_help}
 
         if [[ "${url}" == 'shallow='* ]]; then
             url="${url#shallow=}"
-            safe-git-clone --shallow "${url}" "${DOTFILES}/deps/$name"
+            safe-git-clone --shallow "${url}" "${DOTFILES}/plugins/$name"
         else
-            safe-git-clone "${url}" "${DOTFILES}/deps/$name"
+            safe-git-clone "${url}" "${DOTFILES}/plugins/$name"
         fi
     done
 

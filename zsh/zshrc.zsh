@@ -21,8 +21,6 @@ if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
 fi
 
-source "${DOTFILES}/zsh/zshrc.aliases.zsh"
-
 # These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
 add-to-fpath "${DOTFILES}/local/zsh/completions"
 
@@ -138,11 +136,11 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' preserve-prefix '//[^/]##/'
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
 
-if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
+if [[ -d "${DOTFILES}/plugins/fzf-tab" ]]; then
     # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
     zstyle ':completion:*' menu no
 
-    source "${DOTFILES}/deps/fzf-tab/fzf-tab.plugin.zsh"
+    source "${DOTFILES}/plugins/fzf-tab/fzf-tab.plugin.zsh"
 
     # switch group using `<` and `>`
     zstyle ':fzf-tab:*' switch-group '<' '>'
@@ -152,15 +150,15 @@ if [[ -d "${DOTFILES}/deps/fzf-tab" ]]; then
     zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
 fi
 
-if [[ -r "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
+if [[ -r "${DOTFILES}/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-    source "${DOTFILES}/deps/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+    source "${DOTFILES}/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
 
     bindkey '^ ' autosuggest-accept
 fi
 
-if [[ -r "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
-    source "${DOTFILES}/deps/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
+if [[ -r "${DOTFILES}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
+    source "${DOTFILES}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
 fi
 
 ################################################################################

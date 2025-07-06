@@ -17,11 +17,11 @@ Options:
   -h, --help          Show this help message and exit
 
 Tasks:
-  --[no]-dotfiles     Update dotfiles reposito
-  --[no]-deps         Update \$DOTFILES/deps/* folders
+  -d, --[no]-dotfiles     Update dotfiles reposito
+  -p, --[no-]plugins  Update \$DOTFILES/plugins/* folders
   -l, --[no-]local    Update local scripts
   -b, --[no-]brew     Update brew
-  -d, --[no-]doom     Update doom emacs
+  -e, --[no-]doom     Update doom emacs
 
 If no tasks are provided then it's treated as if all flags are set.
 For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
@@ -30,7 +30,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
     local -a tasks=(
         dotfiles
-        deps
+        plugins
         local
         brew
         doom
@@ -44,9 +44,11 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         flags[$task]=1
     done
 
+    short_to_long_flags[d]=dotfiles
+    short_to_long_flags[p]=plugins
     short_to_long_flags[l]=local
     short_to_long_flags[b]=brew
-    short_to_long_flags[d]=doom
+    short_to_long_flags[b]=doom
 
     dot-parse-opts "$@"
 
@@ -126,8 +128,8 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
-    if (( flags[deps] )); then
-        local repos_to_update=( "${DOTFILES}"/deps/*(/) ) # ZSH Does handle spaces in the glob correctly.
+    if (( flags[plugins] )); then
+        local repos_to_update=( "${DOTFILES}"/plugins/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo quiet
         for repo in "${repos_to_update[@]}"; do
             if [[ $repo == */local ]]; then

@@ -9,16 +9,16 @@ compdef _aws-signon aws-signon
 _dot-check-for-update() {
     _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
-        '(--dotfiles --no-dotfiles)--dotfiles[Update dotfiles repo]' \
-        '(--deps --no-deps)--deps[Update dependencies]' \
-        '(-l --local +l --no-local)'{-l,--local}'[Update local]' \
-        '(-b --brew +b --no-brew)'{-b,--brew}'[Update brew]' \
-        '(-d --doom +d --no-doom)'{-d,--doom}'[Update doomemacs]' \
-        '(--dotfiles --no-dotfiles)--no-dotfiles[Do not update dotfiles repo]' \
-        '(--deps --no-deps)--no-deps[Do not update dependencies]' \
-        '(-l --local +l --no-local)'{+l,--no-local}'[Do not update local]' \
-        '(-b --brew +b --no-brew)'{+b,--no-brew}'[Do not update brew]' \
-        '(-d --doom +d --no-doom)'{+d,--no-doom}'[Do not update doomemacs]' \
+        '(-d +d --dotfiles --no-dotfiles){-d,--dotfiles}[Update dotfiles repo]' \
+        '(-p +p --plugins --no-plugins){-p,--plugins}[Update dependencies]' \
+        '(-l +l --local --no-local)'{-l,--local}'[Update local]' \
+        '(-b +b --brew --no-brew)'{-b,--brew}'[Update brew]' \
+        '(-e +e --doom --no-doom)'{-d,--doom}'[Update doomemacs]' \
+        '(-d +d --dotfiles --no-dotfiles){+d,--no-dotfiles}[Do not update dotfiles repo]' \
+        '(-p +p --plugins --no-plugins)--no-plugins[Do not update dependencies]' \
+        '(-l +l --local --no-local)'{+l,--no-local}'[Do not update local]' \
+        '(-b +b --brew --no-brew)'{+b,--no-brew}'[Do not update brew]' \
+        '(-e +e --doom --no-doom)'{+e,--no-doom}'[Do not update doomemacs]' \
         '--auto[Only run if enough time has passed]' \
         '--no-replace-shell[Do not replace the current shell with a new one]'
 }

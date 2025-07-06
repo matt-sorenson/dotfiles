@@ -7,6 +7,6 @@
         "printf"
     ],
     "files.exclude": {
-        "/deps/**": true
+        "/plugins/**": true
     }
 }

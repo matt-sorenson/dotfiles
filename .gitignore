@@ -1,6 +1,6 @@
 /tmp
 /local
-/deps
+/plugins
 /bin/tests/failed-results
 /bin/tests/env
 *.zwc
