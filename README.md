@@ -14,7 +14,7 @@ curl -sSL https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/ma
 
 ## Matt's default Init flags
 ```sh
-curl -sSL https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/main/init.zsh | zsh --git-email-matt --work
+curl -sSL https://raw.githubusercontent.com/matt-sorenson/dotfiles/refs/heads/main/init.zsh | zsh --git-dotfiles-matt --work
 ```
 
 ## Other example

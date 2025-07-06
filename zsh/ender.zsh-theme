@@ -11,113 +11,115 @@ if (( ! _prompt_ender_preexec_time )); then
 fi
 
 _prompt_ender_current_bg='NONE'
-_prompt_ender_seperator=""
-_prompt_ender_plus_minus="±"
-_prompt_ender_plus="+"
-_prompt_ender_vcs_branch=""
-_prompt_ender_vcs_detached="➦"
-_prompt_ender_vcs_cross="✘"
+_prompt_ender_seperator=''
+_prompt_ender_vsc_unstaged='±'
+_prompt_ender_vsc_staged='+'
+_prompt_ender_vcs_branch=''
+_prompt_ender_vcs_detached='➦'
+_prompt_ender_vcs_cross='✘'
+
+_prompt_ender_vcs_ahead='↑'
+_prompt_ender_vcs_behind='↓'
 
 _prompt_ender_user_root='#'
 _prompt_ender_user_other='λ'
 
-function prompt_ender_bg_color() {
+function _prompt_ender_bg_color() {
     print -n "%K{$1}"
 }
 
-function prompt_ender_fg_color() {
+function _prompt_ender_fg_color() {
     print -n "%F{$1}"
 }
 
-function prompt_ender_start_segment() {
-    prompt_ender_bg_color "$1"
+function _prompt_ender_start_segment() {
+    _prompt_ender_bg_color "$1"
     local msg=' '
     if [[ "${_prompt_ender_current_bg}" != 'NONE' && "$1" != "${_prompt_ender_current_bg}" ]]; then
-        prompt_ender_fg_color "${_prompt_ender_current_bg}"
+        _prompt_ender_fg_color "${_prompt_ender_current_bg}"
         msg="${_prompt_ender_seperator} "
     fi
 
     print -n "${msg}"
 
-    prompt_ender_fg_color "$2"
+    _prompt_ender_fg_color "$2"
     _prompt_ender_current_bg="$1"
 }
 
-function prompt_ender_segment_print() {
-    prompt_ender_start_segment "$1" "$2"
+function _prompt_ender_segment_print() {
+    _prompt_ender_start_segment "$1" "$2"
 
     # Remove trailing spaces from the input string to avoid duplicates.
     print -n "${3%%[[:space:]]##} "
 }
 
-function prompt_ender_end_segment() {
+function _prompt_ender_end_segment() {
     if [[ -n "${_prompt_ender_current_bg}" ]]; then
-        prompt_ender_fg_color ${_prompt_ender_current_bg}
+        _prompt_ender_fg_color ${_prompt_ender_current_bg}
         print -n "%k"
     fi
     print -n "%k%f"
     _prompt_ender_current_bg='NONE'
 }
 
-function prompt_ender_seg_last_call_status() {
+function _prompt_ender_seg_last_call_status() {
     local exit_code=$1
     if (( exit_code )); then
-        prompt_ender_segment_print red black '✘'
+        _prompt_ender_segment_print red black '✘'
     else
-        prompt_ender_segment_print green black '✓'
+        _prompt_ender_segment_print green black '✓'
     fi
 }
 
-function prompt_ender_seg_dir() {
+function _prompt_ender_seg_dir() {
     local working_dir="$(pwd)"
     local msg="%~"
 
     if [[ "${working_dir}" = "${WORKSPACE_ROOT_DIR}"/* ]]; then
         if [[ "${working_dir#${WORKSPACE_ROOT_DIR}}" =~ '/([^/]+)(.*)' ]]; then
-            prompt_ender_segment_print yellow black "ws"
-            prompt_ender_segment_print cyan black "${match[1]}"
+            _prompt_ender_segment_print yellow black "ws"
+            _prompt_ender_segment_print cyan black "${match[1]}"
             msg="${match[2]#?}"
         fi
     fi
 
-    prompt_ender_segment_print blue black "${msg}"
+    _prompt_ender_segment_print blue black "${msg}"
 }
 
-function prompt_ender_seg_SEA_time() {
-    prompt_ender_segment_print black default "$(TZ=America/Los_Angeles date +"%H:%M:%S")"
+function _prompt_ender_seg_SEA_time() {
+    _prompt_ender_segment_print black default "$(TZ=America/Los_Angeles date +"%H:%M:%S")"
 }
 
-function prompt_ender_seg_git_info() {
+function _prompt_ender_seg_git_info() {
     local bg ref
     ref="$(print $vcs_info_msg_0_)"
     if [[ -n "${ref}" ]]; then
         if [[ -n "$(git status --porcelain --ignore-submodules)" ]]; then
             bg=yellow
-            _ref="${ref} $_prompt_ender_plus_minus"
         else
             bg=green
-            ref="${ref} "
         fi
+
         if [[ "${ref/.../}" == "${ref}" ]]; then
             ref="${_prompt_ender_vcs_branch} ${ref}"
         else
             ref="${_prompt_ender_vcs_detached} ${_prompt_ender_vcs_cross/.../}"
         fi
 
-        prompt_ender_segment_print $bg black "${ref}"
+        _prompt_ender_segment_print $bg black "${ref}"
     fi
 }
 
-function prompt_ender_seg_is_root() {
+function _prompt_ender_seg_is_root() {
     local SU_PROMPT
     case $UID in
         0) SU_PROMPT="${_prompt_ender_user_root}" ;;
         *) SU_PROMPT="${_prompt_ender_user_other}" ;;
     esac
-    prompt_ender_segment_print white black $SU_PROMPT
+    _prompt_ender_segment_print white black $SU_PROMPT
 }
 
-function prompt_ender_seg_elapsed_time() {
+function _prompt_ender_seg_elapsed_time() {
     local -F epoch="$EPOCHREALTIME"
     local -F delta=$((epoch - _prompt_ender_preexec_time ))
     local total_time_s="${delta%.*}"
@@ -156,31 +158,31 @@ function prompt_ender_seg_elapsed_time() {
     fi
 
     if [[ -n "$msg" ]]; then
-        prompt_ender_segment_print $color black "$msg"
+        _prompt_ender_segment_print $color black "$msg"
     fi
 }
 
-function prompt_ender_build_prompt1() {
-    prompt_ender_seg_last_call_status $1
-    prompt_ender_seg_elapsed_time $1
+function _prompt_ender_build_prompt1() {
+    _prompt_ender_seg_last_call_status $1
+    _prompt_ender_seg_elapsed_time $1
     # History Size
-    prompt_ender_segment_print white black "%h"
+    _prompt_ender_segment_print white black "%h"
     # Hostname
-    prompt_ender_segment_print black default "%m"
-    prompt_ender_seg_dir
+    _prompt_ender_segment_print black default "%m"
+    _prompt_ender_seg_dir
 
-    prompt_ender_end_segment
+    _prompt_ender_end_segment
 }
 
-function prompt_ender_build_prompt2() {
-    prompt_ender_seg_SEA_time
-    prompt_ender_seg_git_info
-    prompt_ender_seg_is_root
+function _prompt_ender_build_prompt2() {
+    _prompt_ender_seg_SEA_time
+    _prompt_ender_seg_git_info
+    _prompt_ender_seg_is_root
 
-    prompt_ender_end_segment
+    _prompt_ender_end_segment
 }
 
-function prompt_ender_precmd() {
+function _prompt_ender_precmd() {
     local exit_code=$?
     _prompt_ender_current_bg="NONE"
 
@@ -189,11 +191,11 @@ function prompt_ender_precmd() {
 
     vcs_info
 
-    PROMPT="${(e)$(prompt_ender_build_prompt1 $exit_code)}
-${(e)$(prompt_ender_build_prompt2)} "
+    PROMPT="${(e)$(_prompt_ender_build_prompt1 $exit_code)}
+${(e)$(_prompt_ender_build_prompt2)} "
 }
 
-function prompt_ender_preexec() {
+function _prompt_ender_preexec() {
     _prompt_ender_preexec_time="${EPOCHREALTIME}"
 }
 
@@ -204,37 +206,68 @@ function +vi-git-untracked() {
         # If instead you want to show the marker only if there are untracked
         # files in $PWD, use:
         #[[ -n $(git ls-files --others --exclude-standard) ]] ; then
-        hook_com[staged]+='?'
+        hook_com[unstaged]+='?'
     fi
 }
 
-function +vi-git-st() {
-  local ahead behind remote
-  local -a gitstatus
+function +vi-git-branch() {
+    local ahead behind remote
+    local -a gitstatus
+    local branch="${hook_com[branch]}"
 
-  # Are we on a remote-tracking branch?
-  remote=${$(git rev-parse --verify ${hook_com[branch]}@{upstream} \
-    --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+    local repo_path="$(command git rev-parse --git-dir 2>/dev/null)";
 
-  if [[ -n ${remote} ]] ; then
-    ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l | tr -d ' ')
-    (( $ahead )) && gitstatus+=( " ${c3}+${ahead}${c2}" )
+    if [[ -e "${repo_path}/BISECT_LOG" ]]; then
+        hook_com[branch]+=+='<B>'
+    elif [[ -e "${repo_path}/MERGE_AHEAD" ]]; then
+        hook_com[branch]+=+='>M<'
+    elif [[ -e "${repo_path}/rebase" || -e "${repo_path}/rebase-apply" || -e "${repo_path}/rebase-merge" || -e "${repo_path}/../.dotest" ]]; then
+        hook_com[branch]+=+='>R>'
+    fi
 
-    behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l | tr -d ' ')
-    (( $behind )) && gitstatus+=( "${c4}-${behind}${c2}" )
+    # Are we on a remote-tracking branch?
+    remote=${$(git rev-parse --verify ${branch}@{upstream} \
+        --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
 
-    hook_com[branch]="${hook_com[branch]}${(j:/:)gitstatus}"
-  fi
+    if [[ -n ${remote} ]] ; then
+        ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l | tr -d ' ')
+        (( $ahead )) && gitstatus+=( "${c3}${_prompt_ender_vcs_ahead}${ahead}${c2}" )
+
+        behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l | tr -d ' ')
+        (( $behind )) && gitstatus+=( "${c4}${_prompt_ender_vcs_behind}${behind}${c2}" )
+
+        if (( ${#gitstatus} )); then
+            hook_com[branch]+="${(j:/:)gitstatus}"
+        fi
+    fi
+}
+
+function _prompt_ender_git_count() {
+    local title="$1"
+    local count=$2
+
+    if (( count > 1 )); then
+        hook_com[misc]+="(${title}=${count})"
+    elif (( count )); then
+        hook_com[misc]+="(${title})"
+    fi
 }
 
 # Show count of stashed changes
 function +vi-git-stash() {
-  local -a stashes
+    local -i stashes
 
-  if [[ -s ${hook_com[base]}/.git/refs/stash ]] ; then
-    stashes=$(git stash list 2>/dev/null | wc -l | tr -d ' ')
-    hook_com[misc]+="(S=${stashes})"
-  fi
+    [[ -s ${hook_com[base]}/.git/refs/stash ]] || return 0
+    stashes=$(git stash list 2>/dev/null | wc -l)
+
+    _prompt_ender_git_count S $stashes
+}
+
+function +vi-git-wip() {
+    local base_commit="$(git merge-base @{u} HEAD)" || return 0
+    local wip_count=$(git olog --grep='^--WIP--' | wc -l)
+
+    _prompt_ender_git_count WIP $wip_count
 }
 
 function prompt_ender_setup() {
@@ -246,22 +279,24 @@ function prompt_ender_setup() {
     prompt_opts=(cr percent subst)
 
     # Add hook for calling git-info before each command.
-    add-zsh-hook preexec prompt_ender_preexec
-    add-zsh-hook precmd prompt_ender_precmd
+    add-zsh-hook preexec _prompt_ender_preexec
+    add-zsh-hook precmd _prompt_ender_precmd
 
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:git*:*' get-revision true
     zstyle ':vcs_info:git*:*' check-for-changes true
 
-    zstyle ':vcs_info:*' stagedstr "S"
-    zstyle ':vcs_info:*' unstagedstr '*'
+    zstyle ':vcs_info:*' branchformat '%b'
     zstyle ':vcs_info:*' actionformats '%b|%a'
     zstyle ':vcs_info:*' formats '%b %c%u%m'
-    zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-st
 
+    zstyle ':vcs_info:*' stagedstr '$_prompt_ender_vsc_staged'
+    zstyle ':vcs_info:*' unstagedstr '$_prompt_ender_vsc_unstaged'
+    zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-wip git-branch
+ 
     # Define prompts.
-    PROMPT="${(e)$(prompt_ender_build_prompt1)}
-${(e)$(prompt_ender_build_prompt2)} "
+    PROMPT="${(e)$(_prompt_ender_build_prompt1)}
+${(e)$(_prompt_ender_build_prompt2)} "
     RPROMPT=""
     SPROMPT="zsh: correct %F{red}%R%f to %F{green}%r%f [nyae]? "
 }

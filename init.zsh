@@ -156,36 +156,38 @@ main() {
     export DOTFILES="${DOTFILES:-${HOME}/.dotfiles}"
     local LOCAL_DOTFILES
 
-    local matt_email="matt@mattsorenson.com"
+    local matt_username=matt
+    local matt_dm=mattsorenson.com
+    local matt_email="${matt_username}@${matt_dm}"
 
     local -A git_config=()
 
     local -A flags=(
         # macOS
-        [do_brew]=0
-        [do_hammerspoon]=0
+        [brew]=0
+        [hammerspoon]=0
 
         # Debian Derivitives
-        [do_apt]=0
+        [apt]=0
 
-        [do_docker]=1
-        [do_doomemacs]=1
+        [docker]=1
+        [doom]=1
 
-        [do_local_template]=1
-        [do_work]=0
+        [local_template]=1
+        [work]=0
     )
 
     local apt_specific_help=''
     local mac_specific_help=''
     case "${OSTYPE}" in
         darwin*)
-            flags[do_brew]=1
-            flags[do_hammerspoon]=1
+            flags[brew]=1
+            flags[hammerspoon]=1
             mac_specific_help="\n  --no-brew          Do not install Homebrew\n  --no-hammerspoon   Do not set up Hammerspoon"
             ;;
         linux*)
             if command -v apt &> /dev/null; then
-                flags[do_apt]=1
+                flags[apt]=1
                 apt_specific_help="\n  --no-debian-apt    Do not install packages using apt"
             fi
             ;;
@@ -195,21 +197,23 @@ main() {
 
     local _usage="Usage: init.sh [OPTIONS]
 Options:${mac_specific_help}${apt_specific_help}
-  --no-local-template                   Disable initializing the local with basic files
-  --work, -w                            Set up local/is_work file so hammerspoon & scripts can detect work environment
-  --local-git <url>                     Use the specified git repo for local dotfiles
-  --local-ref <ref>                     Use the specified reference for local dotfiles
-  --git-local-email                     Email to  set in the local/gitconfig file
-  --git-local-name                      name to  set in the local/gitconfig file
+  --no-local-template   Disable initializing the local with basic files
+  --work, -w            Set up local/is_work file so hammerspoon & scripts can detect work environment
+  --local-git <url>     Use the specified git repo for local dotfiles
+  --local-ref <ref>     Use the specified reference for local dotfiles
+  --git-local-email     Email to  set in the local/gitconfig file
+  --git-local-name      name to  set in the local/gitconfig file
+  --no-local-template   If local is created due to not being specified as a plugin or a ref or git repo
+                        then this flag disables creating a bare bones set of files.
 
-  --git-dotfiles-email                  Email to use in the \${DOTFILES}/.git/config file
-  --git-dotfiles-name                   Name to use in the \${DOTFILES}/.git/config file
+  --git-dotfiles-email  Email to use in the \${DOTFILES}/.git/config file
+  --git-dotfiles-name   Name to use in the \${DOTFILES}/.git/config file
 
-  --no-brew                             Do not install Homebrew
-  --no-hammerspoon                      Do not set up Hammerspoon
-  --no-debian-apt                       Do not install packages using apt
-  --no-docker                           Do not install Docker
-  --no-doom, --no-doomemacs             Do not install Doom Emacs
+  --no-brew             Do not install Homebrew
+  --no-hammerspoon      Do not set up Hammerspoon
+  --no-debian-apt       Do not install packages using apt
+  --no-docker           Do not install Docker
+  --no-doom             Do not install Doom Emacs
 
   --no-plugin-fzf-tab                   Do not install fzf-tab plugin
   --no-plugin-zsh-syntax-highlighting   Do not install zsh-syntax-highlighting plugin
@@ -225,8 +229,12 @@ Options:${mac_specific_help}${apt_specific_help}
 
     while (( $# )); do
         case "$1" in
+            --help|-h)
+                print "${_usage}"
+                return 0
+                ;;
             --no-local-template)
-                flags[do_local_template]=0
+                flags[local_template]=0
                 ;;
             --no-plugin-*)
                 local key="${1#--no-plugin-}"
@@ -239,26 +247,14 @@ Options:${mac_specific_help}${apt_specific_help}
 
                 unset "plugins[$key]"
                 ;;
-            --no-*)
-                local key="do_${${1#--no-}//-/_}"
-                key="${key/%doom/doomemacs}"
-
-                if [[ ! -v flags[$key] ]]; then
-                    print-header -e "Unknown flag: $1"
-                    print "${_usage}"
-                    return 1
-                fi
-
-                flags[$key]=0
-                ;;
             --plugin|-p)
                 shift
                 local plugin_name plugin_url
 
-                if (( $# == 0 )); then
-                    print-header -e "--plugin requires a value in the format name=url"
-                    return 1
-                elif [[ "$1" == *=* ]]; then
+                if (( $# > 0 )) && [[ "$1" =~ '^(shallow=)?(github\.com/|https://github\.com/|git@github\.com:/)([^/]+)/([^/?#(.git$)]+?)(\.git)?/?$' ]]; then
+                    plugin_name="${match[4]%.git}"
+                    plugin_url="$1"
+                elif (( $# > 0 )) && [[ "$1" == *=* ]]; then
                     # Format: name=url
                     plugin_name="${1%%=*}"
                     plugin_url="${1#*=}"
@@ -267,11 +263,12 @@ Options:${mac_specific_help}${apt_specific_help}
                         print-header -e "--plugin argument must include both name and URL"
                         return 1
                     fi
-                elif [[ "$1" =~ '^(https://github\.com|github\.com:)([^/]+)/([^/?#]+?)(\.git)?/?$' ]]; then
-                    plugin_name="${match[3]%.git}"
-                    plugin_url="$1"
                 else
-                    print-header -e "--plugin must be in the format name=url or a valid GitHub URL"
+                    print-header -e "invalid --plugin"
+                    print "must be in one of the following formats"
+                    print "  <name>=[shallow=]<url>"
+                    print "  [shallow=][https://]github.com/<user>/<reponame>[.git]"
+                    print "  [shallow=]git@github.com:/<user>/<reponame>[.git]"
                     return 1
                 fi
 
@@ -286,100 +283,82 @@ Options:${mac_specific_help}${apt_specific_help}
                     LOCAL_DOTFILES="${DOTFILES}/plugins/local"
                 fi
                 ;;
-            --local-git)
-                shift
-                if (( $# == 0 )); then
-                    print-header -e "--local-git requires a value"
+            --local-*)
+                if (( $# < 2 )); then
+                    print-header -e "$1 requires a value"
                     return 1
                 elif [[ -v LOCAL_DOTFILES ]]; then
                     print-header -e "\$LOCAL_DOTFILES set multiple times. Existing: '${LOCAL_DOTFILES}', New: '$1'"
                     return 1
                 fi
 
-                plugins[local]="$1"
-                LOCAL_DOTFILES="${DOTFILES}/plugins/local"
-                ;;
-            --local-ref)
-                shift
-                if (( $# == 0 )); then
-                    print-header -e "--local-ref requires a value"
-                    return 1
-                elif [[ -v LOCAL_DOTFILES ]]; then
-                    local new="${DOTFILES}/local.$1"
-                    print-header -e "\$LOCAL_DOTFILES set multiple times. Existing: '${LOCAL_DOTFILES}', New: '${new}'"
+                if [[ $1 == --local-git ]]; then
+                    plugins[local]="$2"
+                    LOCAL_DOTFILES="${DOTFILES}/plugins/local"
+                elif [[ $1 == --local-ref ]]; then
+                    LOCAL_DOTFILES="${DOTFILES}/local.$1"
+                else
+                    print-header "Unknown Header $1"
+                    print "${_usage}"
                     return 1
                 fi
-                LOCAL_DOTFILES="${DOTFILES}/local.$1"
-                ;;
-            --help|-h)
-                print "${_usage}"
-                return 0
-                ;;
-            --local-git-email)
-                shift
-                if (( $# == 0 )); then
-                    print-header -e "--local-git-email requires a value"
-                    return 1
-                elif [[ -v git_config[local_email] ]]; then
-                    print-header -e "--local-git-email already set. Existing: ${git_config[local_email]}, New: $1"
-                fi
-                git_config[local_email]="$1"
-                ;;
-            --git-local-name)
-                shift
-                if (( $# == 0 )); then
-                    print-header -e "--git-local-name requires a value"
-                    return 1
-                elif [[ -v git_config[local_name] ]]; then
-                    print-header -e "--git-local-name already set. Existing: ${git_config[local_name]}, New: $1"
-                fi
-                git_config[local_name]="$1"
-                ;;
-            --git-dotfiles-email)
-                if (( $# > 1 )); then
-                    print-header -e "$1 requires a value"
-                    return 1
-                elif [[ -v git_config[dir_dotfiles_email] ]]; then
-                    print-header -e "$1 already set. Existing: ${git_config[dir_dotfiles_email]}, New: $2"
-                fi
-                shift
-                git_config[dir_dotfiles_email]="$1"
                 ;;
             --git-dotfiles-matt)
-                if [[ -v git_config[dir_dotfiles_email] ]]; then
-                    print-header -e "--git-dotfiles-email already set. Existing: ${git_config[dir_dotfiles_email]}, New: ${matt_email}"
-                elif [[ -v git_config[dir_dotfiles_name] ]]; then
-                    print-header -e "--git-dotfiles-name already set. Existing: ${git_config[dir_dotfiles_name]}, New: ${matt_email}"
-                fi
-
-                git_config[dir_dotfiles_email]="${matt_email}"
-                git_config[dir_dotfiles_name]="Matt Sorenson"
+                # Since this is just an an alias lets just throw the other flags
+                # on the the end of the parameters list so we don't need to dupe
+                # the validation.
+                argv+=(
+                    --git-dotfiles-email "${matt_email}"
+                    --git-dotfiles-name "Matt Sorenson"
+                )
                 ;;
-            --git-dotfiles-name)
-                if (( $# > 1 )); then
-                    print-header -e "$1 requires a value"
+            --git-*)
+                local key="${${${1#--git-}#dotfiles-}#local-}"
+
+                if [[ "$key" != name && "$key" != email ]]; then
+                    print-header -e "Unknown options $1"
+                    print "${_usage}"
                     return 1
-                elif [[ -v git_config[dir_dotfiles_name] ]]; then
-                    print-header -e "$1 already set. Existing: ${git_config[dir_dotfiles_name]}, New: $2"
                 fi
-                shift
-                git_config[dir_dotfiles_name]="$1"
-                ;;
-            -w)
-                argv+=('--work')
-                ;;
-            *)
-                local key="do_${${1#--}//-/_}"
-                key="${key/%doom/doomemacs}"
-                key="${key/%do_work/do_local_work}"
 
-                if [[ ! -v flags[$key] ]]; then
+                if [[ "$1" == -local- ]]; then
+                    key="local_${key}"
+                elif [[ "$1" == -dotfiles- ]]; then
+                    key="dir_dotfiles_${key}"
+                else
                     print-header -e "Unknown flag: $1"
                     print "${_usage}"
                     return 1
                 fi
 
-                flags[$key]=1
+
+                if (( $# > 1 )); then
+                    print-header -e "$1 requires a value"
+                    return 1
+                elif [[ -v git_config[$key] ]]; then
+                    print-header -e "$1 already set. Existing: ${git_config[$key]}, New: $2"
+                fi
+                shift
+                git_config[$key]="$1"
+                ;;
+            -w) flags[work]=1 ;;
+            *)
+                local key="${${1#--}//-/_}"
+                key="${key/%local_work/work}"
+
+                local -i enabled=1
+                if [[ key == no_* ]]; then
+                    key="${key#no_}"
+                    enabled=0
+                fi
+
+                if [[ -v flags[$key] ]]; then
+                    flags[$key]=$enabled
+                else
+                    print-header -e "Unknown flag: $1"
+                    print "${_usage}"
+                    return 1
+                fi
                 ;;
         esac
         shift
@@ -389,24 +368,24 @@ Options:${mac_specific_help}${apt_specific_help}
         sudo locale-gen en_US en_US.UTF-8
     fi
 
-    if (( flags[do_brew] )); then
+    if (( flags[brew] )); then
         if ! command -v brew &> /dev/null; then
             print-header green "Installing Homebrew"
 
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
 
-        if (( flags[do_docker] )); then
+        if (( flags[docker] )); then
             brew_install_list+=( docker docker-compose )
         fi
 
         print-header green "installing items from brew"
         print "Install List: ${(q)app_install_list[@]} ${(q)brew_install_list[@]}"
         brew install -q ${(q)app_install_list[@]} ${(q)brew_install_list[@]}
-    elif (( flags[do_apt] )); then
+    elif (( flags[apt] )); then
         print-header green "Installing apt packages"
         # Only add docker if it's not already installed.
-        if (( flags[do_docker] )) && ! command -v docker &> /dev/null; then
+        if (( flags[docker] )) && ! command -v docker &> /dev/null; then
             if [[ -v UBUNTU_CODENAME ]]; then
                 print-header blue "Detected Ubuntu, setting up Docker apt repository"
                 sudo apt update
@@ -500,7 +479,7 @@ Options:${mac_specific_help}${apt_specific_help}
         fi
     fi
 
-    if (( flags[do_local_template] )); then
+    if (( flags[local_template] )); then
         print-header green "Setting up local based off of template"
 
         mkdir -p "${DOTFILES}/local/bin"
@@ -510,13 +489,13 @@ Options:${mac_specific_help}${apt_specific_help}
         touch "${DOTFILES}/local/zsh/zshrc.zsh"
         touch "${DOTFILES}/local/gitconfig"
 
-        if (( flags[do_hammerspoon] )); then
+        if (( flags[hammerspoon] )); then
             safe-cp "${DOTFILES}/templates/config-home-assistant.lua" "${DOTFILES}/local/config-home-assistant.lua"
             safe-cp "${DOTFILES}/templates/pr-teams.lua" "${DOTFILES}/local/pr-teams.lua"
         fi
     fi
 
-    if (( flags[do_work] )); then
+    if (( flags[work] )); then
         touch "${DOTFILES}/local/is-work"
     fi
 
@@ -546,12 +525,12 @@ Options:${mac_specific_help}${apt_specific_help}
         fi
     fi
 
-    if (( flags[do_hammerspoon] )); then
+    if (( flags[hammerspoon] )); then
         print-header green "Setting up hammerspoon"
         safe-set-link "${HOME}/.hammerspoon" "${DOTFILES}/hammerspoon"
     fi
 
-    if (( flags[do_doomemacs] )); then
+    if (( flags[doom] )); then
         if command -v emacs &> /dev/null; then
             print-header green "Setting up doomemacs"
             mkdir -p "${HOME}/.config"
