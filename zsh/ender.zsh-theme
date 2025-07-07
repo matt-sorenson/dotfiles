@@ -212,11 +212,11 @@ function +vi-git-untracked() {
 }
 
 function +vi-git-branch() {
-    local ahead behind remote
-    local -a gitstatus
     local branch="${hook_com[branch]}"
 
-    local repo_path="$(command git rev-parse --git-dir 2>/dev/null)";
+    local repo_path="$(command git rev-parse --git-dir 2> /dev/null)";
+
+    local append_space=''
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
         hook_com[branch]+=+='<B>'
@@ -226,16 +226,14 @@ function +vi-git-branch() {
         hook_com[branch]+=+='>R>'
     fi
 
-    # Are we on a remote-tracking branch?
-    remote=${$(git rev-parse --verify ${branch}@{upstream} \
-        --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+    if git rev-parse @{u} &> /dev/null; then
+        local -a gitstatus=()
 
-    if [[ -n ${remote} ]] ; then
-        ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l | tr -d ' ')
-        (( $ahead )) && gitstatus+=( "${c3}${_prompt_ender_vcs_ahead}${ahead}${c2}" )
+        local -i ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l | tr -d ' ')
+        (( $ahead )) && gitstatus+=( "${_prompt_ender_vcs_ahead}${ahead}" )
 
-        behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l | tr -d ' ')
-        (( $behind )) && gitstatus+=( "${c4}${_prompt_ender_vcs_behind}${behind}${c2}" )
+        local -i behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l | tr -d ' ')
+        (( $behind )) && gitstatus+=( "${_prompt_ender_vcs_behind}${behind}" )
 
         if (( ${#gitstatus} )); then
             hook_com[branch]+="${(j:/:)gitstatus}"
