@@ -229,10 +229,10 @@ function +vi-git-branch() {
     if git rev-parse @{u} &> /dev/null; then
         local -a gitstatus=()
 
-        local -i ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l | tr -d ' ')
+        local -i ahead=$(git rev-list ${branch}@{u}..HEAD 2>/dev/null | wc -l | tr -d ' ')
         (( $ahead )) && gitstatus+=( "${_prompt_ender_vcs_ahead}${ahead}" )
 
-        local -i behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l | tr -d ' ')
+        local -i behind=$(git rev-list HEAD..${branch}@{u} 2>/dev/null | wc -l | tr -d ' ')
         (( $behind )) && gitstatus+=( "${_prompt_ender_vcs_behind}${behind}" )
 
         if (( ${#gitstatus} )); then
