@@ -320,7 +320,6 @@ function prompt_ender_setup() {
     # Define prompts.
     PROMPT="${(e)$(_prompt_ender_build_prompt1)}
 ${(e)$(_prompt_ender_build_prompt2)} "
-    RPROMPT=""
 }
 
 prompt_ender_setup "$@"
