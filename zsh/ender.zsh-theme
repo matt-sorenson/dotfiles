@@ -121,8 +121,8 @@ function _prompt_ender_seg_is_root() {
 }
 
 function _prompt_ender_seg_elapsed_time() {
-    local -F epoch="$EPOCHREALTIME"
-    local -F delta=$((epoch - _prompt_ender_preexec_time ))
+    local -F epoch=$EPOCHREALTIME
+    local -F delta=$(( epoch - _prompt_ender_preexec_time ))
     local total_time_s="${delta%.*}"
     local milliseconds="${$(( (".${delta#*.}" * 1000) ))%.*}"
 
@@ -191,7 +191,6 @@ function _prompt_ender_precmd() {
     _prompt_ender_current_bg="NONE"
 
     setopt local_options
-    unsetopt xtrace ksh_arrays
 
     vcs_info
 
@@ -200,12 +199,11 @@ ${(e)$(_prompt_ender_build_prompt2)} "
 }
 
 function _prompt_ender_preexec() {
-    _prompt_ender_preexec_time="${EPOCHREALTIME}"
+    _prompt_ender_preexec_time=${EPOCHREALTIME}
 }
 
 function +vi-git-untracked() {
-    if [[ $(git rev-parse --is-inside-work-tree 2> /dev/null) == 'true' ]] && \
-        git status --porcelain | grep -q '^?? ' 2> /dev/null ; then
+    if git status --porcelain | grep -q '^?? ' 2> /dev/null; then
         # This will show the marker if there are any untracked files in repo.
         # If instead you want to show the marker only if there are untracked
         # files in $PWD, use:
@@ -296,10 +294,6 @@ function +vi-git-wip() {
 function prompt_ender_setup() {
     autoload -Uz add-zsh-hook
     autoload -Uz vcs_info
-
-    setopt local_options
-    unsetopt xtrace ksh_arrays
-    prompt_opts=(cr percent subst)
 
     # Add hook for calling git-info before each command.
     add-zsh-hook preexec _prompt_ender_preexec
