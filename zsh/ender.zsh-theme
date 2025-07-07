@@ -306,11 +306,11 @@ function prompt_ender_setup() {
     zstyle ':vcs_info:*' branchformat '%b'
     zstyle ':vcs_info:*' actionformats '%b|%a'
     zstyle ':vcs_info:*' formats '%b %c%u%m'
- 
+
     zstyle ':vcs_info:*' stagedstr '$_prompt_ender_vsc_staged'
     zstyle ':vcs_info:*' unstagedstr '$_prompt_ender_vsc_unstaged'
     zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-wip git-branch
- 
+
     # Define prompts.
     PROMPT="${(e)$(_prompt_ender_build_prompt1)}
 ${(e)$(_prompt_ender_build_prompt2)} "
