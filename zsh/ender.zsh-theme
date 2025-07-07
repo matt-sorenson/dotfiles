@@ -321,7 +321,6 @@ function prompt_ender_setup() {
     PROMPT="${(e)$(_prompt_ender_build_prompt1)}
 ${(e)$(_prompt_ender_build_prompt2)} "
     RPROMPT=""
-    SPROMPT="zsh: correct %F{red}%R%f to %F{green}%r%f [nyae]? "
 }
 
 prompt_ender_setup "$@"
