@@ -1,6 +1,15 @@
 # These aliases are sourced in zshrc.zsh, so only available in interactive shells.
 
-alias ls='ls --time-style=long-iso --color=auto'
+if ls --version 2> /dev/null | grep &>  /dev/null; then
+    # GNU ls
+    # --time-style=long-iso gives a more readable date format
+    alias ls='ls --time-style=long-iso --color=auto'
+else
+    # -G enable colorized output
+    # -D '%FT%T' gives a more readable date format
+    alias ls='ls -G -D "%FT%T%z"'
+fi
+
 alias vi=vim
 
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
