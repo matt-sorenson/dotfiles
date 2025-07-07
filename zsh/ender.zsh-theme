@@ -153,9 +153,12 @@ function _prompt_ender_seg_elapsed_time() {
     elif (( total_time_s > 1 )); then
         color='cyan'
         msg="${total_time_s}s"
-    else
+    elif (( total_time_s )); then
         color='green'
         msg="${total_time_s}s${milliseconds}ms"
+    else
+        color='green'
+        msg="${milliseconds}ms"
     fi
 
     if [[ -n "$msg" ]]; then
