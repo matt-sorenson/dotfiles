@@ -9,8 +9,6 @@ setopt typeset_to_unset
 if ! command -v print-header &> /dev/null; then
     autoload -Uz colors && colors
 
-    export local_print_header=1
-
     print-header() {
         local color=''
         local prefix=''
@@ -183,12 +181,12 @@ main() {
         darwin*)
             flags[brew]=1
             flags[hammerspoon]=1
-            mac_specific_help="\n  --no-brew          Do not install Homebrew\n  --no-hammerspoon   Do not set up Hammerspoon"
+            mac_specific_help="\n  --no-brew          Do not install Homebrew\n   --no-hammerspoon       Do not set up Hammerspoon"
             ;;
         linux*)
             if command -v apt &> /dev/null; then
                 flags[apt]=1
-                apt_specific_help="\n  --no-debian-apt    Do not install packages using apt"
+                apt_specific_help="\n  --no-apt.             Do not install packages using apt"
             fi
             ;;
         *)
@@ -211,7 +209,7 @@ Options:${mac_specific_help}${apt_specific_help}
 
   --no-brew             Do not install Homebrew
   --no-hammerspoon      Do not set up Hammerspoon
-  --no-debian-apt       Do not install packages using apt
+  --no-apt              Do not install packages using apt
   --no-docker           Do not install Docker
   --no-doom             Do not install Doom Emacs
 
@@ -347,7 +345,7 @@ Options:${mac_specific_help}${apt_specific_help}
                 key="${key/%local_work/work}"
 
                 local -i enabled=1
-                if [[ key == no_* ]]; then
+                if [[ "$key" == no_* ]]; then
                     key="${key#no_}"
                     enabled=0
                 fi
@@ -439,7 +437,6 @@ Options:${mac_specific_help}${apt_specific_help}
 
     safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
     # print-header from the dotfiles is more robust so :shrug:
-    unset -f print-header
     PATH="${DOTFILES}/bin:${PATH}"
 
     # '-p' options makes all the directories that don't exist, but
@@ -447,7 +444,7 @@ Options:${mac_specific_help}${apt_specific_help}
     mkdir -p "${DOTFILES}/plugins"
     mkdir -p "${DOTFILES}/tmp"
 
-    print-header -i 2 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
+    print-header blue 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
     git -C "${DOTFILES}/" config core.hooksPath "${DOTFILES}/githooks"
 
     print-header blue "Setting up zsh & plugins"
