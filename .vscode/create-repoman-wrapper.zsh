@@ -12,6 +12,7 @@ create-repoman-wrapper() {
     local name
     local vscode=0
     local local_zshrc=0
+    local zshrc=0
     local template
 
     while (( $# )); do
@@ -23,8 +24,21 @@ create-repoman-wrapper() {
         --vscode)
             vscode=1
             ;;
-        --zshrc)
+        --local-zshrc)
+            if (( zshrc )); then
+                print-header -e -- "--local-zshrc and --zshrc are mutually exclusive"
+                return 1
+            fi
+
             local_zshrc=1
+            ;;
+        --zshrc)
+            if (( local_zshrc )); then
+                print-header -e -- "--local-zshrc and --zshrc are mutually exclusive"
+                return 1
+            fi
+
+            zshrc=1
             ;;
         -t|--template)
             if (( $# < 2 )); then
@@ -211,14 +225,7 @@ create-repoman-wrapper() {
         # fi
     done
 
-    local filename
-    if (( local_zshrc )); then
-        filename="${DOTFILES}/local/.zshrc"
-        print "Adding function to your local zshrc file: ${filename}"
-    elif (( vscode )); then
-        filename="$(mktemp)"
-    fi
-
+    local filename="$(mktemp)"
 
     local formatted=""
 
@@ -232,15 +239,28 @@ create-repoman-wrapper() {
     final+="\\n}\\n\\n"
     final+="typeset 'dotfiles_completion_functions[${name}]'='_repoman-wrapper'"
 
-    if (( local_zshrc )); then
-        print "${final}" >> "${filename}"
-    else
+    if (( local_zshrc || vscode )); then
         print "${final}" > "${filename}"
+    fi
+
+    if (( local_zshrc || zshrc )); then
+        local tmp_file="$(mktemp)"
+        local zshrc_file
+        if (( local_zshrc )); then
+            zshrc_file="${DOTFILES}/local/zsh/zshrc.zsh"
+        else
+            zshrc_file="${DOTFILES}/zsh/zshrc.zsh"
+        fi
+        print "Adding function to your local zshrc file: ${zshrc_file}"
+
+        file-rep-headers "$zshrc_file" -m '#' --finsert "${filename}" --header "${name}"
+
+        filename="$zshrc_file"
     fi
 
     if (( vscode )); then
         code "$filename"
-    else
+    elif (( ! local_zshrc )); then
         print "${final}"
     fi
 }
