@@ -193,6 +193,8 @@ Examples:
         db_container_name ''
     )
 
+    local disabled_tasks=()
+
     while (( $# )); do
     case "$1" in
     --help) ;& # fallthrough
@@ -251,6 +253,9 @@ Examples:
             key="${key/%_verbose/}"
 
             task_verbose_args[$key]="--verbose"
+        elif [[ $key == *_disabled ]] && [[ -v tasks[${key%_cmd}] ]]; then
+            key="${key%_disabled}"
+            task_disabled[$key]=1
         elif [[ $key == *_cmd ]] && [[ -v tasks[${key%_cmd}] ]]; then
             key="${key%_cmd}"
             if [[ -v task_commands[$key] ]]; then
@@ -303,10 +308,21 @@ Examples:
             local task1="${${pattern%%-does-*}//-/_}"   # extract first part
             local task2="${${pattern#*-does-}//-/_}"    # extract second part
 
-            if [[ ! -v task_does_task[$task1] ]]; then
-                task_does_task[$task1]="$task2"
+            if [[ ! -v tasks[$task1] && ! -v tasks[$task2] ]]; then
+                print-header -e "Unknown tasks '$task1' and '$task2' in '$1'"
+                return 1
+            elif (( ! tasks[$task1] )); then
+                print-header -e "Unknown task '$task1' in '$1'"
+                return 1
+            elif (( ! tasks[$task2] )); then
+                print-header -e "Unknown task '$task2' in '$1'"
+                return 1
             else
-                task_does_task[$task1]+=";$task2"
+                if [[ ! -v task_does_task[$task1] ]]; then
+                    task_does_task[$task1]="$task2"
+                else
+                    task_does_task[$task1]+=";$task2"
+                fi
             fi
 
             unset pattern task1 task2

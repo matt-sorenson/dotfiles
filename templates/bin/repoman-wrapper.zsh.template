@@ -9,7 +9,7 @@
 # the `--migrations-cmd`/`--db-up-cmd` need to be run from.
 
 # These will change for every repo
-function <reponame>() {
+<reponame>() {
     repoman \
         --calling-name <reponame> \
         --default-repo <reponame> \

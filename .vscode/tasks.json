@@ -32,7 +32,7 @@
         "reveal": "silent",
         "panel": "shared"
       }
-    }
+    },
   ],
   "inputs": [
     {
@@ -40,6 +40,6 @@
       "type": "promptString",
       "description": "Enter the name of the script (no extension)",
       "default": ""
-    }
+    },
   ]
 }

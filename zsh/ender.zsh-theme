@@ -267,28 +267,30 @@ function +vi-git-stash() {
 # Show count of commits from the tracking branch that start with '--<text>--'
 # and display the count for each <text>
 function +vi-git-wip() {
-    local base_commit="$(git merge-base @{u} HEAD)" || return 0
-    local lines=$(git log --pretty=format:"%s" @{u}..HEAD --regexp-ignore-case --grep='^--[a-zA-Z0-9]*--')
+    if git rev-parse @{u} &> /dev/null; then
+        local base_commit="$(git merge-base @{u} HEAD)" || return 0
+        local lines=$(git log --pretty=format:"%s" @{u}..HEAD --regexp-ignore-case --grep='^--[a-zA-Z0-9]*--')
 
-    local -A counts=()
+        local -A counts=()
 
-    local line
-    while read -r line; do
-        if [[ $line =~ --([A-Z0-9_]+)--* ]]; then
-            key=$match[1]
+        local line
+        while read -r line; do
+            if [[ $line =~ --([A-Z0-9_]+)--* ]]; then
+                key=$match[1]
 
-            if [[ -v counts[$key] ]]; then
-                counts[$key]=$(( counts[$key] + 1 ))
-            else
-                counts[$key]=1
+                if [[ -v counts[$key] ]]; then
+                    counts[$key]=$(( counts[$key] + 1 ))
+                else
+                    counts[$key]=1
+                fi
             fi
-        fi
-    done <<< "${lines:u}"
+        done <<< "${lines:u}"
 
-    local key
-    for key in ${(ok)counts}; do
-        _prompt_ender_git_count "$key" "$counts[$key]"
-    done
+        local key
+        for key in ${(ok)counts}; do
+            _prompt_ender_git_count "$key" "$counts[$key]"
+        done
+    fi
 }
 
 function prompt_ender_setup() {
