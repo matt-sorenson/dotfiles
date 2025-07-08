@@ -25,6 +25,7 @@
 ### or the other way around. Don't depend on the ordering of checks.
 ## option_args[--foo]=int # Requires an integer
 ## option_args[--foo]=float # Requires a float (or int)
+## option_args[--foo]=str # Any non-empty string
 ## option_args[--foo]=file # Requires a filename
 ## option_args[--foo]=dir # Requires a directory
 ## option_args[--foo]=mkdir # Requires a directory, but will create it if it doesn't exist
@@ -127,7 +128,7 @@ local -A dot_parse_opts_errors=(
                 fi
                 flags[${flag#no-}]=0
                 set_flags[${flag#no-}]=1
-        elif [[ -v option_args[$flag] ]]; then
+            elif [[ -v option_args[$flag] ]]; then
                 if (( $# < 2 )); then
                     print-header -e "Flag '$1' requires a value."
                     if [[ ! -v flags[help] ]]; then
@@ -136,7 +137,15 @@ local -A dot_parse_opts_errors=(
                     return 1
                 fi
                 shift
-                if [[ ":${option_args[$flag]}:" == *:int:* ]]; then
+                if [[ ":${option_args[$flag]}:" == *:str:* ]]; then
+                    if [[ -z $1  ]]; then
+                        print-header -e "Flag '--$flag' requires a non-empty string value."
+                        if [[ ! -v flags[help] ]]; then
+                            print "${_usage}"
+                        fi
+                        return 1
+                    fi
+                elif [[ ":${option_args[$flag]}:" == *:int:* ]]; then
                     if [[ ! $1 =~ ^[-+]?[0-9]+$  ]]; then
                         print-header -e "Flag '--$flag' requires an integer value."
                         if [[ ! -v flags[help] ]]; then
