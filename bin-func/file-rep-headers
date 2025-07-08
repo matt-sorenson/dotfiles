@@ -1,0 +1,142 @@
+#! /usr/bin/env zsh
+#compdef file-rep-headers
+
+file-rep-headers() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    unsetopt short_loops
+
+    local _usage="Usage file-rep-headers --header <header> --i <text> <file>
+
+Replace the contents of a file between the start/end markers.
+
+Options:
+  -m, --marker <marker>  The Characters to use for the start/end headers. (default: '#')
+  --header <text>.       The text to use for the header.
+
+  -f, --file <file>      The file to modify.
+  -i, --insert <text>    The text to insert between the markers.
+  --finsert <file>       The file to insert between the markers.
+
+  -h, --help    Show this message
+
+Notes:
+Will look for headers in the form of:
+################################################################################
+## Start <header>
+################################################################################
+
+################################################################################
+## End <header>
+################################################################################
+
+If your file uses a different header character than '#' you can specify it with the -m/--marker option."
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    short_to_long_opts[f]=file
+
+    option_args[insert]=str
+    short_to_long_opts[i]=insert
+    option_args[finsert]=file
+
+    option_args[header]=str
+    short_to_long_opts[h]=header
+    option_args[marker]=str
+    short_to_long_opts[m]=marker
+
+    min_positional_count=1
+    max_positional_count=1
+
+    dot-parse-opts "$@"
+    set -- "${positional_args[@]}"
+    local filename="$1"
+
+    if [[ -f "$filename" && ! -r "$filename" ]]; then
+        print-header -e "File not readable: ${filename}"
+        return 1
+    elif [[ ! -v options[header] ]]; then
+        print-header -e "Header text is required. Use --header <text> to specify the header."
+        return 1
+    elif [[ ! -v options[insert] && ! -v options[finsert] ]]; then
+        print-header -e "Insert text is required. Use --insert <text> or --finsert <file> to specify the text to insert."
+        return 1
+    elif [[ -v options[insert] && -v options[finsert] ]]; then
+        print-header -e "Cannot use both --insert and --finsert options at the same time."
+        return 1
+    else
+        if [[ ! -f "$filename" ]]; then
+            local dir="${filename:h}"
+            mkdir -p "${dir}"
+            touch "$filename"
+            unset dir
+        fi
+    fi
+
+    if [[ ! -v options[marker] ]]; then
+        if [[ "$filename" == *.lua ]]; then
+            options[marker]='--'
+        else
+            options[marker]='#'
+        fi
+    fi
+
+    local header_length=80
+    local pad="$(printf "%*s" "$header_length" '' | tr ' ' "${options[marker]}")"
+    local header_wrap="$(print -- "${pad}")"
+    unset pad
+
+    local start_header="${header_wrap}
+${options[marker]}${options[marker]} Start ${options[header]}
+${header_wrap}"
+    local end_header="${header_wrap}
+${options[marker]}${options[marker]} End ${options[header]}
+${header_wrap}"
+
+    local start_line=$(awk '/^#{80}/ { getline; if ($0 ~ /^## Start mono$/) { getline; print NR+1 } }' "$filename")
+    local end_line=$(awk '/^#{80}/ { getline; if ($0 ~ /^## End mono$/) { getline; print NR-3 } }' "$filename")
+
+    if [[ -z $start_line || -z $end_line ]] || (( ! start_line || ! end_line )); then
+        print "No headers found, adding new headers."
+        if [[ -s "${filename}" ]]; then
+            # try stripping all whitespace from file, if theres anything left
+            # add newlines to keep it separated.
+            local contents="${(L)$(<"$filename")//[[:space:]]/}"
+            if [[ -n "${contents}" ]]; then
+                print "\n\n" >> "$filename"
+            fi
+        fi
+
+        if [[ -v options[insert] ]]; then
+            printf "%s\n " "${options[insert]}" >> "$filename"
+        else
+            cat "${options[finsert]}" >> "$filename"
+        fi
+
+        print "${end_header}" >> "$filename"
+    else
+        print "Headers found, replacing existing headers."
+
+        local tmp_file="$filename.bak" # "$(mktemp)"
+        mv "$filename" "$tmp_file"
+
+        touch "$filename"
+        head -n $(( start_line - 1 )) "$tmp_file" >> "$filename"
+
+        cat "$filename"
+
+        if [[ -v options[insert] ]]; then
+            printf "%s\n" "${options[insert]}" >> "$filename"
+        else
+            cat "${options[finsert]}" >> "$filename"
+        fi
+        cat "$filename"
+
+        local count=$(( $(wc -l < "$tmp_file") ))
+        tail -n $(( count - end_line )) "$tmp_file" >> "$filename"
+        cat "$filename"
+    fi
+}
+
+file-rep-headers "$@"
