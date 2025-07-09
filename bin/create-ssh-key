@@ -1,0 +1,262 @@
+#! /usr/bin/env zsh
+
+add-or-update-option() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    unsetopt short_loops
+
+    local option_name="$1"
+    local option_value="$2"
+
+    
+}
+
+create-ssh-key() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    unsetopt short_loops
+
+    local _usage="Usage create-ssh-key
+
+Options:
+  -t, --type <type>     The type of SSH key to create (default: ed25519)
+  -f, --file <filename> The name of the SSH Key file to create (default: id_<type>)
+
+  -h, --help    Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    flags[keychain]=0
+    flags[rotate-password]=0
+    short_to_long_flags[k]=keychain
+    short_to_long_flags[r]=rotate-password
+
+    option_args[type]=str
+    option_args[filename]=str
+    short_to_long_flags[f]=file
+    short_to_long_flags[t]=type
+
+    if [[ "$OSTYPE" == darwin* ]]; then
+        flags[keychain]=1
+    fi
+
+    dot-parse-opts "$@"
+
+    if [[ "$OSTYPE" != darwin* ]]; then
+        if (( flags[keychain] || flags[rotate-password] )); then
+            print-header -e "SSH keychain support is only available on macOS."
+            return 1
+        fi
+    fi
+
+    if [[ ! -v options[type] ]]; then
+        options[type]='ed25519'
+    fi
+
+    if [[ ! -v options[filename] ]]; then
+        options[filename]='id_'${options[type]}
+    fi
+
+    local file_exists=0
+    if [[ -f "${HOME}/.ssh/${options[filename]}" ]]; then
+        file_exists=1
+    fi
+    local private_filename="${HOME}/.ssh/${options[filename]}"
+
+    if (( flags[rotate-password] && ! file_exists)); then
+        print-header -e "SSH Key file ${private_filename} does not exist."
+        print "You can't rotate a password for a key that doesn't exist."
+        return 1
+    elif (( file_exists )); then
+        print-header -e "SSH key file ${private_filename} already exists."
+        print "Please remove it or specify a different filename using the -f option."
+        return 1
+    fi
+
+    # TODO: support rotate-password
+    if (( flags[rotate-password] )); then
+        print-header -e "SSH key rotation is not yet implemented."
+        return 1
+    fi
+
+    if [[ ! -d "${HOME}/.ssh" ]]; then
+        print-header blue "Creating SSH directory"
+        mkdir -p "${HOME}/.ssh"
+    fi
+
+    print-header blue "Generating a SSH key"
+    local -a ssh_keygen_args=()
+
+    if [[ -v git_config[local_email] ]]; then
+        ssh_keygen_args+=(-C "${git_config[local_email]}")
+    fi
+
+    if (( flags[keychain] )); then
+        if ! command -v openssl &> /dev/null; then
+            print-header -e "openssl is required for ssh keychain support"
+            return 1
+        fi
+
+        local ssh_key_password="$(openssl rand -base64 36)"
+        ssh_keygen_args+=(-N "${ssh_key_password}")
+    fi
+
+    ssh-keygen -t "${options[type]}" -f "${private_filename}" "${ssh_keygen_args[@]}"
+
+    local -A ssh_host_config=()
+    ssh_host_config[IdentityFile]='~/.ssh/'"${options[filename]}"
+
+    if (( flags[keychain] )); then
+        local askpass_script="$(mktemp)"
+        chmod +x "${askpass_script}"
+        print-header blue "Adding SSH key to the macOS keychain"
+        print -r -- "#!/bin/sh
+            printf '%s\n' '${ssh_key_password}'
+        " > "${askpass_script}"
+
+        DISPLAY=:0 SSH_ASKPASS="${askpass_script}" ssh-add --apple-use-keychain ~/.ssh/id_ed25519 </dev/null
+        # Make sure to remove the file as it has the password in it.
+        rm -f "${askpass_script}"
+
+        # Overwrite the password variable, hopefully zsh uses the
+        # same memory location but this is only so much zsh lets you do.
+        # ¯\_(ツ)_/¯
+        ssh_key_password="$(openssl rand -base64 36)"
+        # Unset the password variable so it doesn't leak into the environment
+        unset ssh_key_password &> /dev/null || true
+
+        ssh_host_config[UseKeychain]=yes
+        ssh_host_config[AddKeysToAgent]=yes
+    fi
+
+    if [[ -f "${HOME}/.ssh/config" && ! -r "${HOME}/.ssh/config" ]]; then
+        print-header -e "SSH config file ${HOME}/.ssh/config exists but is not readable"
+        print "Please check the permissions and ownership of the file."
+        return 1
+    fi
+
+    local ssh_config_file="${HOME}/.ssh/config"
+    local ssh_config_has_host_star=0
+    if [[ -s "${HOME}/.ssh/config" ]]; then
+        if grep -q '^Host[[:space:]]*\*[[:space:]]*$' "${ssh_config_file}"; then
+            ssh_config_has_host_star=1
+        fi
+    fi
+    
+    if (( ! ssh_config_has_host_star )); then
+        if [[ -s "${HOME}/.ssh/config" ]]; then
+            # If it already exists but doesn't have a Host * entry
+            # Dump a newline at the end of the file so the new entries
+            # are separated from the existing entries.
+            print >> "${ssh_config_file}"
+        fi
+
+        print "Host *" >> "${ssh_config_file}"
+        local ssh_config_key ssh_config_value
+        for ssh_config_key ssh_config_value in "${(@kv)ssh_host_config}"; do
+            print -r -- "  ${ssh_config_key} ${ssh_config_value}" >> "${ssh_config_file}"
+        done
+        unset ssh_config_key ssh_config_value
+    else
+        # File has a 'host *' line already, need to be careful
+        print-header "yellow" "SSH config file ${ssh_config_file} already has a 'Host *' entry."
+
+        local backup_file="${ssh_config_file}.bak"
+        print "backing up existing SSH Config to '${backup_file}'"
+        mv -f "${ssh_config_file}" "${backup_file}"
+
+        local -i host_star_line=$(grep -nE '^Host[[:space:]]*\*[[:space:]]*$' "${backup_file}" | cut -d: -f1)
+
+        local next_host=$(awk -v start="$((host_star_line + 1))" '
+            NR >= start && $0 ~ /^Host[[:space:]]/ {
+                print NR
+                exit
+            }
+            ' "$backup_file")
+
+        if [[ -z "${next_host}" ]]; then
+            next_host=0
+        fi
+
+        local -a match
+        local -a mbegin
+        local -a mend
+        local -A read_config=()
+        local line_num=0
+        local line key value
+        while IFS= read -r line; do
+            line_num=$(( line_num + 1 ))
+
+            if (( next_host && line_num >= next_host )); then
+                break
+            fi
+
+            if (( line_num > host_star_line )); then
+                line="${line#"${line%%[![:space:]]*}"}"  # remove leading
+                line="${line%"${line##*[![:space:]]}"}"  # remove trailing
+
+                if [[ -z "${line}" ]]; then
+                    # Skip empty lines
+                    continue
+                fi
+
+                if [[ "$line" =~ '^([^ =]+)[ =](.*)$' ]]; then
+                    key="${match[1]}"
+                    value="${match[2]}"
+
+                    read_config[$key]="${value}"
+                else
+                    print-header -e "Could not parse line: $line"
+                    return 1
+                fi
+            fi
+        done < "$backup_file"
+
+        if (( host_star_line > 1 )); then
+            head -n $(( host_star_line - 1 )) "$backup_file" >> "$ssh_config_file"
+        fi
+
+        local -a overwritten=()
+
+        local ssh_config_key
+        for ssh_config_key in "${(@k)ssh_host_config}"; do
+            if [[ -v read_config[$ssh_config_key] ]]; then
+                if [[ "${read_config[$ssh_config_key]}" != "${ssh_host_config[$ssh_config_key]}" ]]; then
+                    overwritten+=("${ssh_config_key}]: '${read_config[$ssh_config_key]}' => '${ssh_host_config[$ssh_config_key]}'")
+                fi
+            fi
+
+            read_config[$ssh_config_key]="${ssh_host_config[$ssh_config_key]}"
+        done
+
+        if (( ${#overwritten[@]} )); then
+            print-header -w "Overwriting existing SSH config entries"
+            for ssh_config_key in "${overwritten[@]}"; do
+                print -r -- "  ${ssh_config_key}"
+            done
+
+        fi
+        unset ssh_config_key
+
+        if (( next_host )); then
+            local tail_count=$(( $(wc -l < "$backup_file") - next_host + 1 ))
+            tail -n $tail_count "$backup_file" >> "$ssh_config_file"
+        fi
+
+        if [[ -n "$(tail -n 1 "${ssh_config_file}")" ]]; then
+            print '' >> "${ssh_config_file}"
+        fi
+
+        # Move 'Host *' to the bottom of the file as ssh takes the first match
+        # so 'Match Anything' should be last as a default.
+        print "Host *" >> "${ssh_config_file}"
+        local ssh_config_key ssh_config_value
+        for ssh_config_key ssh_config_value in "${(@kv)read_config}"; do
+            print -r -- "    ${ssh_config_key} ${ssh_config_value}" >> "${ssh_config_file}"
+        done
+    fi
+}
+
+create-ssh-key "$@"
