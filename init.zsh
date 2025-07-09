@@ -82,7 +82,6 @@ safe-git-clone() {
         shift
     done
 
-
     # if the destination exists check to see if one of it's remotes is the given URL
     # if so skip cloning
     if [[ -d "${dest}" ]]; then
@@ -159,20 +158,25 @@ main() {
     local matt_email="${matt_username}@${matt_dm}"
 
     local -A git_config=()
+    local -A ssh_config=()
 
     local -A flags=(
-        # macOS
-        [brew]=0
-        [hammerspoon]=0
-
-        # Debian Derivitives
-        [apt]=0
+        # The macOs/Debian specific flags are added in the case statement below
 
         [docker]=1
         [doom]=1
 
         [local_template]=1
         [work]=0
+
+        [ssh]=1
+    )
+
+    local -a os_specific_flags=(
+        brew
+        hammerspoon
+        ssh_keychain
+        apt
     )
 
     local apt_specific_help=''
@@ -181,7 +185,11 @@ main() {
         darwin*)
             flags[brew]=1
             flags[hammerspoon]=1
-            mac_specific_help="\n  --no-brew          Do not install Homebrew\n   --no-hammerspoon       Do not set up Hammerspoon"
+            flags[ssh_keychain]=1
+            mac_specific_help="
+  --no-brew          Do not install Homebrew
+  --no-hammerspoon   Do not set up Hammerspoon
+  --no-ssh-keychain  Do not set up the ssh key into the macOS keychain"
             ;;
         linux*)
             if command -v apt &> /dev/null; then
@@ -204,9 +212,12 @@ Options:${mac_specific_help}${apt_specific_help}
   --no-local-template   If local is created due to not being specified as a plugin or a ref or git repo
                         then this flag disables creating a bare bones set of files.
 
+  --ssh-key-type <type> Type of SSH key to generate (defaults to default from create-ssh-key)
+
   --git-dotfiles-email  Email to use in the \${DOTFILES}/.git/config file
   --git-dotfiles-name   Name to use in the \${DOTFILES}/.git/config file
 
+  --no-ssh              Do not set up SSH
   --no-brew             Do not install Homebrew
   --no-hammerspoon      Do not set up Hammerspoon
   --no-apt              Do not install packages using apt
@@ -220,6 +231,8 @@ Options:${mac_specific_help}${apt_specific_help}
         Plugins added here will be automatically updated with the dot-check-for-update script
         You'll need to manually source/init zsh plugins (that aren't 'local' or in the default list).
         Shallow flags the repo to be cloned with --depth 1, which is useful for large repos.
+
+  --ssh-key-type <type>    Type of SSH key to generate, (default: 'ed25519')
 
   --help, -h                            Show this help message"
     unset mac_specific_help apt_specific_help
@@ -352,6 +365,14 @@ Options:${mac_specific_help}${apt_specific_help}
 
                 if [[ -v flags[$key] ]]; then
                     flags[$key]=$enabled
+                elif [[ "$key" == 'ssh_key_type' ]]; then
+                    if (( $# < 2 )); then
+                        print-header -e "$1 requires a value"
+                        return 1
+                    fi
+                    shift
+
+                    ssh_config[type]="$1"
                 else
                     print-header -e "Unknown flag: $1"
                     print "${_usage}"
@@ -360,6 +381,12 @@ Options:${mac_specific_help}${apt_specific_help}
                 ;;
         esac
         shift
+    done
+
+    for flag in "${os_specific_flags[@]}"; do
+        if [[ ! -v flags[$flag] ]]; then
+            flags[$flag]=0
+        fi
     done
 
     if command -v locale-gen &> /dev/null; then
@@ -435,17 +462,39 @@ Options:${mac_specific_help}${apt_specific_help}
         ln -s "$(which fdfind)" "${HOME}/bin/fd"
     fi
 
-    safe-git-clone "git@github.com:matt-sorenson/dotfiles.git" "${DOTFILES}"
-    # print-header from the dotfiles is more robust so :shrug:
-    PATH="${DOTFILES}/bin:${PATH}"
+    # Use https here cause ssh may not have been setup yet.
+    safe-git-clone "https://github.com/matt-sorenson/dotfiles.git" "${DOTFILES}"
+    unset -f print-header
+    source ${DOTFILES}/zsh/zshenv.zsh
+    source ${DOTFILES}/zsh/zshrc.zsh
+
+    print-header blue 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
+    git -C "${DOTFILES}" config core.hooksPath "${DOTFILES}/githooks"
+
+    if (( flags[ssh] )); then
+        print-header green "Setting up SSH"
+
+        if ls "${HOME}/.ssh/id_"* &> /dev/null; then
+            print-header green "SSH keys already exist, skipping key generation"
+        else
+            local ssh_key_args=()
+            if (( !flags[ssh_keychain] )); then
+                ssh_key_args+=(--no-keychain)
+            fi
+            if [[ -v ssh_config[type] ]]; then
+                ssh_key_args+=(--type "${ssh_config[type]}")
+            fi
+
+            create-ssh-key "${ssh_key_args[@]}"
+        fi
+    fi
+
+    git -C "${DOTFILES}" remote set-url origin git@github.com:matt-sorenson/dotfiles.git
 
     # '-p' options makes all the directories that don't exist, but
     # more importantly it doesn't error if the directory already exists.
     mkdir -p "${DOTFILES}/plugins"
     mkdir -p "${DOTFILES}/tmp"
-
-    print-header blue 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
-    git -C "${DOTFILES}/" config core.hooksPath "${DOTFILES}/githooks"
 
     print-header blue "Setting up zsh & plugins"
 
