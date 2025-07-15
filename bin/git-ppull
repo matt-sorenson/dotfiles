@@ -1,7 +1,7 @@
 #! /usr/bin/env zsh
-#compdef git-pprune
+#compdef git-ppull
 
-git-pprune() {
+git-ppull() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
@@ -12,7 +12,7 @@ git-pprune() {
     setopt warn_create_global
     unsetopt short_loops
 
-    local _usage='Usage: git-pprune [options]
+    local _usage='Usage: git-ppull [options]
 
 Prune local branches that have been deleted on the remote.
 
@@ -72,14 +72,16 @@ Options:
         else
             print -n "Delete branch '$branch'? [y/N] "
             if read -q; then
+                print
                 if ! git branch -D "$branch"; then
                     print-header -e "Failed to delete branch '$branch'. It may not be fully merged."
                 fi
             else
+                print
                 print "Skipped branch '$branch'."
             fi
         fi
     done
 }
 
-git-pprune "$@"
+git-ppull "$@"

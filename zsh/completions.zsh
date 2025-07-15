@@ -52,7 +52,7 @@ _git-dag() {
 }
 zstyle ':completion:*:*:git:*' user-commands dag:'Show the git history as a directed acyclic graph'
 
-_git-pprune() {
+_git-ppull() {
     _arguments -C -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-f --force)'{-f,--force}'[Delete any branches identified without asking]' \
@@ -88,7 +88,7 @@ _git-stack-init() {
 
 zstyle ':completion:*:*:git:*' user-commands \
     'dag:Displays the git commit history in a directed acyclic graph format' \
-    'pprune:Pull and prune local branches that have been deleted on the remote' \
+    'ppull:Pull and prune local branches that have been deleted on the remote' \
     'popb:pop the last branch off your git stack and check it out' \
     'pushb:push the current branch to the top of the stack and checkout the new branch' \
     'stack:show your current git branch stack' \
