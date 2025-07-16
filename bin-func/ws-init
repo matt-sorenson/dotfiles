@@ -21,7 +21,6 @@ Arguments
 
 Options:
   -b, --branch <branch>     Branch name to use (to override configured default)
-  -m, --message <message>   the message to pass as the first commit. (default: 'Initial Commit')
   -c, --vscode              Open the created directory in vscode
   -d, --cd                  Change the current shells working directory to the newly created directory
   -h, --help                Show this message"
