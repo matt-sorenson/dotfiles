@@ -1,6 +1,6 @@
 # These aliases are sourced in zshrc.zsh, so only available in interactive shells.
 
-if ls --version 2> /dev/null | grep &>  /dev/null; then
+if ls --version 2> /dev/null; then
     # GNU ls
     # --time-style=long-iso gives a more readable date format
     alias ls='ls --time-style=long-iso --color=auto'

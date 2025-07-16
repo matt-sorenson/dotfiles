@@ -109,15 +109,20 @@ add-to-path "${HOME}/bin"
 add-to-path "${HOME}/.rbenv/bin"
 add-to-path "${HOME}/.config/emacs/bin"
 
-if [[ -d "${HOME}/Library/pnpm" ]]; then
-    export PNPM_HOME="${HOME}/Library/pnpm"
-elif [[ -d "${HOME}/.pnpm" ]]; then
-    export PNPM_HOME="${HOME}/.pnpm"
-fi
-
-if [[ -v PNPM_HOME ]]; then
-    add-to-path "${PNPM_HOME}"
-fi
+local -a pnpm_dirs=(
+    "${HOME}/Library/pnpm"
+    "${HOME}/.local/share/pnpm"
+    "${HOME}/.pnpm"
+)
+local pnpm_dir
+for pnpm_dir in "${pnpm_dirs[@]}"; do
+    if [[ -d "${pnpm_dir}" ]]; then
+        PNPM_HOME="${pnpm_dir}"
+        add-to-path "${PNPM_HOME}"
+        break;
+    fi
+done
+unset pnpm_dirs pnpm_dir
 
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
