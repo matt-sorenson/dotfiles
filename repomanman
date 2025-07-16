@@ -1,0 +1,123 @@
+#!/usr/bin/env ts-node
+
+import { readFileSync } from 'fs';
+import { readline } from 'node:readline';
+
+function menuSelect(
+    prompt: string,
+    options: string[]
+    rl: readline.Interface
+): string {
+    options.forEach((option, index) => {
+        console.log(`${index + 1}. ${option}`);
+    });
+
+    rl.question(`${prompt} (1-${options.length}): `, (answer) => {
+        const index = parseInt(answer, 10) - 1;
+        if (index >= 0 && index < options.length) {
+            return options[index];
+        } else {
+            console.log('Invalid option. Please try again.');
+            return menuSelect(prompt, options, rl);
+        }
+    })
+}
+
+enum Tasks {
+    GIT_CLEAN = 'git-clean',
+    NUKE = 'nuke',
+    CLEAN = 'clean',
+    INSTALL = 'install',
+    LINT = 'lint',
+    BUILD = 'build',
+    CLOUD_SIGNON = 'cloud-signon',
+    DB_UP = 'db-up',
+    MIGRATIONS = 'migrations',
+    GENERATE_SCHEMA = 'generate-schema',
+    UNIT_TESTS = 'unit-tests',
+    INTEGRATION_TESTS = 'integration-tests',
+}
+
+interface TaskConfig {
+    cmd: string
+    verboseable: boolean
+    verbose_arg: string
+    working_dir: string
+}
+
+interface Config {
+    defaultRepo: string
+    callingName: string
+    dbContainerName: string
+
+    tasks: Record<Tasks, TaskConfig>
+}
+
+function main(argv: string[]){
+    while(argv.length) {
+        const arg = argv.shift();
+        switch(arg) {
+            case '-h':
+            case '--help':
+                console.log(`Usage: repomanman`);
+            default:
+                console.log(`Unknown argument: ${arg}`);
+                console.log(`Use -h or --help for usage information.`);
+                process.exit(1);
+        }
+    }
+
+    const dotfiles = process.env.DOTFILES || '~/.dotfiles';
+    const local = `${dotfiles}/local`;
+
+    const dotfiles_config_filename = `${dotfiles}/repomanman.json`;
+    const local_config_filename = `${local}/repomanman.json`;
+
+    const dotfiles_config_json = readFileSync(dotfiles_config_filename);
+    const local_config_json = readFileSync(local_config_filename);
+
+    const dotfiles_config = JSON.parse(dotfiles_config_json.toString());
+    const local_config = JSON.parse(local_config_json.toString());
+
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    enum ConfigType {
+        Dotfiles = 'Dotfiles',
+        Local = 'Local',
+        Exit = 'Exit',
+    }
+
+    enum ConfigAction {
+        New = 'New Config',
+        List = 'List Configs',
+        Edit = 'Edit Config',
+        Delete = 'Delete Config',
+        Back = 'Back to main menu',
+    }
+
+    while (true) {
+
+
+        console.log(options.map((name, index) => `${index}. ${name}`).join('\n'));
+
+        rl.question('Select an option: ', (answer) => {
+            const index = parseInt(answer, 10);
+            if (isNaN(index) || index < 0 || index >= options.length) {
+                console.log('Invalid option. Please try again.');
+                return;
+            }
+
+            const command = options[index];
+
+            if (command === 'exit') {
+                console.log('Exiting...');
+                process.exit(0);
+            }
+        });
+    }
+}
+
+return main([...process.argv])
