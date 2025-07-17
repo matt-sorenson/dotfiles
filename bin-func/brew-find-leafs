@@ -32,7 +32,13 @@ brew-find-leafs() {
     flags[quiet]=0
     flags[remove]=0
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     if (( flags[quiet] && flags[remove] )); then
         print "Error: --quiet and --remove are mutually exclusive."

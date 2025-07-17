@@ -29,7 +29,14 @@ Options:
     max_positional_count=1
     allow_extra_args=1
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
     set -- "${positional_args[@]}"
 
     local -a extensions=( "*.cpp" "*.h" "*.hpp" "*.inl" )

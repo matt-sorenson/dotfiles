@@ -30,8 +30,13 @@ git-stack() {
     option_args[lines]=int
     short_to_long_opts[l]=lines
 
-    dot-parse-opts "$@"
-
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     # Find repo root
     local repo_root

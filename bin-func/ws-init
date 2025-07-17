@@ -38,7 +38,13 @@ Options:
     dot_parse_opts_errors[too-many-positional]="Too many arguments. Can only create 1 project at a time."
     dot_parse_opts_errors[too-few-positional]="You must supply a project name."
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     local project="${positional_args[1]}"
     if [[ ! ( "${project}" =~ '^[a-zA-Z0-9._-]+$' ) ]]; then

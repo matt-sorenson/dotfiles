@@ -105,7 +105,7 @@ local -A dot_parse_opts_errors=(
                 flags[help]=1
             else
                 print "${_usage}"
-                return 0
+                return -1
             fi
             ;;
         --?*)

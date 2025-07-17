@@ -32,7 +32,14 @@ dot-check-for-update-git() {
     dot_parse_opts_errors[too-many-positional]="Only 1 repo may be provided"
     dot_parse_opts_errors[too-few-positional]="You must provide a directory to check for updates"
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
     set -- "${positional_args[@]}"
 
     local dir="${1}"

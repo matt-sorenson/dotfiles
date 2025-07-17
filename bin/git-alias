@@ -17,7 +17,13 @@ git-alias() {
     -h, --help    Show this help message"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     local lines
     # Retrieve alias lines: "alias.aliasName command..."

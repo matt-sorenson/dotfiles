@@ -6,12 +6,22 @@ setopt typeset_to_unset
 
 print-header "Starting create-zsh-script.zsh"
 
+local _usage="Usage: create-zsh-script.zsh [-t|--type <type>] [-l|--location <loc>] [-h|--help] <name>
+
+Options:
+  -h, --help            Show this help message
+  -t, --type <type>     Specify the type of script [function, func, or bin] (default: bin)
+  -l, --location <loc>  Specify the location [dotfiles or local] (default: dotfiles)"
+
 local name
-local base_dir
+local base_dir="${DOTFILES}"
+local bin_dir="bin"
 
 while (( $# )); do
     case "$1" in
         -h|--help)
+            print "$_usage"
+            return 0
             ;;
         -t|--type)
             if (( $# < 2 )); then
@@ -21,11 +31,27 @@ while (( $# )); do
 
             shift
             if [[ "$1" == 'function' || "$1" == 'func' ]]; then
-                base_dir=bin-func
+                bin_dir=bin-func
             elif [[ "$1" == 'bin' ]]; then
-                base_dir=bin
+                bin_dir=bin
             else
                 print-header -e "Unknown type: $1"
+                return 1
+            fi
+            ;;
+        -l|--location)
+            if (( $# < 2 )); then
+                print-header -e "--location requires an argument"
+                return 1
+            fi
+
+            shift
+            if [[ "$1" == 'dotfiles' ]]; then
+                base_dir="${DOTFILES}"
+            elif [[ "$1" == 'local' ]]; then
+                base_dir="${DOTFILES}/local"
+            else
+                print-header -e "Unknown location: $1"
                 return 1
             fi
             ;;
@@ -48,7 +74,9 @@ if [[ ! -v name ]]; then
 fi
 
 template="${DOTFILES}/templates/bin/new_script.zsh"
-target="${DOTFILES}/${base_dir}/${name}"
+target="${base_dir}/${bin_dir}/${name}"
+
+mkdir -p "${base_dir}/${bin_dir}"
 
 if [[ ! -r "${template}" ]]; then
     print-header -e "Template '${template}' not found." >&2

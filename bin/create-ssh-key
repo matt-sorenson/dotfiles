@@ -42,7 +42,13 @@ Options:
         flags[keychain]=1
     fi
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     if [[ "$OSTYPE" != darwin* ]]; then
         if (( flags[keychain] || flags[rotate-password] )); then

@@ -58,10 +58,8 @@ Options:
 
     allow_extra_args=1
 
-    if ! dot-parse-opts "$@"; then
-        flags[error]=$?
-    fi
-
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
     if (( flags[help] )); then
         if [[ -v options[cmd-name] ]]; then
             _ws-clone-usage "$options[cmd-name]"
@@ -69,9 +67,7 @@ Options:
             _ws-clone-usage
         fi
 
-        if [[ -v flags[error] ]]; then
-            return $flags[error]
-        fi
+        return $dot_parse_code
     fi
 
     set -- "${positional_args[@]}"

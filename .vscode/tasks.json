@@ -5,7 +5,7 @@
       "label": "Create ZSH Script",
       "type": "process",
       "command": "./.vscode/create-zsh-script.zsh",
-      "args": ["${input:scriptName}", "--type", "bin"],
+      "args": ["${input:scriptName}", "--type", "bin", "--location", "${input:scriptLocation}"],
       "problemMatcher": [],
       "group": {
         "kind": "build",
@@ -21,7 +21,7 @@
       "label": "Create ZSH Function",
       "type": "process",
       "command": "./.vscode/create-zsh-script.zsh",
-      "args": ["${input:scriptName}", "--type", "function"],
+      "args": ["${input:scriptName}", "--type", "function", "--location", "${input:scriptLocation}"],
       "problemMatcher": [],
       "group": {
         "kind": "build",
@@ -41,5 +41,15 @@
       "description": "Enter the name of the script (no extension)",
       "default": ""
     },
+    {
+      "id": "scriptLocation",
+      "type": "pickString",
+      "description": "Dotfiles or Local?",
+      "options": [
+        "dotfiles",
+        "local"
+      ],
+      "default": "dotfiles"
+    }
   ]
 }

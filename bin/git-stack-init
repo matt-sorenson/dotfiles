@@ -24,7 +24,13 @@ Options:
     flags[clear]=1
     flags[quiet]=0
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     local -a branch_list=()
     local prev_branch=""

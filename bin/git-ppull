@@ -37,7 +37,13 @@ Options:
     short_to_long_opts[e]='exclude'
     short_to_long_opts[p]='exclude-pattern'
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     git pull --prune
 

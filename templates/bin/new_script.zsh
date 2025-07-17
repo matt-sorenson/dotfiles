@@ -17,7 +17,7 @@ Options:
     ############################################################################
     ## Your opts config goes here
     ############################################################################
-    ## See ../../bin-func/dot-parse-opts for options.
+    ## See ${DOTFILES}/bin-func/dot-parse-opts for options.
 
     # flags[foo]=0
     # short_to_long_flags[f]=foo
@@ -26,7 +26,13 @@ Options:
     # max_positional_count=2
     # allow_extra_args=1
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     ############################################################################
     ## Your implementation goes here

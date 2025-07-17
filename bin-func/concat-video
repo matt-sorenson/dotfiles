@@ -31,7 +31,13 @@ Options:
     short_to_long_opts[c]=crop
     short_to_long_opts[t]=trim
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
 
     options[extension]="${options[extension]:-.m4v}"
 

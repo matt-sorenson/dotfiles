@@ -38,7 +38,14 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
     min_positional_count=2
     max_positional_count=2
 
-    dot-parse-opts "$@"
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
     set -- "${positional_args[@]}"
 
     local testee_name="$1"
