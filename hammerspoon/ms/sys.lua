@@ -127,7 +127,7 @@ local function get_current_window_size()
 end
 
 -- Use 'is-work' file to determine this to massively simplify it
-local IS_WORK_COMPUTER = (nil ~= hs.fs.attributes(fs.get_local_path("is-work")))
+local IS_WORK_COMPUTER = fs.file_exists_local("is-work")
 
 return {
     find_usb_device_by_name = find_usb_device_by_name,

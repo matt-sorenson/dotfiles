@@ -15,46 +15,45 @@ local function ls(dir)
     return contents
 end
 
-local function get_path_helper(root_path, local_path)
+local PATHNAMES = {
+    CONFIG = hs.configdir .. '/config',
+    DOTFILES = hs.configdir .. '/..',
+    HS = hs.configdir,
+    LOCAL = hs.configdir .. '/../local',
+    RESOURCES = hs.configdir .. '/resources',
+}
+
+local function get_path_helper(pathname, local_path)
     if local_path then
-        root_path = root_path .. '/' .. local_path
+        pathname = pathname .. '/' .. local_path
     end
 
-    return hs.fs.pathToAbsolute(root_path)
+    return hs.fs.pathToAbsolute(pathname)
 end
 
 --[[ export ]]
-local function get_hs_path(local_path)
-    return get_path_helper(hs.configdir, local_path)
+local function file_exists(filename, pathname)
+    if filename == nil then
+        return false
+    end
+
+    if pathname then
+        filename = pathname .. '/' .. filename
+    end
+
+    return hs.fs.attributes(filename) ~= nil
 end
 
---[[ export ]]
-local function get_dotfiles_path(local_path)
-    return get_path_helper(hs.configdir .. '/../', local_path)
-end
-
---[[ export]]
-local function get_resource_path(local_path)
-    return get_path_helper(hs.configdir .. '/resources/', local_path)
-end
-
---[[ export ]]
-local function get_config_path(config_path)
-    return get_path_helper(hs.configdir .. '/config/', config_path)
-end
-
---[[ export ]]
-local function get_local_path(local_path)
-    return get_path_helper(get_dotfiles_path() .. '/local/', local_path)
-end
-
-local function do_file_helper(filename, path_fn)
-    local file = path_fn(filename)
-    if not file then
+local function do_file_helper(filename, pathname)
+    if not filename then
         error("Could not find file: " .. filename)
     end
 
-    local fn, err = loadfile(file)
+    if pathname then
+        filename = pathname .. '/' .. filename
+    end
+
+    local fn, err = loadfile(filename)
     if not fn then
         error("Error loading file: " .. err)
     end
@@ -65,14 +64,22 @@ end
 return {
     ls = ls,
 
-    get_config_path = get_config_path,
-    get_dotfiles_path = get_dotfiles_path,
-    get_hs_path = get_hs_path,
-    get_resource_path = get_resource_path,
-    get_local_path = get_local_path,
+    get_config_path = function(local_path) return get_path_helper(PATHNAMES.CONFIG, local_path) end,
+    get_dotfiles_path = function(local_path) return get_path_helper(PATHNAMES.DOTFILES, local_path) end,
+    get_hs_path = function(local_path) return get_path_helper(PATHNAMES.HS, local_path) end,
+    get_local_path = function(local_path) return get_path_helper(PATHNAMES.LOCAL, local_path) end,
+    get_resource_path = function(local_path) return get_path_helper(PATHNAMES.RESOURCES, local_path) end,
 
-    do_file_resources = function(file) return do_file_helper(file, get_resource_path) end,
-    do_file_local  = function(file) return do_file_helper(file, get_local_path) end,
+    file_exists = file_exists,
+
+    file_exists_config = function(path) return file_exists(path, PATHNAMES.CONFIG) end,
+    file_exists_dotfiles = function(path) return file_exists(path, PATHNAMES.DOTFILES) end,
+    file_exists_hs = function(path) return file_exists(path, PATHNAMES.HS) end,
+    file_exists_local = function(path) return file_exists(path, PATHNAMES.LOCAL) end,
+    file_exists_resource = function(path) return file_exists(path, PATHNAMES.RESOURCES) end,
+
+    do_file_resources = function(file) return do_file_helper(file, PATHNAMES.RESOURCES) end,
+    do_file_local  = function(file) return do_file_helper(file, PATHNAMES.LOCAL) end,
 
     samba = require('ms.fs.samba'),
 }

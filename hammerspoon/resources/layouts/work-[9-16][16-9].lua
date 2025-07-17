@@ -31,7 +31,7 @@ return {
 
             { app = {'Chrome'},  section = 2 },
 
-            { app = 'zoom.us', resize_center = { 1280, 960 }, categories = 'communications' },
+            { app = 'zoom.us', resize_center = { 1920, 1080 }, categories = 'communications' },
             { app = {'okta', 'AWS VPN Client'}, center = true },
 
             { window = 'Hammerspoon Console', rect = { 11 / 16, 1/10, 4/16, 4/5 } }
