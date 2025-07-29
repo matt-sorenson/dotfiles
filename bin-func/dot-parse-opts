@@ -271,13 +271,13 @@ local -A dot_parse_opts_errors=(
                     if (( ! flag_or_no_flag )); then
                         print-header -e "Unexpected argument '+$arg'"
                         if [[ ! -v flags[help] ]]; then
-                        print "${_usage}"
+                            print "${_usage}"
                         fi
                         return 1
                     elif (( $# < 2 )); then
                         print-header -e "Option '$1' requires a value."
                         if [[ ! -v flags[help] ]]; then
-                        print "${_usage}"
+                            print "${_usage}"
                         fi
                         return 1
                     elif (( ${#arg_list} )); then
