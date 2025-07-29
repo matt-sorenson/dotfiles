@@ -20,12 +20,14 @@ local function messages_slack_window_rect(win)
     return { 0, 1/2, 1, 1/2 }
 end
 
+local main_apps = {'Code', 'Cursor', 'DataGrip', 'IntelliJ IDEA', 'TablePlus', 'Bruno'}
+
 return {
     layout = {
         { -- Primary Horizontal Screen
             screen = {'3840x1600', '3440x1440'},
 
-            { app = {'Code', 'DataGrip', 'IntelliJ IDEA', 'TablePlus', 'Bruno' }, section = 1 },
+            { app = main_apps, section = 1 },
             -- TablePlus "New Workspace" window
             { app = 'TablePlus', window = '', resize_center = { 898, 556 } },
 
