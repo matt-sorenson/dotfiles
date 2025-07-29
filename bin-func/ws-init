@@ -22,21 +22,21 @@ Arguments
 Options:
   -b, --branch <branch>     Branch name to use (to override configured default)
   -c, --vscode              Open the created directory in vscode
+  --cursor                  Open the created directory in cursor
   -d, --cd                  Change the current shells working directory to the newly created directory
   -h, --help                Show this message"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
-    min_positional_count=1
     max_positional_count=1
 
     flags[vscode]=0
     flags[cd]=0
+    flags[describe]=0
     short_to_long_flags[c]=vscode
     short_to_long_flags[d]=cd
 
     dot_parse_opts_errors[too-many-positional]="Too many arguments. Can only create 1 project at a time."
-    dot_parse_opts_errors[too-few-positional]="You must supply a project name."
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -44,6 +44,16 @@ Options:
         return 0
     elif (( dot_parse_code )); then
         return $dot_parse_code
+    fi
+
+    set -- "${positional_args[@]}"
+
+    if (( flags[describe] )); then
+        print -n "Create a new project in \${WORKSPACE_ROOT_DIR} and initialize git"
+        return 0
+    elif (( ! $# )); then
+        print-header -e "No project name provided."
+        return 1
     fi
 
     local project="${positional_args[1]}"
@@ -87,6 +97,14 @@ Options:
             fi
         else
             print-header -w "VSCode isn't installed."
+        fi
+    elif (( flags[cursor] )); then
+        if command -v cursor > /dev/null; then
+            if ! cursor "${dir}"; then
+                print-header -w "Error running cursor \"${dir}\""
+            fi
+        else
+            print-header -w "Cursor isn't installed."
         fi
     fi
 

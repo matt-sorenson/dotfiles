@@ -43,12 +43,12 @@ Options:
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
-    min_positional_count=1
     max_positional_count=2
 
     flags[link]=1
     flags[code]=0
     flags[help]=0
+    flags[describe]=0
 
     option_args[cmd-name]=1
     option_args[soft-link]=dir
@@ -71,6 +71,14 @@ Options:
     fi
 
     set -- "${positional_args[@]}"
+
+    if (( flags[describe] )); then
+        print -n "Clone a git repo into a subdirectory of \${WORKSPACE_ROOT_DIR}"
+        return 0
+    elif (( ! $# )); then
+        print-header -e "No project name provided."
+        return 1
+    fi
 
     local remote_url=$1
 
