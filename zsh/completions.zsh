@@ -285,17 +285,28 @@ _ws-clone() {
 }
 compdef _ws-clone ws-clone
 
+_ws-dir() {
+    _directories -W /${WORKSPACE_ROOT_DIR}/
+}
+
+local _ws_dir_commands=(ls code cursor)
+local _ws_dir_command
+for _ws_dir_command in "${_ws_dir_commands[@]}"; do
+    compdef _ws-dir ws-${_ws_dir_command}
+done
+unset _ws_dir_command
+
+compdef _ws-dir ws-${_ws_dir_commands}
+
 _ws() {
     local -a subcommands=()
 
-    local -a commands=(ls code)
+    local -a commands=(code cursor)
 
     local cmd key
     for cmd in ${(f)"$(whence -m 'ws-*')"}; do
         commands+=("${cmd#ws-}")
     done
-
-    print start > test.txt
 
     if (( ${#words} > 1 )); then
         if (( ${commands[(I)$words[2]]} )); then
@@ -311,16 +322,31 @@ _ws() {
     fi
 
     local -a _descriptions=(
-        "ls:list the contents of \${WORKSPACE_ROOT_DIR} or subdirectory"
+        "help:Show help for a command"
         "code:Open a vs code window in the given project's directory"
+        "cursor:Open a cursor window in the given project's directory"
     )
     for cmd in ${(f)"$(whence -m 'ws-*')"}; do
         _descriptions+=("${cmd#ws-}:$($cmd --describe)")
     done
 
-    printf '%s\n' "${_descriptions[@]}" >> test.txt
-
-    _files -W /${WORKSPACE_ROOT_DIR}/
-    _describe -t commands "ws subcommands" _descriptions
+    if (( CURRENT == 2 )); then
+        _describe -t commands "ws subcommands" _descriptions
+        _directories -W /${WORKSPACE_ROOT_DIR}/
+    elif (( CURRENT > 2 )); then
+        local subcmd="${words[2]}"
+        if [[ "${subcmd}" == help ]]; then
+            if (( CURRENT == 3 )); then
+                _describe -t commands "ws subcommands" _descriptions
+            fi
+        elif command -v "_ws-${subcmd}" &> /dev/null; then
+            words=("${subcmd}" "${words[@]:2}")
+            _ws-${subcmd}
+        elif (( "${_ws_dir_commands[(I)${subcmd}]}" )); then
+            _ws-dir
+        else
+            _describe -t commands "ws subcommands" _descriptions
+        fi
+    fi
 }
 compdef _ws ws
