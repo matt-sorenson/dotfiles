@@ -11,19 +11,19 @@ if (( ! _prompt_ender_preexec_time )); then
     _prompt_ender_preexec_time=$EPOCHREALTIME
 fi
 
-_prompt_ender_current_bg='NONE'
-_prompt_ender_seperator=''
-_prompt_ender_vsc_unstaged='±'
-_prompt_ender_vsc_staged='+'
-_prompt_ender_vcs_branch=''
-_prompt_ender_vcs_detached='➦'
-_prompt_ender_vcs_cross='✘'
+typeset -g _prompt_ender_current_bg='NONE'
+typeset -g _prompt_ender_seperator=''
+typeset -g _prompt_ender_vsc_unstaged='±'
+typeset -g _prompt_ender_vsc_staged='+'
+typeset -g _prompt_ender_vcs_branch=''
+typeset -g _prompt_ender_vcs_detached='➦'
+typeset -g _prompt_ender_vcs_cross='✘'
 
-_prompt_ender_vcs_ahead='↑'
-_prompt_ender_vcs_behind='↓'
+typeset -g _prompt_ender_vcs_ahead='↑'
+typeset -g _prompt_ender_vcs_behind='↓'
 
-_prompt_ender_user_root='#'
-_prompt_ender_user_other='λ'
+typeset -g _prompt_ender_user_root='#'
+typeset -g _prompt_ender_user_other='λ'
 
 function _prompt_ender_bg_color() {
     print -n "%K{$1}"
@@ -73,6 +73,8 @@ function _prompt_ender_seg_last_call_status() {
 }
 
 function _prompt_ender_seg_dir() {
+    emulate -L zsh
+
     local working_dir="$(pwd)"
     local msg="%~"
 
@@ -273,7 +275,7 @@ function +vi-git-wip() {
 
         local -A counts=()
 
-        local line
+        local line key
         while read -r line; do
             if [[ $line =~ --([A-Z0-9_]+)--* ]]; then
                 key=$match[1]
@@ -286,7 +288,6 @@ function +vi-git-wip() {
             fi
         done <<< "${lines:u}"
 
-        local key
         for key in ${(ok)counts}; do
             _prompt_ender_git_count "$key" "$counts[$key]"
         done
