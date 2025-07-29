@@ -1,3 +1,5 @@
+setopt warn_create_global # Be annoying about setting global variables
+
 zmodload zsh/datetime
 ZSHENV_START_TIME=$EPOCHREALTIME
 
@@ -35,7 +37,7 @@ elif command -v vim &> /dev/null; then
     export VISUAL='vim'
 fi
 
-export PAGER='less -FgMRXi'
+export PAGER='less -FgMRXiS'
 
 # lesspipe can read certain binary files and show useful data instead of gibberish
 if command -v lesspipe.sh &> /dev/null; then
@@ -89,22 +91,12 @@ is-emoji() {
         (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
 }
 
-autoload -z \
-    aws-signon \
-    brew-find-leafs \
-    clang-format-ri \
-    concat-video \
-    dot-check-for-update \
-    dot-check-for-update-git \
-    dot-parse-opts \
-    file-rep-headers \
-    jwt-print \
-    print-header \
-    repoman \
-    video-downloader \
-    ws \
-    ws-clone \
-    ws-init
+function() {
+    local file
+    for file in "${DOTFILES}/bin-func/"*(.N); do
+        autoload -z "${file:t}"
+    done
+}
 
 dot-print-map() {
     emulate -L zsh

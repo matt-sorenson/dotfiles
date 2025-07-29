@@ -31,6 +31,120 @@ _dot-check-for-update-git() {
 }
 compdef _dot-check-for-update-git dot-check-for-update-git
 
+_dot-print-array() {
+
+    if (( CURRENT > 2 )); then
+        return
+    fi
+
+    local curr_word="${words[CURRENT]:-}"
+
+
+    local -a skip_prefixes=(
+        _
+
+        # fzf-tab
+        _ftb_
+
+        # zsh
+        VCS_
+        zle_
+        _zsh_
+        _ZSH_
+        ZSH_
+    )
+
+    local -a arrays=()
+    local found=0
+    local arr
+    for arr in ${(k)parameters[(R)array]}; do
+        found=0
+        for prefix in "${skip_prefixes[@]}"; do
+            # If it's in the ignore-list
+            if [[ ${arr} == ${prefix}* ]]; then
+                # If the current word matches one of the skip prefixes don't skip it
+                # This means it will autocomplete hidden variable names but won't otherwise
+                # suggest it.
+                if [[ "${curr_word}" == '' || "${curr_word}" != "${prefix}"* ]]; then
+                    found=1
+                    break
+                fi
+            fi
+        done
+
+        if (( ! found )); then
+            arrays+=("${arr}")
+        fi
+    done
+
+    _values "Arrays" "${arrays[@]}"
+}
+compdef _dot-print-array dot-print-array
+
+_dot-print-map() {
+    if (( CURRENT > 2 )); then
+        return
+    fi
+
+    local curr_word="${words[CURRENT]:-}"
+
+
+    local -a skip_prefixes=(
+        _
+
+        vsc_
+
+        _zsh_
+        _ZSH_
+        ZSH_
+    )
+
+    local -a skip_values=(
+        colour # Alias for color
+        key    # zkbd keybindings, poorly named global
+    )
+
+    local -a maps=()
+    local found=0
+    local arr prefix skip_value
+    for arr in ${(k)parameters[(R)association]}; do
+        found=0
+
+        for prefix in "${skip_prefixes[@]}"; do
+            # If it's in the ignore-list
+            if [[ ${arr} == ${prefix}* ]]; then
+                # If the current word matches one of the skip prefixes don't skip it
+                # This means it will autocomplete hidden variable names but won't otherwise
+                # suggest it.
+                if [[ "${curr_word}" == '' || "${curr_word}" != "${prefix}"* ]]; then
+                    found=1
+                    break
+                fi
+            fi
+        done
+
+        for skip_value in "${skip_values[@]}"; do
+            # If it's in the ignore-list
+            if [[ ${arr} == ${skip_value}* ]]; then
+                # If the current word matches one of the skip values don't skip it
+                # This means it will autocomplete hidden variable names but won't otherwise
+                # suggest it.
+                if [[ "${curr_word}" == '' || "${skip_value}" != "${curr_word}"* ]]; then
+                    found=1
+                    break
+                fi
+            fi
+        done
+
+        if (( ! found )); then
+            maps+=("${arr}")
+        fi
+    done
+
+    _values "Maps" "${maps[@]}"
+}
+compdef _dot-print-map dot-print-map
+
 _git-alias() {
     _arguments -s '(-h --help)'{-h,--help}'[Show help]'
 }
