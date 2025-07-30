@@ -613,7 +613,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         elif (( ! tasks[$task] )); then
             return 0
         elif [[ ! -v task_commands[$task] ]]; then
-            if (( tasks[$task] == 3 )); then
+            if (( tasks[$task] == 3 )) || (( tasks[$task] == 2 )); then
                 print-header cyan --icon "${icon}" "${header}: Command not found, skipping"
                 return 0
             else

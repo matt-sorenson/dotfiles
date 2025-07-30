@@ -1,5 +1,10 @@
 setopt warn_create_global # Be annoying about setting global variables
 
+# These are global variables that are created by VSCode integration but aren't
+# marked as global so 'warn_create_global' complains about them.
+typeset -g __vsc_prior_prompt
+typeset -g __vsc_prior_prompt2
+
 zmodload zsh/datetime
 ZSHENV_START_TIME=$EPOCHREALTIME
 
