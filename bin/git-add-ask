@@ -1,0 +1,85 @@
+#! /usr/bin/env zsh
+#compdef git-add-ask
+
+git-add-ask() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob local_patterns typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage git-add-ask
+Iterate through all modified files, show the diff, and ask if you want to stage them.
+
+Options:
+  -h, --help    Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    local git_exit_code=0
+    local git_root
+    git_root=$(git rev-parse --show-toplevel 2> /dev/null) || git_exit_code=$?
+
+    if (( git_exit_code )); then
+        print-header -w "Not a git repository"
+        return
+    fi
+
+    local -a modified_files=()
+    local -a untracked_files=()
+
+    local line file_path tracked match mbegin mend
+    while IFS= read -r line; do
+        if [[ "${line}" == '? '* ]]; then
+            file_path="${line#\? }"
+            tracked=0
+        elif [[ $line =~ '^[12U] [A-Za-z\.]([A-Za-z]) [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ (.+)$' ]]; then
+            tracked=1
+            file_path="${match[2]}"
+        else
+            continue
+        fi
+
+        file_path="${git_root}/${file_path}"
+        if [[ -n "${file_path}" ]]; then
+            if (( tracked )); then
+                modified_files+=("${file_path}")
+            else
+                untracked_files+=("${file_path}")
+            fi
+        fi
+    done < <(git status --porcelain=2 --ignore-submodules)
+    unset line file_path xy match
+
+    local file REPLY
+    for file in "${modified_files[@]}"; do
+        git diff -- "$file"
+
+        print-header cyan "Add '${file}'?"
+        if read -q; then
+            print
+            git add "$file"
+        else
+            print
+        fi
+    done
+
+    for file in "${untracked_files[@]}"; do
+        print-header cyan "Add Untracked '${file}'?"
+        if read -q; then
+            print
+            git add "$file"
+        else
+            print
+        fi
+    done
+}
+
+git-add-ask "$@"

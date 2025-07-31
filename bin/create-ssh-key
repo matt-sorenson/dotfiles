@@ -248,7 +248,7 @@ Options:
 
         if (( next_host )); then
             local tail_count=$(( $(wc -l < "$backup_file") - next_host + 1 ))
-            tail -n $tail_count "$backup_file" >> "$ssh_config_file"
+            tail -n "$tail_count" "$backup_file" >> "$ssh_config_file"
         fi
 
         if [[ -n "$(tail -n 1 "${ssh_config_file}")" ]]; then

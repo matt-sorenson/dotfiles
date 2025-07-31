@@ -10,8 +10,8 @@ else
     alias ls='ls -G -D "%FT%T%z"'
 fi
 
-alias vi=vim
-
+alias vi=vim # Ugg, I hate plain vi
+alias zrestart="exec zsh"
 alias strip-color-codes="perl -pe 's/\e\[?.*?[\@-~]//g'"
 
 # pbpaste is osx specific, try a few fallback options if available.

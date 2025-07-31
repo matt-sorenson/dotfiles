@@ -4,7 +4,7 @@
 <name>() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    setopt err_return extended_glob local_patterns typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage="Usage <name>
@@ -38,3 +38,5 @@ Options:
     ## Your implementation goes here
     ############################################################################
 }
+
+<name> "$@"

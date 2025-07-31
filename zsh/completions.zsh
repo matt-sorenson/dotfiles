@@ -150,6 +150,11 @@ _git-alias() {
 }
 zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
 
+_git-add-ask() {
+    _arguments -s '(-h --help)'{-h,--help}'[Show help]'
+}
+zstyle ':completion:*:*:git:*' user-commands add-ask:'Iterate through unstaged/untracked files, show a diff and ask to stage them.'
+
 _git-dag() {
     _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \

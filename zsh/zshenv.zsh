@@ -103,6 +103,16 @@ function() {
     done
 }
 
+if [[ -v CURSOR_TRACE_ID ]]; then
+    function vseditor() {
+        cursor "$@"
+    }
+else
+    function vseditor() {
+        code "$@"
+    }
+fi
+
 dot-print-map() {
     emulate -L zsh
     set -uo pipefail
@@ -142,7 +152,6 @@ dot-print-array() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return
-    unsetopt local_match
 
     local _usage="Usage: dot-print-array <array_name>"
 
