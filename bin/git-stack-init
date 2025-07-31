@@ -59,15 +59,15 @@ Options:
             args+=('--quiet')
         fi
 
-        git stack --clear ${args[@]} || {
+        git stack --clear "${args[@]}" || {
             print-header -e "Failed to clear the stack."
             return 1
         }
     fi
 
-    local current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
-    local -i added_count
-    added_count=0
+    local current_branch_name
+    local -i added_count=0
+    current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
     while (( ${#branch_list} )); do
         branch="${branch_list[1]}"
         branch_list=("${branch_list[@]:1}")

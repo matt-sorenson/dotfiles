@@ -27,7 +27,8 @@ git-stack() {
     short_to_long_flags[c]=clear
     short_to_long_flags[q]=quiet
 
-    option_args[lines]=int
+    options[lines]=10000 # Absurdly large number to show all lines
+    option_args[lines]=int:overwrite
     short_to_long_opts[l]=lines
 
     local dot_parse_code=0
@@ -61,11 +62,7 @@ git-stack() {
                 print-header yellow "Branch stack is empty."
             fi
         else
-            if [[ -v 'options[lines]' ]]; then
-                nl -n rz -w 3 "${stack_file}" | tail -n ${options[lines]}
-            else
-                nl -n rn -w 3 "${stack_file}"
-            fi
+            nl -n rz -w 3 "${stack_file}" | tail -n "${options[lines]}"
         fi
     fi
 }
