@@ -25,11 +25,6 @@ Options:
     set -- "${positional_args[@]}"
 
     local dir
-    local test_dirs=(
-        "${DOTFILES}/bin/tests"
-        "${DOTFILES}/bin-func/tests"
-    )
-
     local out=0
 
     if (( $# )); then
@@ -43,7 +38,7 @@ Options:
 
         local test_file
 
-        for dir in "${test_dirs[@]}"; do
+        for dir in "${_dot_test_dirs[@]}"; do
             if [[ -f "$dir/${testee_name}.test.zsh" ]]; then
                 test_file="$dir/${testee_name}.test.zsh"
                 break;
@@ -66,7 +61,7 @@ Options:
 
         return $out
     else
-        for dir in "${test_dirs[@]}"; do
+        for dir in "${_dot_test_dirs[@]}"; do
             for test_file in "${dir}"/**/*.test.zsh(.N); do
                 local test_name="${test_file:t:r:r}"
                 print-header blue --icon 🧪 "Running: $test_name"

@@ -6,6 +6,31 @@ _aws-signon() {
 }
 compdef _aws-signon aws-signon
 
+_brew-find-leafs() {
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-r --remove)'{-r,--remove}'[Remove leafs]' \
+        '(-q --quiet)'{-q,--quiet}'[Quiet mode]'
+}
+compdef _brew-find-leafs brew-find-leafs
+
+_clang-format-ri() {
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-e --extension)'{-e,--extension}'[List of extensions in a ":" seperated list]:extension: '
+}
+compdef _clang-format-ri clang-format-ri
+
+_concat-video() {
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-f --file)'{-f,--file}'[File to base concat off of]:file:_files' \
+        '(-e --extension)'{-e,--extension}'[Output file extension]:extension: ' \
+        '(-c --crop)'{-c,--crop}'[Crop to dimensions]:crop: ' \
+        '(-t --trim)'{-t,--trim}'[Trim intro from 2nd,3rd... in seconds]:trim: '
+}
+compdef _concat-video concat-video
+
 _dot-check-for-update() {
     _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
@@ -145,15 +170,43 @@ _dot-print-map() {
 }
 compdef _dot-print-map dot-print-map
 
-_git-alias() {
-    _arguments -s '(-h --help)'{-h,--help}'[Show help]'
+_dot-run-tests() {
+    if (( CURRENT > 2 )); then
+        return
+    fi
+
+    local -a test_files=()
+
+    local dir
+    for dir in "${_dot_test_dirs[@]}"; do
+        for test_file in "${dir}"/**/*.test.zsh(.N); do
+            test_files+=("${test_file:t:r:r}")
+        done
+    done
+
+    _values "Test Files" "${test_files[@]}"
 }
-zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
+compdef _dot-run-tests dot-run-tests
+
+_file-rep-headers() {
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-m --marker)'{-m,--marker}'[Marker to use for the header]:marker: ' \
+        '(-f --file)'{-f,--file}'[File to modify]:file:_files' \
+        '(-i --insert --finsert)'{-i,--insert}'[Text to insert]:insert: ' \
+        '(-i --insert --finsert)--finsert[File to insert]:finsert:_files'
+}
+compdef _file-rep-headers file-rep-headers
 
 _git-add-ask() {
     _arguments -s '(-h --help)'{-h,--help}'[Show help]'
 }
 zstyle ':completion:*:*:git:*' user-commands add-ask:'Iterate through unstaged/untracked files, show a diff and ask to stage them.'
+
+_git-alias() {
+    _arguments -s '(-h --help)'{-h,--help}'[Show help]'
+}
+zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
 
 _git-dag() {
     _arguments -s \
@@ -171,19 +224,19 @@ _git-dag() {
 }
 zstyle ':completion:*:*:git:*' user-commands dag:'Show the git history as a directed acyclic graph'
 
+_git-popb() {
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-q --quiet)'{-q,--quiet}'[Less output]' \
+        "--no-init[Don't initialize the stack file if it's empty]"
+}
+
 _git-ppull() {
     _arguments -C -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-f --force)'{-f,--force}'[Delete any branches identified without asking]' \
         '(-e --exclude)'{-e,--exclude}'[Exclude a branch by name]:exclude:__git_heads' \
         '(-p --exclude-pattern)'{-p,--exclude-pattern}'[Exclude branch names with a zsh glob]:exclude_pattern: '
-}
-
-_git-popb() {
-    _arguments -s \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-q --quiet)'{-q,--quiet}'[Less output]' \
-        "--no-init[Don't initialize the stack file if it's empty]"
 }
 
 _git-pushb() {
@@ -205,7 +258,8 @@ _git-stack-init() {
         "--no-clear[Don't clear the stack file first]"
 }
 
-zstyle ':completion:*:*:git:*' user-commands \
+zstyle \
+    ':completion:*:*:git:*' user-commands \
     'dag:Displays the git commit history in a directed acyclic graph format' \
     'ppull:Pull and prune local branches that have been deleted on the remote' \
     'popb:pop the last branch off your git stack and check it out' \
@@ -220,6 +274,11 @@ zstyle ':completion:*:*:git:*' user-commands \
     'tracking:Show the current branch and its upstream tracking branch' \
     'wipe:Add all the files to a commit with message "WIPE SAVEPOINT" and then go back to HEAD' \
     'alias:List all of the git aliases configured'
+
+_jwt-print() {
+    _arguments -s '(-h --help)'{-h,--help}'[Show help]'
+}
+compdef _jwt-print jwt-print
 
 _print-header() {
     _arguments -s \
@@ -279,6 +338,23 @@ _repoman-wrapper() {
         "${_repoman_tasks_args[@]}"
 }
 # this will be used in '${DOTFILES}/local/zsh/*' files for functions, so none defined here.
+
+_video-downloader() {
+    # Multiple -u/--url may be passed in but they're mutually exclusive with -f/--file
+    # and only one -f/--file may be passed in.
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help]' \
+        '(-f --file)'{-u,--url}'[URL to download]:url: ' \
+        '(-u --url -f --file))'{-f,--file}'[File to download]:file:_files' \
+        '(-o --output)'{-o,--output}'[Output directory]:output:_directories' \
+        '(-c --no-cleanup)--no-cleanup[Do not cleanup the "<batch-file>.done" file when the entire batch has finished.]' \
+        '(-q --quiet --verbose)--verbose[Verbose output]' \
+        '(-q --quiet --verbose)'{-q,--quiet}'[Quiet mode]' \
+        '(--firefox --chrome --cookie)--firefox[Get cookies from firefox]' \
+        '(--firefox --chrome --cookie)--chrome[Get cookies from chrome]' \
+        '(--firefox --chrome --cookie)--cookie[Cookie file to use]:cookie:_files'
+}
+compdef _video-downloader video-downloader
 
 _ws-clone() {
     _arguments -s -C \

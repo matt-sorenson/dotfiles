@@ -7,7 +7,7 @@ video-downloader() {
     setopt err_return extended_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage video-downloader [<url>...][<batch-file>]
+    local _usage="Usage video-downloader [<url>...|<batch-file>]
 
 Arguments:
   <url>        The URL to download the file from. Multiple accepted.
@@ -18,7 +18,7 @@ Options:
   -f, --file <batch-file>   File containing a list of URLs to download, 1 per line
   -o, --output <dir>        Directory to output the files to.
                                 Defaults to either \$PWD for URLs or for batch files the directory of the file.
-  --no-cleanup              Don't cleanup the '<batch-file>.done' file when the entire batch has finished.
+  +c, --no-cleanup          Don't cleanup the '<batch-file>.done' file when the entire batch has finished.
   --verbose
   --quiet
   --firefox                 Get cookies from firefox
@@ -42,6 +42,9 @@ Specifying a url and a batch-file are mutually exclusive, but multiple urls may 
 
     flags[verbose]=0
     flags[quiet]=0
+
+    short_to_long_flags[c]=no-cleanup
+    short_to_long_flags[q]=quiet
 
     option_args[batch-file]=file
     option_args[cookie]=1

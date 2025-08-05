@@ -35,3 +35,8 @@ typeset -a _repoman_tasks_args=(
     '(-I --integration-tests)'{-I,--integration-tests}'[Run integration tests]'
     '(-t --tests)'{-t,--tests}'[Run all tests]'
 )
+
+typeset -a _dot_test_dirs=(
+    "${DOTFILES}/bin/tests"
+    "${DOTFILES}/bin-func/tests"
+)
