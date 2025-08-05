@@ -4,9 +4,7 @@
 dot-check-for-update-git() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
-    setopt warn_create_global
+    setopt err_return extended_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
@@ -72,23 +70,20 @@ dot-check-for-update-git() {
         fi
         return 0
     elif [[ "$(git -C "$dir" rev-parse --show-toplevel 2> /dev/null)" != "$dir" ]]; then
-        if (( ! quiet )); then
+        if (( ! flags[quiet] )); then
             print-header blue -i "$indent" "${log_dir}: Directory is not the root of a git repository, skipping"
         fi
         return 0
     fi
 
-    local remotes
+    local remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
+
     if (( flags[extra-quiet] )); then
-        remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
         if (( ${#remotes} == 0 )); then
             return 0
         fi
     fi
 
-    print-header green -i "$indent" "${log_dir}: $*"
-
-    remotes=(${(f)"$(git -C "${dir}" remote)"}) # zsh handles spaces correctly with (f)
     if (( ${#remotes} == 0 )); then
         if (( ! flags[quiet] )); then
             print-header -w -i "$indent" "${log_dir}: No git remote found, skipping update"
@@ -120,9 +115,8 @@ dot-check-for-update-git() {
     }
 
     # Check if branch is behind or has diverged (but NOT just ahead)
-    local behind_ahead
+    local behind_ahead ahead behind
     if behind_ahead=$(git -C "${dir}" rev-list --left-right --count HEAD...@{u} 2>/dev/null); then
-        local ahead behind
         ahead=$(print "${behind_ahead}" | awk '{print $1}')
         behind=$(print "${behind_ahead}" | awk '{print $2}')
 
@@ -138,7 +132,7 @@ dot-check-for-update-git() {
             fi
         fi
     else
-        print-header -w -i "$indent" "${log_dir}: Unable to compare with upstream for"
+        print-header -w -i "$indent" "${log_dir}: Unable to compare with upstream"
         return 1
     fi
 

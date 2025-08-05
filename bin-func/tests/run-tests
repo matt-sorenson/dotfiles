@@ -1,0 +1,36 @@
+#! /usr/bin/env zsh
+
+main() {
+    local out=0
+    local test_file test_name
+
+    for test_file in "${DOTFILES}"/bin-func/tests/**/*.test.zsh(.N); do
+        local test_name="${test_file:t:r:r}"
+        print-header blue --icon 🧪 "Running: $test_name"
+        local exit_code=0
+        zsh "$test_file" || exit_code=$?
+
+        if (( exit_code )); then
+            print-header -e "Failed: ${test_name}"
+            (( out += $exit_code ))
+        else
+            print-header green "Success: ${test_name}"
+        fi
+    done
+
+    if (( out )); then
+        print-header -e "$out tests failed."
+    else
+        print-header green "All Tests Passed!"
+    fi
+
+    if [[ -d "${DOTFILES}/bin-func/tests/failed-results/" ]]; then
+        if [ -z "$(ls -A "${DOTFILES}/bin-func/tests/failed-results/")" ]; then
+            rmdir "${DOTFILES}/bin-func/tests/failed-results/"
+        fi
+    fi
+
+    return $out
+}
+
+main "$@"

@@ -1,8 +1,8 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/harness.zsh"
+source "${DOTFILES}/bin-func/tests/harness.zsh"
 
-root="${DOTFILES}/bin/tests/repoman-env"
+root="${DOTFILES}/bin-func/tests/repoman-env"
 clean_dir="clean"
 nuke_dir="nuke"
 install_dir="install"
@@ -88,8 +88,9 @@ main() {
         task-fails
     )
 
+    local element
     for element in "${test_cases[@]}"; do
-        run-test "$testee" "$element" || (( out += 1 ))
+        run-test --bin-func "$testee" "$element" || (( out += 1 ))
     done
 
     rm -rf ${root}

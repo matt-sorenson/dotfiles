@@ -10,7 +10,7 @@ aws-signon() {
     setopt warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
+    local _usage='Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
 Options:
   -f, --force                   Force login even if already signed in
@@ -27,7 +27,7 @@ If not provided with -c/--command/--logged-in-command will fall back to the aws 
 Examples:
   aws-signon -f dev
   aws-signon dev
-  aws-signon dev -f"
+  aws-signon dev -f'
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
@@ -37,7 +37,7 @@ Examples:
     option_args[command]=1
     short_to_long_opts[c]=command
     option_args[logged-in-command]=1
-    dot_parse_opts_errors[too-many-positional]="Profile can only be specified once"
+    dot_parse_opts_errors[too-many-positional]='Profile can only be specified once'
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -50,7 +50,7 @@ Examples:
     set -- "${positional_args[@]}"
 
     if [[ ! -v 'options[command]' ]]; then
-        options[command]="aws sso login --profile"
+        options[command]='aws sso login --profile'
     fi
 
     local cmd_array=("${(z)options[command]}")
@@ -63,11 +63,11 @@ Examples:
     if (( ${#positional_args[@]} )); then
         AWS_PROFILE="$positional_args[1]"
         set --
-    elif [[ -v AWS_PROFILE ]] && [[ -n "$AWS_PROFILE}" ]]; then
+    elif [[ -v AWS_PROFILE ]] && [[ -n "${AWS_PROFILE}" ]]; then
         print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"
     else
         unset AWS_PROFILE
-        print-header -e "No profile specified & \$AWS_PROFILE is not available!"
+        print-header -e 'No profile specified & $AWS_PROFILE is not available!'
         print "${_usage}"
         return 1
     fi

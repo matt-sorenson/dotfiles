@@ -1,10 +1,10 @@
 [DOWNLOADING] 'https://example.com/v/1'
 mock_video_downloader:  https://example.com/v/1
-[OK] 'https://example.com/v/1' recorded in '${DOTFILES}/bin/tests/video-downloader-env/test-file.done'
+[OK] 'https://example.com/v/1' recorded in '${DOTFILES}/bin-func/tests/video-downloader-env/test-file.done'
 [DOWNLOADING] 'https://example.com/v/2'
 mock_video_downloader:  https://example.com/v/2
-[OK] 'https://example.com/v/2' recorded in '${DOTFILES}/bin/tests/video-downloader-env/test-file.done'
+[OK] 'https://example.com/v/2' recorded in '${DOTFILES}/bin-func/tests/video-downloader-env/test-file.done'
 ================================================================================
 = Successfully downloaded all videos                                           =
 ================================================================================
-removing ${DOTFILES}/bin/tests/video-downloader-env/test-file.done.
+removing '${DOTFILES}/bin-func/tests/video-downloader-env/test-file.done'.

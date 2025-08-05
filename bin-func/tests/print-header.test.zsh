@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/harness.zsh"
+source "${DOTFILES}/bin-func/tests/harness.zsh"
 
 # For the tests here since they deal with the colors directly leave the color codes in the expected_results files
 
@@ -61,7 +61,7 @@ main() {
 
     local test_case
     for tast_case in "${(k)test_cases[@]}"; do
-        run-test --no-sanitize-colors "$testee" "$tast_case" || (( out += 1 ))
+        run-test --no-sanitize-colors --bin-func "$testee" "$tast_case" || (( out += 1 ))
     done
 
     return $out

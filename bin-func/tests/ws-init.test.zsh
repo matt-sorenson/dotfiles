@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/harness.zsh"
+source "${DOTFILES}/bin-func/tests/harness.zsh"
 
 local project_name="ws-init-test-ws-project-name-1234-._"
 local project_dir="${WORKSPACE_ROOT_DIR}/${project_name}"
@@ -14,12 +14,6 @@ happy-case() {
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
         return 1
     fi
-
-    TRAPEXIT() {
-        if [[ -e "${project_dir}" ]]; then
-            rm -rf "${project_dir}"
-        fi
-    }
 
     ws-init "${project_name}"
 
@@ -46,12 +40,6 @@ happy-case-vscode() {
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
         return 1
     fi
-
-    TRAPEXIT() {
-        if [[ -e "${project_dir}" ]]; then
-            rm -rf "${project_dir}"
-        fi
-    }
 
     alias code="print-header 'VSCODE: '"
 
@@ -87,13 +75,6 @@ happy-case-cd() {
 
     local curr_dir="$(realpath "${PWD}")"
     local expected_dir="$(realpath "${project_dir}")"
-
-    TRAPEXIT() {
-        cd "$starting_dir"
-        if [[ -e "${project_dir}" ]]; then
-            rm -rf "${project_dir}"
-        fi
-    }
 
     if [[ ! -e "${expected_dir}" ]]; then
         print-header -e "${project_dir} not created!"
@@ -131,12 +112,6 @@ happy-case-vscode-error-code-command-succeeds() {
         return 1
     fi
 
-    TRAPEXIT() {
-        if [[ -e "${project_dir}" ]]; then
-            rm -rf "${project_dir}"
-        fi
-    }
-
     alias code="false"
 
     ws-init "${project_name}" --vscode
@@ -165,12 +140,6 @@ happy-case-empty-folder-exists() {
         return 1
     fi
 
-    TRAPEXIT() {
-        if [[ -e "${project_dir}" ]]; then
-            rm -rf "${project_dir}"
-        fi
-    }
-
     mkdir -p "${project_name}"
 
     ws-init "${project_name}"
@@ -198,12 +167,6 @@ error-non-empty-folder-exist() {
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
         return 1
     fi
-
-    TRAPEXIT() {
-        if [[ -e "${project_dir}" ]]; then
-            rm -rf "${project_dir}"
-        fi
-    }
 
     mkdir -p "${project_dir}"
     touch "${project_dir}/fake-file.txt"
@@ -289,13 +252,17 @@ main() {
     local starting_dir="${PWD}"
     local test_case=happy-case
     for tast_case in "${(k)test_cases[@]}"; do
-        run-test "${testee}" "${tast_case}" || (( out += 1 ))
+        run-test --bin-func "${testee}" "${tast_case}" || (( out += 1 ))
         cd "${starting_dir}"
+
+        rm -rf "${project_dir}" || true
 
         if alias code &> /dev/null; then
             unalias code &> /dev/null || true
         fi
     done
+
+    rm -rf "${project_dir}" || true
 
     if [[ -v old_code_alias ]]; then
         alias "$old_code_alias"

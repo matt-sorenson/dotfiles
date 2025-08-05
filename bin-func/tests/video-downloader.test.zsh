@@ -1,10 +1,10 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/harness.zsh"
+source "${DOTFILES}/bin-func/tests/harness.zsh"
 
 autoload video-downloader
 
-root="${DOTFILES}/bin/tests/video-downloader-env"
+root="${DOTFILES}/bin-func/tests/video-downloader-env"
 
 mock_video_downloader() {
     print "mock_video_downloader: $*"
@@ -75,9 +75,14 @@ main() {
         no-cleanup
     )
 
+    pushd "${DOTFILES}/bin-func/tests/"
+
+    local element
     for element in "${test_cases[@]}"; do
-        run-test "$testee" "$element" || (( out += 1 ))
+        run-test --bin-func "$testee" "$element" || (( out += 1 ))
     done
+
+    popd
 
     rm -rf "${root}"
 

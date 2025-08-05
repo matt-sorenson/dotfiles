@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin/tests/harness.zsh"
+source "${DOTFILES}/bin-func/tests/harness.zsh"
 autoload aws-signon
 
 mock_aws_signon_cmd() {
@@ -79,12 +79,13 @@ main() {
         unset AWS_PROFILE
     fi
 
-    for test_fn in "${test_cases[@]}"; do
+    local element
+    for element in "${test_cases[@]}"; do
         if [[ -v AWS_PROFILE ]]; then
             unset AWS_PROFILE
         fi
 
-        run-test "$testee" "$test_fn" || (( out += 1 ))
+        run-test --bin-func "$testee" "$element" || (( out += 1 ))
     done
 
     if [[ -v previous_AWS_PROFILE ]]; then

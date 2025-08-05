@@ -17,7 +17,7 @@ Options:
   -h, --help          Show this help message and exit
 
 Tasks:
-  -d, --[no]-dotfiles     Update dotfiles reposito
+  -d, --[no-]dotfiles Update dotfiles reposito
   -p, --[no-]plugins  Update \$DOTFILES/plugins/* folders
   -l, --[no-]local    Update local scripts
   -b, --[no-]brew     Update brew
@@ -48,7 +48,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     short_to_long_flags[p]=plugins
     short_to_long_flags[l]=local
     short_to_long_flags[b]=brew
-    short_to_long_flags[b]=doom
+    short_to_long_flags[e]=doom
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -136,7 +136,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
     if (( flags[plugins] )); then
         local repos_to_update=( "${DOTFILES}"/plugins/*(/) ) # ZSH Does handle spaces in the glob correctly.
-        local repo quiet
+        local repo
         for repo in "${repos_to_update[@]}"; do
             if [[ $repo == */local ]]; then
                 continue
@@ -148,7 +148,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         done
     fi
 
-    if [[ flags[brew] -eq 1 && "${OSTYPE}" == darwin* ]]; then
+    if (( flags[brew] )) && [[ "${OSTYPE}" == darwin* ]]; then
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 
@@ -163,7 +163,8 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
             fi
         else
             local flag='-w'
-            if (( ! specified_task )); then
+            # If the user just did a update all it shouldn't be an error if brew is not installed
+            if (( ! all_true )); then
                 flag='-e'
                 out=1
             fi
@@ -203,6 +204,8 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         local update_filename="${DOTFILES}/tmp/dotfile-update"
         local current_time
         current_time="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+        mkdir -p "${DOTFILES}/tmp/"
         print -n "${current_time}" >! "${update_filename}"
     fi
 

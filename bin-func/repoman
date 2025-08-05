@@ -23,13 +23,13 @@ repoman() {
     unsetopt short_loops
 
     local default_repo
-    local calling_name="repoman"
+    local calling_name='repoman'
 
     _repoman-usage() {
         # This function is a bit more complex cause it handles alias commands
         # and can hide some of the options based on the verbosity level so by
         # default it only shows basic usage when an alias is called.
-        local extra_args=""
+        local extra_args=''
         local verbose=0
         while (( $# )); do
             case "$1" in
@@ -45,7 +45,7 @@ repoman() {
 
         # We don't print the extra options if this is being called from an alias.
         if (( verbose )) && [[ $calling_name == 'repoman' ]]; then
-            extra_args="\n
+            extra_args='\n
 Task Options:
 Each task has a corresponding for the below list
 
@@ -61,10 +61,10 @@ Each task pair has a corresponding flag for the below list:
 
 Extras:
   --calling-name <command_name>         Command name to use in the usage message
-  --db-container-name <name>            If set script can skip starting the DB container if it's already running."
+  --db-container-name <name>            If set script can skip starting the DB container if it s already running.'
         fi
 
-        local default_repo_str=""
+        local default_repo_str=''
         if [[ -v default_repo ]]; then
             default_repo_str=" (default: ${default_repo})"
         fi
@@ -258,7 +258,7 @@ Examples:
         elif [[ $key == *_verbose ]] && [[ -v tasks[${key/%_verbose/}] ]]; then
             key="${key/%_verbose/}"
 
-            task_verbose_args[$key]="--verbose"
+            task_verbose_args[$key]='--verbose'
         elif [[ $key == *_disabled ]] && [[ -v tasks[${key%_cmd}] ]]; then
             key="${key%_disabled}"
             task_disabled[$key]=1
@@ -576,7 +576,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     _repoman-run-task() {
         local task header
         local quiet=0
-        local _repoman_run_task_usage="Usage: _repoman-run-task <task> [<header>] [-q]"
+        local _repoman_run_task_usage='Usage: _repoman-run-task <task> [<header>] [-q]'
 
         while (( $# )); do
             case "$1" in
@@ -701,7 +701,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
             if command -v docker &> /dev/null; then
                 local db_container_id=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
                 if [[ -n $db_container_id ]]; then
-                    print "DB Docker container is already running"
+                    print 'DB Docker container is already running'
 
                     # Since we're skipping the db-up we don't want to
                     # skip migrations/generate-schema if db_up_does_migration/db_up_does_schema
@@ -709,11 +709,11 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
                     tasks[db_up]=0
                 fi
             else
-                print-header -e "Docker is not installed."
+                print-header -e 'Docker is not installed.'
                 return 1
             fi
         else
-            print "db-container-name is not set, still running db up"
+            print 'db-container-name is not set, still running db up'
         fi
     fi
 
@@ -724,7 +724,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     _repoman-run-task unit_tests
     _repoman-run-task integration_tests
 
-    print-header green "All steps completed successfully"
+    print-header green 'All steps completed successfully'
 }
 
 repoman "$@"

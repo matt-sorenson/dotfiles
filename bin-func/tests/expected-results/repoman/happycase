@@ -1,39 +1,39 @@
 ================================================================================
 = ☢️  Nuke: Command: `print "nuke $(pwd)"`                                      =
 ================================================================================
-nuke ${DOTFILES}/bin/tests/repoman-env/nuke
+nuke ${DOTFILES}/bin-func/tests/repoman-env/nuke
 ================================================================================
 = Clean: Skipped because Nuke already did it.                                  =
 ================================================================================
 ================================================================================
 = 📦 Install: Command: `print "install $(pwd)"`                                =
 ================================================================================
-install ${DOTFILES}/bin/tests/repoman-env/install
+install ${DOTFILES}/bin-func/tests/repoman-env/install
 db-container-name is not set, still running db up
 ================================================================================
 = 💾 DB Up: Command: `print "db $(pwd)"-up`                                    =
 ================================================================================
-db ${DOTFILES}/bin/tests/repoman-env/db_up-up
+db ${DOTFILES}/bin-func/tests/repoman-env/db_up-up
 ================================================================================
 = 💾 Migrations: Command: `print "migration $(pwd)"`                           =
 ================================================================================
-migration ${DOTFILES}/bin/tests/repoman-env/migrations
+migration ${DOTFILES}/bin-func/tests/repoman-env/migrations
 ================================================================================
 = 💾 Generate Schema: Command: `print "generate-schema $(pwd)"`                =
 ================================================================================
-generate-schema ${DOTFILES}/bin/tests/repoman-env/generate_schema
+generate-schema ${DOTFILES}/bin-func/tests/repoman-env/generate_schema
 ================================================================================
 = 🛠️  Build: Command: `print "build $(pwd)"`                                   =
 ================================================================================
-build ${DOTFILES}/bin/tests/repoman-env/build
+build ${DOTFILES}/bin-func/tests/repoman-env/build
 ================================================================================
 = 🧪 Unit Tests: Command: `print "unit-tests $(pwd)"`                          =
 ================================================================================
-unit-tests ${DOTFILES}/bin/tests/repoman-env/unit_tests
+unit-tests ${DOTFILES}/bin-func/tests/repoman-env/unit_tests
 ================================================================================
 = 🧪 Integration Tests: Command: `print "integration-tests $(pwd)"`            =
 ================================================================================
-integration-tests ${DOTFILES}/bin/tests/repoman-env/integration_tests
+integration-tests ${DOTFILES}/bin-func/tests/repoman-env/integration_tests
 ================================================================================
 = All steps completed successfully                                             =
 ================================================================================

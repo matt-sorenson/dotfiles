@@ -93,24 +93,24 @@ Options:
 
     if (( flags[error] )); then
         color="${fg_bold[red]}"
-        icons=("❌" "${icons[@]}")
+        icons=(❌ "${icons[@]}")
     elif (( flags[warn] )); then
         color="${fg_bold[yellow]}"
-        icons=("⚠️" "${icons[@]}")
+        icons=(⚠️ "${icons[@]}")
     fi
 
     if [[ ! -v 'options[indent]' ]]; then
         options[indent]=0
     fi
 
-    local message="= "
+    local message='= '
     if (( #icons )); then
         message+="${(j::)icons} "
     fi
     if (( ${#parts[@]} )); then
         message+="${(j: :)parts}"
     else
-        message+="No message provided."
+        message+='No message provided.'
         color="$bg[magenta]$fg[black]"
     fi
     unset parts

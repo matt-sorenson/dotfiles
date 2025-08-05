@@ -7,12 +7,12 @@ file-rep-headers() {
     setopt err_return extended_glob typeset_to_unset warn_create_global 
     unsetopt short_loops
 
-    local _usage="Usage file-rep-headers --header <header> --i <text> <file>
+    local _usage='Usage file-rep-headers --header <header> --i <text> <file>
 
 Replace the contents of a file between the start/end markers.
 
 Options:
-  -m, --marker <marker>  The Characters to use for the start/end headers. (default: '#')
+  -m, --marker <marker>  The Characters to use for the start/end headers. (default: #)
   --header <text>.       The text to use for the header.
 
   -f, --file <file>      The file to modify.
@@ -31,7 +31,7 @@ Will look for headers in the form of:
 ## End <header>
 ################################################################################
 
-If your file uses a different header character than '#' you can specify it with the -m/--marker option."
+If your file uses a different header character than # you can specify it with the -m/--marker option.'
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
@@ -64,13 +64,13 @@ If your file uses a different header character than '#' you can specify it with 
         print-header -e "File not readable: ${filename}"
         return 1
     elif [[ ! -v options[header] ]]; then
-        print-header -e "Header text is required. Use --header <text> to specify the header."
+        print-header -e 'Header text is required. Use --header <text> to specify the header.'
         return 1
     elif [[ ! -v options[insert] && ! -v options[finsert] ]]; then
-        print-header -e "Insert text is required. Use --insert <text> or --finsert <file> to specify the text to insert."
+        print-header -e 'Insert text is required. Use --insert <text> or --finsert <file> to specify the text to insert.'
         return 1
     elif [[ -v options[insert] && -v options[finsert] ]]; then
-        print-header -e "Cannot use both --insert and --finsert options at the same time."
+        print-header -e 'Cannot use both --insert and --finsert options at the same time.'
         return 1
     else
         if [[ ! -f "$filename" ]]; then
@@ -83,7 +83,7 @@ If your file uses a different header character than '#' you can specify it with 
 
     if [[ ! -v options[marker] ]]; then
         if [[ "$filename" == *.lua ]]; then
-            options[marker]='--'
+            options[marker]='-'
         else
             options[marker]='#'
         fi
@@ -101,11 +101,16 @@ ${header_wrap}"
 ${options[marker]}${options[marker]} End ${options[header]}
 ${header_wrap}"
 
-    local start_line=$(awk '/^#{80}/ { getline; if ($0 ~ /^## Start mono$/) { getline; print NR+1 } }' "$filename")
-    local end_line=$(awk '/^#{80}/ { getline; if ($0 ~ /^## End mono$/) { getline; print NR-3 } }' "$filename")
+    local start_line=$(awk "/^${options[marker]}{80}/ { getline; if (\$0 ~ /^${options[marker]}${options[marker]} Start ${options[header]}\$/) { getline; print NR+1 } }" "$filename")
+    local end_line=$(awk "/^${options[marker]}{80}/ { getline; if (\$0 ~ /^${options[marker]}${options[marker]} End ${options[header]}\$/) { getline; print NR-3 } }" "$filename")
 
     if [[ -z $start_line || -z $end_line ]] || (( ! start_line || ! end_line )); then
-        print "No headers found, adding new headers."
+        if [[ -s "${filename}" ]]; then
+            print 'No headers found, adding new headers.'
+        else
+            print 'Creating file.'
+        fi
+
         if [[ -s "${filename}" ]]; then
             # try stripping all whitespace from file, if theres anything left
             # add newlines to keep it separated.
@@ -115,15 +120,18 @@ ${header_wrap}"
             fi
         fi
 
+        print -- "${start_header}" >> "$filename"
+
         if [[ -v options[insert] ]]; then
-            printf "%s\n " "${options[insert]}" >> "$filename"
+            print -- "${options[insert]}" >> "$filename"
         else
             cat "${options[finsert]}" >> "$filename"
+            print >> "$filename" # add a newline
         fi
 
-        print "${end_header}" >> "$filename"
+        print -- "${end_header}" >> "$filename"
     else
-        print "Headers found, replacing existing headers."
+        print 'Headers found, replacing existing headers.'
 
         local tmp_file="$filename.bak" # "$(mktemp)"
         mv "$filename" "$tmp_file"
@@ -131,18 +139,17 @@ ${header_wrap}"
         touch "$filename"
         head -n $(( start_line - 1 )) "$tmp_file" >> "$filename"
 
-        cat "$filename"
-
         if [[ -v options[insert] ]]; then
             printf "%s\n" "${options[insert]}" >> "$filename"
         else
             cat "${options[finsert]}" >> "$filename"
+            print >> "$filename" # add a newline
         fi
-        cat "$filename"
+
+        print -- "${end_header}" >> "$filename"
 
         local count=$(( $(wc -l < "$tmp_file") ))
-        tail -n $(( count - end_line )) "$tmp_file" >> "$filename"
-        cat "$filename"
+        tail -n $(( count - end_line - 2)) "$tmp_file" >> "$filename"
     fi
 }
 

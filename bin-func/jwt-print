@@ -14,7 +14,7 @@ jwt-print() {
         paste_str=''
     fi
 
-    local _usage="Usage: jwt-print <jwt>
+    local _usage='Usage: jwt-print <jwt>
 
     Pretty prints a JWT (JSON Web Token)
 
@@ -22,12 +22,12 @@ jwt-print() {
         <jwt>        The JWT to print.${paste_str}
 
     Options:
-        -h, --help    Show this help message and exit"
+        -h, --help    Show this help message and exit'
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     max_positional_count=1
-    dot_parse_opts_errors[too-many-positional]="Too many arguments. Expected a single JWT or nothing to read from clipboard."
+    dot_parse_opts_errors[too-many-positional]='Too many arguments. Expected a single JWT or nothing to read from clipboard.'
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -40,7 +40,7 @@ jwt-print() {
     set -- "${positional_args[@]}"
 
     if ! command -v jq > /dev/null; then
-        print-header -e "jq not found. Please install jq to use this script."
+        print-header -e 'jq not found. Please install jq to use this script.'
         return 1
     fi
 
@@ -49,7 +49,7 @@ jwt-print() {
         jwt="$1"
         set --
     elif ! command -v pbpaste > /dev/null; then
-        print-header -e "pbpaste not found. Must pass a JWT as an argument."
+        print-header -e 'pbpaste not found. Must pass a JWT as an argument.'
         print "${_usage}"
         return 1
     else
@@ -62,7 +62,7 @@ jwt-print() {
 
     # We silently ignore the signature part missing and treat it as a warning.
     if (( ${#parts} < 2 )); then
-        print-header -e "Invalid JWT format. Expected 3 parts separated by dots ('.')."
+        print-header -e 'Invalid JWT format. Expected 3 parts separated by periods.'
         return 1
     fi
 
@@ -72,10 +72,10 @@ jwt-print() {
     unset parts
 
     if [[ -z "${header_b64}" ]]; then
-        print-header -e "JWT header is empty."
+        print-header -e 'JWT header is empty.'
         return 1
     elif [[ -z "${payload_b64}" ]]; then
-        print-header -e "JWT payload is empty."
+        print-header -e 'JWT payload is empty.'
         return 1
     fi
 

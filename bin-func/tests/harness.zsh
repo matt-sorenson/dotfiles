@@ -29,6 +29,7 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
+    flags[bin-func]=0
     flags[sanitize-current-dir]=1
     flags[sanitize-dotfiles-dir]=1
     flags[sanitize-workspace-dir]=1
@@ -68,10 +69,17 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
         result="$(print -n "$result" | strip-color-codes)"
     fi
 
-    local expected_filename="${DOTFILES}/bin/tests/expected-results/${testee}/${test_name}"
+    local tests_dir
+    if (( flags[bin-func] )); then
+        tests_dir="${DOTFILES}/bin-func/tests/"
+    else
+        tests_dir="${DOTFILES}/bin/tests/"
+    fi
+
+    local expected_filename="${tests_dir}/expected-results/${testee_name}/${test_name}"
 
     if (( flags[bootstrap] )); then
-        mkdir -p "${DOTFILES}/bin/tests/expected-results/${testee}"
+        mkdir -p "${tests_dir}/expected-results/${testee_name}"
         print -n "$result" > "${expected_filename}"
         return 0
     fi
@@ -90,8 +98,8 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     if (( ! matches )); then
         print-header -e "FAILED: ${test_name}"
-        mkdir -p "${DOTFILES}/bin/tests/failed-results/${testee_name}"
-        local failed_filename="${DOTFILES}/bin/tests/failed-results/${testee_name}/${test_name}"
+        mkdir -p "${tests_dir}/failed-results/${testee_name}"
+        local failed_filename="${tests_dir}/failed-results/${testee_name}/${test_name}"
         print -n "${result}" >! "${failed_filename}"
 
         if [[ -r "$expected_filename" ]]; then

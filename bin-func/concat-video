@@ -4,12 +4,10 @@
 concat-video() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
-    setopt warn_create_global
+    setopt err_return ext_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage: concat-video [OPTIONS]
+    local _usage='Usage: concat-video [OPTIONS]
 
 Required:
   -f, --file <filename>        filename to base concat off of
@@ -18,7 +16,7 @@ Options:
   -e, --extension <.extension>  output file extension (default: .m4v)
   -c, --crop w:h:x:y            crop to dimensions w:h:x:y
   -t, --trim <seconds>          trim intro from 2nd,3rd... in seconds (default: 0)
-  -h, --help                    show this help and exit"
+  -h, --help                    show this help and exit'
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
@@ -37,6 +35,11 @@ Options:
         return 0
     elif (( dot_parse_code )); then
         return $dot_parse_code
+    fi
+
+    if ! command -v ffmpeg > /dev/null; then
+        print-header -e "ffmpeg not found. Please install ffmpeg to use this script."
+        return 1
     fi
 
     options[extension]="${options[extension]:-.m4v}"
