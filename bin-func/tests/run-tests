@@ -33,4 +33,7 @@ main() {
     return $out
 }
 
-main "$@"
+(
+    cd "$(dirname "$0")"
+    main "$@"
+)

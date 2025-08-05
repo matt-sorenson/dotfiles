@@ -140,7 +140,7 @@ happy-case-empty-folder-exists() {
         return 1
     fi
 
-    mkdir -p "${project_name}"
+    mkdir -p "${project_dir}"
 
     ws-init "${project_name}"
 
@@ -253,16 +253,14 @@ main() {
     local test_case=happy-case
     for tast_case in "${(k)test_cases[@]}"; do
         run-test --bin-func "${testee}" "${tast_case}" || (( out += 1 ))
-        cd "${starting_dir}"
-
         rm -rf "${project_dir}" || true
+
+        cd "${starting_dir}"
 
         if alias code &> /dev/null; then
             unalias code &> /dev/null || true
         fi
     done
-
-    rm -rf "${project_dir}" || true
 
     if [[ -v old_code_alias ]]; then
         alias "$old_code_alias"
