@@ -10,7 +10,7 @@
 # - Custom functions:
 #   - aws-signon (optional, be signed in already, or provide a command with --aws-signon-cmd)
 #   - print-header
-#   - exit_trap_emulate_local_function - Iterates through all parameters and deletes the function if they exist
+#   - exit_trap_emulate_local_function - Cleanup function to clear out 'local' functions
 
 repoman() {
     emulate -L zsh
@@ -133,11 +133,17 @@ Examples:
 
     local -i any_set=0
 
+    # Task state constants
+    local -i TASK_DISABLED=0
+    local -i TASK_REQUESTED=1
+    local -i TASK_REQUIRED=2
+    local -i TASK_GROUP=3
+
     # A task set to
-    # 0 - disabled
-    # 1 - requested
-    # 2 - not requested, but one of the requested requires it to run
-    # 3 - requested by group flag (like -t/--test), skippable if no command provided
+    # TASK_DISABLED (0) - disabled
+    # TASK_REQUESTED (1) - requested
+    # TASK_REQUIRED (2) - not requested, but one of the requested requires it to run
+    # TASK_GROUP (3) - requested by group flag (like -t/--test), skippable if no command provided
     local -A tasks=(
         git_clean           0
         nuke                0
@@ -204,7 +210,7 @@ Examples:
         ;;
     --calling-name)
         if (( $# < 2 )); then
-            print-header -e "missing argument for $1"
+            print-header -e "Missing argument for $1"
             _repoman-usage
             return 1
         fi
@@ -214,7 +220,7 @@ Examples:
         ;;
     --default-repo)
         if (( $# < 2 )) || [[ -z $2 ]]; then
-            print-header -e "missing argument for $1"
+            print-header -e "Missing argument for $1"
             _repoman-usage
             return 1
         fi
@@ -230,7 +236,7 @@ Examples:
     --?*-verbose) ;& #fallthrough
     --?*-requires)
         if (( $# < 2 )) || [[ -z $2 ]]; then
-            print-header -e "missing argument for $1"
+            print-header -e "Missing argument for $1"
             _repoman-usage
             return 1
         fi
@@ -276,10 +282,11 @@ Examples:
             local task1="${key%%_requires}"   # extract first part
 
             if [[ -v task_requires_task[$task1] ]]; then
-                print-header -e "Already set the required task list for $task1"
+                print-header -e "Option '$1' is already set to '${task_requires_task[$task1]}'."
+                print "new value: $2"
                 return 1
             elif (( $# < 2 )); then
-                print-header -e -- "--$task1-requires requires an argument"
+                print-header -e -- "Missing argument for '--$task1-requires'"
                 return 1
             fi
 
@@ -370,7 +377,7 @@ Examples:
                 fi
 
                 if (( $# < 2 )) || [[ -z $2 ]]; then
-                    print-header -e "missing argument for '-${arg}'"
+                    print-header -e "Missing argument for '-${arg}'"
                     _repoman-usage
                     return 1
                 fi
@@ -429,7 +436,7 @@ Examples:
         repo_dir="${opts[path]}"
     else
         if [[ ! -v WORKSPACE_ROOT_DIR ||  -z "${WORKSPACE_ROOT_DIR}" ]]; then
-            print-header -e "Error: WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
+            print-header -e "WORKSPACE_ROOT_DIR is not set & -p/--path was not specified."
             if [[ -z "${default_repo}" ]]; then
                 print "       When -r/--repo is not specified, \"${WORKSPACE_ROOT_DIR}/${default_repo}\" is used."
             fi
@@ -488,11 +495,11 @@ Examples:
         # don't have commands available, but if integration tests are missing
         # a command it will only print a warning.
         if (( ! tasks[unit_tests] )); then
-            tasks[unit_tests]=2;
+            tasks[unit_tests]=TASK_REQUIRED;
         fi
 
         if (( ! tasks[integration_tests] )); then
-            tasks[integration_tests]=2
+            tasks[integration_tests]=TASK_REQUIRED
         fi
     fi
 
@@ -537,7 +544,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
             fi
 
             if (( ! tasks[$1] )); then
-                tasks[$1]=3
+                tasks[$1]=TASK_REQUIRED
             fi
         fi
     }
@@ -557,8 +564,8 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
     for task in "${(k)tasks[@]}"; do
         if (( tasks[$task] )) && [[ -v task_requires_task[$task] ]]; then
             for required_task in "${(s:;:)task_requires_task[$task]}"; do
-                if (( ! task[$required_task] )); then
-                    task[$required_task]=2
+                if (( ! tasks[$required_task] )); then
+                    tasks[$required_task]=TASK_REQUIRED
                 fi
             done
         fi
@@ -591,7 +598,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         done
 
         if [[ ! -v task ]]; then
-            print-header "_repoman-run-task requires a task."
+            print-header -e "_repoman-run-task requires a task."
             print "${_repoman_run_task_usage}"
             return 1
         fi
@@ -613,13 +620,14 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         elif (( ! tasks[$task] )); then
             return 0
         elif [[ ! -v task_commands[$task] ]]; then
-            if (( tasks[$task] == 3 )) || (( tasks[$task] == 2 )); then
+            # Skip optional tasks (group or required) that don't have commands
+            if (( tasks[$task] == TASK_GROUP || tasks[$task] == TASK_REQUIRED )); then
                 print-header cyan --icon "${icon}" "${header}: Command not found, skipping"
                 return 0
-            else
-                print-header -e --icon "${icon}" "${header}: Command not found"
-                return 1
             fi
+            # Fail for explicitly requested tasks without commands
+            print-header -e --icon "${icon}" "${header}: Command not found"
+            return 1
         fi
 
         local working_dir="${repo_dir}"
@@ -690,14 +698,19 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
 
     if (( tasks[db_up] )); then
         if [[ -n "${opts[db_container_name]}" ]]; then
-            local db_container_id=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
-            if [[ -n $db_container_id ]]; then
-                print "DB Docker container is already running"
+            if command -v docker &> /dev/null; then
+                local db_container_id=$(docker ps -q -f name="${opts[db_container_name]}" -f status=running)
+                if [[ -n $db_container_id ]]; then
+                    print "DB Docker container is already running"
 
-                # Since we're skipping the db-up we don't want to
-                # skip migrations/generate-schema if db_up_does_migration/db_up_does_schema
-                # are set
-                tasks[db_up]=0
+                    # Since we're skipping the db-up we don't want to
+                    # skip migrations/generate-schema if db_up_does_migration/db_up_does_schema
+                    # are set
+                    tasks[db_up]=0
+                fi
+            else
+                print-header -e "Docker is not installed."
+                return 1
             fi
         else
             print "db-container-name is not set, still running db up"

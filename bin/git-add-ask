@@ -29,7 +29,7 @@ Options:
 
     if (( git_exit_code )); then
         print-header -w "Not a git repository"
-        return
+        return 0
     fi
 
     local -a modified_files=()
@@ -48,7 +48,7 @@ Options:
         fi
 
         file_path="${git_root}/${file_path}"
-        if [[ -n "${file_path}" ]]; then
+        if [[ -n "${file_path}" && -e "${file_path}" ]]; then
             if (( tracked )); then
                 modified_files+=("${file_path}")
             else
@@ -56,26 +56,42 @@ Options:
             fi
         fi
     done < <(git status --porcelain=2 --ignore-submodules)
-    unset line file_path xy match
+    unset line file_path tracked match mbegin mend
+
+    local total_files=$(( ${#modified_files[@]} + ${#untracked_files[@]} ))
+    local current_file=0
 
     local file REPLY
     for file in "${modified_files[@]}"; do
-        git diff -- "$file"
+        (( current_file++ ))
+        print "[${current_file}/${total_files}] Modified file:"
+        
+        if ! git diff -- "$file" 2>/dev/null; then
+            print-header -w "Failed to show diff for '${file}'"
+            continue
+        fi
 
         print-header cyan "Add '${file}'?"
         if read -q; then
             print
-            git add "$file"
+            if ! git add "$file" 2>/dev/null; then
+                print-header -e "Failed to add '${file}'"
+            fi
         else
             print
         fi
     done
 
     for file in "${untracked_files[@]}"; do
+        (( current_file++ ))
+        print "[${current_file}/${total_files}] Untracked file:"
+        
         print-header cyan "Add Untracked '${file}'?"
         if read -q; then
             print
-            git add "$file"
+            if ! git add "$file" 2>/dev/null; then
+                print-header -e "Failed to add '${file}'"
+            fi
         else
             print
         fi

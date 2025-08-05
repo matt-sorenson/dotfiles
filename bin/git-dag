@@ -4,7 +4,7 @@
 git-dag() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset warn_create_global
+    setopt err_return extended_glob typeset_to_unset warn_create_global null_glob
 
     unsetopt short_loops
 
@@ -50,8 +50,8 @@ git-dag() {
 
     local -a branches=()
     while (( $# )); do
-        if ! git show-ref --quiet "$1" > /dev/null; then
-            print-header -w "Branch '$1' does not exist." >&2
+        if ! git show-ref --quiet "$1"; then
+            print-header -e "Branch '$1' does not exist." >&2
             return 1
         fi
 
@@ -70,11 +70,11 @@ git-dag() {
             git_flags+=("${current_branch}")
         fi
 
-        if (( branches[(i)master] == 0 )) && git show-ref --verify --quiet refs/heads/master &> /dev/null; then
+        if (( branches[(i)master] == 0 )) && git show-ref --verify --quiet refs/heads/master; then
             git_flags+=(master)
         fi
 
-        if (( branches[(i)main] == 0 )) && git show-ref --verify --quiet refs/heads/main &> /dev/null; then
+        if (( branches[(i)main] == 0 )) && git show-ref --verify --quiet refs/heads/main; then
             git_flags+=(main)
         fi
     else

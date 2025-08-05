@@ -1,30 +1,23 @@
 #! /usr/bin/env zsh
 
-add-or-update-option() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return extended_glob typeset_to_unset warn_create_global 
-    unsetopt short_loops
-
-    local option_name="$1"
-    local option_value="$2"
-
-    
-}
-
 create-ssh-key() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return extended_glob typeset_to_unset warn_create_global 
     unsetopt short_loops
 
-    local _usage="Usage create-ssh-key
+    local _usage="Usage create-ssh-key, and on macOS generate the password and put it in the keychain.
 
 Options:
   -t, --type <type>     The type of SSH key to create (default: ed25519)
   -f, --file <filename> The name of the SSH Key file to create (default: id_<type>)
 
   -h, --help    Show this message"
+
+    if ! command -v ssh-keygen > /dev/null; then
+        print-header -e "ssh-keygen is required to create SSH keys."
+        return 1
+    fi
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
@@ -40,6 +33,11 @@ Options:
 
     if [[ "$OSTYPE" == darwin* ]]; then
         flags[keychain]=1
+
+        if ! command -v ssh-add > /dev/null; then
+            print-header -e "ssh-add is required to add SSH keys to the keychain."
+            return 1
+        fi
     fi
 
     local dot_parse_code=0
@@ -57,9 +55,11 @@ Options:
         fi
     fi
 
+    local -a ssh_keygen_args=()
     if [[ ! -v options[type] ]]; then
         options[type]='ed25519'
     fi
+    ssh_keygen_args+=(-t "${options[type]}")
 
     if [[ ! -v options[filename] ]]; then
         options[filename]='id_'${options[type]}
@@ -69,7 +69,9 @@ Options:
     if [[ -f "${HOME}/.ssh/${options[filename]}" ]]; then
         file_exists=1
     fi
+
     local private_filename="${HOME}/.ssh/${options[filename]}"
+    ssh_keygen_args+=(-f "${private_filename}")
 
     if (( flags[rotate-password] && ! file_exists)); then
         print-header -e "SSH Key file ${private_filename} does not exist."
@@ -81,7 +83,6 @@ Options:
         return 1
     fi
 
-    # TODO: support rotate-password
     if (( flags[rotate-password] )); then
         print-header -e "SSH key rotation is not yet implemented."
         return 1
@@ -93,8 +94,6 @@ Options:
     fi
 
     print-header blue "Generating a SSH key"
-    local -a ssh_keygen_args=()
-
     if [[ -v git_config[local_email] ]]; then
         ssh_keygen_args+=(-C "${git_config[local_email]}")
     fi
@@ -109,7 +108,7 @@ Options:
         ssh_keygen_args+=(-N "${ssh_key_password}")
     fi
 
-    ssh-keygen -t "${options[type]}" -f "${private_filename}" "${ssh_keygen_args[@]}"
+    ssh-keygen "${ssh_keygen_args[@]}"
 
     local -A ssh_host_config=()
     ssh_host_config[IdentityFile]='~/.ssh/'"${options[filename]}"
@@ -122,7 +121,7 @@ Options:
             printf '%s\n' '${ssh_key_password}'
         " > "${askpass_script}"
 
-        DISPLAY=:0 SSH_ASKPASS="${askpass_script}" ssh-add --apple-use-keychain ~/.ssh/id_ed25519 </dev/null
+        DISPLAY=:0 SSH_ASKPASS="${askpass_script}" ssh-add --apple-use-keychain "${private_filename}" </dev/null
         # Make sure to remove the file as it has the password in it.
         rm -f "${askpass_script}"
 

@@ -12,10 +12,9 @@ git-stack-init() {
     local _usage="Usage git stack-init [-h|--help][--no-clear]
 
 Options:
-  -q, --quiet Suppress some output messages
-  -h, --help  Show this help message
-
-  --no-clear  Do not clear the stack before initializing"
+  +c, --no-clear    Do not clear the existing stack before adding to it.
+  -q, --quiet       Suppress some output messages
+  -h, --help        Show this help message"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 

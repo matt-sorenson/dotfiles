@@ -4,17 +4,15 @@
 git-alias() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt null_glob
-    setopt warn_create_global
+    setopt err_return extended_glob typeset_to_unset warn_create_global null_glob
     unsetopt short_loops
 
     local _usage="Usage: git alias [-h|--help]
 
-    List all git aliases configured in the repository.
+List all git aliases configured in the repository.
 
-    Options
-    -h, --help    Show this help message"
+Options
+  -h, --help    Show this help message"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
     local dot_parse_code=0
@@ -30,6 +28,11 @@ git-alias() {
     lines=("${(@f)$(git config --get-regexp "^alias\.")}")
     # Remove "alias." prefix from each line
     lines=("${lines[@]#alias.}")
+
+    if (( ! ${#lines})); then
+        print-header -w "No aliases found"
+        return 0
+    fi
 
     # Find longest alias name
     local max=0
