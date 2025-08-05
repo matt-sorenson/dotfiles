@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin-func/tests/harness.zsh"
+source "${DOTFILES}/zsh/test-harness.zsh"
 autoload aws-signon
 
 mock_aws_signon_cmd() {

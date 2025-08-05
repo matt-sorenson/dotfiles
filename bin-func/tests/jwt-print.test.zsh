@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin-func/tests/harness.zsh"
+source "${DOTFILES}/zsh/test-harness.zsh"
 
 happycase() {
     local jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQwMDAwfQ.GSMSgnCTkgkE0gufLXxWInLlgH1NYr0wfgSLGmtRk4k"

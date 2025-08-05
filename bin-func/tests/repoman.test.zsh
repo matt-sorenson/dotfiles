@@ -1,8 +1,8 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin-func/tests/harness.zsh"
+source "${DOTFILES}/zsh/test-harness.zsh"
 
-root="${DOTFILES}/bin-func/tests/repoman-env"
+root="${DOTFILES}/bin-func/tests/env/repoman"
 clean_dir="clean"
 nuke_dir="nuke"
 install_dir="install"

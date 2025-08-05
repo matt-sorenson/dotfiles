@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin-func/tests/harness.zsh"
+source "${DOTFILES}/zsh/test-harness.zsh"
 
 local project_name="ws-init-test-ws-project-name-1234-._"
 local project_dir="${WORKSPACE_ROOT_DIR}/${project_name}"

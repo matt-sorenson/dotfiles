@@ -71,7 +71,7 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     local tests_dir
     if (( flags[bin-func] )); then
-        tests_dir="${DOTFILES}/bin-func/tests/"
+        tests_dir="${DOTFILES}/bin-func/tests"
     else
         tests_dir="${DOTFILES}/bin/tests/"
     fi

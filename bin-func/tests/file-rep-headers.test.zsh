@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin-func/tests/harness.zsh"
+source "${DOTFILES}/zsh/test-harness.zsh"
 
 # Test helper function to create test files
 create-test-file() {
@@ -23,8 +23,12 @@ get-file-content() {
 }
 
 local test_file="test-file.txt"
+local lua_test_file="test-file.lua"
 local insert_file="insert-content.txt"
 
+################################################################################
+## Insert content at end of file if no headers are present.
+################################################################################
 insert-no-existing-headers() {
     create-test-file "$test_file" "Some initial content\nMore content here"
     file-rep-headers --header "test-header" --insert "New content to insert" "$test_file"
@@ -37,18 +41,22 @@ finsert-no-existing-headers() {
     get-file-content "$test_file"
 }
 
-insert-custom-marker() {
+insert-custom-marker-no-existing-headers() {
     create-test-file "$test_file" "Some initial content\nMore content here"
-    file-rep-headers --header "test-header" --insert "New content" --marker "-" "$test_file"
+    file-rep-headers --header "test-header" --insert "New content" --marker '}' "$test_file"
     get-file-content "$test_file"
 }
 
-finsert-custom-marker() {
+finsert-custom-marker-no-existing-headers() {
     create-test-file "$test_file" "Some initial content\nMore content here"
-    file-rep-headers --header "test-header" --finsert "$insert_file" --marker "-" "$test_file"
+    file-rep-headers --header "test-header" --finsert "$insert_file" --marker '}' "$test_file"
     get-file-content "$test_file"
 }
 
+
+################################################################################
+## Replace existing headers
+################################################################################
 insert-replace-existing-headers() {
     create-test-file "$test_file" "Content before headers
 ################################################################################
@@ -72,12 +80,87 @@ Old content here
 ################################################################################
 ## End test-header
 ################################################################################
-More content after headers"
+More content after headers
+"
 
     file-rep-headers --header "test-header" --finsert "$insert_file" "$test_file"
     get-file-content "$test_file"
 }
 
+insert-replace-existing-headers-extra-header-blocks() {
+    create-test-file "$test_file" "Content before headers
+################################################################################
+## Start test-header
+################################################################################
+Old content here
+################################################################################
+## End test-header
+################################################################################
+More content after headers
+################################################################################
+## Start IGNORE-ME header block
+################################################################################
+Old content here
+################################################################################
+## End IGNORE-ME header block
+################################################################################"
+    file-rep-headers --header "test-header" --insert "New replacement content" "$test_file"
+    get-file-content "$test_file"
+}
+
+finsert-replace-existing-headers-extra-header-blocks() {
+    create-test-file "$test_file" "Content before headers
+################################################################################
+## Start test-header
+################################################################################
+Old content here
+################################################################################
+## End test-header
+################################################################################
+More content after headers
+################################################################################
+## Start IGNORE-ME header block
+################################################################################
+Old content here
+################################################################################
+## End IGNORE-ME header block
+################################################################################"
+    file-rep-headers --header "test-header" --finsert "$insert_file" "$test_file"
+    get-file-content "$test_file"
+}
+
+insert-replace-existing-headers-custom-marker() {
+    create-test-file "$test_file" "Content before headers
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+}} Start test-header
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+Old content here
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+}} End test-header
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+More content after headers"
+    file-rep-headers --header "test-header" --insert "New replacement content" "$test_file" --marker '}'
+    get-file-content "$test_file"
+}
+
+finsert-replace-existing-headers-custom-marker() {
+    create-test-file "$test_file" "Content before headers
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+}} Start test-header
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+Old content here
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+}} End test-header
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+More content after headers"
+
+    file-rep-headers --header "test-header" --finsert "$insert_file" "$test_file" --marker '}'
+    get-file-content "$test_file"
+}
+
+################################################################################
+## Create new file if no file exists
+################################################################################
 insert-create-new-file() {
     file-rep-headers --header "test-header" --insert "New file content" "$test_file"
     get-file-content "$test_file"
@@ -109,26 +192,20 @@ error-both-insert-options() {
 ################################################################################
 ## Lua Tests
 ################################################################################
-insert-lua-file-no-headers() {
-    local test_file="test-file.lua"
-
-    create-test-file "$test_file" "Some initial content\nMore content here"
-    file-rep-headers --header "test-header" --insert "New content" "$test_file"
-    get-file-content "$test_file"
+insert-lua-file-no-existing-headers() {
+    create-test-file "$lua_test_file" "Some initial content\nMore content here"
+    file-rep-headers --header "test-header" --insert "New content" "$lua_test_file"
+    get-file-content "$lua_test_file"
 }
 
-finsert-lua-file-no-headers() {
-    local test_file="test-file.lua"
-
-    create-test-file "$test_file" "Some initial content\nMore content here"
-    file-rep-headers --header "test-header" --insert "New content" "$test_file"
-    get-file-content "$test_file"
+finsert-lua-file-no-existing-headers() {
+    create-test-file "$lua_test_file" "Some initial content\nMore content here"
+    file-rep-headers --header "test-header" --insert "New content" "$lua_test_file"
+    get-file-content "$lua_test_file"
 }
 
-insert-lua-file-with-headers() {
-    local test_file="test-file.lua"
-
-    create-test-file "$test_file" "Content before headers
+insert-lua-file-existing-headers() {
+    create-test-file "$lua_test_file" "Content before headers
 --------------------------------------------------------------------------------
 -- Start test-header
 --------------------------------------------------------------------------------
@@ -138,16 +215,12 @@ Old content here
 --------------------------------------------------------------------------------
 More content after headers"
 
-    file-rep-headers --header "test-header" --insert "New content" "$test_file"
-    get-file-content "$test_file"
-
-    cleanup-test-files "$test_file"
+    file-rep-headers --header "test-header" --insert "New content" "$lua_test_file"
+    get-file-content "$lua_test_file"
 }
 
-finsert-lua-file-with-headers() {
-    local test_file="test-file.lua"
-
-    create-test-file "$test_file" "Content before headers
+finsert-lua-file-existing-headers() {
+    create-test-file "$lua_test_file" "Content before headers
 --------------------------------------------------------------------------------
 -- Start test-header
 --------------------------------------------------------------------------------
@@ -157,28 +230,18 @@ Old content here
 --------------------------------------------------------------------------------
 More content after headers"
 
-    file-rep-headers --header "test-header" --finsert "$insert_file" "$test_file"
-    get-file-content "$test_file"
-
-    cleanup-test-files "$test_file"
+    file-rep-headers --header "test-header" --finsert "$insert_file" "$lua_test_file"
+    get-file-content "$lua_test_file"
 }
 
 insert-lua-file-create-new-file() {
-    local test_file="test-file.lua"
-
-    file-rep-headers --header "test-header" --insert "New content" "$test_file"
-    get-file-content "$test_file"
-
-    cleanup-test-files "$test_file"
+    file-rep-headers --header "test-header" --insert "New content" "$lua_test_file"
+    get-file-content "$lua_test_file"
 }
 
 finsert-lua-file-create-new-file() {
-    local test_file="test-file.lua"
-
-    file-rep-headers --header "test-header" --finsert "$insert_file" "$test_file"
-    get-file-content "$test_file"
-
-    cleanup-test-files "$test_file"
+    file-rep-headers --header "test-header" --finsert "$insert_file" "$lua_test_file"
+    get-file-content "$lua_test_file"
 }
 
 
@@ -191,20 +254,33 @@ main() {
     local -i out=0
     local testee='file-rep-headers'
     local -a test_cases=(
+        # Insert content at end of file if no headers are present.
         insert-no-existing-headers
-        insert-custom-marker
-        insert-lua-file-no-headers
-        insert-lua-file-with-headers
-        insert-lua-file-create-new-file
-        insert-replace-existing-headers
-        insert-create-new-file
         finsert-no-existing-headers
-        finsert-custom-marker
-        finsert-lua-file-no-headers
-        finsert-lua-file-with-headers
-        finsert-lua-file-create-new-file
+        insert-custom-marker-no-existing-headers
+        finsert-custom-marker-no-existing-headers
+
+        # Replace existing block
+        insert-replace-existing-headers
         finsert-replace-existing-headers
+        insert-replace-existing-headers-extra-header-blocks
+        finsert-replace-existing-headers-extra-header-blocks
+        insert-replace-existing-headers-custom-marker
+        finsert-replace-existing-headers-custom-marker
+
+        # Create new file if no file exists
+        insert-create-new-file
         finsert-create-new-file
+
+        # Lua Tests
+        insert-lua-file-no-existing-headers
+        finsert-lua-file-no-existing-headers
+        insert-lua-file-existing-headers
+        finsert-lua-file-existing-headers
+        insert-lua-file-create-new-file
+        finsert-lua-file-create-new-file
+
+        # Error Cases
         error-missing-header
         error-missing-insert
         error-both-insert-options
@@ -218,9 +294,11 @@ main() {
     for test_case in "${test_cases[@]}"; do
         cleanup-test-files "$test_file"
         run-test --bin-func "$testee" "$test_case" || (( out += 1 ))
+
+        cleanup-test-files "${test_file}" "${test_file}.bak" "${lua_test_file}" "${lua_test_file}.bak"
     done
 
-    cleanup-test-files "$test_file" "$insert_file"
+    cleanup-test-files "${insert_file}"
 
     popd
 

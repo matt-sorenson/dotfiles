@@ -101,8 +101,8 @@ ${header_wrap}"
 ${options[marker]}${options[marker]} End ${options[header]}
 ${header_wrap}"
 
-    local start_line=$(awk "/^${options[marker]}{80}/ { getline; if (\$0 ~ /^${options[marker]}${options[marker]} Start ${options[header]}\$/) { getline; print NR+1 } }" "$filename")
-    local end_line=$(awk "/^${options[marker]}{80}/ { getline; if (\$0 ~ /^${options[marker]}${options[marker]} End ${options[header]}\$/) { getline; print NR-3 } }" "$filename")
+    local start_line=$(awk "/^${options[marker]}{80}/ { getline; if (\$0 ~ /^${options[marker]}${options[marker]} Start ${options[header]}\$/) { getline; print NR } }" "$filename")
+    local end_line=$(  awk "/^${options[marker]}{80}/ { getline; if (\$0 ~ /^${options[marker]}${options[marker]} End ${options[header]}\$/) { getline; print NR+1 } }" "$filename")
 
     if [[ -z $start_line || -z $end_line ]] || (( ! start_line || ! end_line )); then
         if [[ -s "${filename}" ]]; then
@@ -126,30 +126,29 @@ ${header_wrap}"
             print -- "${options[insert]}" >> "$filename"
         else
             cat "${options[finsert]}" >> "$filename"
-            print >> "$filename" # add a newline
+            print >> "$filename"
         fi
 
         print -- "${end_header}" >> "$filename"
     else
         print 'Headers found, replacing existing headers.'
 
-        local tmp_file="$filename.bak" # "$(mktemp)"
-        mv "$filename" "$tmp_file"
-
+        local bak_file="${filename}.bak"
+        mv "${filename}" "${bak_file}"
         touch "$filename"
-        head -n $(( start_line - 1 )) "$tmp_file" >> "$filename"
+        head -n $(( start_line )) "$bak_file" >> "$filename"
 
         if [[ -v options[insert] ]]; then
             printf "%s\n" "${options[insert]}" >> "$filename"
         else
             cat "${options[finsert]}" >> "$filename"
-            print >> "$filename" # add a newline
+            print >> "$filename"
         fi
 
         print -- "${end_header}" >> "$filename"
 
-        local count=$(( $(wc -l < "$tmp_file") ))
-        tail -n $(( count - end_line - 2)) "$tmp_file" >> "$filename"
+        sed -n "${end_line},\$p" "$bak_file" >> "$filename"
+        print >> "$filename"
     fi
 }
 

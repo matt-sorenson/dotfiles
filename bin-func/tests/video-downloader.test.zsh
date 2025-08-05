@@ -1,10 +1,10 @@
 #! /usr/bin/env zsh
 
-source "${DOTFILES}/bin-func/tests/harness.zsh"
+source "${DOTFILES}/zsh/test-harness.zsh"
 
 autoload video-downloader
 
-root="${DOTFILES}/bin-func/tests/video-downloader-env"
+root="${DOTFILES}/bin-func/tests/env/video-downloader"
 
 mock_video_downloader() {
     print "mock_video_downloader: $*"

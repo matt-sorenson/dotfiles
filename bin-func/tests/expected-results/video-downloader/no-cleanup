@@ -1,6 +1,6 @@
 [DOWNLOADING] 'https://example.com/v/1'
 mock_video_downloader:  https://example.com/v/1
-[OK] 'https://example.com/v/1' recorded in '${DOTFILES}/bin-func/tests/video-downloader-env/no-cleanup.done'
+[OK] 'https://example.com/v/1' recorded in '${DOTFILES}/bin-func/tests/env/video-downloader/no-cleanup.done'
 ================================================================================
 = Successfully downloaded all videos                                           =
 ================================================================================
