@@ -5,7 +5,13 @@
       "label": "Create ZSH Script",
       "type": "process",
       "command": "./.vscode/create-zsh-script.zsh",
-      "args": ["${input:scriptName}", "--type", "bin", "--location", "${input:scriptLocation}"],
+      "args": [
+        "${input:scriptName}",
+        "--type",
+        "bin",
+        "--location",
+        "${input:scriptLocation}"
+      ],
       "problemMatcher": [],
       "group": {
         "kind": "build",
@@ -21,18 +27,24 @@
       "label": "Create ZSH Function",
       "type": "process",
       "command": "./.vscode/create-zsh-script.zsh",
-      "args": ["${input:scriptName}", "--type", "function", "--location", "${input:scriptLocation}"],
+      "args": [
+        "${input:scriptName}",
+        "--type",
+        "function",
+        "--location",
+        "${input:scriptLocation}"
+      ],
       "problemMatcher": [],
       "group": {
         "kind": "build",
-        "isDefault": false
+        "isDefault": true
       },
       "presentation": {
         "echo": true,
         "reveal": "silent",
         "panel": "shared"
       }
-    },
+    }
   ],
   "inputs": [
     {

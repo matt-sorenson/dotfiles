@@ -1,0 +1,101 @@
+#! /usr/bin/env zsh
+#compdef dot-run-tests
+
+dot-run-tests() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob local_patterns typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage dot-run-tests
+
+Options:
+  -h, --help    Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+    max_positional_count=2
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+    set -- "${positional_args[@]}"
+
+    local dir
+    local test_dirs=(
+        "${DOTFILES}/bin/tests"
+        "${DOTFILES}/bin-func/tests"
+    )
+
+    local out=0
+
+    if (( $# )); then
+        local testee_name="$1"
+        shift
+
+        if (( $# )); then
+            print-header -e "dot-run-tests currently doesn't support running named test cases."
+            return 1
+        fi
+
+        local test_file
+
+        for dir in "${test_dirs[@]}"; do
+            if [[ -f "$dir/${testee_name}.test.zsh" ]]; then
+                test_file="$dir/${testee_name}.test.zsh"
+                break;
+            fi
+        done
+
+        if [[ ! -v test_file ]]; then
+            print-header -e "Test file not found: ${testee_name}"
+            return 1
+        fi
+
+        print-header blue --icon 🧪 "Running: $testee_name"
+        zsh "$test_file" "$@" || out=$?
+
+        if (( out )); then
+            print-header -e "Failed: ${testee_name}"
+        else
+            print-header green "Success: ${testee_name}"
+        fi
+
+        return $out
+    else
+        for dir in "${test_dirs[@]}"; do
+            for test_file in "${dir}"/**/*.test.zsh(.N); do
+                local test_name="${test_file:t:r:r}"
+                print-header blue --icon 🧪 "Running: $test_name"
+                local exit_code=0
+                zsh "$test_file" || exit_code=$?
+
+                if (( exit_code )); then
+                    print-header -e "Failed: ${test_name}"
+                    (( out += $exit_code ))
+                else
+                    print-header green "Success: ${test_name}"
+                fi
+            done
+        done
+
+        if [[ -d "${dir}/failed-results/" ]]; then
+            if [ -z "$(ls -A "${dir}/failed-results/")" ]; then
+                rmdir "${dir}/failed-results/" || true
+            fi
+        fi
+    fi
+
+    if (( out )); then
+        print-header -e "$out tests failed."
+    else
+        print-header green "All Tests Passed!"
+    fi
+
+    return $out
+}
+
+dot-run-tests "$@"
