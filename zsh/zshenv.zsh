@@ -101,6 +101,10 @@ function() {
     for file in "${DOTFILES}/bin-func/"*(.N); do
         autoload -z "${file:t}"
     done
+
+    for file in "${DOTFILES}/local/bin-func/"*(.N); do
+        autoload -z "${file:t}"
+    done
 }
 
 if [[ -v CURSOR_TRACE_ID ]]; then

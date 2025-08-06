@@ -218,7 +218,7 @@ _git-dag() {
     case $state in
         branch)
             local branchs=( ${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads)"} )
-            compadd -a ms_branchs
+            compadd -a branchs
             ;;
     esac
 }
@@ -376,8 +376,6 @@ for _ws_dir_command in "${_ws_dir_commands[@]}"; do
     compdef _ws-dir ws-${_ws_dir_command}
 done
 unset _ws_dir_command
-
-compdef _ws-dir ws-${_ws_dir_commands}
 
 _ws() {
     local -a subcommands=()

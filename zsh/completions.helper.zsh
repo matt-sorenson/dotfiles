@@ -1,6 +1,6 @@
 # This helper file can provide arrays/maps/functions that assist with zsh completion.
 
-_dot_cdk_cmds=(
+typeset -ag _dot_cdk_cmds=(
     deploy
     destroy
     diff
@@ -9,20 +9,20 @@ _dot_cdk_cmds=(
     synth
 )
 
-_dot_cdk_profiles=(
+typeset -ag _dot_cdk_profiles=(
     "dev"
     "staging"
     "prod"
 )
 
-typeset -a _repoman_general_opts=(
+typeset -ag _repoman_general_opts=(
     '(-r --repo -p --path)'{-r,--repo}'[The directory under $WORKSPACE_ROOT_DIR containing the repo.]:repo:_files -W /${WORKSPACE_ROOT_DIR}/'
     '(-r --repo -p --path)'{-p,--path}'[The path to the repo. Overrides -r/--repo]:path:_directories'
     '(-h --help)'{-h,--help}'[Show help message]'
     '(-v --verbose)'{-v,--verbose}'[Show more verbose output]'
 )
 
-typeset -a _repoman_tasks_args=(
+typeset -ag _repoman_tasks_args=(
     '--git-clean[Clean untracked/ignored files from repo]'
     '(-c --clean)'{-c,--clean}'[Clean]'
     '(-n --nuke)'{-n,--nuke}'[Clean up development environment, db, docker, etc...]'
@@ -36,7 +36,7 @@ typeset -a _repoman_tasks_args=(
     '(-t --tests)'{-t,--tests}'[Run all tests]'
 )
 
-typeset -a _dot_test_dirs=(
+typeset -ag _dot_test_dirs=(
     "${DOTFILES}/bin/tests"
     "${DOTFILES}/bin-func/tests"
 )
