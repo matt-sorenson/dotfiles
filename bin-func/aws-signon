@@ -34,9 +34,9 @@ Examples:
     short_to_long_flags[f]=force
     flags[force]=0
     max_positional_count=1
-    option_args[command]=1
+    option_args[command]=str
     short_to_long_opts[c]=command
-    option_args[logged-in-command]=1
+    option_args[logged-in-command]=str
     dot_parse_opts_errors[too-many-positional]='Profile can only be specified once'
 
     local dot_parse_code=0

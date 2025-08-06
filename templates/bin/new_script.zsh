@@ -21,7 +21,7 @@ Options:
 
     # flags[foo]=0
     # short_to_long_flags[f]=foo
-    # option_args[input]=1
+    # option_args[input]=str
     # short_to_long_opts[i]=input
     # max_positional_count=2
     # allow_extra_args=1

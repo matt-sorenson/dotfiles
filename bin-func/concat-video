@@ -20,10 +20,10 @@ Options:
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
-    option_args[extension]=1
+    option_args[extension]=str
     option_args[file]=file
-    option_args[crop]=1
-    option_args[trim]=1
+    option_args[crop]=str
+    option_args[trim]=str
     short_to_long_opts[e]=extension
     short_to_long_opts[f]=r:file
     short_to_long_opts[c]=crop

@@ -24,7 +24,7 @@ Options:
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
-    option_args[extensions]=1
+    option_args[extensions]=str
     short_to_long_opts[e]=extensions
     max_positional_count=1
     allow_extra_args=1

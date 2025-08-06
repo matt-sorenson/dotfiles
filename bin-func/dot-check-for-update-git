@@ -24,7 +24,7 @@ dot-check-for-update-git() {
     flags[extra-quiet]=0
 
     short_to_long_opts[i]=indent
-    option_args[indent]=1
+    option_args[indent]=int
     max_positional_count=1
     min_positional_count=1
     dot_parse_opts_errors[too-many-positional]="Only 1 repo may be provided"

@@ -47,10 +47,10 @@ Specifying a url and a batch-file are mutually exclusive, but multiple urls may 
     short_to_long_flags[q]=quiet
 
     option_args[batch-file]=file
-    option_args[cookie]=1
-    option_args[downloader-cmd]=1
+    option_args[cookie]=file
+    option_args[downloader-cmd]=str
     option_args[url]='array:urls'
-    option_args[done-filename]=1
+    option_args[done-filename]=str
     option_args[output]=mkdir
 
     short_to_long_opts[f]=file
