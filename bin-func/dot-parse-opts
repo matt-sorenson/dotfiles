@@ -333,6 +333,10 @@ local -A dot_parse_opts_errors=(
         fi
     done
 
+    if [[ -v flags[help] ]] && (( flags[help] )); then
+        return -1
+    fi
+
     if [[ -v min_positional_count ]] && (( #positional_args < min_positional_count )); then
         local error="$(printf "${dot_parse_opts_errors[too-few-positional]}" "[min: $min_positional_count]")"
         print-header -e "${error}"
