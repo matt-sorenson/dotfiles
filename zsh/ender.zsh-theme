@@ -5,11 +5,7 @@ setopt prompt_subst
 zmodload zsh/datetime
 zmodload zsh/regex
 
-export _prompt_ender_preexec_time=${_prompt_ender_preexec_time:-0}
-
-if (( ! _prompt_ender_preexec_time )); then
-    _prompt_ender_preexec_time=$EPOCHREALTIME
-fi
+export _prompt_ender_preexec_time=$EPOCHREALTIME
 
 typeset -g _prompt_ender_current_bg='NONE'
 typeset -g _prompt_ender_seperator=''
