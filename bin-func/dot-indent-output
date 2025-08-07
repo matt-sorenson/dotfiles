@@ -1,0 +1,40 @@
+#! /usr/bin/env zsh
+#compdef dot-indent-output
+
+dot-indent-output() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob local_patterns typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage dot-indent-output
+
+Options:
+  -i, --indent <indent> Set the indent level for the output (default: 0)
+  -h, --help            Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    option_args[indent]=r:int
+    short_to_long_opts[i]=indent
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    local awk_pad=''
+    if (( options[indent] )); then
+        awk_pad="${(l:${options[indent]}:: :):-}"
+    fi
+
+    local line
+    while IFS= read -r line; do
+        print "${awk_pad}${line}"
+    done
+}
+
+dot-indent-output "$@"

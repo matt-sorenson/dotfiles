@@ -58,29 +58,6 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         return $dot_parse_code
     fi
 
-    _dot-indent-output() {
-        emulate -L zsh
-        set -uo pipefail
-        setopt err_return extended_glob typeset_to_unset warn_create_global
-
-        local indent=$1
-        shift
-        local awk_pad=''
-        if (( indent )); then
-            awk_pad="${(l:$indent:: :):-}"
-        fi
-
-        local line
-        while IFS= read -r line; do
-            print "${awk_pad}${line}"
-        done
-    }
-
-    # emulate `local -F` since it doesn't exist & return to starting directory.
-    TRAPEXIT() {
-        dot-safe-unset-function _dot-indent-output
-    }
-
     if (( flags[auto] )); then
         local date_cmd=()
         if command -v gdate > /dev/null; then
@@ -128,7 +105,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     done
 
-    # We use this instead of exiting early so that we can try to update
+    # We use `out`` instead of exiting early so that we can try to update
     # everything even if one fails
     local -i out=0
 
@@ -146,7 +123,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
                     if (( ${#hs_changes} )); then
                         print-header green "Reloading hammerspoon"
-                        hs -c "hs.reload()" | _dot-indent-output 2
+                        hs -c "hs.reload()" | dot-indent-output -i 2
                     fi
                 fi
             else
@@ -167,7 +144,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
                 continue
             fi
 
-            if ! dot-check-for-update-git "${repo}" | _dot-indent-output 2; then
+            if ! dot-check-for-update-git "${repo}" | dot-indent-output -i 2; then
                 out=1
             fi
         done
@@ -177,8 +154,8 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 
-            if brew update | _dot-indent-output 2; then
-                if ! brew upgrade; then
+            if brew update | dot-indent-output -i 2; then
+                if ! brew upgrade | dot-indent-output -i 2; then
                     print-header -e -i 2 "brew: Failed to upgrade."
                     out=1
                 fi
@@ -198,7 +175,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     fi
 
     if (( flags[local] )); then
-        if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local" | _dot-indent-output 2; then
+        if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local" | dot-indent-output -i 2; then
             out=1
         fi
 
@@ -216,7 +193,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         if command -v "${doomemacs_bin}" > /dev/null; then
             print-header green "Updating doom emacs."
 
-            if ! "${doomemacs_bin}" upgrade --aot --force --color | _dot-indent-output 2; then
+            if ! "${doomemacs_bin}" upgrade --aot --force --color; then
                 print-header -e -i 2 "doom emacs failed to upgrade."
                 out=1
             fi
