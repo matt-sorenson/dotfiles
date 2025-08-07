@@ -38,7 +38,7 @@ Options:
     }
 
     TRAPEXIT() {
-        exit_trap_emulate_local_function "_ws-clone-usage"
+        dot-safe-unset-function "_ws-clone-usage"
     }
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"

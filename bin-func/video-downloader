@@ -29,7 +29,7 @@ Options:
 Specifying a url and a batch-file are mutually exclusive, but multiple urls may be provided."
 
     TRAPEXIT() {
-        exit_trap_emulate_local_function _video-downloader-process-url
+        dot-safe-unset-function _video-downloader-process-url
     }
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"

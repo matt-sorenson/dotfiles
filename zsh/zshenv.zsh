@@ -68,12 +68,27 @@ if command -v rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
 
-exit_trap_emulate_local_function() {
-    while (( $# )) do
-        if [[ "$(type -w $1)" == *": function" ]]; then
-            unset -f "$1"
-        fi
+dot-safe-unset-function() {
+    local functions=()
+
+    while (( $# )); do
+        if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+            print-header -e "Usage: dot-safe-unset-function <function_name>...
+
+    For each function name provided check that it is a function and if so unset it.
+
+    Options:
+    -h, --help  Show this help message and exit"
+            return 0
+        elif [[ "$(type -w $1)" == *": function" ]]; then
+            functions+=("$1")
+        fi # Silently ignore non-function arguments
         shift
+    done
+
+    local func
+    for func in "${functions[@]}"; do
+        unset -f "$func"
     done
 }
 

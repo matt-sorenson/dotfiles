@@ -58,6 +58,29 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         return $dot_parse_code
     fi
 
+    _dot-indent-output() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return extended_glob typeset_to_unset warn_create_global
+
+        local indent=$1
+        shift
+        local awk_pad=''
+        if (( indent )); then
+            awk_pad="${(l:$indent:: :):-}"
+        fi
+
+        local line
+        while IFS= read -r line; do
+            print "${awk_pad}${line}"
+        done
+    }
+
+    # emulate `local -F` since it doesn't exist & return to starting directory.
+    TRAPEXIT() {
+        dot-safe-unset-function _dot-indent-output
+    }
+
     if (( flags[auto] )); then
         local date_cmd=()
         if command -v gdate > /dev/null; then
@@ -114,7 +137,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         if [[ -d "${DOTFILES}" ]]; then
             local dotfiles_starting_commit="$(git rev-parse --short HEAD)"
 
-            if dot-check-for-update-git -i 2 "${DOTFILES}"; then
+            if dot-check-for-update-git "${DOTFILES}"; then
                 # If hammerspoon exists we may have updated the config while updating
                 # the dotfiles, so we need to reload it.
                 if command -v "hs" > /dev/null; then
@@ -123,7 +146,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
                     if (( ${#hs_changes} )); then
                         print-header green "Reloading hammerspoon"
-                        hs -c "hs.reload()"
+                        hs -c "hs.reload()" | _dot-indent-output 2
                     fi
                 fi
             else
@@ -134,15 +157,17 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
+    print-header green "Updating plugins."
     if (( flags[plugins] )); then
         local repos_to_update=( "${DOTFILES}"/plugins/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo
         for repo in "${repos_to_update[@]}"; do
+            print-header -i 2 cyan "Updating '${repo:t}'"
             if [[ $repo == */local ]]; then
                 continue
             fi
 
-            if ! dot-check-for-update-git -i 2 "${repo}"; then
+            if ! dot-check-for-update-git "${repo}" | _dot-indent-output 2; then
                 out=1
             fi
         done
@@ -152,7 +177,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 
-            if brew update; then
+            if brew update | _dot-indent-output 2; then
                 if ! brew upgrade; then
                     print-header -e -i 2 "brew: Failed to upgrade."
                     out=1
@@ -173,7 +198,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     fi
 
     if (( flags[local] )); then
-        if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local"; then
+        if ! dot-check-for-update-git --extra-quiet "${DOTFILES}/local" | _dot-indent-output 2; then
             out=1
         fi
 
@@ -191,7 +216,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         if command -v "${doomemacs_bin}" > /dev/null; then
             print-header green "Updating doom emacs."
 
-            if ! "${doomemacs_bin}" upgrade --aot --force --color; then
+            if ! "${doomemacs_bin}" upgrade --aot --force --color | _dot-indent-output 2; then
                 print-header -e -i 2 "doom emacs failed to upgrade."
                 out=1
             fi

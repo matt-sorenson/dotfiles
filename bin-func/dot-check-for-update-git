@@ -13,7 +13,6 @@ dot-check-for-update-git() {
     -h, --help            Show this help message
     -q, --quiet           Suppress some warnings.
     -e, --extra-quiet         Suppress all output if directory not a repo or has no remotes.
-    -i, --indent <indent> Set the indent level for headers messages (default: 0)
 
     If no flags are provided then it's treated as if all flags are set."
 
@@ -23,8 +22,6 @@ dot-check-for-update-git() {
     flags[quiet]=0
     flags[extra-quiet]=0
 
-    short_to_long_opts[i]=indent
-    option_args[indent]=int
     max_positional_count=1
     min_positional_count=1
     dot_parse_opts_errors[too-many-positional]="Only 1 repo may be provided"
@@ -44,7 +41,7 @@ dot-check-for-update-git() {
 
     if [[ ! -d "${dir}" ]]; then
         if (( ! flags[extra-quiet] )); then
-            print-header -w -i "$indent" "${dir}: Missing Directory"
+            print-header -w "${dir}: Missing Directory"
         fi
         return 0
     fi
@@ -63,7 +60,7 @@ dot-check-for-update-git() {
     if ! git -C "${dir}" rev-parse --is-inside-work-tree &>/dev/null; then
         if (( ! flags[extra-quiet] )); then
             if (( flags[quiet] )); then
-                print-header -w -i "$indent" "${log_dir}: Directory not a git repo"
+                print-header -w "${log_dir}: Directory not a git repo"
             else
                 print "${log_dir}: Directory not a git repo"
             fi
@@ -71,7 +68,7 @@ dot-check-for-update-git() {
         return 0
     elif [[ "$(git -C "$dir" rev-parse --show-toplevel 2> /dev/null)" != "$dir" ]]; then
         if (( ! flags[quiet] )); then
-            print-header blue -i "$indent" "${log_dir}: Directory is not the root of a git repository, skipping"
+            print-header blue "${log_dir}: Directory is not the root of a git repository, skipping"
         fi
         return 0
     fi
@@ -86,7 +83,7 @@ dot-check-for-update-git() {
 
     if (( ${#remotes} == 0 )); then
         if (( ! flags[quiet] )); then
-            print-header -w -i "$indent" "${log_dir}: No git remote found, skipping update"
+            print-header -w "${log_dir}: No git remote found, skipping update"
         else
             print "No git remote found, skipping update"
         fi
@@ -101,16 +98,16 @@ dot-check-for-update-git() {
         if git -C "${dir}" merge-base --is-ancestor HEAD "${branch}"; then
             git -C "${dir}" merge "${branch}"
         elif ! git -C "${dir}" merge-base --is-ancestor "${branch}" HEAD; then
-            print-header -e -i "$indent" "${log_dir}: Local branch has diverged from upstream"
+            print-header -e "${log_dir}: Local branch has diverged from upstream"
             return 1
         fi
     else
-        print-header -e -i "$indent" "${log_dir}: No upstream branch found for $(git -C "${dir}" rev-parse --abbrev-ref HEAD)"
+        print-header -e "${log_dir}: No upstream branch found for $(git -C "${dir}" rev-parse --abbrev-ref HEAD)"
         return 0
     fi
 
     git -C "${dir}" diff --quiet --ignore-submodules HEAD || {
-        print-header -e -i "$indent" "${log_dir}: Uncommitted changes found"
+        print-header -e "${log_dir}: Uncommitted changes found"
         return 1
     }
 
@@ -121,10 +118,10 @@ dot-check-for-update-git() {
         behind=$(print "${behind_ahead}" | awk '{print $2}')
 
         if (( behind > 0 && ahead > 0 )); then
-            print-header -e -i "$indent" "${log_dir}: Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
+            print-header -e "${log_dir}: Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
             return 1
         elif (( behind > 0 )); then
-            print-header -e -i "$indent" "${log_dir}: Branch is behind upstream by ${behind} commits"
+            print-header -e "${log_dir}: Branch is behind upstream by ${behind} commits"
             return 1
         elif (( ahead > 0 )); then
             if (( ! flags[quiet] )); then
@@ -132,7 +129,7 @@ dot-check-for-update-git() {
             fi
         fi
     else
-        print-header -w -i "$indent" "${log_dir}: Unable to compare with upstream"
+        print-header -w "${log_dir}: Unable to compare with upstream"
         return 1
     fi
 
