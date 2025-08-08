@@ -1,6 +1,16 @@
+local default_samba_port = 445
+
 --[[ export ]]
-local function mount_smb(host, share)
-    local smb_share = 'smb://' .. host .. ':445/' .. share
+local function mount_smb(host, share, port)
+    if not host then
+        error('host is required for mount_smb')
+    elseif not share then
+        error('share is required for mount_smb')
+    end
+
+    port = port or default_samba_port
+
+    local smb_share = 'smb://' .. host .. ':' .. port .. '/' .. share
     local out = hs.osascript.applescript('mount volume "' .. smb_share .. '"')
 
     return out

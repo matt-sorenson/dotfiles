@@ -125,6 +125,28 @@ local function get_current_window_size()
     hs.alert(msg)
 end
 
+--[[ export ]]
+local function set_global(key, value)
+    rawset(_G, key, value)
+end
+
+local allowed_globals = {}
+
+--[[ export ]]
+local function add_allowed_global(key)
+    table.insert(allowed_globals, key)
+end
+
+--[[ export ]]
+local function remove_allowed_global(key)
+    table.remove(allowed_globals, key)
+end
+
+--[[ export ]]
+local function is_allowed_global(key)
+    return table.find(allowed_globals, key) ~= nil
+end
+
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     select_app = select_app,
@@ -142,4 +164,9 @@ return {
     using_moonlander = using_moonlander,
 
     get_current_window_size = get_current_window_size,
+
+    set_global = set_global,
+    add_allowed_global = add_allowed_global,
+    remove_allowed_global = remove_allowed_global,
+    is_allowed_global = is_allowed_global,
 }

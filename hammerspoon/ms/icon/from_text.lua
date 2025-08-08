@@ -1,4 +1,19 @@
+local print = require('ms.logger').new('ms.icon.from_text')
 local colors = require('ms.colors').streamdeck
+
+local valid_alignments = { 'left', 'right', 'center', 'justified', 'natural' }
+
+local function get_alignment(alignment)
+    if alignment then
+        if table.find(valid_alignments, alignment) then
+            return alignment
+        end
+
+        print:error('invalid alignment: \'' .. alignment .. '\' using default: center')
+    end
+
+    return 'center'
+end
 
 local function get_canvas_from_text(text, options)
     local background_color = options.background_color or colors.black
@@ -16,7 +31,7 @@ local function get_canvas_from_text(text, options)
                     size = options['font_size'] or 70
                 },
                 paragraphStyle = {
-                    alignment = options.text_alignment or "center"
+                    alignment = get_alignment(options.text_alignment)
                 },
                 backgroundColor = background_color,
                 color = options.text_color or colors.off_white,

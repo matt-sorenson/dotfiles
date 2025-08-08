@@ -87,7 +87,7 @@ end
 -- @param mod
 --   Key into GRID_LAYOUTS to use. If nil, or the key isn't found in GRID_LAYOUTS
 --   then 'standard' is used. Called mod as it's mainly used for keybinds.
---[[export]]
+--[[ export ]]
 local function show(mod)
     select_layout()
 

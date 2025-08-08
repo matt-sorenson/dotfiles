@@ -5,11 +5,15 @@ local streamdeck = require 'ms.streamdeck'
 local sys        = require 'ms.sys'
 local work       = require 'ms.work'
 
-REMOTE_SHARES = {}
+sys.add_allowed_global('REMOTE_SHARES')
+REMOTE_SHARES = {
+    config = {}
+}
 
 if not work.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
-    REMOTE_HOME = 'matt-srv'
+    REMOTE_SHARES.config = {}
+    REMOTE_SHARES.config.home = 'matt-srv'
 end
 
 local _audio_device_configs = {
@@ -35,10 +39,10 @@ local modal = bind.init(require('config.keymap'))
 --luacheck: no unused
 local deck = streamdeck.new(require('config.streamdeck'))
 
-if REMOTE_HOME then
+if REMOTE_SHARES.config.home then
     local finder_modal = modal.children['global'].children['finder']
-    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', REMOTE_HOME,
-    sys.open_finder_fn('/Volumes/' .. REMOTE_HOME)) })
+    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', REMOTE_SHARES.config.home,
+    sys.open_finder_fn('/Volumes/' .. REMOTE_SHARES.config.home)) })
 end
 
 local function on_device_change()

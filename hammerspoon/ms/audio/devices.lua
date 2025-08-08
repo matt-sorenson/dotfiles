@@ -20,22 +20,22 @@ local function get_config(device)
     end
 end
 
---[[export]]
+--[[ export ]]
 local function get_output_config()
     return get_config(output_device)
 end
 
---[[export]]
+--[[ export ]]
 local function get_input_config()
     return get_config(input_device)
 end
 
---[[export]]
+--[[ export ]]
 local function get_config_by_name(name)
     return _config[name]
 end
 
---[[export]]
+--[[ export ]]
 local function get_input_device_by_name(name)
     if _config[name] then
         return hs.audiodevice.findInputByName(_config[name].device_name)
@@ -44,7 +44,7 @@ local function get_input_device_by_name(name)
     end
 end
 
---[[export]]
+--[[ export ]]
 local function get_output_device_by_name(name)
     if _config[name] then
         return hs.audiodevice.findOutputByName(_config[name].device_name)
@@ -53,44 +53,44 @@ local function get_output_device_by_name(name)
     end
 end
 
---[[export]]
+--[[ export ]]
 local function get_input_device_by_uid(uid)
     return hs.audiodevice.findInputByUID(uid)
 end
 
---[[export]]
+--[[ export ]]
 local function get_output_device_by_uid(uid)
     return hs.audiodevice.findOutputByUID(uid)
 end
 
---[[export]]
+--[[ export ]]
 local function get_input_device()
     return input_device
 end
 
---[[export]]
+--[[ export ]]
 local function get_output_device()
     return output_device
 end
 
---[[export]]
+--[[ export ]]
 local function add_input_watcher_callback(callback)
     table.insert(input_watcher_callbacks, callback)
 end
 
---[[export]]
+--[[ export ]]
 local function remove_input_watcher_callback(callback)
-    table.remove(input_watcher_callbacks, callback)
+    table.iremove_by_value(input_watcher_callbacks, callback)
 end
 
---[[export]]
+--[[ export ]]
 local function add_output_watcher_callback(callback)
     table.insert(output_watcher_callbacks, callback)
 end
 
---[[export]]
+--[[ export ]]
 local function remove_output_watcher_callback(callback)
-    table.remove(output_watcher_callbacks, callback)
+    table.iremove_by_value(output_watcher_callbacks, callback)
 end
 
 local function shutdown()
@@ -106,7 +106,7 @@ local function shutdown()
     input_device = nil
 end
 
---[[export]]
+--[[ export ]]
 local function init(device_config, set_default_output)
     shutdown()
 
@@ -116,10 +116,10 @@ local function init(device_config, set_default_output)
 
     local default = _config.default or {}
     _config.default = nil
-    default.min_volume_delta = default.min_volume_delta or 5
+    default.min_delta = default.min_delta or 5
 
     table.each(_config, function(config)
-        config.min_volume_delta = config.min_volume_delta or default.min_volume_delta
+        config.min_delta = config.min_delta or default.min_delta
     end)
 
     _config.default = default

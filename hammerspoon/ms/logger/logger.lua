@@ -19,7 +19,7 @@ end
 
 local _system_log_level = log_level_to_num('INFO')
 
---[[ export]]
+--[[ export ]]
 local function get_log_level()
     return _system_log_level
 end

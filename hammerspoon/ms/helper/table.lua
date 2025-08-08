@@ -233,3 +233,31 @@ table.tostring = function(t, indent, looked_up)
     return out .. indent .. '}'
 end
 
+--- Remove an element from an array by value
+-- @param t array to remove from
+-- @param value value to remove
+-- @return the array with the value removed, or nil if the value was not found
+table.iremove_by_value = function(t, value)
+    for i, v in ipairs(t) do
+        if v == value then
+            table.remove(t, i)
+            return v
+        end
+    end
+
+    return nil
+end
+
+table.ijoin = function(t1, sep)
+    local out = ""
+
+    for i, v in pairs(t1) do
+        if i > 1 then
+            out = out .. sep .. ' '
+        end
+
+        out = out .. tostring(v)
+    end
+
+    return out
+end

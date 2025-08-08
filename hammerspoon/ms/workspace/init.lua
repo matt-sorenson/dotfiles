@@ -7,7 +7,7 @@ local function sleep()
     hs.timer.usleep(one_second_in_useconds)
 end
 
---[[export]]
+--[[ export ]]
 --@return integer | nil
 --     an opaque id of the new workspace
 --     or nil if the workspace could not be created
@@ -44,7 +44,7 @@ local function new_workspace()
     return new_spaces[1]
 end
 
---[[export]]
+--[[ export ]]
 local function change_to_workspace(workspace_id)
     local success, error = hs.spaces.gotoSpace(workspace_id or 1)
 
@@ -55,7 +55,7 @@ local function change_to_workspace(workspace_id)
     return not not success, error
 end
 
---[[export]]
+--[[ export ]]
 -- Currently broket
 local function move_window_to_workspace(window, workspace_id)
     print:warn('move_window_to_workspace is broken')
@@ -69,7 +69,7 @@ local function move_window_to_workspace(window, workspace_id)
     return success, error
 end
 
---[[export]]
+--[[ export ]]
 --- @param workspace_id string | nil
 ---     the id of the workspace to destroy, if not provided then the current
 ---     workspace is destroyed
@@ -107,7 +107,7 @@ local function launchOrGetApp(bundleId)
     return app
 end
 
---[[export]]
+--[[ export ]]
 --- Create a new workspace with zoom and a new vscode window for notes
 local function zoom_meeting()
     local new_workspace_id = new_workspace()

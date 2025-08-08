@@ -3,7 +3,7 @@ local print = require('ms.logger').new('ms.layout')
 local fs = require 'ms.fs'
 local work = require 'ms.work'
 
---[[ export]]
+--[[ export ]]
 local function move_window(window, rect, screen)
     window:move(rect, screen or window:screen())
 end
@@ -34,6 +34,7 @@ local function center_window(window, screen)
     window:move(rect, screen)
 end
 
+--[[ export ]]
 local resize_and_center_window = function(window, width, height, screen)
     screen = screen or window:screen()
 
@@ -53,21 +54,27 @@ local function _layout_score_str_tbl(array, str)
         if '' == e then
             return str == e
         else
-            return str:match(e:lower())
+            return str:find(e:lower())
         end
     end)
 end
 
+local SCORE_WEIGHTS = {
+    SCORE_INVALID = -1,
+    APP_MATCH = 1,
+    WINDOW_MATCH = 2
+}
+
 local function _layout_score_rule(category, app_name, win_name, rule)
     if category then
         if not rule.categories then
-            return -1
+            return SCORE_WEIGHTS.SCORE_INVALID
         end
 
         category = category:lower()
         -- categories are converted at loading time to a list of lowercased names.
         if not table.find(rule.categories, function(e) return e == category end) then
-            return -1
+            return SCORE_WEIGHTS.SCORE_INVALID
         end
     end
 
@@ -75,18 +82,18 @@ local function _layout_score_rule(category, app_name, win_name, rule)
 
     if rule.app and app_name then
         if not _layout_score_str_tbl(rule.app, app_name) then
-            return -1
+            return SCORE_WEIGHTS.SCORE_INVALID
         end
 
-        score = score + 1
+        score = score + SCORE_WEIGHTS.APP_MATCH
     end
 
     if rule.window and win_name then
         if not _layout_score_str_tbl(rule.window, win_name) then
-            return -1
+            return SCORE_WEIGHTS.SCORE_INVALID
         end
 
-        score = score + 2
+        score = score + SCORE_WEIGHTS.WINDOW_MATCH
     end
 
     return score
@@ -254,7 +261,6 @@ local function load_screen_configurations()
             local name = filename:gsub('.lua$', '')
             local file = '/layouts/' .. filename
             local layout = _layout_new(fs.do_file_resources(file), name)
-
             if layout ~= nil then
                 table.insert(screen_configs, layout)
             end
@@ -318,7 +324,7 @@ local function move_window_fn(rect, screen_n)
     end
 end
 
---[[ export]]
+--[[ export ]]
 local function resize_window_fn(width, height)
     return function()
         resize_window(hs.window.focusedWindow(), width, height)
@@ -329,7 +335,8 @@ end
 local function center_window_fn()
     return function() center_window(hs.window.focusedWindow()) end
 end
--- [[ export]]
+
+--[[ export ]]
 local function current_layout_has_section(section_n)
     local sections = get_config():sections()
 

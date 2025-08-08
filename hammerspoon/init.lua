@@ -1,9 +1,31 @@
+local print = require('ms.logger').new('init')
 require 'ms.helper'
+
+local global_metatable = getmetatable(_G)
+if not global_metatable then
+    global_metatable = {}
+    setmetatable(_G, global_metatable)
+end
+
+global_metatable.__newindex = function(self, key, value)
+    local sys = require 'ms.sys'
+
+    if sys.is_allowed_global(key) then
+        rawset(self, key, value)
+        return
+    end
+
+    local info = debug.getinfo(2, "Sl")
+    local src = info.short_src or '?'
+    local line = info.currentline or '?'
+
+    print:error('Global variable \'' .. key .. '\' is being set in ' .. src .. ':' .. line)
+    rawset(self, key, value)
+end
+
 local console = require 'ms.console'
 
 console.setTheme()
-
-local print = require('ms.logger').new('init')
 
 -- This kludges the hs.logger.new to use the ms.logger instead with a wrapper.
 require 'ms.logger.hammerspoon-kludge'

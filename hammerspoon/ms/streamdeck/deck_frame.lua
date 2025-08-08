@@ -200,7 +200,7 @@ local function enter(self, deck)
         local refresh_rate = enc.get_screen_refresh_rate()
         if refresh_rate then
             local timer = setup_timer(self, refresh_encoder, i, deck, refresh_rate)
-            timer[i]:start()
+            timer:start()
 
             table.insert(self.timers, timer)
         end

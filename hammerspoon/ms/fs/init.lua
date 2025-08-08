@@ -46,7 +46,7 @@ end
 
 local function do_file_helper(filename, pathname)
     if not filename then
-        error("Could not find file: " .. filename)
+        error('filename is required for do_file_*')
     end
 
     if pathname then

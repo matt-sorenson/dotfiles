@@ -1,11 +1,11 @@
 local timer
 
---[[export]]
+--[[ export ]]
 local function is_on()
     return hs.caffeinate.get('displayIdle')
 end
 
---[[export]]
+--[[ export ]]
 local function set(enabled)
     if timer then
         timer:stop();
@@ -15,23 +15,23 @@ local function set(enabled)
     hs.caffeinate.set('displayIdle', enabled)
 end
 
---[[export]]
+--[[ export ]]
 local function off()
     set(false)
 end
 
---[[export]]
+--[[ export ]]
 local function on()
     set(true)
 end
 
---[[export]]
+--[[ export ]]
 local function timed_on_s(time_in_sec)
     on()
     timer = hs.timer.doAfter(time_in_sec, off)
 end
 
---[[export]]
+--[[ export ]]
 local function timed_on_m(time_in_min)
     timed_on_s(hs.timer.minutes(time_in_min))
 end
@@ -63,7 +63,7 @@ local function secondsToHumanReadable(time_in_sec)
     return string.format("%ds", time_in_sec)
 end
 
---[[export]]
+--[[ export ]]
 local function alert_status()
     if is_on() then
         if timer then

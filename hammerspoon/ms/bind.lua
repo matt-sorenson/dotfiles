@@ -264,7 +264,7 @@ end
 
 local function escape_fn() hs.alert('⎋ - Cancel') end
 
---[[export]]
+--[[ export ]]
 local function modal_new(config, parent)
     parent = ((parent ~= 'noparent') and (parent or _default_modal)) or nil
 
@@ -301,7 +301,7 @@ local function modal_new(config, parent)
     return out;
 end
 
---[[export]]
+--[[ export ]]
 local function init(config)
     _default_modal = modal_new(config, 'noparent')
     _default_modal.on_enter = function() modal_clear_alert() end
