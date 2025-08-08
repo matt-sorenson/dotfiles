@@ -3,10 +3,11 @@ local bind       = require 'ms.bind'
 local fs         = require 'ms.fs'
 local streamdeck = require 'ms.streamdeck'
 local sys        = require 'ms.sys'
+local work       = require 'ms.work'
 
 REMOTE_SHARES = {}
 
-if not sys.is_work_computer() then
+if not work.is_work_computer() then
     REMOTE_SHARES['matt-srv'] = { 'matt-srv', 'media' }
     REMOTE_HOME = 'matt-srv'
 end

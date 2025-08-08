@@ -24,7 +24,8 @@ local GRID_KEYBOARD = {
 local function select_layout()
     local grid = GRID_KEYBOARD.standard
 
-    if sys.using_moonlander_ergodox() then
+    if sys.find_usb_device_by_name('Moonlander Mark I') then
+        print('Using moonlander grid')
         grid = GRID_KEYBOARD.moonlander
     end
 

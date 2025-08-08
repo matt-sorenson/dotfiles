@@ -37,15 +37,20 @@ end
 --[[ export ]]
 local function get_random_team_member(team_name)
     if config[team_name] then
-        hs.alert(config[team_name].members[hs.math.random(1, #config[team_name])])
+        hs.alert(config[team_name].members[hs.math.random(1, #(config[team_name].members))])
     else
         print:error("Team '" .. team_name .. "' not found in config")
     end
 end
 
+-- Use 'is-work' file to determine this to massively simplify it
+local IS_WORK_COMPUTER = fs.file_exists_local("is-work")
+
 return {
     init = init,
     get_pr_hotkey_map = get_pr_hotkey_map,
+
+    is_work_computer = function() return IS_WORK_COMPUTER end,
 
     get_random_team_member = get_random_team_member,
     get_random_team_member_fn = function(team_name) return function() get_random_team_member(team_name) end end

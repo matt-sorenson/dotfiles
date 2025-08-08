@@ -1,5 +1,4 @@
 local print = require('ms.logger').new('ms.sys')
-local fs = require('ms.fs')
 
 local WHO_AM_I = os.getenv('USER')
 
@@ -126,9 +125,6 @@ local function get_current_window_size()
     hs.alert(msg)
 end
 
--- Use 'is-work' file to determine this to massively simplify it
-local IS_WORK_COMPUTER = fs.file_exists_local("is-work")
-
 return {
     find_usb_device_by_name = find_usb_device_by_name,
     select_app = select_app,
@@ -136,7 +132,6 @@ return {
 
     trigger_system_key_fn = trigger_system_key_fn,
 
-    is_work_computer = function() return IS_WORK_COMPUTER end,
     who_am_i = function() return WHO_AM_I end,
 
     open_finder_fn = open_finder_fn,

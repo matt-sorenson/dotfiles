@@ -1,7 +1,7 @@
 local print = require('ms.logger').new('ms.layout')
 
-local sys = require 'ms.sys'
 local fs = require 'ms.fs'
+local work = require 'ms.work'
 
 --[[ export]]
 local function move_window(window, rect, screen)
@@ -233,7 +233,7 @@ local function _layout_new(input, name)
 
     -- If the layout is for work and it's not a work computer then don't
     -- load the layout
-    if self:is_work_computer() and not sys.is_work_computer() then
+    if self:is_work_computer() and not work.is_work_computer() then
         print("'" .. name .. "' not a work computer")
         return nil
     end
@@ -265,7 +265,7 @@ local function load_screen_configurations()
 end
 
 local function filter_configs(screen_configs)
-    if not sys.is_work_computer() then
+    if not work.is_work_computer() then
         print:debug("Filtering out work layouts.")
         screen_configs = table.filter(screen_configs, function(v) return not v:is_work_computer() end)
     else
