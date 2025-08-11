@@ -41,7 +41,7 @@ sanitize-colors strips any terminal color codes from the output. Should only be 
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
-    if (( -1 == dot_parse_code )); then
+    if (( -1 == dot_parse_code )); then # Help was output
         return 0
     elif (( dot_parse_code )); then
         return $dot_parse_code

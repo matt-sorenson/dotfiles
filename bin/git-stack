@@ -10,6 +10,12 @@ git-stack() {
     setopt extended_glob
     unsetopt short_loops
 
+    if (( $# )) && [[ "$1" == 'init' ]]; then
+        shift
+        git-stack-init "$@"
+        return
+    fi
+
     local _usage="Usage: git-stack [-h|--help] [-<d>]
 
     Display the saved branch stack (oldest at the top, newest at the bottom).
@@ -33,7 +39,7 @@ git-stack() {
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
-    if (( -1 == dot_parse_code )); then
+    if (( -1 == dot_parse_code )); then # Help was output
         return 0
     elif (( dot_parse_code )); then
         return $dot_parse_code
