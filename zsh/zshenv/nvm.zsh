@@ -48,12 +48,15 @@ if [[ -v NVM_DIR ]]; then
                 return 1
             fi
 
+            local cmd
             for cmd in "${_dot_nvm_lazy_cmds[@]}"; do
                 unset -f "$cmd"
             done
             unset -f _dot_nvm_lazy_load
 
+            unsetopt warn_create_global
             source "${NVM_DIR}/nvm.sh"
+            setopt warn_create_global
 
             if (( $# )); then
                 local cmd="$1"
@@ -63,10 +66,10 @@ if [[ -v NVM_DIR ]]; then
             fi
         }
 
-        for cmd_name in "${_dot_nvm_lazy_cmds[@]}"; do
+        for cmd in "${_dot_nvm_lazy_cmds[@]}"; do
             eval "
-                function $cmd_name() {
-                    _dot_nvm_lazy_load $cmd_name \"\$@\"
+                function $cmd() {
+                    _dot_nvm_lazy_load $cmd \"\$@\"
                 }
             "
         done
