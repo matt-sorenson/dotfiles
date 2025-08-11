@@ -10,19 +10,59 @@ git-stack() {
     setopt extended_glob
     unsetopt short_loops
 
-    if (( $# )) && [[ "$1" == 'init' ]]; then
+    local _usage="Usage:
+git-stack [-h|--help] [-c|--clear] [-l|--lines <lines>]
+git-stack [-h|--help] [-c|--clear] <subcommand> <subcommand_args>
+
+Display the saved branch stack (oldest at the top, newest at the bottom).
+
+Subcommands:
+  init  Call 'git-stack-init' with the remaining arguments
+  push  Call 'git-pushb' with the remaining arguments
+  pop   Call 'git-popb' with the remaining arguments
+
+Base Command:
+  -c, --clear           Clear the branch stack
+                          If a subcommand is provided after this flag then the stack is cleared and the subcommand is executed
+  -h, --help            Show this help message
+                          If a subcommand is provided after the flag then --help is passed to the subcommand
+  -l, --lines <lines>   Show a maximum of <lines> elements of the stack"
+
+    local args=()
+    local subcmd
+    local subcmd_args=()
+    local -i clear=0
+    while (( $# )); do
+        if [[ "$1" == 'init' || "$1" == 'pop'|| "$1" == 'push' ]]; then
+            subcmd="$1"
+            shift
+            break
+        elif [[ "$1" == '-h' || "$1" == '--help' ]]; then
+            subcmd_args+=("$1")
+        elif [[ "$1" == '-c' || "$1" == '--clear' ]]; then
+            clear=1
+        fi
+        args+=("$1")
         shift
-        git-stack-init "$@"
+    done
+
+    if [[ -v subcmd ]]; then
+        if (( clear )); then
+            git-stack --clear
+        fi
+
+        if [[ "$subcmd" == 'init' ]]; then
+            git-stack-init "${subcmd_args[@]}" "$@"
+        elif [[ "$subcmd" == 'pop' ]]; then
+            git-popb "${subcmd_args[@]}" "$@"
+        elif [[ "$subcmd" == 'push' ]]; then
+            git-pushb "${subcmd_args[@]}" "$@"
+        fi
         return
     fi
-
-    local _usage="Usage: git-stack [-h|--help] [-<d>]
-
-    Display the saved branch stack (oldest at the top, newest at the bottom).
-
-    -c, --clear           Clear the branch stack
-    -h, --help            Show this help message
-    -l, --lines <lines>   Show a maximum of <d> elements of the stack"
+    # If no subcommand was provided then reset the args to the original args
+    set -- "${args[@]}" "$@"
+    unset args subcmd subcmd_args clear
 
     local -i max_lines
 
