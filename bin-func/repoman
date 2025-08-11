@@ -457,7 +457,7 @@ Examples:
     if [[ -v DOTFILES ]]; then
         if (( ! opts[dotfiles] )) && [[ repo_dir == "${DOTFILES:A}" ]]; then
             print-header -e "The repo directory '${repo_dir}' is the same as the DOTFILES directory."
-            print "This is 99.999% chance it's a mistake. use --dotfiles to override this check."
+            print "There is a 99.999% chance it's a mistake. use --dotfiles to override this check."
             return 1
         fi
     fi
