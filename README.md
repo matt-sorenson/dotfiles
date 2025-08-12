@@ -130,7 +130,7 @@ Which means a function calling `eval "$(dot-parse-opts --dot-parse-opts-init)"` 
 <function-name>() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return extended_glob typeset_to_unset warn_create_global 
+    setopt err_return extended_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage="<function-name> [options] <parameters>

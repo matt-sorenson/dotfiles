@@ -67,10 +67,7 @@
 dot-parse-opts() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
-    setopt null_glob
-    setopt warn_create_global
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     if (( $# == 1 )) && [[ "$1" == '--dot-parse-opts-init' ]]; then

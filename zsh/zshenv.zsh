@@ -95,7 +95,8 @@ dot-safe-unset-function() {
 is-emoji() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     local -a exceptions=('❌' '✅')
 
@@ -112,6 +113,11 @@ is-emoji() {
 }
 
 function() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local file
     for file in "${DOTFILES}/bin-func/"*(.N); do
         autoload -z "${file:t}"
@@ -131,72 +137,3 @@ else
         code "$@"
     }
 fi
-
-dot-print-map() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
-
-    local _usage="Usage: dot-print-map <map_name>"
-
-    if (( $# != 1 )); then
-        print "${_usage}"
-        return 1
-    fi
-
-    local map_name=$1
-
-    local type
-    if ! type="$(typeset -p "$map_name" 2>/dev/null)"; then
-        print-header -e "Error: '$map_name' is not defined."
-        return 1
-    fi
-
-    if [[ "$type" != *-A* ]]; then
-        print-header -e "Error: '$map_name' is not an associative array."
-        return 1
-    fi
-
-    local keys
-    eval "keys=(\"\${(@k)$map_name}\")"
-    local key value cmd
-    for key in "${keys[@]}"; do
-        cmd='${'"$map_name"'[$key]}'
-        value=$(eval "print \"$cmd\"")
-        printf "%s => %s\n" "$key" "$value"
-    done
-}
-
-dot-print-array() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return
-
-    local _usage="Usage: dot-print-array <array_name>"
-
-    if (( $# != 1 )); then
-        print "${_usage}"
-        return 1
-    fi
-
-    local array_name=$1
-
-    local type
-    if ! type="$(typeset -p "$array_name" 2>/dev/null)"; then
-        print-header -e "Error: '$array_name' is not defined."
-        return 1
-    fi
-
-    if [[ "$type" == *-A* ]]; then
-        print-header -e "Error: '$array_name' is an associative array, not a normal indexed array."
-        return 1
-    fi
-
-    local values
-    eval "values=(\"\${${array_name}[@]}\")"
-    local i=1 val
-    for val in "${values[@]}"; do
-        printf "%d: %s\n" "$i" "$val"
-        ((i++))
-    done
-}

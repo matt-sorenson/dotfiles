@@ -4,7 +4,7 @@
 concat-video() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return ext_glob typeset_to_unset warn_create_global
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage='Usage: concat-video [OPTIONS]
@@ -62,10 +62,16 @@ Options:
     local final_filename="${outdir}/${prefix}${options[extension]}"
 
     # Gather & sort parts
+    local glob_file_list=("${dir}/${prefix}"*)
+    if (( ! $#glob_file_list )); then
+        print-header -e "No files found for ${prefix}"
+        return 1
+    fi
+
     local files_partlist=()
     local f
     local -i n
-    for f in "${dir}/${prefix}"*; do
+    for f in "${glob_file_list[@]}"; do
         case "${f}" in
             *pt.?([0-9]).*)
             n="${${f##*pt.}%%.*}"

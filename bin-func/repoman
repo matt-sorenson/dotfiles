@@ -15,12 +15,8 @@
 repoman() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt extended_glob
-    setopt typeset_to_unset
-    setopt warn_create_global
-    unsetopt auto_pushd
-    unsetopt short_loops
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops auto_pushd
 
     local default_repo
     local calling_name='repoman'
@@ -644,12 +640,8 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
         (
             emulate -L zsh
             set -uo pipefail
-            setopt err_return
-            setopt extended_glob
-            setopt typeset_to_unset
-            setopt warn_create_global
-            unsetopt auto_pushd
-            unsetopt short_loops
+            setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+            unsetopt short_loops auto_pushd
 
             cd ${(q)working_dir} || {
                 print-header -e --icon "${icon}" "${header}: Failed to change directory to '${working_dir}'"

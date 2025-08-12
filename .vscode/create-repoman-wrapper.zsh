@@ -3,7 +3,8 @@
 create-repoman-wrapper() {
     emulate -L zsh
     set -euo pipefail
-    setopt typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     local REPLY
 

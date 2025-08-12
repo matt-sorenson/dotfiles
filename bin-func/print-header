@@ -4,9 +4,7 @@
 function print-header() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
-    setopt warn_create_global
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     if ! command -v colors > /dev/null; then
@@ -17,7 +15,8 @@ function print-header() {
         is-emoji() {
             emulate -L zsh
             set -uo pipefail
-            setopt err_return
+            setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+            unsetopt short_loops
 
             local -i codepoint=$(printf '%d' "'$1")
 
@@ -115,7 +114,7 @@ Options:
     fi
     unset parts
 
-    local msg_length=$(( ${#message} + 2))
+    local msg_length=$(( ${#message} + 2 ))
     # Handle emojis that render as 2 characters
     local -a chars
     local char

@@ -1,7 +1,8 @@
 add-to-path() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     local show_help=0
     local do_fpath=0

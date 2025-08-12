@@ -8,7 +8,8 @@ local project_dir="${WORKSPACE_ROOT_DIR}/${project_name}"
 happy-case() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     if [[ -e "${project_dir}" ]]; then
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
@@ -34,7 +35,8 @@ happy-case() {
 happy-case-vscode() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     if [[ -e "${project_dir}" ]]; then
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
@@ -62,7 +64,8 @@ happy-case-vscode() {
 happy-case-cd() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     if [[ -e "${project_dir}" ]]; then
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
@@ -105,7 +108,8 @@ happy-case-cd() {
 happy-case-vscode-error-code-command-succeeds() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     if [[ -e "${project_dir}" ]]; then
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
@@ -133,7 +137,8 @@ happy-case-vscode-error-code-command-succeeds() {
 happy-case-empty-folder-exists() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     if [[ -e "${project_dir}" ]]; then
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
@@ -161,7 +166,8 @@ happy-case-empty-folder-exists() {
 error-non-empty-folder-exist() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     if [[ -e "${project_dir}" ]]; then
         print-header -e "\${WORKSPACE_ROOT_DIR}/${project_name} already exists!"
@@ -184,7 +190,8 @@ error-non-empty-folder-exist() {
 error-invalid-project-name-helper() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     typeset -g invalid_project_name="$1"
     typeset -g invalid_project_dir="${WORKSPACE_ROOT_DIR}/${invalid_project_name}"
@@ -230,7 +237,8 @@ error-invalid-project-name() {
 main() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
 
     local old_code_alias
     if alias code &> /dev/null; then
@@ -250,9 +258,9 @@ main() {
     )
 
     local starting_dir="${PWD}"
-    local test_case=happy-case
-    for tast_case in "${(k)test_cases[@]}"; do
-        run-test --bin-func "${testee}" "${tast_case}" || (( out += 1 ))
+    local test_case
+    for test_case in "${(k)test_cases[@]}"; do
+        run-test --bin-func "${testee}" "${test_case}" || (( out += 1 ))
         rm -rf "${project_dir}" || true
 
         cd "${starting_dir}"

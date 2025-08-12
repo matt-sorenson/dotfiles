@@ -4,7 +4,8 @@
 
 emulate -L zsh
 set -euo pipefail
-setopt typeset_to_unset
+setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+unsetopt short_loops
 
 if ! command -v print-header &> /dev/null; then
     autoload -Uz colors && colors
@@ -114,6 +115,17 @@ safe-git-clone() {
     git clone "${extra_args[@]}" "${url}" "${dest}"
 }
 
+ssh-file-locked-down() {
+    local ssh_key="$1"
+    local perms="$(stat -f %Lp "${ssh_key}" 2>/dev/null || stat -c %a "${ssh_key}" 2> /dev/null)"
+    local group_write=$(( (perms / 10) % 10 ))
+    local other_write=$(( perms % 10 ))
+    if (( group_write & 2 || other_write & 2 )); then
+        print-header -w "SSH key ${ssh_key} has insecure permissions (${perms}), Fixing."
+        chmod u+rw,go-w "${ssh_key}"
+    fi
+}
+
 main() {
     local app_install_list=(
         fzf
@@ -171,13 +183,6 @@ main() {
         [work]=0
 
         [ssh]=1
-    )
-
-    local -a os_specific_flags=(
-        brew
-        hammerspoon
-        ssh_keychain
-        apt
     )
 
     local apt_specific_help=''
@@ -263,10 +268,18 @@ Options:${mac_specific_help}${apt_specific_help}
                 shift
                 local plugin_name plugin_url
 
-                if (( $# > 0 )) && [[ "$1" =~ '^(shallow=)?(github\.com/|https://github\.com/|git@github\.com:/)([^/]+)/([^/?#(.git$)]+?)(\.git)?/?$' ]]; then
+                if (( ! $# )); then
+                    print-header -e "--plugin requires a value"
+                    print "${_usage}"
+                    return 1
+                fi
+
+                if [[ "$1" =~ '^github:(.*)/(.*)$' ]]; then
+
+                elif [[ "$1" =~ '^(shallow=)?(github\.com/|https://github\.com/|git@github\.com:/)([^/]+)/([^/?#(.git$)]+?)(\.git)?/?$' ]]; then
                     plugin_name="${match[4]%.git}"
                     plugin_url="$1"
-                elif (( $# > 0 )) && [[ "$1" == *=* ]]; then
+                elif [[ "$1" == *=* ]]; then
                     # Format: name=url
                     plugin_name="${1%%=*}"
                     plugin_url="${1#*=}"
@@ -384,12 +397,6 @@ Options:${mac_specific_help}${apt_specific_help}
         shift
     done
 
-    for flag in "${os_specific_flags[@]}"; do
-        if [[ ! -v flags[$flag] ]]; then
-            flags[$flag]=0
-        fi
-    done
-
     if command -v locale-gen &> /dev/null; then
         sudo locale-gen en_US en_US.UTF-8
     fi
@@ -475,7 +482,12 @@ Options:${mac_specific_help}${apt_specific_help}
     if (( flags[ssh] )); then
         print-header green "Setting up SSH"
 
-        if ls "${HOME}/.ssh/id_"* &> /dev/null; then
+        if [[ -r "${HOME}/.ssh/id_"* ]]; then
+            # Check that SSH keys have secure permissions (only owner can write)
+            local ssh_key
+            for ssh_key in "${HOME}/.ssh/id_"*; do
+                ssh-file-locked-down "${ssh_key}"
+            done
             print-header green "SSH keys already exist, skipping key generation"
         else
             local ssh_key_args=()

@@ -165,8 +165,10 @@ function _prompt_ender_seg_elapsed_time() {
 }
 
 function _prompt_ender_build_prompt1() {
-    _prompt_ender_seg_last_call_status $1
-    _prompt_ender_seg_elapsed_time $1
+    if (( $# )); then
+        _prompt_ender_seg_last_call_status $1
+        _prompt_ender_seg_elapsed_time $1
+    fi
     # History Size
     _prompt_ender_segment_print white black "%h"
     # Hostname
@@ -185,10 +187,13 @@ function _prompt_ender_build_prompt2() {
 }
 
 function _prompt_ender_precmd() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local exit_code=$?
     _prompt_ender_current_bg="NONE"
-
-    setopt local_options
 
     vcs_info
 
@@ -197,6 +202,11 @@ ${(e)$(_prompt_ender_build_prompt2)} "
 }
 
 function _prompt_ender_preexec() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     _prompt_ender_preexec_time=${EPOCHREALTIME}
 }
 
@@ -291,6 +301,11 @@ function +vi-git-wip() {
 }
 
 function prompt_ender_setup() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     autoload -Uz add-zsh-hook
     autoload -Uz vcs_info
 
@@ -309,6 +324,8 @@ function prompt_ender_setup() {
     zstyle ':vcs_info:*' stagedstr '$_prompt_ender_vsc_staged'
     zstyle ':vcs_info:*' unstagedstr '$_prompt_ender_vsc_unstaged'
     zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-wip git-branch
+
+    vcs_info
 
     # Define prompts.
     PROMPT="${(e)$(_prompt_ender_build_prompt1)}

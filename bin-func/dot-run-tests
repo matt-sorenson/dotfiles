@@ -4,7 +4,7 @@
 dot-run-tests() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return extended_glob local_patterns typeset_to_unset warn_create_global
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage="Usage dot-run-tests
@@ -62,19 +62,28 @@ Options:
         return $out
     else
         for dir in "${_dot_test_dirs[@]}"; do
-            for test_file in "${dir}"/**/*.test.zsh(.N); do
-                local test_name="${test_file:t:r:r}"
-                print-header blue --icon 🧪 "Running: $test_name"
-                local exit_code=0
-                zsh "$test_file" || exit_code=$?
+            local -a test_files=("${dir}"/**/*.test.zsh(.N))
 
-                if (( exit_code )); then
-                    print-header -e "Failed: ${test_name}"
-                    (( out += $exit_code ))
-                else
-                    print-header green "Success: ${test_name}"
-                fi
-            done
+            if (( $#test_files )); then
+                local test_file
+                for test_file in "${test_files[@]}"; do
+                    local test_name="${test_file:t:r:r}"
+                    print-header blue --icon 🧪 "Running: $test_name"
+                    local exit_code=0
+                    zsh "$test_file" || exit_code=$?
+
+                    if (( exit_code )); then
+                        print-header -e "Failed: ${test_name}"
+                        (( out += $exit_code ))
+                    else
+                        print-header green "Success: ${test_name}"
+                    fi
+                done
+            else
+                print-header -w "No tests found in ${dir}"
+            fi
+
+            unset test_files
         done
 
         if [[ -d "${dir}/failed-results/" ]]; then

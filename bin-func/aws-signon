@@ -4,10 +4,7 @@
 aws-signon() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
-    setopt null_glob
-    setopt warn_create_global
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
     local _usage='Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>

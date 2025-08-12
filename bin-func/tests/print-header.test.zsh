@@ -43,8 +43,7 @@ flag-warning() {
 main() {
     emulate -L zsh
     set -uo pipefail
-    setopt err_return
-    setopt typeset_to_unset
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
 
     local out=0
     local testee='print-header'
@@ -60,8 +59,8 @@ main() {
     )
 
     local test_case
-    for tast_case in "${(k)test_cases[@]}"; do
-        run-test --no-sanitize-colors --bin-func "$testee" "$tast_case" || (( out += 1 ))
+    for test_case in "${(k)test_cases[@]}"; do
+        run-test --no-sanitize-colors --bin-func "$testee" "$test_case" || (( out += 1 ))
     done
 
     return $out
