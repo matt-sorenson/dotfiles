@@ -123,6 +123,7 @@ main() {
         zsh
 
         # These are mostly there for doomemacs but useful in general
+        fontconfig
         pandoc
         ripgrep
     )
