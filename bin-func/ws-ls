@@ -23,7 +23,7 @@ Options:
     max_positional_count=1
     allow_extra_args=1
 
-    dot_parse_opts_errors[too-many-positional]="Too many arguments. Can only create 1 project at a time."
+    dot_parse_opts_errors[too-many-positional]="Too many arguments. Can only list 1 project at a time."
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -40,6 +40,8 @@ Options:
         return 0
     elif (( ! $# )); then
         print-header -e "No project name provided."
+        print "Possible projects:"
+        ls "${extra_args[@]}" "${WORKSPACE_ROOT_DIR}"
         return 1
     fi
 

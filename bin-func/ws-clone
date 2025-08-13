@@ -90,10 +90,10 @@ Options:
 
     if [[ -v options[soft-link] ]]; then
         if [[ ! -e "${options[soft-link]}" ]]; then
-            print-header -e "soft link root '$softlink_root' does not exist"
+            print-header -e "soft link root '${options[soft-link]}' does not exist"
             return 1
         elif [[ ! -d "${options[soft-link]}" ]]; then
-            print-header -e "soft link root '$softlink_root' is not a directory"
+            print-header -e "soft link root '${options[soft-link]}' is not a directory"
             return 1
         fi
     fi
@@ -121,11 +121,11 @@ Options:
     fi
 
     if [[ -v options[soft-link] ]]; then
-        ln -s "${WORKSPACE_ROOT_DIR}/${name}" "${options[soft-link]}/${name}"
+        ln -s "${root}/${name}" "${options[soft-link]}/${name}"
     fi
 
     if (( flags[code] )); then
-        wscode "${name}"
+        ws code "${name}"
     fi
 }
 

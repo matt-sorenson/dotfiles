@@ -7,19 +7,6 @@ ws() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    function _ws-editor-usage() {
-        local cmd=$1
-        local title="code"
-
-        if [[ "${cmd}" == "cursor" ]]; then
-            title="cursor"
-        fi
-
-        print "Usage: ws ${cmd} <project> -- <extra args>
-
-Open a ${title} window with the given "${WORKSPACE_ROOT_DIR}/<project>" working directory"
-    }
-
     function _ws-usage() {
         local -A commands=(
             [ls]="list the contents of \${WORKSPACE_ROOT_DIR} or subdirectory"
@@ -71,6 +58,27 @@ Options:
         print "${_usage}"
     }
 
+    function _ws-editor-usage() {
+        local cmd
+        local title
+
+        if [[ "$1" == "cursor" ]]; then
+            cmd="$1"
+            title="cursor"
+        elif [[ "$1" == "code" ]]; then
+            cmd="$1"
+            title="vscode"
+        else
+            # This should never be reached but just in case :shrug:
+            _ws-usage
+            return 1
+        fi
+
+        print "Usage: ws ${cmd} <project> -- <extra args>
+
+Open a ${title} window with the given "${WORKSPACE_ROOT_DIR}/<project>" working directory"
+    }
+
     TRAPEXIT() {
         dot-safe-unset-function _ws-usage _ws-editor-usage
     }
@@ -91,7 +99,7 @@ Options:
 
         $cmd "$@"
     elif [[ "${subcmd}" == code || "${subcmd}" == cursor ]]; then
-        if ! command -v ${cmd_name} &> /dev/null; then
+        if ! command -v ${subcmd} &> /dev/null; then
             print-header -e "The '${subcmd}' command is not available."
             return 1
         elif [[ "$1" == --help || "$1" == -h ]]; then
@@ -114,12 +122,9 @@ Options:
     elif [[ "${subcmd}" == help || "${subcmd}" == -h || "${subcmd}" == --help ]]; then
         if (( $# )); then
             if command -v "ws-${1}" &> /dev/null; then
-                local cmd="ws-${1}"
-                $cmd --help "$@"
-            elif [[ $1 == code ]]; then
-                _ws-editor-usage "${subcmd}"
-            elif [[ $1 == cursor ]]; then
-                _ws-editor-usage "${subcmd}"
+                "ws-${1}" --help "$@"
+            elif [[ "$1" == code || "$1" == cursor ]]; then
+                _ws-editor-usage "$1"
             else
                 print-header -e "Unknown command: '$1'."
                 _ws-usage
