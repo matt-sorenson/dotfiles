@@ -81,6 +81,7 @@ setopt pushd_silent  # Print the new directory stack after pushd or popd.
 # when a trap is set in a function it will be restored when the function exits.
 setopt local_traps
 setopt local_options
+setopt local_patterns
 
 # Random settings
 setopt complete_in_word     # Leave cursor when using completions
@@ -88,8 +89,12 @@ setopt extended_glob        # Treat the ‘#’, ‘~’ and ‘^’ characters 
 setopt interactive_comments # treat comments as comments in interactive shell
 setopt clobber              # Allow `>` to truncate files
 setopt multios              # Perform implicit tees or cats when multiple redirections are attempted
-# This isn't enabled by default because it can cause issues with some commands
+
+# Globbing
+## This isn't enabled by default because it can cause issues with some commands
 # setopt null_glob             # If no matches are found, return an empty string instead of the pattern.
+setopt glob_dots          # Include dotfiles in globs (e.g., ls * shows .files)
+
 
 unsetopt beep               # Disable "pc speaker" beep
 
