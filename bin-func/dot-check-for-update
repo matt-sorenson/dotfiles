@@ -7,14 +7,13 @@ dot-check-for-update() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto [time-limit-in-hours]]
+    local _usage="dot-check-for-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto] [+z|--no-zrestart]
 
 Options:
-  --auto              Automatically update dotfiles if they haven't been updated recently (15 hours)
-  --no-replace-shell  On success do not replace the shell with a new instance.
-                      This is normally used so the shell the user has is updated,
-                      but does lose some state.
-  -h, --help          Show this help message and exit
+  --auto            Automatically update dotfiles if they haven't been updated recently (Same calendar day)
+  +z, --no-zrestart On success do not restart the zsh shell.
+                    This is normally used so the interactive shell is updated, but does lose some state.
+  -h, --help        Show this help message and exit
 
 Tasks:
   -d, --[no-]dotfiles Update dotfiles reposito
@@ -36,8 +35,9 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         doom
     )
 
-    flags[replace-zsh]=1
+    flags[zrestart]=1
     flags[auto]=0
+    short_to_long_flags[z]=zrestart
 
     local task
     for task in "${tasks[@]}"; do
@@ -58,32 +58,19 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         return $dot_parse_code
     fi
 
+    local update_filename="${DOTFILES}/tmp/dotfile-update"
+
     if (( flags[auto] )); then
-        local date_cmd=()
-        if command -v gdate > /dev/null; then
-            date_cmd=(gdate -d)
-        elif date --version >/dev/null 2>&1; then
-            date_cmd=(date -d)
-        else
-            date_cmd=(date -j -f "%Y-%m-%dT%H:%M:%SZ")
-        fi
+        local current_date update_date
+        current_date="$(date -u +'%Y-%m-%d')"
 
-        local time_limit_in_seconds=$(( 60 * 60 * 15 ))
-        local current_time=$(date +%s)
-        local cutoff_time=$(( current_time - time_limit_in_seconds ))
-        unset current_time
-
-        local -i last_update
-        local update_filename="${DOTFILES}/tmp/dotfile-update"
         if [[ -r "${update_filename}" ]]; then
-            if ! last_update="$( "${date_cmd[@]}" "$(<"$update_filename")" "+%s" )"; then
-                last_update=0
-            fi
+            update_date="$(<"${update_filename}")"
         else
-            last_update=0
+            update_date=''
         fi
 
-        if (( last_update < cutoff_time )); then
+        if [[ "${update_date}" != "${current_date}" ]]; then
             local REPLY
             print -n "It's been a while, update dotfiles? "
             read -q
@@ -203,15 +190,11 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     # Only update the timestamp if all updates were successful & we didn't
     # skip any updates
     if (( ! out && all_true )); then
-        local update_filename="${DOTFILES}/tmp/dotfile-update"
-        local current_time
-        current_time="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-
         mkdir -p "${DOTFILES}/tmp/"
-        print -n "${current_time}" >! "${update_filename}"
+        print -n "${current_date}" >! "${update_filename}"
     fi
 
-    if (( flags[replace-zsh] )); then
+    if (( flags[zrestart] )); then
         print-header green "Restarting zsh"
         zrestart
     fi
