@@ -7,7 +7,7 @@ dot-check-for-update-git() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="dot-check-for-update-git [-h|--help][-q|quiet][-i|--indent <indent>] <dir>
+    local _usage="dot-check-for-update-git [-h|--help][-q|--quiet] <dir>
 
     Options:
     -h, --help            Show this help message
@@ -48,7 +48,6 @@ dot-check-for-update-git() {
 
     # canonicalize the directory path
     dir="${dir:A}"
-    local indent="${options[indent]:-0}"
 
     local log_dir="${dir}"
     case $dir in
