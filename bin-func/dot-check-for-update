@@ -62,7 +62,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
     if (( flags[auto] )); then
         local current_date update_date
-        current_date="$(date -u +'%Y-%m-%d')"
+        current_date="$(date +'%Y-%m-%d')"
 
         if [[ -r "${update_filename}" ]]; then
             update_date="$(<"${update_filename}")"
@@ -137,7 +137,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         done
     fi
 
-    if (( flags[brew] )) && [[ "${OSTYPE}" == darwin* ]]; then
+    if [[ "${OSTYPE}" == darwin* ]] && (( flags[brew] )); then
         if command -v "brew" > /dev/null; then
             print-header green "Updating brew."
 
@@ -150,14 +150,12 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
                 print-header -e -i 2 "brew: Failed to update."
                 out=1
             fi
+        elif (( ! all_true )); then
+            # If the user specified brew and not just all then it's an error
+            print-header -e -i 2 "brew: 'brew' is not installed."
+            out=1
         else
-            local flag='-w'
-            # If the user just did a update all it shouldn't be an error if brew is not installed
-            if (( ! all_true )); then
-                flag='-e'
-                out=1
-            fi
-            print-header "${flag}" -i 2 "brew: 'brew' is not installed."
+            print-header -w -i 2 "brew: 'brew' is not installed."
         fi
     fi
 
