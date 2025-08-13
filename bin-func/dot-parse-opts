@@ -57,13 +57,6 @@
 ## This will be any arguments passed in after a lone '--'
 # local -a extra_args=()
 
-# TODO
-## Scripts
-### add-to-path
-### git-pushb
-### repoman
-### ws-clone
-
 dot-parse-opts() {
     emulate -L zsh
     set -uo pipefail
@@ -72,9 +65,10 @@ dot-parse-opts() {
 
     if (( $# == 1 )) && [[ "$1" == '--dot-parse-opts-init' ]]; then
         print 'local -A short_to_long_flags=()
-local -A short_to_long_opts=()
 local -i allow_duplicate_flags=0
 local -A flags=()
+local -A set_flags=()
+local -A short_to_long_opts=()
 local -A option_args=()
 local -i max_positional_count=0
 local -i min_positional_count=0
@@ -94,7 +88,6 @@ local -A dot_parse_opts_errors=(
 
     local _usage="${_usage:-No usage info provided.}"
 
-    local -A set_flags=()
     local flag arg arg_list flag_or_no_flag arg_val array_name array_type
     while (( $# )); do
         case $1 in
@@ -135,7 +128,18 @@ local -A dot_parse_opts_errors=(
                     return 1
                 fi
                 shift
-                if [[ ":${option_args[$flag]}:" == *:str:* ]]; then
+                if [[ ":${option_args[$flag]}:" =~ ':enum:([^:]*)' ]]; then
+                    if [[ "${1}" == *","* ]]; then
+                        print-header -e "Flag '--$flag' requires a single value, not a comma separated list."
+                    elif [[ ! ",${1}," == *",${match[1]},"* ]]; then
+                        print-header -e "Flag '--$flag' requires a value that is one of the following: ${match[1]}"
+                        if [[ ! -v flags[help] ]]; then
+                            print "${_usage}"
+                        fi
+                        return 1
+                    fi
+                    unset match
+                elif [[ ":${option_args[$flag]}:" == *:str:* ]]; then
                     if [[ -z $1  ]]; then
                         print-header -e "Flag '--$flag' requires a non-empty string value."
                         if [[ ! -v flags[help] ]]; then
@@ -144,18 +148,6 @@ local -A dot_parse_opts_errors=(
                         return 1
                     fi
 
-                    if [[ ":${option_args[$flag]}:" =~ ':enum:([^:]*)' ]]; then
-                        if [[ "${1}" == *","* ]]; then
-                            print-header -e "Flag '--$flag' requires a single value, not a comma separated list."
-                        elif [[ ! ",${1}," == *",${match[1]},"* ]]; then
-                            print-header -e "Flag '--$flag' requires a value that is one of the following: ${match[1]}"
-                            if [[ ! -v flags[help] ]]; then
-                                print "${_usage}"
-                            fi
-                            return 1
-                        fi
-                        unset match
-                    fi
                 elif [[ ":${option_args[$flag]}:" == *:int:* ]]; then
                     if [[ ! $1 =~ ^[-+]?[0-9]+$  ]]; then
                         print-header -e "Flag '--$flag' requires an integer value."
@@ -166,7 +158,7 @@ local -A dot_parse_opts_errors=(
                     fi
                 elif [[ ":${option_args[$flag]}:" == *:float:* ]]; then
                     if [[ ! $1 =~ ^[-+]?[0-9]*\.?[0-9]+$ ]]; then
-                        print-header -e "Flag '--$flag' requires a float value"
+                        print-header -e "Flag '--$flag' requires a float value."
                         if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
                         fi
@@ -201,15 +193,23 @@ local -A dot_parse_opts_errors=(
                 fi
 
                 if [[ ":${option_args[$flag]}:" == *:array:* ]]; then
+                    if [[ ":${option_args[$flag]}:" == *:overwrite:* ]]; then
+                        print-header -e "Flag '--$flag' has both overwrite and array set. These are mutually exclusive"
+                        return 1
+                    fi
+
                     array_name="${option_args[$flag]#*array:}"
+                    array_name="${array_name%%:*}"
                     if array_type="$(typeset -p "$array_name")"; then
                         if [[ "${array_type}" != *' -a '* ]]; then
                             print-header -e "Flag '$1' requires an array to be set, but '${array_name}' is not an array."
+                        fi
+
                         if [[ ! -v flags[help] ]]; then
                             print "${_usage}"
                         fi
-                            return 1
-                        fi
+
+                        return 1
                     else
                         print-header -e "Flag '$1' requires an array to be set."
                         if [[ ! -v flags[help] ]]; then
@@ -221,8 +221,8 @@ local -A dot_parse_opts_errors=(
                     eval "$array_name+=(${(q)1})"
                 else
                     if [[ -v 'options[$flag]' ]]; then
-                        if [[ ":$options[$flag]:" != ":overwrite:" ]]; then
-                            print-header -e "Flag: --$flag' has already been set to '${options[$flag]}'."
+                        if [[ ":$option_args[$flag]:" != ":overwrite:" ]]; then
+                            print-header -e "Flag '--$flag' has already been set to '${options[$flag]}'."
                             if [[ ! -v flags[help] ]]; then
                                 print "${_usage}"
                             fi
@@ -270,13 +270,17 @@ local -A dot_parse_opts_errors=(
                     if [[ -v flags[help] ]]; then
                         flags[help]=1
                     else
-                        if [[ ! -v flags[help] ]]; then
                         print "${_usage}"
-                        fi
-                        return 0
+                        return -1
                     fi
                 elif [[ -v "short_to_long_flags[$arg]" ]]; then
+                    if (( ! allow_duplicate_flags )) && [[ -v 'set_flags[${short_to_long_flags[$arg]}]' ]]; then
+                        print-header -e "Flag '$1' has already been set."
+                        print "${_usage}"
+                        return 1
+                    fi
                     flags[${short_to_long_flags[$arg]}]=${flag_or_no_flag}
+                    set_flags[${short_to_long_flags[$arg]}]=1
                 elif [[ -v "short_to_long_opts[$arg]" ]]; then
                     flag="${short_to_long_opts[$arg]}"
                     if (( ! flag_or_no_flag )); then
@@ -312,7 +316,7 @@ local -A dot_parse_opts_errors=(
             if  (( max_positional_count == -1 )) || (( ${#positional_args[@]} < max_positional_count )); then
                 positional_args+=("$1")
             else
-                local error="$(printf "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_positional_count]")"
+                local error="$(printf '%s: %s' "${dot_parse_opts_errors[too-many-positional]}" "[max: $max_positional_count]")"
                 print-header -e "${error}"
                 print "${_usage}"
                 return 1
@@ -335,7 +339,7 @@ local -A dot_parse_opts_errors=(
     fi
 
     if [[ -v min_positional_count ]] && (( #positional_args < min_positional_count )); then
-        local error="$(printf "${dot_parse_opts_errors[too-few-positional]}" "[min: $min_positional_count]")"
+        local error="$(printf "%s: %s" "${dot_parse_opts_errors[too-few-positional]}" "[min: $min_positional_count]")"
         print-header -e "${error}"
         print "${_usage}"
         return 1
