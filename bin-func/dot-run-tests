@@ -90,7 +90,7 @@ Options:
         done
 
         if [[ -d "${dir}/failed-results/" ]]; then
-            if [ -z "$(ls -A "${dir}/failed-results/")" ]; then
+            if [[ -z "$(ls -A "${dir}/failed-results/")" ]]; then
                 rmdir "${dir}/failed-results/" || true
             fi
         fi

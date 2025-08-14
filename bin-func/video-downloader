@@ -76,7 +76,7 @@ Specifying a url and a batch-file are mutually exclusive, but multiple urls may 
             ;;
         *)
             if [[ -v options[batch-file] ]]; then
-                print-header -e "You may only specify 1 file '$options[batch-file]' '$1'"
+                print-header -e "You may only specify 1 file '${options[batch-file]}' '$1'"
                 return 1
             elif [[ ! -f "$1" ]]; then
                 print-header -e "File $1 not found"

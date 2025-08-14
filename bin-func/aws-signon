@@ -57,8 +57,8 @@ Examples:
     fi
 
     export AWS_PROFILE
-    if (( ${#positional_args[@]} )); then
-        AWS_PROFILE="$positional_args[1]"
+    if (( $# )); then
+        AWS_PROFILE="$1"
         set --
     elif [[ -v AWS_PROFILE ]] && [[ -n "${AWS_PROFILE}" ]]; then
         print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"

@@ -1,5 +1,5 @@
 ================================================================================
-= ❌ Profile can only be specified once                                        =
+= ❌ Profile can only be specified once: [max: 1]                              =
 ================================================================================
 Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 

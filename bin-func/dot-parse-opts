@@ -100,7 +100,7 @@ local -A dot_parse_opts_errors=(
             fi
             ;;
         --?*)
-            flag="${${1#--}}"
+            flag="${1#--}"
             if [[ -v 'flags[$flag]' ]]; then
                 if (( ! allow_duplicate_flags )) && [[ -v 'set_flags[$flag]' ]]; then
                     print-header -e "Flag '$1' has already been set."
@@ -203,13 +203,13 @@ local -A dot_parse_opts_errors=(
                     if array_type="$(typeset -p "$array_name")"; then
                         if [[ "${array_type}" != *' -a '* ]]; then
                             print-header -e "Flag '$1' requires an array to be set, but '${array_name}' is not an array."
-                        fi
 
-                        if [[ ! -v flags[help] ]]; then
-                            print "${_usage}"
-                        fi
+                            if [[ ! -v flags[help] ]]; then
+                                print "${_usage}"
+                            fi
 
-                        return 1
+                            return 1
+                        fi
                     else
                         print-header -e "Flag '$1' requires an array to be set."
                         if [[ ! -v flags[help] ]]; then
@@ -221,7 +221,7 @@ local -A dot_parse_opts_errors=(
                     eval "$array_name+=(${(q)1})"
                 else
                     if [[ -v 'options[$flag]' ]]; then
-                        if [[ ":$option_args[$flag]:" != ":overwrite:" ]]; then
+                        if [[ ":${option_args[$flag]}:" != *':overwrite:'* ]]; then
                             print-header -e "Flag '--$flag' has already been set to '${options[$flag]}'."
                             if [[ ! -v flags[help] ]]; then
                                 print "${_usage}"

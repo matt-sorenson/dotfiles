@@ -50,10 +50,10 @@ git-popb() {
                 args+=('--quiet')
             fi
 
-            git stack-init ${args[@]}
+            git stack-init "${args[@]}"
 
             # retry popping the stack now that it's been initialized
-            git popb --no-init ${args[@]}
+            git popb --no-init "${args[@]}"
 
             return 0
         elif git show-ref --quiet --verify refs/heads/master; then

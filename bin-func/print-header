@@ -110,7 +110,7 @@ Options:
         message+="${(j: :)parts}"
     else
         message+='No message provided.'
-        color="$bg[magenta]$fg[black]"
+        color="${bg[magenta]}${fg[black]}"
     fi
     unset parts
 
@@ -118,8 +118,8 @@ Options:
     # Handle emojis that render as 2 characters
     local -a chars
     local char
-    chars=(${(@ps::)message})
-    for char in $chars; do
+    chars=("${(@ps::)message}")
+    for char in "${chars[@]}"; do
         if is-emoji "$char"; then
             (( msg_length+=1 ))
         fi

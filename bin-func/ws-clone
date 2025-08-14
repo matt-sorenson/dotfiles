@@ -62,7 +62,7 @@ Options:
     dot-parse-opts "$@" || dot_parse_code=$?
     if (( flags[help] )); then
         if [[ -v options[cmd-name] ]]; then
-            _ws-clone-usage "$options[cmd-name]"
+            _ws-clone-usage "${options[cmd-name]}"
         else
             _ws-clone-usage
         fi
@@ -111,7 +111,7 @@ Options:
         setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
         unsetopt short_loops
 
-        cd ${(q)root}
+        cd "${root}"
         git clone "${remote_url}" "${name}" "${extra_args[@]}"
     )
 

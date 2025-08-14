@@ -57,7 +57,7 @@ Options:
     fi
 
     local project="${positional_args[1]}"
-    if [[ ! ( "${project}" =~ '^[a-zA-Z0-9._-]+$' ) ]]; then
+    if [[ ! ( "${project}" =~ ^[a-zA-Z0-9._-]+$ ) ]]; then
         print-header -e "Invalid project Name"
         print "Name can only contain alpha-numeric, periods, underscores, or hyphens"
         return 1

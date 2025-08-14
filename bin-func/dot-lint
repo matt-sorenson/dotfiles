@@ -95,11 +95,13 @@ Options:
                            This is useful when you want to lint from githooks and
                            don't 'know' the file type.
   -t, --type               Type of file to lint [zsh, sh, bash, ksh, dash, lua] (default: auto detection).
+  --verbose                Show verbose output.
   -h, --help               Show this message."
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     flags[unsupported-success]=0
+    flags[verbose]=0
 
     short_to_long_flags[s]=show-supported
     option_args[type]='enum:zsh,sh,bash,ksh,dash,lua'
@@ -134,13 +136,13 @@ Options:
         ['lua']=1
     )
 
-    if [[ ! -v supported_file_types[$options[type]] ]]; then
+    if [[ ! -v supported_file_types[${options[type]}] ]]; then
         dot-print-map options
 
-        if (( $flags[unsupported-success] )); then
+        if (( ${flags[unsupported-success]} )); then
             return 0
         else
-            print-header -e "${display_name}:0:Unsupported file type: $options[type]"
+            print-header -e "${display_name}:0:Unsupported file type: ${options[type]}" 
             return 1
         fi
     fi
@@ -148,12 +150,12 @@ Options:
     local -a file_errors=()
 
     local hashbang_errors
-    if ! hashbang_errors="$(_dot-lint-hashbang "$filename" "$display_name" "$options[type]")"; then
+    if ! hashbang_errors="$(_dot-lint-hashbang "$filename" "$display_name" "${options[type]}")"; then
         file_errors+=("$hashbang_errors")
     fi
     unset hashbang_errors
 
-    case "$options[type]" in
+    case "${options[type]}" in
     lua)
         if ! command -v luacheck &> /dev/null; then
             print-header w "luacheck not found, skipping checks."
@@ -173,7 +175,7 @@ Options:
         unset curr_path
 
         local luacheck_errors
-        if ! luacheck_errors="$(luacheck "$filename" ${luacheck_config[@]} 2>&1)"; then
+        if ! luacheck_errors="$(luacheck "$filename" "${luacheck_config[@]}" 2>&1)"; then
             file_errors+=("$luacheck_errors")
         fi
         ;;
@@ -210,9 +212,11 @@ Options:
         print-header -e "${#file_errors} errors in '${display_name}'"
         printf '%s\n' "${file_errors[@]}"
         return ${#file_errors}
-    else
-        return 0
+    elif (( $flags[verbose] )); then
+            print-header green "No errors in '${display_name}'"
     fi
+
+    return 0
 }
 
 dot-lint "$@"

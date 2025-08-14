@@ -50,27 +50,26 @@ brew-find-leafs() {
     fi
 
     local -a formulas=()
-    local formula
     local -A depended_on=()
 
-    local deps dep
+    local formula deps dep
     while IFS=: read -r formula deps; do
         formulas+=("$formula")
 
         deps=("${(s: :)deps}")
-        for dep in $deps; do
+        for dep in "${deps[@]}"; do
             depended_on[$dep]=1
         done
     done < <(brew deps --installed)
 
-    for formula in $formulas; do
+    for formula in "${formulas[@]}"; do
         if [[ ! -v depended_on[$formula] ]]; then
             if (( flags[remove] )); then
                 local input
                 if read -q "?Remove ${formula}? [Y/n] "; then
                     print
                     brew remove "${formula}"
-                    check_formulas $(brew deps --1 --installed "${formula}")
+                    check_formulas "$(brew deps --1 --installed "${formula}")"
                 fi
                 unset input
             else

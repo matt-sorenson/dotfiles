@@ -141,19 +141,19 @@ Examples:
     # TASK_REQUIRED (2) - not requested, but one of the requested requires it to run
     # TASK_GROUP (3) - requested by group flag (like -t/--test), skippable if no command provided
     local -A tasks=(
-        git_clean           0
-        nuke                0
-        clean               0
-        install             0
-        lint                0
-        build               0
-        cloud_signon        0
-        db_up               0
-        migrations          0
-        generate_schema     0
-        tests               0
-        unit_tests          0
-        integration_tests   0
+        [git_clean]=0
+        [nuke]=0
+        [clean]=0
+        [install]=0
+        [lint]=0
+        [build]=0
+        [cloud_signon]=0
+        [db_up]=0
+        [migrations]=0
+        [generate_schema]=0
+        [tests]=0
+        [unit_tests]=0
+        [integration_tests]=0
     )
 
     local -A task_does_task=(
@@ -184,15 +184,15 @@ Examples:
     local -A task_working_dirs=()
 
     local -A opts=(
-        help          0
-        verbose       0
-        dump_commands 0
-        dotfiles      0
+        [help]=0
+        [verbose]=0
+        [dump_commands]=0
+        [dotfiles]=0
 
-        path              ''
-        repo              ''
+        [path]=''
+        [repo]=''
 
-        db_container_name ''
+        [db_container_name]=''
     )
 
     local disabled_tasks=()
@@ -643,7 +643,7 @@ This is useful for handling cases like '--clean --build' but forgetting to insta
             setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
             unsetopt short_loops auto_pushd
 
-            cd ${(q)working_dir} || {
+            cd "${working_dir}" || {
                 print-header -e --icon "${icon}" "${header}: Failed to change directory to '${working_dir}'"
                 return 1
             }

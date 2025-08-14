@@ -12,7 +12,7 @@ jwt-print() {
         paste_str=''
     fi
 
-    local _usage='Usage: jwt-print <jwt>
+    local _usage="Usage: jwt-print <jwt>
 
     Pretty prints a JWT (JSON Web Token)
 
@@ -20,7 +20,7 @@ jwt-print() {
         <jwt>        The JWT to print.${paste_str}
 
     Options:
-        -h, --help    Show this help message and exit'
+        -h, --help    Show this help message and exit"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 

@@ -76,7 +76,7 @@ Options:
 
         print "Usage: ws ${cmd} <project> -- <extra args>
 
-Open a ${title} window with the given "${WORKSPACE_ROOT_DIR}/<project>" working directory"
+Open a ${title} window with the given '\${WORKSPACE_ROOT_DIR}/<project>' working directory"
     }
 
     TRAPEXIT() {
@@ -99,7 +99,7 @@ Open a ${title} window with the given "${WORKSPACE_ROOT_DIR}/<project>" working 
 
         $cmd "$@"
     elif [[ "${subcmd}" == code || "${subcmd}" == cursor ]]; then
-        if ! command -v ${subcmd} &> /dev/null; then
+        if ! command -v "${subcmd}" &> /dev/null; then
             print-header -e "The '${subcmd}' command is not available."
             return 1
         elif [[ "$1" == --help || "$1" == -h ]]; then
