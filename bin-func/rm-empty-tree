@@ -1,0 +1,63 @@
+#! /usr/bin/env zsh
+#compdef rm-empty-tree
+
+rm-empty-tree() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage rm-empty-tree <directory>
+
+Recurse the <directory> and see if it contains any non-directory files. If it does not, delete the directory.
+
+Arguments:
+  <directory>   The directory to check. If <directory> does not exist treat it as a no-op.
+
+Options:
+  -t, --test    Instead of deleting the directory return 0 if there are no regular files in the directory or its descendants.
+  -h, --help    Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    flags[test]=0
+    short_to_long_flags[t]=test
+    min_positional_count=1
+    max_positional_count=1
+    dot_parse_opts_errors[too-many-positional]="You may only specify 1 directory."
+    dot_parse_opts_errors[too-few-positional]="You must specify a directory."
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then # Help was output
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    set -- "${positional_args[@]}"
+
+    local dir="$1"
+    
+    if [[ ! -d "${dir}" ]]; then
+        return 0
+    fi
+
+    local find_output
+    find_output="$(find "${dir}" ! -type d)"
+
+    if [[ -z "${find_output}" ]]; then
+        if (( $flags[test] )); then
+            return 0
+        else
+            rm -rf "${dir}" || {
+                print-header -e "Error: Failed to remove directory '${dir}'"
+                return 1
+            }
+        fi
+    elif (( $flags[test] )); then
+        return 1
+    fi
+}
+
+rm-empty-tree "$@"

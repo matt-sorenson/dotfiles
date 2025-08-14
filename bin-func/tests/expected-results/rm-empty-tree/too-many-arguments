@@ -1,0 +1,13 @@
+================================================================================
+= ❌ You may only specify 1 directory.: [max: 1]                               =
+================================================================================
+Usage rm-empty-tree <directory>
+
+Recurse the <directory> and see if it contains any non-directory files. If it does not, delete the directory.
+
+Arguments:
+  <directory>   The directory to check. If <directory> does not exist treat it as a no-op.
+
+Options:
+  -t, --test    Instead of deleting the directory return 0 if there are no regular files in the directory or its descendants.
+  -h, --help    Show this message

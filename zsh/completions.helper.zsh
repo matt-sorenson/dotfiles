@@ -36,7 +36,17 @@ typeset -ag _repoman_tasks_args=(
     '(-t --tests)'{-t,--tests}'[Run all tests]'
 )
 
-typeset -ag _dot_test_dirs=(
-    "${DOTFILES}/bin/tests"
-    "${DOTFILES}/bin-func/tests"
-)
+typeset -ag _dot_test_dirs=()
+
+if [[ -d "${DOTFILES}/bin/tests" ]]; then
+    _dot_test_dirs+=("${DOTFILES}/bin/tests")
+fi
+if [[ -d "${DOTFILES}/bin-func/tests" ]]; then
+    _dot_test_dirs+=("${DOTFILES}/bin-func/tests")
+fi
+if [[ -d "${DOTFILES}/local/bin/tests" ]]; then
+    _dot_test_dirs+=("${DOTFILES}/local/bin/tests")
+fi
+if [[ -d "${DOTFILES}/local/bin-func/tests" ]]; then
+    _dot_test_dirs+=("${DOTFILES}/local/bin-func/tests")
+fi

@@ -89,11 +89,8 @@ Options:
             unset test_files
         done
 
-        if [[ -d "${dir}/failed-results/" ]]; then
-            if [[ -z "$(ls -A "${dir}/failed-results/")" ]]; then
-                rmdir "${dir}/failed-results/" || true
-            fi
-        fi
+        rm-empty-tree "${dir}/failed-results"
+        rm-empty-tree "${dir}/env"
     fi
 
     if (( out )); then
