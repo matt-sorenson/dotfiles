@@ -23,8 +23,11 @@ Options:
     # short_to_long_flags[f]=foo
     # option_args[input]=str
     # short_to_long_opts[i]=input
-    # max_positional_count=2
+    # min_positional_count=0
+    # max_positional_count=0
     # allow_extra_args=1
+    # dot_parse_opts_errors[too-many-positional]="Too many positional arguments"
+    # dot_parse_opts_errors[too-few-positional]="Too few positional arguments"
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -33,6 +36,8 @@ Options:
     elif (( dot_parse_code )); then
         return $dot_parse_code
     fi
+
+    # set -- "${positional_args[@]}"
 
     ############################################################################
     ## Your implementation goes here

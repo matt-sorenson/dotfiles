@@ -74,7 +74,7 @@ if [[ ! -v name ]]; then
     return 1
 fi
 
-template="${DOTFILES}/templates/bin/new_script.zsh"
+template="${DOTFILES}/templates/bin/new-script.zsh"
 target="${base_dir}/${bin_dir}/${name}"
 
 mkdir -p "${base_dir}/${bin_dir}"
