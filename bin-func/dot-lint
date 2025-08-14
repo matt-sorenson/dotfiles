@@ -82,7 +82,7 @@ dot-lint() {
           _dot-lint-hashbang
     }
 
-    local _usage="Usage dot-lint [-h|--help] [--verbose] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
+    local _usage="Usage dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
 
 Arguments:
   <filename>          The file to lint.
@@ -95,13 +95,11 @@ Options:
                            This is useful when you want to lint from githooks and
                            don't 'know' the file type.
   -t, --type               Type of file to lint [zsh, sh, bash, ksh, dash, lua] (default: auto detection).
-  -h, --help               Show this message
-  --verbose                Show verbose output."
+  -h, --help               Show this message."
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     flags[unsupported-success]=0
-    flags[verbose]=0
 
     short_to_long_flags[s]=show-supported
     option_args[type]='enum:zsh,sh,bash,ksh,dash,lua'

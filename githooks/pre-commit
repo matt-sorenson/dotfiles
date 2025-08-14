@@ -6,13 +6,19 @@ pre-commit() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage pre-commit [-h|--help] [--verbose]"
+    local _usage="Usage pre-commit [-h|--help] [--no-stash]
+
+Options:
+  --no-stash    Lint the file as it exists on the filesystem instead of the staged file.
+  -h, --help    Show this message."
+
     local -a dot_lint_args=(--unsupported-success)
+    local stashed_file=1
 
     while (( $# )); do
         case "$1" in
-            --verbose)
-                dot_lint_args+=(--verbose)
+            --no-stash)
+                stashed_file=0
                 ;;
             -h|--help)
                 print "$_usage"
@@ -34,7 +40,10 @@ pre-commit() {
         return 0
     fi
 
-    local staged_file=$(mktemp)
+    local staged_file
+    if (( stashed_file )); then
+        staged_file=$(mktemp)
+    fi
 
     local -i errors_found=0
     local file
@@ -42,8 +51,12 @@ pre-commit() {
         # Skip non-existent or non-regular files (can happen with deletions or renames)
         [[ -f $file ]] || continue
 
-        # Get the staged instance of the file instead of the
-        git show ":${file}" > "${staged_file}"
+        if (( stashed_file )); then
+            # Get the staged instance of the file instead of the
+            git show ":${file}" > "${staged_file}"
+        else
+            staged_file="$file"
+        fi
 
         local exit_code
         dot-lint "${dot_lint_args[@]}" "$staged_file" "$file" || exit_code=$?
