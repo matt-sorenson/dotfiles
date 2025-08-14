@@ -12,7 +12,6 @@ Options:
   --no-stash    Lint the file as it exists on the filesystem instead of the staged file.
   -h, --help    Show this message."
 
-    local -a dot_lint_args=(--unsupported-success)
     local stashed_file=1
 
     while (( $# )); do
@@ -46,7 +45,7 @@ Options:
     fi
 
     local -i errors_found=0
-    local file
+    local file exit_code
     for file in "${all_staged_files[@]}"; do
         # Skip non-existent or non-regular files (can happen with deletions or renames)
         [[ -f $file ]] || continue
@@ -58,12 +57,13 @@ Options:
             staged_file="$file"
         fi
 
-        local exit_code
-        dot-lint "${dot_lint_args[@]}" "$staged_file" "$file" || exit_code=$?
+        exit_code=0
+        dot-lint --unsupported-success "$staged_file" "$file" || exit_code=$?
 
         if (( exit_code == 0 )); then
             print "No errors found in '$file'"
         else
+            print-header -e "Failed to lint '$file'"
             errors_found=$(( errors_found + exit_code ))
         fi
     done

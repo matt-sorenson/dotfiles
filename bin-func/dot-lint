@@ -17,7 +17,7 @@ dot-lint() {
         local display_name="$2"
         local -a known_file_type=(zsh bash ksh dash lua)
 
-        local ext="${filename##*.}"
+        local ext="${display_name##*.}"
         local known_type
         for known_type in "${known_file_type[@]}"; do
             if [[ "$ext" == "$known_type" ]]; then
@@ -27,7 +27,7 @@ dot-lint() {
         done
 
         local first_line
-        IFS= read -r first_line < "$filename"
+        IFS= read -r first_line < "$filename" || true
         for known_type in "${known_file_type[@]}"; do
             if [[ "$first_line" == *"${known_type}" ]]; then
                 print -n "$known_type"
@@ -59,20 +59,22 @@ dot-lint() {
         local file_type="$3"
 
         local first_line
-        IFS= read -r first_line < "$filename"
-        if [[ "$first_line" == '#!'* ]]; then
-            if [[ "$file_type" == "sh" ]]; then
-                if [[ "$first_line" != '#! /bin/sh' ]]; then
-                    print "${filename}:1:'$first_line' used. Use '#! /bin/sh' instead."
-                    return 1
-                fi
-            elif [[ "$first_line" != "#! /usr/bin/env ${file_type}" ]]; then
-                print "${filename}:1:'$first_line' used. Use '#! /usr/bin/env ${file_type}' instead."
-                return 1
-            fi
+        IFS= read -r first_line < "$filename" || true
+        if [[ "$first_line" != '#!'* ]]; then
+            return 0
         fi
 
-        return 0
+        if [[ "$file_type" == "sh" ]]; then
+            if [[ "$first_line" != '#! /bin/sh' ]]; then
+                print "${filename}:1:'$first_line' used. Use '#! /bin/sh' instead."
+                return 1
+            fi
+
+            return 0
+        elif [[ "$first_line" != "#! /usr/bin/env ${file_type}" ]]; then
+            print "${filename}:1:'$first_line' used. Use '#! /usr/bin/env ${file_type}' instead."
+            return 1
+        fi
     }
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
@@ -137,8 +139,6 @@ Options:
     )
 
     if [[ ! -v supported_file_types[${options[type]}] ]]; then
-        dot-print-map options
-
         if (( ${flags[unsupported-success]} )); then
             return 0
         else
