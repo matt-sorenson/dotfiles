@@ -7,12 +7,12 @@ pre-commit() {
     unsetopt short_loops
 
     local _usage="Usage pre-commit [-h|--help] [--verbose]"
-    local verbose=''
+    local -a dot_lint_args=(--unsupported-success)
 
     while (( $# )); do
         case "$1" in
             --verbose)
-                verbose='--verbose'
+                dot_lint_args+=(--verbose)
                 ;;
             -h|--help)
                 print "$_usage"
@@ -27,13 +27,6 @@ pre-commit() {
         shift
     done
 
-    local -a checks=("${DOTFILES}/githooks/"*.pre-commit)
-
-    if (( ! ${#checks[@]} )); then
-        print-header cyan "No pre-commit hooks found."
-        return 0
-    fi
-
     local -a all_staged_files=("${(@f)$(git diff --cached --name-only --diff-filter=ACM)}")
 
     if (( ! ${#all_staged_files[@]} )); then
@@ -41,39 +34,40 @@ pre-commit() {
         return 0
     fi
 
+    local staged_file=$(mktemp)
+
     local -i errors_found=0
-    local -i new_errors_found
-    local file staged_file precommit_check
+    local file
     for file in "${all_staged_files[@]}"; do
         # Skip non-existent or non-regular files (can happen with deletions or renames)
         [[ -f $file ]] || continue
 
-        staged_file=$(mktemp)
         # Get the staged instance of the file instead of the
         git show ":${file}" > "${staged_file}"
 
-        new_errors_found=0
-        for precommit_check in "${checks[@]}"; do
-            if ! "$precommit_check" "$staged_file" "$file" $verbose; then
-                new_errors_found=1
-                errors_found=1
-            fi
-        done
+        local exit_code
+        dot-lint "${dot_lint_args[@]}" "$staged_file" "$file" || exit_code=$?
 
-        if (( ! new_errors_found )); then
-            print "No Errors found in '$file'"
+        if (( exit_code == 0 )); then
+            print "No errors found in '$file'"
+        else
+            errors_found=$(( errors_found + exit_code ))
         fi
-
-        # Don't fail the commit cause it can't cleanup the file
-        # The OS should clean it up eventually if it's left hanging about.
-        rm "$staged_file" || {
-            if [[ -n "$verbose" ]]; then
-                print "error removing temporary file: '$staged_file'"
-            fi
-        } || true
     done
 
-    return $errors_found
+    # Don't fail the commit cause it can't cleanup the file
+    # The OS should clean it up eventually if it's left hanging about.
+    rm "$staged_file" || print "error removing temporary file: '$staged_file'" || true
+
+    if (( errors_found )); then
+        print-header -e "${errors_found} Errors found."
+        return $errors_found
+    fi
+
+    print-header green "No errors found."
+    print
+
+    return 0
 }
 
 pre-commit "$@"

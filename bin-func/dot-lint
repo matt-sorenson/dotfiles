@@ -1,0 +1,220 @@
+#! /usr/bin/env zsh
+#compdef dot-lint
+
+dot-lint() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    _dot-lint-auto-detect-file-type() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+        unsetopt short_loops
+
+        local filename="$1"
+        local display_name="$2"
+        local -a known_file_type=(zsh bash ksh dash lua)
+
+        local ext="${filename##*.}"
+        local known_type
+        for known_type in "${known_file_type[@]}"; do
+            if [[ "$ext" == "$known_type" ]]; then
+                print -n "$known_type"
+                return 0
+            fi
+        done
+
+        local first_line
+        IFS= read -r first_line < "$filename"
+        for known_type in "${known_file_type[@]}"; do
+            if [[ "$first_line" == *"${known_type}" ]]; then
+                print -n "$known_type"
+                return 0
+            fi
+        done
+
+        if [[ "$first_line" == *'/sh' || "$first_line" == *' sh' ]]; then
+            print -n "sh"
+        elif [[ "$first_line" == '#compdef '* ]]; then
+            # zsh auto completion files
+            print -n 'zsh'
+        elif [[ "$ext" == "sh" ]]; then
+            # We do this check last because many bash/zsh files use sh as an extension.
+            print -n "sh"
+        else
+            print -n "unknown"
+        fi
+    }
+
+    _dot-lint-hashbang() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+        unsetopt short_loops
+
+        local filename="$1"
+        local display_name="$2"
+        local file_type="$3"
+
+        local first_line
+        IFS= read -r first_line < "$filename"
+        if [[ "$first_line" == '#!'* ]]; then
+            if [[ "$file_type" == "sh" ]]; then
+                if [[ "$first_line" != '#! /bin/sh' ]]; then
+                    print "${filename}:1:'$first_line' used. Use '#! /bin/sh' instead."
+                    return 1
+                fi
+            elif [[ "$first_line" != "#! /usr/bin/env ${file_type}" ]]; then
+                print "${filename}:1:'$first_line' used. Use '#! /usr/bin/env ${file_type}' instead."
+                return 1
+            fi
+        fi
+
+        return 0
+    }
+
+    # emulate `local -F` since it doesn't exist & return to starting directory.
+    TRAPEXIT() {
+        dot-safe-unset-function \
+          _dot-lint-auto-detect-file-type \
+          _dot-lint-hashbang
+    }
+
+    local _usage="Usage dot-lint [-h|--help] [--verbose] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
+
+Arguments:
+  <filename>          The file to lint.
+  <display_name>  The filename to display in error messages (default: <filename>).
+                      This is useful when the file being linted is staged and
+                      the staged file is being linted instead of the file on the filesystem.
+
+Options:
+  --unsupported-success    Return success even if the file type is unsupported.
+                           This is useful when you want to lint from githooks and
+                           don't 'know' the file type.
+  -t, --type               Type of file to lint [zsh, sh, bash, ksh, dash, lua] (default: auto detection).
+  -h, --help               Show this message
+  --verbose                Show verbose output."
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    flags[unsupported-success]=0
+    flags[verbose]=0
+
+    short_to_long_flags[s]=show-supported
+    option_args[type]='enum:zsh,sh,bash,ksh,dash,lua'
+    short_to_long_opts[t]=type
+    min_positional_count=1
+    max_positional_count=2
+    dot_parse_opts_errors[too-many-positional]="You may only provide a filename and an optional display filename."
+    dot_parse_opts_errors[too-few-positional]="You must provide a filename."
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then # Help was output
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    set -- "${positional_args[@]}"
+
+    local filename="$1"
+    local display_name="${2:-$filename}"
+
+    if [[ ! -v options[type] ]]; then
+        options[type]="$(_dot-lint-auto-detect-file-type "$filename" "$display_name")"
+    fi
+
+    local -A supported_file_types=(
+        ['zsh']=1
+        ['bash']=1
+        ['ksh']=1
+        ['dash']=1
+        ['lua']=1
+    )
+
+    if [[ ! -v supported_file_types[$options[type]] ]]; then
+        dot-print-map options
+
+        if (( $flags[unsupported-success] )); then
+            return 0
+        else
+            print-header -e "${display_name}:0:Unsupported file type: $options[type]"
+            return 1
+        fi
+    fi
+
+    local -a file_errors=()
+
+    local hashbang_errors
+    if ! hashbang_errors="$(_dot-lint-hashbang "$filename" "$display_name" "$options[type]")"; then
+        file_errors+=("$hashbang_errors")
+    fi
+    unset hashbang_errors
+
+    case "$options[type]" in
+    lua)
+        if ! command -v luacheck &> /dev/null; then
+            print-header w "luacheck not found, skipping checks."
+            return 0
+        fi
+
+        local -a luacheck_config=()
+
+        local curr_path="$(dirname "$display_name")"
+        while [[ -n "${curr_path}" && ! -f "${curr_path}/.luacheckrc" ]]; do
+            curr_path="$(dirname "${curr_path}")"
+        done
+
+        if [[ -f "${curr_path}/.luacheckrc" ]]; then
+            luacheck_config=(--config "$(realpath "${curr_path}/.luacheckrc")")
+        fi
+        unset curr_path
+
+        local luacheck_errors
+        if ! luacheck_errors="$(luacheck "$filename" ${luacheck_config[@]} 2>&1)"; then
+            file_errors+=("$luacheck_errors")
+        fi
+        ;;
+    zsh)
+        local zsh_errors
+        # || true due to zsh returning an error on any errors, which we specifically want.
+        if ! zsh_errors="$(zsh --no-exec "$filename" 2>&1)"; then
+            zsh_errors="${zsh_errors//$filename/$display_name}"
+            # Split errors into array of lines
+            file_errors+=("${(@f)zsh_errors}")
+        fi
+
+        local fname lineno line_text
+        while IFS=: read -r fname lineno line_text; do
+            if [[ "$line_text" != *"'echo' used. Use 'print' instead"* ]]; then
+                file_errors+=("$fname:$lineno:'echo' used. Use 'print' instead")
+            fi
+        done < <(grep -nH '\becho\b' "$filename")
+        ;;
+    sh|bash|ksh|dash)
+        local shellcheck_errors
+        if ! shellcheck_errors="$(shellcheck "$filename" 2>&1)"; then
+            shellcheck_errors="${shellcheck_errors//$filename/$display_name}"
+            file_errors+=("$shellcheck_errors")
+        fi
+        unset shellcheck_errors
+        ;;
+    esac
+
+    # remove empty elements
+    file_errors=("${(@)file_errors:#}")
+
+    if (( ${#file_errors} )); then
+        print-header -e "${#file_errors} errors in '${display_name}'"
+        printf '%s\n' "${file_errors[@]}"
+        return ${#file_errors}
+    else
+        return 0
+    fi
+}
+
+dot-lint "$@"
