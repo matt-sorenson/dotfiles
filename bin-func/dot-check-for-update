@@ -126,11 +126,11 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         local repos_to_update=( "${DOTFILES}"/plugins/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo
         for repo in "${repos_to_update[@]}"; do
-            print-header -i 2 cyan "Updating '${repo:t}'"
             if [[ $repo == */local ]]; then
                 continue
             fi
 
+            print-header -i 2 cyan "Updating '${repo:t}'"
             if ! dot-check-for-update-git "${repo}" | dot-indent-output -i 2; then
                 out=1
             fi
