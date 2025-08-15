@@ -175,7 +175,7 @@ source "${DOTFILES}/zsh/ender.zsh-theme"
 ################################################################################
 # Check for updates every 15 hours
 ################################################################################
-dot-check-for-update --auto
+dot-update --auto
 
 # To run timer also uncomment lines at start of zshenv.zsh
 if [[ -v ZSHENV_BOOT_TIMER ]]; then

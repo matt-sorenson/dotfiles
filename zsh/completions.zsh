@@ -47,14 +47,14 @@ _dot-check-for-update() {
         '--auto[Only run if enough time has passed]' \
         '--no-replace-shell[Do not replace the current shell with a new one]'
 }
-compdef _dot-check-for-update dot-check-for-update
+compdef _dot-check-for-update dot-update
 
 _dot-check-for-update-git() {
     _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-i --indent)'{-i,--indent}'[Indent the header 'n' spaces.]'
 }
-compdef _dot-check-for-update-git dot-check-for-update-git
+compdef _dot-check-for-update-git dot-update-git
 
 _dot-print-array() {
 

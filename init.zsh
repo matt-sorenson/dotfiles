@@ -267,7 +267,7 @@ Options:${mac_specific_help}${apt_specific_help}
   --no-plugin-zsh-syntax-highlighting   Do not install zsh-syntax-highlighting plugin
 
   --plugin <name=[shallow=]url>         Add a custom plugin to install
-        Plugins added here will be automatically updated with the dot-check-for-update script
+        Plugins added here will be automatically updated with the dot-update script
         You'll need to manually source/init zsh plugins (that aren't 'local' or in the default list).
         Shallow flags the repo to be cloned with --depth 1, which is useful for large repos.
 
@@ -677,7 +677,7 @@ Options:${mac_specific_help}${apt_specific_help}
     print "WORKSPACE_ROOT_DIR=${WORKSPACE_ROOT_DIR}"
 
     print-header green "Setting up dotfiles complete."
-    print "if any of the repos checked out above where already present you may want to run dot-check-for-update to update them."
+    print "if any of the repos checked out above where already present you may want to run dot-update to update them."
     print "You should restart your terminal now to apply the changes."
 }
 

@@ -1,13 +1,13 @@
 #! /usr/bin/env zsh
-#compdef dot-check-for-update-git
+#compdef dot-update-git
 
-dot-check-for-update-git() {
+dot-update-git() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="dot-check-for-update-git [-h|--help][-q|--quiet] <dir>
+    local _usage="dot-update-git [-h|--help][-q|--quiet] <dir>
 
     Options:
     -h, --help            Show this help message
@@ -135,4 +135,4 @@ dot-check-for-update-git() {
     return 0
 }
 
-dot-check-for-update-git "$@"
+dot-update-git "$@"
