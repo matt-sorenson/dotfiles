@@ -11,6 +11,11 @@ if ! command -v print-header &> /dev/null; then
     autoload -Uz colors && colors
 
     print-header() {
+        emulate -L zsh
+        set -uo pipefail
+        setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+        unsetopt short_loops
+
         local color=''
         local prefix=''
         if [[ $1 == '-e' ]]; then
@@ -30,6 +35,11 @@ if ! command -v print-header &> /dev/null; then
 fi
 
 safe-cp() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local src="${1}"
     local dest="${2}"
 
@@ -42,6 +52,11 @@ safe-cp() {
 }
 
 safe-set-link() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local dest="${1}"
     local src="${2}"
 
@@ -57,6 +72,11 @@ safe-set-link() {
 }
 
 safe-git-clone() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local url dest
     local extra_args=()
 
@@ -116,8 +136,13 @@ safe-git-clone() {
 }
 
 ssh-file-locked-down() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local ssh_key="$1"
-    local perms="$(stat -f %Lp "${ssh_key}" 2>/dev/null || stat -c %a "${ssh_key}" 2> /dev/null)"
+    local perms="$(stat -f %Lp "${ssh_key}" 2> /dev/null || stat -c %a "${ssh_key}" 2> /dev/null)"
     local group_write=$(( (perms / 10) % 10 ))
     local other_write=$(( perms % 10 ))
     if (( group_write & 2 || other_write & 2 )); then
@@ -127,11 +152,17 @@ ssh-file-locked-down() {
 }
 
 main() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
     local app_install_list=(
         fzf
         git
         jq          # 'like sed for json'
         shellcheck
+        ssh-askpass
         zsh
 
         # These are mostly there for doomemacs but useful in general
@@ -142,13 +173,12 @@ main() {
 
     local -a apt_install_list=(
         emacs-nox # emacs-nox is the terminal only version of emacs
-        silversearcher-ag
         fdfind
+        silversearcher-ag
     )
 
     local -a brew_install_list=(
         awscli
-        emacs
         fd
         the_silver_searcher
     )
@@ -167,8 +197,9 @@ main() {
     local LOCAL_DOTFILES
 
     local matt_username=matt
-    local matt_dm=mattsorenson.com
-    local matt_email="${matt_username}@${matt_dm}"
+    # Splitting this so it's harder for scrapers
+    local matt_domain=mattsorenson.com
+    local matt_email="${matt_username}@${matt_domain}"
 
     local -A git_config=()
     local -A ssh_config=()
@@ -192,10 +223,12 @@ main() {
             flags[brew]=1
             flags[hammerspoon]=1
             flags[ssh_keychain]=1
+            flags[base-emacs]=0
             mac_specific_help="
   --no-brew          Do not install Homebrew
   --no-hammerspoon   Do not set up Hammerspoon
-  --no-ssh-keychain  Do not set up the ssh key into the macOS keychain"
+  --no-ssh-keychain  Do not set up the ssh key into the macOS keychain
+  --base-emacs       Install base emacs instead of emacs-plus"
             ;;
         linux*)
             if command -v apt &> /dev/null; then
@@ -242,7 +275,6 @@ Options:${mac_specific_help}${apt_specific_help}
 
   --help, -h                            Show this help message"
     unset mac_specific_help apt_specific_help
-
 
     while (( $# )); do
         case "$1" in
@@ -323,7 +355,7 @@ Options:${mac_specific_help}${apt_specific_help}
                 elif [[ $1 == --local-ref ]]; then
                     LOCAL_DOTFILES="${DOTFILES}/local.$1"
                 else
-                    print-header "Unknown Header $1"
+                    print-header -e "Unknown Header $1"
                     print "${_usage}"
                     return 1
                 fi
@@ -357,7 +389,7 @@ Options:${mac_specific_help}${apt_specific_help}
                 fi
 
 
-                if (( $# > 1 )); then
+                if (( $# < 2 )); then
                     print-header -e "$1 requires a value"
                     return 1
                 elif [[ -v git_config[$key] ]]; then
@@ -412,9 +444,43 @@ Options:${mac_specific_help}${apt_specific_help}
             brew_install_list+=( docker docker-compose )
         fi
 
+        if (( flags[base-emacs] )); then
+            brew_install_list+=( emacs )
+        else
+            brew tap d12frosted/emacs-plus
+            brew_install_list+=( emacs-plus --without-cocoa )
+        fi
+
+        brew tap theseal/ssh-askpass
+
+        app_install_list+=( "${brew_install_list[@]}" )
+
+        local -a bulk_install_list=()
+        local -a single_install_list=()
+        local item
+        for item in "${app_install_list[@]}"; do
+            if [[ "$item" == *' '* ]]; then
+                bulk_install_list+=( "$item" )
+            else
+                single_install_list+=( "$item" )
+            fi
+        done
+
         print-header green "installing items from brew"
-        print "Install List: ${(q)app_install_list[@]} ${(q)brew_install_list[@]}"
-        brew install -q ${(q)app_install_list[@]} ${(q)brew_install_list[@]}
+        local MATCH MBEGIN MEND
+        print "Install List: ${(@)app_install_list//(#m)*/\"$MATCH\"}"
+
+        if (( ${#bulk_install_list[@]} > 0 )); then
+            brew install "${bulk_install_list[@]}"
+        fi
+
+        if (( ${#single_install_list[@]} > 0 )); then
+            for item in "${single_install_list[@]}"; do
+                # Explicitly unquoted as spaces indicate multiple arguments
+                brew install ${item}
+            done
+        fi
+
     elif (( flags[apt] )); then
         print-header green "Installing apt packages"
         # Only add docker if it's not already installed.
@@ -473,8 +539,8 @@ Options:${mac_specific_help}${apt_specific_help}
     # Use https here cause ssh may not have been setup yet.
     safe-git-clone "https://github.com/matt-sorenson/dotfiles.git" "${DOTFILES}"
     unset -f print-header
-    source ${DOTFILES}/zsh/zshenv.zsh
-    source ${DOTFILES}/zsh/zshrc.zsh
+    source "${DOTFILES}/zsh/zshenv.zsh"
+    source "${DOTFILES}/zsh/zshrc.zsh"
 
     print-header blue 'Setting up $DOTFILES githoooks to $DOTFILES/.githooks'
     git -C "${DOTFILES}" config core.hooksPath "${DOTFILES}/githooks"
@@ -502,9 +568,10 @@ Options:${mac_specific_help}${apt_specific_help}
         fi
     fi
 
+    # Update the origin to use the ssh url instead of https
     git -C "${DOTFILES}" remote set-url origin git@github.com:matt-sorenson/dotfiles.git
 
-    # '-p' options makes all the directories that don't exist, but
+    # '-p' option makes all the directories that don't exist, but
     # more importantly it doesn't error if the directory already exists.
     mkdir -p "${DOTFILES}/plugins"
     mkdir -p "${DOTFILES}/tmp"
@@ -542,7 +609,8 @@ Options:${mac_specific_help}${apt_specific_help}
         print-header green "Setting up local based off of template"
 
         mkdir -p "${DOTFILES}/local/bin"
-        mkdir -p "${DOTFILES}/local/zsh/completions"
+        mkdir -p "${DOTFILES}/local/bin-func"
+        mkdir -p "${DOTFILES}/local/zsh"
 
         touch "${DOTFILES}/local/zsh/zshenv.zsh"
         touch "${DOTFILES}/local/zsh/zshrc.zsh"
