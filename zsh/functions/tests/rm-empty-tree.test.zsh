@@ -23,7 +23,7 @@ cleanup-test-dirs() {
 }
 
 # Test directories
-local test_root="${DOTFILES}/bin-func/tests/env/test-rm-empty-tree"
+local test_root="${DOTFILES}/zsh/functions/tests/env/test-rm-empty-tree"
 local empty_dir="${test_root}/empty"
 local file_dir="${test_root}/with-files"
 local nested_empty_dir="${test_root}/nested-empty"

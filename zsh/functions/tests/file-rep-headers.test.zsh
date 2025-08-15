@@ -286,7 +286,7 @@ main() {
         error-both-insert-options
     )
 
-    pushd "${DOTFILES}/bin-func/tests/"
+    pushd "${DOTFILES}/zsh/functions/tests/"
 
     create-test-file "$insert_file" "New file content"
 

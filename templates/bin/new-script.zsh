@@ -17,7 +17,7 @@ Options:
     ############################################################################
     ## Your opts config goes here
     ############################################################################
-    ## See ${DOTFILES}/bin-func/dot-parse-opts for options.
+    ## See ${DOTFILES}/zsh/functions/dot-parse-opts for options.
 
     # flags[foo]=0
     # short_to_long_flags[f]=foo

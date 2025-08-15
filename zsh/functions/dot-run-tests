@@ -86,11 +86,11 @@ Options:
                 print-header -w "No tests found in ${dir}"
             fi
 
+            rm-empty-tree "${dir}/failed-results"
+            rm-empty-tree "${dir}/env"
+
             unset test_files
         done
-
-        rm-empty-tree "${dir}/failed-results"
-        rm-empty-tree "${dir}/env"
     fi
 
     if (( out )); then

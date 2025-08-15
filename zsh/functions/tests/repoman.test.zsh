@@ -2,7 +2,7 @@
 
 source "${DOTFILES}/zsh/test-harness.zsh"
 
-root="${DOTFILES}/bin-func/tests/env/repoman"
+root="${DOTFILES}/zsh/functions/tests/env/repoman"
 clean_dir="clean"
 nuke_dir="nuke"
 install_dir="install"

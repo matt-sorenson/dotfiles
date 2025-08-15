@@ -609,8 +609,8 @@ Options:${mac_specific_help}${apt_specific_help}
         print-header green "Setting up local based off of template"
 
         mkdir -p "${DOTFILES}/local/bin"
-        mkdir -p "${DOTFILES}/local/bin-func"
         mkdir -p "${DOTFILES}/local/zsh"
+        mkdir -p "${DOTFILES}/local/zsh/functions"
 
         touch "${DOTFILES}/local/zsh/zshenv.zsh"
         touch "${DOTFILES}/local/zsh/zshrc.zsh"

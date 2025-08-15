@@ -1,0 +1,7 @@
+[DOWNLOADING] 'https://example.com/v/id'
+mock_video_downloader:  https://example.com/v/id
+[OK] 'https://example.com/v/id' recorded in '${DOTFILES}/zsh/functions/tests/video-downloader.done'
+================================================================================
+= Successfully downloaded all videos                                           =
+================================================================================
+removing '${DOTFILES}/zsh/functions/tests/video-downloader.done'.

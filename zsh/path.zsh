@@ -128,5 +128,5 @@ unset pnpm_dirs pnpm_dir
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
 
-add-to-fpath "${DOTFILES}/bin-func"
-add-to-fpath "${DOTFILES}/local/bin-func"
+add-to-fpath "${DOTFILES}/zsh/functions"
+add-to-fpath "${DOTFILES}/local/zsh/functions"

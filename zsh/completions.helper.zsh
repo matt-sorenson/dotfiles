@@ -41,12 +41,12 @@ typeset -ag _dot_test_dirs=()
 if [[ -d "${DOTFILES}/bin/tests" ]]; then
     _dot_test_dirs+=("${DOTFILES}/bin/tests")
 fi
-if [[ -d "${DOTFILES}/bin-func/tests" ]]; then
-    _dot_test_dirs+=("${DOTFILES}/bin-func/tests")
+if [[ -d "${DOTFILES}/zsh/functions/tests" ]]; then
+    _dot_test_dirs+=("${DOTFILES}/zsh/functions/tests")
 fi
 if [[ -d "${DOTFILES}/local/bin/tests" ]]; then
     _dot_test_dirs+=("${DOTFILES}/local/bin/tests")
 fi
-if [[ -d "${DOTFILES}/local/bin-func/tests" ]]; then
-    _dot_test_dirs+=("${DOTFILES}/local/bin-func/tests")
+if [[ -d "${DOTFILES}/local/zsh/functions/tests" ]]; then
+    _dot_test_dirs+=("${DOTFILES}/local/zsh/functions/tests")
 fi

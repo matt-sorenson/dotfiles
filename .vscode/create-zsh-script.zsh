@@ -32,7 +32,7 @@ while (( $# )); do
 
             shift
             if [[ "$1" == 'function' || "$1" == 'func' ]]; then
-                bin_dir=bin-func
+                bin_dir='zsh/functions'
             elif [[ "$1" == 'bin' ]]; then
                 bin_dir=bin
             else

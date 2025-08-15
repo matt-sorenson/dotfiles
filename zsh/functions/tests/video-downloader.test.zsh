@@ -4,7 +4,7 @@ source "${DOTFILES}/zsh/test-harness.zsh"
 
 autoload video-downloader
 
-root="${DOTFILES}/bin-func/tests/env/video-downloader"
+root="${DOTFILES}/zsh/functions/tests/env/video-downloader"
 
 mock_video_downloader() {
     print "mock_video_downloader: $*"
@@ -75,7 +75,7 @@ main() {
         no-cleanup
     )
 
-    pushd "${DOTFILES}/bin-func/tests/"
+    pushd "${DOTFILES}/zsh/functions/tests/"
 
     local element
     for element in "${test_cases[@]}"; do

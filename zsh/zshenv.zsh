@@ -119,11 +119,11 @@ function() {
     unsetopt short_loops
 
     local file
-    for file in "${DOTFILES}/bin-func/"*(.N); do
+    for file in "${DOTFILES}/zsh/functions/"*(.N); do
         autoload -z "${file:t}"
     done
 
-    for file in "${DOTFILES}/local/bin-func/"*(.N); do
+    for file in "${DOTFILES}/local/zsh/functions/"*(.N); do
         autoload -z "${file:t}"
     done
 }

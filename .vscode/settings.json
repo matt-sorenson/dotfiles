@@ -7,6 +7,9 @@
         "printf"
     ],
     "files.exclude": {
-        "/plugins/**": true
+        "/plugins/**": true,
+        "/tmp/*-history": true,
+        "/tmp/*compdump*": true,
+        "/tmp/zsh-compcasche/**": true,
     }
 }
