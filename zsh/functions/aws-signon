@@ -9,17 +9,23 @@ aws-signon() {
 
     local _usage='Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
-Options:
-  -f, --force                   Force login even if already signed in
-  -h, --help                    Show this help message
-  -c, --command <command>       Alternative command to use to sign on
-  --logged-in-command <command> Alternative command to use for checking if alreay logged in
+Arguments:
   <profile>                     AWS profile to sign into
 
-Notes:
-the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
+Options:
+  -f, --force                   Force login even if already signed in
+  +n, --[no-]node-env           Do not update $NODE_ENV from the $AWS_PROFILE
+  -c, --command <command>       Alternative command to use to sign on
+  --logged-in-command <command> Alternative command to use for checking if alreay logged in
+  -h, --help                    Show this help message
 
-If not provided with -c/--command/--logged-in-command will fall back to the aws cli.
+Notes:
+
+  --command/--logged-in-command:
+    the command provided to --command/--logged-in-command should just need the profile added as a flag.
+    If not provided with --command/--logged-in-command will fall back to the aws cli.
+
+  <profile>: if profile is not provided this will fall back to $AWS_PROFILE or $NODE_ENV if available.
 
 Examples:
   aws-signon -f dev
@@ -30,6 +36,8 @@ Examples:
 
     short_to_long_flags[f]=force
     flags[force]=0
+    flags[node-env]=0
+    short_to_long_opts[n]=node-env
     max_positional_count=1
     option_args[command]=str
     short_to_long_opts[c]=command
@@ -62,11 +70,47 @@ Examples:
         set --
     elif [[ -v AWS_PROFILE ]] && [[ -n "${AWS_PROFILE}" ]]; then
         print "No profile specified, using \$AWS_PROFILE: ${AWS_PROFILE}"
+    elif [[ -v NODE_ENV ]] && [[ -n "${NODE_ENV}" ]]; then
+        case "${NODE_ENV}" in
+        devenv)
+            AWS_PROFILE='devenv'
+            ;;
+        dev)
+            AWS_PROFILE='dev'
+            ;;
+        staging)
+            AWS_PROFILE='staging'
+            ;;
+        production)
+            AWS_PROFILE='production'
+            ;;
+        *)
+            print-header -e "Unknown \$NODE_ENV '${NODE_ENV}'."
+            print "${_usage}"
+            return 1
+            ;;
+        esac
+
+        print-header cyan "Using \$NODE_ENV: ${NODE_ENV} to map to AWS profile ${AWS_PROFILE}."
     else
         unset AWS_PROFILE
-        print-header -e 'No profile specified & $AWS_PROFILE is not available!'
+        print-header -e 'No profile specified and $AWS_PROFILE & $NODE_ENV are not available!'
         print "${_usage}"
         return 1
+    fi
+
+    if [[ ! -v NODE_ENV ]]; then
+        export NODE_ENV
+        case "${AWS_PROFILE}" in
+        devenv)     NODE_ENV='devenv' ;;
+        dev)        NODE_ENV='dev' ;;
+        staging)    NODE_ENV='staging' ;;
+        production) NODE_ENV='production' ;;
+        esac
+    fi
+
+    if [[ "${AWS_PROFILE}" == 'devenv' ]]; then
+        AWS_PROFILE='dev'
     fi
 
     print-header green --icon 🔐 "Signing into AWS: ${AWS_PROFILE}"
