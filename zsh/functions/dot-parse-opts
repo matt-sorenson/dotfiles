@@ -86,6 +86,8 @@ local -A dot_parse_opts_errors=(
         return 0
     fi
 
+    local match mbegin mend
+
     local _usage="${_usage:-No usage info provided.}"
 
     local flag arg arg_list flag_or_no_flag arg_val array_name array_type
@@ -131,8 +133,9 @@ local -A dot_parse_opts_errors=(
                 if [[ ":${option_args[$flag]}:" =~ ':enum:([^:]*)' ]]; then
                     if [[ "${1}" == *","* ]]; then
                         print-header -e "Flag '--$flag' requires a single value, not a comma separated list."
-                    elif [[ ! ",${1}," == *",${match[1]},"* ]]; then
+                    elif [[ ",${match[1]}," != *",${1},"* ]]; then
                         print-header -e "Flag '--$flag' requires a value that is one of the following: ${match[1]}"
+                        print "Recieved '$1'"
                         if [[ ! -v flags[help] ]]; then
                             print "${_usage}"
                         fi

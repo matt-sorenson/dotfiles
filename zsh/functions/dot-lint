@@ -126,6 +126,11 @@ Options:
     local filename="$1"
     local display_name="${2:-$filename}"
 
+    if [[ ! -r "$filename" ]]; then
+        print-header -e "${display_name}:0:File not found"
+        return 1
+    fi
+
     if [[ ! -v options[type] ]]; then
         options[type]="$(_dot-lint-auto-detect-file-type "$filename" "$display_name")"
     fi
@@ -135,6 +140,7 @@ Options:
         ['bash']=1
         ['ksh']=1
         ['dash']=1
+        ['sh']=1
         ['lua']=1
     )
 
@@ -165,7 +171,7 @@ Options:
         local -a luacheck_config=()
 
         local curr_path="$(dirname "$display_name")"
-        while [[ -n "${curr_path}" && ! -f "${curr_path}/.luacheckrc" ]]; do
+        while [[ -n "${curr_path}" && ! -r "${curr_path}/.luacheckrc" && "${curr_path}" != "/" ]]; do
             curr_path="$(dirname "${curr_path}")"
         done
 
@@ -176,7 +182,7 @@ Options:
 
         local luacheck_errors
         if ! luacheck_errors="$(luacheck "$filename" "${luacheck_config[@]}" 2>&1)"; then
-            file_errors+=("$luacheck_errors")
+            file_errors+=("$luacheck_errors"//$filename/$display_name)
         fi
         ;;
     zsh)
@@ -191,7 +197,7 @@ Options:
         local fname lineno line_text
         while IFS=: read -r fname lineno line_text; do
             if [[ "$line_text" != *"'echo' used. Use 'print' instead"* ]]; then
-                file_errors+=("$fname:$lineno:'echo' used. Use 'print' instead")
+                file_errors+=("$display_name:$lineno:'echo' used. Use 'print' instead")
             fi
         done < <(grep -nH '\becho\b' "$filename")
         ;;

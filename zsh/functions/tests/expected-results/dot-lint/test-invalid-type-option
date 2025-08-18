@@ -1,0 +1,19 @@
+============================================================================================
+= ❌ Flag '--type' requires a value that is one of the following: zsh,sh,bash,ksh,dash,lua =
+============================================================================================
+Recieved 'invalid'
+Usage dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
+
+Arguments:
+  <filename>          The file to lint.
+  <display_name>  The filename to display in error messages (default: <filename>).
+                      This is useful when the file being linted is staged and
+                      the staged file is being linted instead of the file on the filesystem.
+
+Options:
+  --unsupported-success    Return success even if the file type is unsupported.
+                           This is useful when you want to lint from githooks and
+                           don't 'know' the file type.
+  -t, --type               Type of file to lint [zsh, sh, bash, ksh, dash, lua] (default: auto detection).
+  --verbose                Show verbose output.
+  -h, --help               Show this message.

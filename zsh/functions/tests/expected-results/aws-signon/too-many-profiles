@@ -3,17 +3,23 @@
 ================================================================================
 Usage: aws-signon [-f|--force] [-h|--help] [-c|--command <command>] [--logged-in-command <command>] <profile>
 
-Options:
-  -f, --force                   Force login even if already signed in
-  -h, --help                    Show this help message
-  -c, --command <command>       Alternative command to use to sign on
-  --logged-in-command <command> Alternative command to use for checking if alreay logged in
+Arguments:
   <profile>                     AWS profile to sign into
 
-Notes:
-the command provided to -c/--command/--logged-in-command should just need the profile added as a flag.
+Options:
+  -f, --force                   Force login even if already signed in
+  +n, --[no-]node-env           Do not update $NODE_ENV from the $AWS_PROFILE
+  -c, --command <command>       Alternative command to use to sign on
+  --logged-in-command <command> Alternative command to use for checking if alreay logged in
+  -h, --help                    Show this help message
 
-If not provided with -c/--command/--logged-in-command will fall back to the aws cli.
+Notes:
+
+  --command/--logged-in-command:
+    the command provided to --command/--logged-in-command should just need the profile added as a flag.
+    If not provided with --command/--logged-in-command will fall back to the aws cli.
+
+  <profile>: if profile is not provided this will fall back to $AWS_PROFILE or $NODE_ENV if available.
 
 Examples:
   aws-signon -f dev

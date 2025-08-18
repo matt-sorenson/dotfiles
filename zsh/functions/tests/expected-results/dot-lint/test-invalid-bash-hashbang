@@ -1,0 +1,4 @@
+===================================================================================================================
+= ❌ 1 errors in '${DOTFILES}/zsh/functions/tests/env/dot-lint/test-invalid-bash-hashbang.bash' =
+===================================================================================================================
+${DOTFILES}/zsh/functions/tests/env/dot-lint/test-invalid-bash-hashbang.bash:1:'#!/bin/bash' used. Use '#! /usr/bin/env bash' instead.

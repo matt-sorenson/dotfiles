@@ -1,0 +1,4 @@
+======================================================================================================
+= ❌ 1 errors in '${DOTFILES}/zsh/functions/tests/env/dot-lint/test-sh-shebang.sh' =
+======================================================================================================
+${DOTFILES}/zsh/functions/tests/env/dot-lint/test-sh-shebang.sh:1:'#!/bin/sh' used. Use '#! /bin/sh' instead.

@@ -1,0 +1,5 @@
+=============================================================================================================
+= ❌ 2 errors in '${DOTFILES}/zsh/functions/tests/env/dot-lint/test-zsh-echo-warning.zsh' =
+=============================================================================================================
+${DOTFILES}/zsh/functions/tests/env/dot-lint/test-zsh-echo-warning.zsh:1:'#!/usr/bin/env zsh' used. Use '#! /usr/bin/env zsh' instead.
+${DOTFILES}/zsh/functions/tests/env/dot-lint/test-zsh-echo-warning.zsh:2:'echo' used. Use 'print' instead

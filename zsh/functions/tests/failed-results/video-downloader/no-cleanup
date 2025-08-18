@@ -1,6 +1,0 @@
-[DOWNLOADING] 'https://example.com/v/1'
-mock_video_downloader:  https://example.com/v/1
-[OK] 'https://example.com/v/1' recorded in '${DOTFILES}/zsh/functions/tests/env/video-downloader/no-cleanup.done'
-================================================================================
-= Successfully downloaded all videos                                           =
-================================================================================
