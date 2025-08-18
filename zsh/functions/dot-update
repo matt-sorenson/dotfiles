@@ -60,10 +60,10 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
 
     local update_filename="${DOTFILES}/tmp/dotfile-update"
 
-    if (( flags[auto] )); then
-        local current_date update_date
-        current_date="$(date +'%Y-%m-%d')"
+    local current_date update_date
+    current_date="$(date +'%Y-%m-%d')"
 
+    if (( flags[auto] )); then
         if [[ -r "${update_filename}" ]]; then
             update_date="$(<"${update_filename}")"
         else
