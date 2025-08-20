@@ -7,7 +7,7 @@ run-test() {
     set -uo pipefail
     setopt err_return extended_glob typeset_to_unset warn_create_global
 
-    local _usage="Usage run-test <command to test> <test-function-name>
+    local _usage="Usage: run-test <command to test> <test-function-name>
   <command-to-test>     the name of the command being tested (just effects logging)
   <test-function-name>  function or command that the test will call and compare the output of
                         to the value in ./expected-values/<command-to-test>/<test-function-name>

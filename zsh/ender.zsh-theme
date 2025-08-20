@@ -5,91 +5,136 @@ setopt prompt_subst
 zmodload zsh/datetime
 zmodload zsh/regex
 
-typeset -g _prompt_ender_preexec_time=$EPOCHREALTIME
+typeset -g _theme_crossout='✘'
+typeset -g _theme_checkmark='✓'
+
+typeset -g _theme_vcs_unstaged='±'
+typeset -g _theme_vcs_staged='+'
+typeset -g _theme_vcs_branch=''
+typeset -g _theme_vcs_detached='➦'
+typeset -g _theme_vcs_cross='✘'
+
+typeset -g _theme_vcs_ahead='↑'
+typeset -g _theme_vcs_behind='↓'
+
+typeset -g _theme_user_root='#'
+typeset -g _theme_user_other='λ'
+
+typeset -g _theme_preexec_time=$EPOCHREALTIME
+
+typeset -g _theme_timezone="${_theme_timezone:-America/Los_Angeles}"
 
 typeset -g _prompt_ender_current_bg='NONE'
 typeset -g _prompt_ender_seperator=''
-typeset -g _prompt_ender_vsc_unstaged='±'
-typeset -g _prompt_ender_vsc_staged='+'
-typeset -g _prompt_ender_vcs_branch=''
-typeset -g _prompt_ender_vcs_detached='➦'
-typeset -g _prompt_ender_vcs_cross='✘'
 
-typeset -g _prompt_ender_vcs_ahead='↑'
-typeset -g _prompt_ender_vcs_behind='↓'
+## Available theme add-prompt-segment segments
+# - pre-last-call-status
+# - post-last-call-status
+# - pre-dir
+# - post-dir
+# - pre-time
+# - post-time
+# - pre-git-info
+# - post-git-info
+# - pre-is-root
+# - post-is-root
+# - pre-elapsed-time
+# - post-elapsed-time
+# - pre-1
+# - post-1
+# - pre-2
+# - post-2
+## Special meta-segments
+# - pre-cmd  - called by the shell precmd hook
+# - pre-exec - called by the shell preexec hook
 
-typeset -g _prompt_ender_user_root='#'
-typeset -g _prompt_ender_user_other='λ'
-
-function _prompt_ender_bg_color() {
+_theme-ender-bg-color() {
     print -n "%K{$1}"
 }
 
-function _prompt_ender_fg_color() {
+_theme-ender-fg-color() {
     print -n "%F{$1}"
 }
 
-function _prompt_ender_start_segment() {
-    _prompt_ender_bg_color "$1"
+_theme-ender-start-segment() {
+    _theme-ender-bg-color "$1"
     local msg=' '
     if [[ "${_prompt_ender_current_bg}" != 'NONE' && "$1" != "${_prompt_ender_current_bg}" ]]; then
-        _prompt_ender_fg_color "${_prompt_ender_current_bg}"
+        _theme-ender-fg-color "${_prompt_ender_current_bg}"
         msg="${_prompt_ender_seperator} "
     fi
 
     print -n "${msg}"
 
-    _prompt_ender_fg_color "$2"
+    _theme-ender-fg-color "$2"
     _prompt_ender_current_bg="$1"
 }
 
-function _prompt_ender_segment_print() {
-    _prompt_ender_start_segment "$1" "$2"
+_theme-ender-segment-print() {
+    _theme-ender-start-segment "$1" "$2"
 
     # Remove trailing spaces from the input string to avoid duplicates.
     print -n "${3%%[[:space:]]##} "
 }
 
-function _prompt_ender_end_segment() {
+_dot-prompt-segment() {
+    _theme-ender-segment-print "$@"
+}
+
+_theme-ender-end-segment() {
     if [[ -n "${_prompt_ender_current_bg}" ]]; then
-        _prompt_ender_fg_color ${_prompt_ender_current_bg}
+        _theme-ender-fg-color ${_prompt_ender_current_bg}
         print -n "%k"
     fi
     print -n "%k%f"
     _prompt_ender_current_bg='NONE'
 }
 
-function _prompt_ender_seg_last_call_status() {
+_theme-ender-seg-last-call-status() {
+    theme run-segment pre-last-call-status
+
     local exit_code=$1
     if (( exit_code )); then
-        _prompt_ender_segment_print red black '✘'
+        _theme-ender-segment-print red black '$_theme_crossout'
     else
-        _prompt_ender_segment_print green black '✓'
+        _theme-ender-segment-print green black '$_theme_checkmark'
     fi
+
+    theme run-segment post-last-call-status
 }
 
-function _prompt_ender_seg_dir() {
+_theme-ender-seg-dir() {
     emulate -L zsh
+
+    theme run-segment pre-dir
 
     local working_dir="$(pwd)"
     local msg="%~"
 
     if [[ "${working_dir}" = "${WORKSPACE_ROOT_DIR}"/* ]]; then
         if [[ "${working_dir#${WORKSPACE_ROOT_DIR}}" =~ '/([^/]+)(.*)' ]]; then
-            _prompt_ender_segment_print yellow black "ws"
-            _prompt_ender_segment_print cyan black "${match[1]}"
+            _theme-ender-segment-print yellow black "ws"
+            _theme-ender-segment-print cyan black "${match[1]}"
             msg="${match[2]#?}"
         fi
     fi
 
-    _prompt_ender_segment_print blue black "${msg}"
+    _theme-ender-segment-print blue black "${msg}"
+
+    theme run-segment post-dir
 }
 
-function _prompt_ender_seg_SEA_time() {
-    _prompt_ender_segment_print black default "$(TZ=America/Los_Angeles date +"%H:%M:%S")"
+_theme-ender-seg-time() {
+    theme run-segment pre-time
+
+    TZ='${_theme_timezone}' _theme-ender-segment-print black default "$(date +"%H:%M:%S")"
+
+    theme run-segment post-time
 }
 
-function _prompt_ender_seg_git_info() {
+_theme-ender-seg-git-info() {
+    theme run-segment pre-git-info
+
     local bg ref
     ref="$(print $vcs_info_msg_0_)"
     if [[ -n "${ref}" ]]; then
@@ -100,27 +145,35 @@ function _prompt_ender_seg_git_info() {
         fi
 
         if [[ "${ref/.../}" == "${ref}" ]]; then
-            ref="${_prompt_ender_vcs_branch} ${ref}"
+            ref="${_theme_vcs_branch} ${ref}"
         else
-            ref="${_prompt_ender_vcs_detached} ${_prompt_ender_vcs_cross/.../}"
+            ref="${_theme_vcs_detached} ${_theme_vcs_cross/.../}"
         fi
 
-        _prompt_ender_segment_print $bg black "${ref}"
+        _theme-ender-segment-print $bg black "${ref}"
     fi
+
+    theme run-segment post-git-info
 }
 
-function _prompt_ender_seg_is_root() {
+_theme-ender-seg-is-root() {
+    theme run-segment pre-is-root
+
     local SU_PROMPT
     case $UID in
-        0) SU_PROMPT="${_prompt_ender_user_root}" ;;
-        *) SU_PROMPT="${_prompt_ender_user_other}" ;;
+        0) SU_PROMPT="${_theme_user_root}" ;;
+        *) SU_PROMPT="${_theme_user_other}" ;;
     esac
-    _prompt_ender_segment_print white black $SU_PROMPT
+    _theme-ender-segment-print white black $SU_PROMPT
+
+    theme run-segment post-is-root
 }
 
-function _prompt_ender_seg_elapsed_time() {
+_theme-ender-seg-elapsed-time() {
+    theme run-segment pre-elapsed-time
+
     local -F epoch=$EPOCHREALTIME
-    local -F delta=$(( epoch - _prompt_ender_preexec_time ))
+    local -F delta=$(( epoch - _theme_preexec_time ))
     local total_time_s="${delta%.*}"
     local milliseconds="${$(( (".${delta#*.}" * 1000) ))%.*}"
 
@@ -160,33 +213,43 @@ function _prompt_ender_seg_elapsed_time() {
     fi
 
     if [[ -n "$msg" ]]; then
-        _prompt_ender_segment_print $color black "$msg"
+        _theme-ender-segment-print $color black "$msg"
     fi
+
+    theme run-segment post-elapsed-time
 }
 
-function _prompt_ender_build_prompt1() {
+_theme-ender-build-prompt-1() {
+    theme run-segment pre-1
+
     if (( $# )); then
-        _prompt_ender_seg_last_call_status $1
-        _prompt_ender_seg_elapsed_time $1
+        _theme-ender-seg-last-call-status $1
+        _theme-ender-seg-elapsed-time $1
     fi
     # History Size
-    _prompt_ender_segment_print white black "%h"
+    _theme-ender-segment-print white black "%h"
     # Hostname
-    _prompt_ender_segment_print black default "%m"
-    _prompt_ender_seg_dir
+    _theme-ender-segment-print black default "%m"
+    _theme-ender-seg-dir
 
-    _prompt_ender_end_segment
+    theme run-segment post-1
+
+    _theme-ender-end-segment
 }
 
-function _prompt_ender_build_prompt2() {
-    _prompt_ender_seg_SEA_time
-    _prompt_ender_seg_git_info
-    _prompt_ender_seg_is_root
+_theme-ender-build-prompt2() {
+    theme run-segment pre-2
 
-    _prompt_ender_end_segment
+    _theme-ender-seg-time
+    _theme-ender-seg-git-info
+    _theme-ender-seg-is-root
+
+    theme run-segment post-2
+
+    _theme-ender-end-segment
 }
 
-function _prompt_ender_precmd() {
+_theme-ender-precmd() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
@@ -197,20 +260,24 @@ function _prompt_ender_precmd() {
 
     vcs_info
 
-    PROMPT="${(e)$(_prompt_ender_build_prompt1 $exit_code)}
-${(e)$(_prompt_ender_build_prompt2)} "
+    PROMPT="${(e)$(_theme-ender-build-prompt-1 $exit_code)}
+${(e)$(_theme-ender-build-prompt2)} "
+
+    theme run-segment pre-cmd
 }
 
-function _prompt_ender_preexec() {
+_theme-ender-preexec() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    _prompt_ender_preexec_time=${EPOCHREALTIME}
+    _theme_preexec_time=${EPOCHREALTIME}
+
+    theme run-segment pre-exec
 }
 
-function +vi-git-untracked() {
++vi-git-untracked() {
     if git status --porcelain | grep -q '^?? ' 2> /dev/null; then
         # This will show the marker if there are any untracked files in repo.
         # If instead you want to show the marker only if there are untracked
@@ -220,7 +287,7 @@ function +vi-git-untracked() {
     fi
 }
 
-function +vi-git-branch() {
++vi-git-branch() {
     local branch="${hook_com[branch]}"
 
     local repo_path="$(command git rev-parse --git-dir 2> /dev/null)";
@@ -239,10 +306,10 @@ function +vi-git-branch() {
         local -a gitstatus=()
 
         local -i ahead=$(git rev-list ${branch}@{u}..HEAD 2>/dev/null | wc -l | tr -d ' ')
-        (( $ahead )) && gitstatus+=( "${_prompt_ender_vcs_ahead}${ahead}" )
+        (( $ahead )) && gitstatus+=( "${_theme_vcs_ahead}${ahead}" )
 
         local -i behind=$(git rev-list HEAD..${branch}@{u} 2>/dev/null | wc -l | tr -d ' ')
-        (( $behind )) && gitstatus+=( "${_prompt_ender_vcs_behind}${behind}" )
+        (( $behind )) && gitstatus+=( "${_theme_vcs_behind}${behind}" )
 
         if (( ${#gitstatus} )); then
             hook_com[branch]+="${(j:/:)gitstatus}"
@@ -250,7 +317,7 @@ function +vi-git-branch() {
     fi
 }
 
-function _prompt_ender_git_count() {
+_theme-ender-git-count() {
     local title="$1"
     local count=$2
     local wrapper="${3:-()}"
@@ -263,18 +330,18 @@ function _prompt_ender_git_count() {
 }
 
 # Show count of stashed changes
-function +vi-git-stash() {
++vi-git-stash() {
     local -i stashes
 
     [[ -s ${hook_com[base]}/.git/refs/stash ]] || return 0
     stashes=$(git stash list 2>/dev/null | wc -l)
 
-    _prompt_ender_git_count S $stashes '[]'
+    _theme-ender-git-count S $stashes '[]'
 }
 
 # Show count of commits from the tracking branch that start with '--<text>--'
 # and display the count for each <text>
-function +vi-git-wip() {
++vi-git-wip() {
     if git rev-parse @{u} &> /dev/null; then
         local base_commit="$(git merge-base @{u} HEAD)" || return 0
         local lines=$(git log --pretty=format:"%s" @{u}..HEAD --regexp-ignore-case --grep='^--[a-zA-Z0-9]*--')
@@ -300,7 +367,7 @@ function +vi-git-wip() {
     fi
 }
 
-function prompt_ender_setup() {
+prompt-ender-setup() {
     emulate -L zsh
     set -uo pipefail
     setopt extended_glob null_glob typeset_to_unset warn_create_global
@@ -310,8 +377,8 @@ function prompt_ender_setup() {
     autoload -Uz vcs_info
 
     # Add hook for calling git-info before each command.
-    add-zsh-hook preexec _prompt_ender_preexec
-    add-zsh-hook precmd _prompt_ender_precmd
+    add-zsh-hook preexec _theme-ender-preexec
+    add-zsh-hook precmd _theme-ender-precmd
 
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:git*:*' get-revision true
@@ -321,15 +388,15 @@ function prompt_ender_setup() {
     zstyle ':vcs_info:*' actionformats '%b|%a'
     zstyle ':vcs_info:*' formats '%b %c%u%m'
 
-    zstyle ':vcs_info:*' stagedstr '$_prompt_ender_vsc_staged'
-    zstyle ':vcs_info:*' unstagedstr '$_prompt_ender_vsc_unstaged'
+    zstyle ':vcs_info:*' stagedstr '$_theme_vcs_staged'
+    zstyle ':vcs_info:*' unstagedstr '$_theme_vcs_unstaged'
     zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-stash git-wip git-branch
 
     vcs_info
 
     # Define prompts.
-    PROMPT="${(e)$(_prompt_ender_build_prompt1)}
-${(e)$(_prompt_ender_build_prompt2)} "
+    PROMPT="${(e)$(_theme-ender-build-prompt-1)}
+${(e)$(_theme-ender-build-prompt2)} "
 }
 
-prompt_ender_setup "$@"
+prompt-ender-setup "$@"

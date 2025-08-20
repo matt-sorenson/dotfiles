@@ -40,7 +40,7 @@ ws() {
             command_str+="$(printf "  %-${max_len}s  %s" "$key" "${commands[$key]}")\n"
         done
 
-        local _usage="Usage ws [-h|--help] [<command> <project>[ <args>][ -- <extra args>]]
+        local _usage="Usage: ws [-h|--help] [<command> <project>[ <args>][ -- <extra args>]]
 
 Arguments:
   <project>   If no command is given then ws attempts 'cd \${WORKSPACE_ROOT_DIR}/<project>'

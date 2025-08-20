@@ -64,18 +64,22 @@ dot-parse-opts() {
     unsetopt short_loops
 
     if (( $# == 1 )) && [[ "$1" == '--dot-parse-opts-init' ]]; then
-        print 'local -A short_to_long_flags=()
-local -i allow_duplicate_flags=0
+        print '
 local -A flags=()
+local -A short_to_long_flags=()
+local -i allow_duplicate_flags=0
 local -A set_flags=()
-local -A short_to_long_opts=()
-local -A option_args=()
-local -i max_positional_count=0
-local -i min_positional_count=0
+
 local -A options=()
+local -A option_args=()
+local -A short_to_long_opts=()
+
 local -i allow_extra_args=0
 local -i extra_args_are_positional=0
 local -a extra_args=()
+
+local -i max_positional_count=0
+local -i min_positional_count=0
 local -a positional_args=()
 
 local -A dot_parse_opts_errors=(

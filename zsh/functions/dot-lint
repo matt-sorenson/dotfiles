@@ -84,7 +84,7 @@ dot-lint() {
           _dot-lint-hashbang
     }
 
-    local _usage="Usage dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
+    local _usage="Usage: dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
 
 Arguments:
   <filename>          The file to lint.

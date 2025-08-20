@@ -1,0 +1,156 @@
+#! /usr/bin/env zsh
+#compdef theme
+
+theme() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    if [[ ! -v _theme_prompt_segments ]]; then
+        typeset -gA _theme_prompt_segments=()
+    fi
+
+    local _usage="Usage: theme
+
+Subcommands:
+    run-segment <segment-name>
+        Run a segments functions
+
+    add-segment <segment-name> <segment-func>[...<segment-func>]
+        Add a function to the segment
+
+    prompt-segment <bg-color> <fg-color> <segment-name>
+        Used by <segment-name> functions to actually display the segment to the prompt
+
+Arguments:
+    <segment-name> - Then name of the segment run/modify
+
+Options:
+  -h, --help    Show this message"
+
+    if (( ! $# )); then
+        _usage
+        return 1
+    fi
+
+    local subcmd="$1"
+    shift
+
+    if [[ "$subcmd" == 'help' || "$subcmd" == '--help' || "$subcmd" == '-h' ]]; then
+        if (( ! $# )); then
+            print "$_usage"
+            return 0
+        fi
+
+        subcmd="$1"
+        shift
+
+        set -- "--help" "$@"
+    fi
+
+    case $subcmd in
+    run-segment)
+        local _usage="Usage: theme run-segment <segment-name>
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=1
+        max_positional_count=1
+        dot_parse_opts_errors[too-few-positional]="You must provide at least one segment name"
+        dot_parse_opts_errors[too-many-positional]="You can only provide one segment name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        if [[ ! -v _theme_prompt_segments[$1] || -z "${_theme_prompt_segments[$1]}" ]]; then
+            return 0
+        fi
+
+        local -a segment_funcs=(${(s/:/)_theme_prompt_segments[$1]})
+
+        local segment_func
+        for segment_func in "${segment_funcs[@]}"; do
+            $segment_func # Explicitly not quoted
+        done
+        ;;
+    add-segment)
+        local _usage="Usage: theme add-segment <segment-name> <function-name>
+
+Arguments:
+    <segment-name>  The name of the segment to add the function to
+    <function-name> The name of the function to add to the segment
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=2
+        max_positional_count=2
+        dot_parse_opts_errors[too-few-positional]="You must provide a segment name and function name"
+        dot_parse_opts_errors[too-many-positional]="You can only provide a segment name and function name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        local segment_name="$1"
+        shift
+
+        local segment_func
+        while (( $# > 0 )); do
+            segment_func="$1"
+            if [[ ! -v "$segment_func" ]] && ! command -v "$segment_func" > /dev/null; then
+                print "Segment function '$segment_func' not found"
+                return 1
+            elif [[ ! -v _theme_prompt_segments[$segment_name] ]]; then
+                _theme_prompt_segments[$segment_name]="$segment_func"
+            else
+                _theme_prompt_segments[$segment_name]+=":$segment_func"
+            fi
+
+            shift
+        done
+        ;;
+    prompt-segment)
+        local _usage="Usage: theme prompt-segment <bg-color> <fg-color> <segment-name>
+
+Options:
+  -h, --help    Show this message"
+
+        if (( $# != 3 )); then
+            print "$_usage"
+            return 1
+        fi
+
+        local bg_color="$1"
+        local fg_color="$2"
+        local segment_name="$3"
+
+        _dot-prompt-segment "$bg_color" "$fg_color" "$segment_name"
+        ;;
+    *)
+        if command -v "theme-${subcmd}" &> /dev/null; then
+            "theme-${subcmd}" "$@"
+        fi
+    esac
+}
+
+theme "$@"

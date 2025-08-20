@@ -7,7 +7,7 @@
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage <name>
+    local _usage="Usage: <name>
 
 Options:
   -h, --help    Show this message"

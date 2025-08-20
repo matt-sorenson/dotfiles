@@ -7,7 +7,7 @@ git-add-ask() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage git-add-ask
+    local _usage="Usage: git-add-ask
 Iterate through all modified files, show the diff, and ask if you want to stage them.
 
 Options:

@@ -12,7 +12,7 @@ ws-init() {
         return 0
     fi
 
-    local _usage="Usage ws-init [-c|--vscode] [-h|--help] [-m|--message <message>] <name>
+    local _usage="Usage: ws-init [-c|--vscode] [-h|--help] [-m|--message <message>] <name>
 
 Create a folder under \$WORKSPACE_ROOT_DIR and initialize it with git
 
