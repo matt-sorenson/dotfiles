@@ -74,7 +74,7 @@ Subcommands:
         Initialize the theme system
 
     add-segment <segment-name> <segment-func>[...<segment-func>]
-        Add a function to the segment
+        Add a function(s) to the segment
 
     clear-segment <segment-name>
         Clear all functions from the segment
@@ -83,7 +83,7 @@ Subcommands:
         List all segments that have functions defined
 
     run-segment <segment-name>
-        Run a segments functions
+        Run a segment's functions
 
     prompt-segment <bg-color> <fg-color> <segment-name>
         Used by <segment-name> functions to actually display the segment to the prompt
@@ -104,7 +104,7 @@ Subcommands:
         Unregister a segment from the theme system
 
 Arguments:
-    <segment-name> - Then name of the segment run/modify
+    <segment-name> - The name of the segment run/modify
 
 Options:
   -h, --help    Show this message"
@@ -135,7 +135,9 @@ Options:
     ## add-segment|add
     ############################################################################
     add-segment|add)
-        local _usage="Usage: theme add-segment <segment-name> <function-name>
+        _usage="Usage: theme add-segment <segment-name> <function-name>[ ...<function-name>]
+
+Adds a function(s) to the segment.
 
 Arguments:
     <segment-name>  The name of the segment to add the function to
@@ -147,9 +149,8 @@ Options:
         eval "$(dot-parse-opts --dot-parse-opts-init)"
 
         min_positional_count=2
-        max_positional_count=2
+        max_positional_count=-1
         dot_parse_opts_errors[too-few-positional]="You must provide a segment name and function name"
-        dot_parse_opts_errors[too-many-positional]="You can only provide a segment name and function name"
 
         local dot_parse_code=0
         dot-parse-opts "$@" || dot_parse_code=$?
@@ -184,7 +185,7 @@ Options:
     ## clear-segment|clear
     ############################################################################
     clear-segment|clear)
-        local _usage="Usage: theme clear-segment <segment-name>
+        _usage="Usage: theme clear-segment <segment-name>
 
 Arguments:
     <segment-name> The name of the segment to clear
@@ -219,7 +220,7 @@ Options:
     ############################################################################
     list-segments|ls)
         if (( $# )); then
-            local _usage="Usage: theme (list-segments|ls)
+            _usage="Usage: theme (list-segments|ls)
 
 Options:
   -h, --help    Show this message"
@@ -241,7 +242,7 @@ Options:
     ## run-segment
     ############################################################################
     run-segment)
-        local _usage="Usage: theme run-segment <segment-name>
+        _usage="Usage: theme run-segment <segment-name>
 
 Arguments:
     <segment-name> The name of the segment to run
@@ -282,7 +283,7 @@ Options:
     ## prompt-segment
     ############################################################################
     prompt-segment)
-        local _usage="Usage: theme prompt-segment <bg-color> <fg-color> <segment-name>
+        _usage="Usage: theme prompt-segment <bg-color> <fg-color> <segment-name>
 
 Options:
   -h, --help    Show this message"
@@ -304,7 +305,7 @@ Options:
     ############################################################################
     clear-available-segments)
         if (( $# )); then
-            local _usage="Usage: theme clear-available-segments"
+            _usage="Usage: theme clear-available-segments"
 
             if [[ $1 == '--help' || $1 == '-h' ]]; then
                 print "$_usage"
@@ -323,7 +324,7 @@ Options:
     ## remove-segment|rm
     ############################################################################
     remove-segment|rm)
-        local _usage="Usage: theme remove-segment <segment-name> <function-name>
+        _usage="Usage: theme remove-segment <segment-name> <function-name>
 
 Arguments:
     <segment-name>  The name of the segment to remove the function from
@@ -364,7 +365,7 @@ Options:
     ############################################################################
     available-segments)
         if (( $# )); then
-            local _usage="Usage: theme (list-segments|ls)
+            _usage="Usage: theme (list-segments|ls)
 
 Options:
   -h, --help    Show this message"
@@ -389,7 +390,7 @@ Options:
     ## register-available-segment
     ############################################################################
     register-available-segment)
-        local _usage="Usage: theme register-available-segment <line-number> <segment-name>
+        _usage="Usage: theme register-available-segment <segment-name> [...<segment-name>]
 
 Arguments:
     <segment-name> The name of the segment to register
@@ -413,9 +414,6 @@ Options:
 
         set -- "${positional_args[@]}"
 
-        local line_number="$1"
-        shift
-
         local segment_name
         for segment_name in "$@"; do
             _theme_prompt_segments_available[$segment_name]=1
@@ -426,7 +424,7 @@ Options:
     ## unregister-available-segment
     ############################################################################
     unregister-available-segment)
-        local _usage="Usage: theme unregister-available-segment <segment-name>
+        _usage="Usage: theme unregister-available-segment <segment-name>
 
 Arguments:
     <segment-name> The name of the segment to unregister

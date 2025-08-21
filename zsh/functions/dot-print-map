@@ -27,25 +27,20 @@ Options:
 
     local map_name="${positional_args[1]}"
 
-    local type
-    if ! type="$(typeset -p "$map_name" 2>/dev/null)"; then
+    # Check if variable exists and is an associative array
+    if [[ ! -v "$map_name" ]]; then
         print-header -e "Error: '$map_name' is not defined."
         return 1
     fi
 
+    local type
+    type="$(typeset -p "$map_name" 2>/dev/null)"
     if [[ "$type" != *-A* ]]; then
         print-header -e "Error: '$map_name' is not an associative array."
         return 1
     fi
 
-    local keys
-    eval "keys=(\"\${(@k)$map_name}\")"
-    local key value cmd
-    for key in "${keys[@]}"; do
-        cmd='${'"$map_name"'[$key]}'
-        value=$(eval "print \"$cmd\"")
-        printf "%s => %s\n" "$key" "$value"
-    done
+    printf "%s => %s\n" "${(P@kv)map_name}"
 }
 
 dot-print-map "$@"

@@ -67,11 +67,7 @@ if [[ -v NVM_DIR ]]; then
         }
 
         for cmd in "${_dot_nvm_lazy_cmds[@]}"; do
-            eval "
-                function $cmd() {
-                    _dot_nvm_lazy_load $cmd \"\$@\"
-                }
-            "
+            eval "function $cmd() { _dot_nvm_lazy_load $cmd \"\$@\" }"
         done
     fi
 fi

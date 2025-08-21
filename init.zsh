@@ -663,7 +663,7 @@ Options:${mac_specific_help}${apt_specific_help}
             mkdir -p "${HOME}/.config"
             safe-git-clone "https://github.com/doomemacs/doomemacs" "${HOME}/.config/emacs"
             safe-set-link "${HOME}/.config/doom" "${DOTFILES}/doom"
-            eval "${HOME}/.config/emacs/bin/doom install --no-env --aot"
+            ${HOME}/.config/emacs/bin/doom install --no-env --aot
         else
             print-header -w "emacs not found, consider installing it"
             print "Skipping doomemacs setup"

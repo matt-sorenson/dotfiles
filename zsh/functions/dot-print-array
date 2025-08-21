@@ -38,10 +38,8 @@ Options:
         return 1
     fi
 
-    local values
-    eval "values=(\"\${${array_name}[@]}\")"
     local i=1 val
-    for val in "${values[@]}"; do
+    for val in "${(P@)array_name}"; do
         printf "%d: %s\n" "$i" "$val"
         ((i++))
     done
