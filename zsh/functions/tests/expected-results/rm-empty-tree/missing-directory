@@ -1,7 +1,7 @@
 ================================================================================
 = ❌ You must specify a directory.: [min: 1]                                   =
 ================================================================================
-Usage rm-empty-tree <directory>
+Usage: rm-empty-tree <directory>
 
 Recurse the <directory> and see if it contains any non-directory files. If it does not, delete the directory.
 

@@ -1,4 +1,4 @@
-Usage dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
+Usage: dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
 
 Arguments:
   <filename>          The file to lint.

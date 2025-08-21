@@ -1,0 +1,4 @@
+Usage: dot-print-map [-h|--help] <map_name>
+
+Options:
+  -h, --help    Show this message

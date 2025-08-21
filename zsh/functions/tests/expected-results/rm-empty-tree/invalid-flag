@@ -1,7 +1,7 @@
 ================================================================================
 = ❌ Unknown flag: --invalid-flag                                              =
 ================================================================================
-Usage rm-empty-tree <directory>
+Usage: rm-empty-tree <directory>
 
 Recurse the <directory> and see if it contains any non-directory files. If it does not, delete the directory.
 

@@ -17,6 +17,9 @@ Options:
     min_positional_count=1
     max_positional_count=1
 
+    dot_parse_opts_errors[too-many-positional]="You may only specify one map name."
+    dot_parse_opts_errors[too-few-positional]="You must specify a map name."
+
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
     if (( -1 == dot_parse_code )); then # Help was output
@@ -38,6 +41,11 @@ Options:
     if [[ "$type" != *-A* ]]; then
         print-header -e "Error: '$map_name' is not an associative array."
         return 1
+    fi
+
+    if (( ! ${(P)#map_name} )); then
+        print "$map_name is empty"
+        return 0
     fi
 
     printf "%s => %s\n" "${(P@kv)map_name}"

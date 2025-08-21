@@ -1,0 +1,4 @@
+key-with-dashes => value-with-dashes
+key_with_underscores => value_with_underscores
+key:with:colons => value:with:colons
+key with spaces => value with spaces

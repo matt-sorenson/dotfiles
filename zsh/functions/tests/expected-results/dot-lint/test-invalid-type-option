@@ -2,7 +2,7 @@
 = ❌ Flag '--type' requires a value that is one of the following: zsh,sh,bash,ksh,dash,lua =
 ============================================================================================
 Recieved 'invalid'
-Usage dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
+Usage: dot-lint [-h|--help] [--unsupported-success] [-t|--type <type>] <filename> [<display_name>]
 
 Arguments:
   <filename>          The file to lint.
