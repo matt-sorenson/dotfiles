@@ -44,7 +44,6 @@ Options:
     fi
 
     if (( ! ${(P)#map_name} )); then
-        print "$map_name is empty"
         return 0
     fi
 

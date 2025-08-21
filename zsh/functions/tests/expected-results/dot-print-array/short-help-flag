@@ -1,0 +1,4 @@
+Usage: dot-print-array [-h|--help] <array_name>
+
+Options:
+  -h, --help    Show this message

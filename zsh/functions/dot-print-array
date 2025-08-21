@@ -17,6 +17,9 @@ Options:
     min_positional_count=1
     max_positional_count=1
 
+    dot_parse_opts_errors[too-many-positional]="You may only specify one array name."
+    dot_parse_opts_errors[too-few-positional]="You must specify an array name."
+
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
     if (( -1 == dot_parse_code )); then # Help was output

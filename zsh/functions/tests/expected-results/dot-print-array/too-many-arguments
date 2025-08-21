@@ -1,0 +1,7 @@
+================================================================================
+= ❌ You may only specify one array name.: [max: 1]                            =
+================================================================================
+Usage: dot-print-array [-h|--help] <array_name>
+
+Options:
+  -h, --help    Show this message
