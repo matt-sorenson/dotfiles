@@ -53,8 +53,7 @@ _theme-ender-end-segment() {
 _theme-ender-seg-last-call-status() {
     theme run-segment pre-last-call-status
 
-    local exit_code=$1
-    if (( exit_code )); then
+    if (( _theme_prev_exit_code )); then
         _theme-ender-segment-print red black '$_theme_crossout'
     else
         _theme-ender-segment-print green black '$_theme_checkmark'
@@ -182,10 +181,8 @@ _theme-ender-seg-elapsed-time() {
 _theme-ender-build-prompt-1() {
     theme run-segment pre-1
 
-    if (( $# )); then
-        _theme-ender-seg-last-call-status $1
-        _theme-ender-seg-elapsed-time $1
-    fi
+    _theme-ender-seg-last-call-status
+    _theme-ender-seg-elapsed-time
     # History Size
     _theme-ender-segment-print white black "%h"
     # Hostname
@@ -217,7 +214,7 @@ _theme-ender-precmd() {
 
     _theme_ender_current_bg="NONE"
 
-    PROMPT="${(e)$(_theme-ender-build-prompt-1 $exit_code)}
+    PROMPT="${(e)$(_theme-ender-build-prompt-1)}
 ${(e)$(_theme-ender-build-prompt2)} "
 }
 
@@ -235,8 +232,6 @@ ${(e)$(_theme-ender-build-prompt2)} "
     local branch="${hook_com[branch]}"
 
     local repo_path="$(command git rev-parse --git-dir 2> /dev/null)";
-
-    local append_space=''
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
         hook_com[branch]+=+='<B>'
@@ -275,7 +270,7 @@ _theme-ender-git-count() {
 
 # Show count of stashed changes
 +vi-git-stash() {
-    local -i stashes
+    local -i stashes=0
 
     [[ -s ${hook_com[base]}/.git/refs/stash ]] || return 0
     stashes=$(git stash list 2>/dev/null | wc -l)
@@ -306,7 +301,7 @@ _theme-ender-git-count() {
         done <<< "${lines:u}"
 
         for key in ${(ok)counts}; do
-            _theme_ender_git_count "$key" "$counts[$key]"
+            _theme-ender-git-count "$key" "$counts[$key]"
         done
     fi
 }
