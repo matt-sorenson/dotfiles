@@ -5,48 +5,8 @@ setopt prompt_subst
 zmodload zsh/datetime
 zmodload zsh/regex
 
-typeset -g _theme_crossout='✘'
-typeset -g _theme_checkmark='✓'
-
-typeset -g _theme_vcs_unstaged='±'
-typeset -g _theme_vcs_staged='+'
-typeset -g _theme_vcs_branch=''
-typeset -g _theme_vcs_detached='➦'
-typeset -g _theme_vcs_cross='✘'
-
-typeset -g _theme_vcs_ahead='↑'
-typeset -g _theme_vcs_behind='↓'
-
-typeset -g _theme_user_root='#'
-typeset -g _theme_user_other='λ'
-
-typeset -g _theme_preexec_time=$EPOCHREALTIME
-
-typeset -g _theme_timezone="${_theme_timezone:-America/Los_Angeles}"
-
-typeset -g _prompt_ender_current_bg='NONE'
-typeset -g _prompt_ender_seperator=''
-
-## Available theme add-prompt-segment segments
-# - pre-last-call-status
-# - post-last-call-status
-# - pre-dir
-# - post-dir
-# - pre-time
-# - post-time
-# - pre-git-info
-# - post-git-info
-# - pre-is-root
-# - post-is-root
-# - pre-elapsed-time
-# - post-elapsed-time
-# - pre-1
-# - post-1
-# - pre-2
-# - post-2
-## Special meta-segments
-# - pre-cmd  - called by the shell precmd hook
-# - pre-exec - called by the shell preexec hook
+typeset -g _theme_ender_current_bg='NONE'
+typeset -g _theme_ender_seperator=''
 
 _theme-ender-bg-color() {
     print -n "%K{$1}"
@@ -59,15 +19,15 @@ _theme-ender-fg-color() {
 _theme-ender-start-segment() {
     _theme-ender-bg-color "$1"
     local msg=' '
-    if [[ "${_prompt_ender_current_bg}" != 'NONE' && "$1" != "${_prompt_ender_current_bg}" ]]; then
-        _theme-ender-fg-color "${_prompt_ender_current_bg}"
-        msg="${_prompt_ender_seperator} "
+    if [[ "${_theme_ender_current_bg}" != 'NONE' && "$1" != "${_theme_ender_current_bg}" ]]; then
+        _theme-ender-fg-color "${_theme_ender_current_bg}"
+        msg="${_theme_ender_seperator} "
     fi
 
     print -n "${msg}"
 
     _theme-ender-fg-color "$2"
-    _prompt_ender_current_bg="$1"
+    _theme_ender_current_bg="$1"
 }
 
 _theme-ender-segment-print() {
@@ -82,12 +42,12 @@ _dot-prompt-segment() {
 }
 
 _theme-ender-end-segment() {
-    if [[ -n "${_prompt_ender_current_bg}" ]]; then
-        _theme-ender-fg-color ${_prompt_ender_current_bg}
+    if [[ -n "${_theme_ender_current_bg}" ]]; then
+        _theme-ender-fg-color ${_theme_ender_current_bg}
         print -n "%k"
     fi
     print -n "%k%f"
-    _prompt_ender_current_bg='NONE'
+    _theme_ender_current_bg='NONE'
 }
 
 _theme-ender-seg-last-call-status() {
@@ -255,26 +215,10 @@ _theme-ender-precmd() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local exit_code=$?
-    _prompt_ender_current_bg="NONE"
-
-    vcs_info
+    _theme_ender_current_bg="NONE"
 
     PROMPT="${(e)$(_theme-ender-build-prompt-1 $exit_code)}
 ${(e)$(_theme-ender-build-prompt2)} "
-
-    theme run-segment pre-cmd
-}
-
-_theme-ender-preexec() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
-    unsetopt short_loops
-
-    _theme_preexec_time=${EPOCHREALTIME}
-
-    theme run-segment pre-exec
 }
 
 +vi-git-untracked() {
@@ -362,7 +306,7 @@ _theme-ender-git-count() {
         done <<< "${lines:u}"
 
         for key in ${(ok)counts}; do
-            _prompt_ender_git_count "$key" "$counts[$key]"
+            _theme_ender_git_count "$key" "$counts[$key]"
         done
     fi
 }
@@ -373,12 +317,23 @@ prompt-ender-setup() {
     setopt extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    autoload -Uz add-zsh-hook
-    autoload -Uz vcs_info
+    theme add-segment pre-cmd _theme-ender-precmd
+
+    # Line 1
+    theme register-available-segment \
+        pre-last-call-status post-last-call-status \
+        pre-elapsed-time post-elapsed-time \
+        pre-dir post-dir \
+        pre-1 post-1
+
+    # Line 2
+    theme register-available-segment \
+        pre-time post-time \
+        pre-git-info post-git-info \
+        pre-is-root post-is-root \
+        pre-2 post-2
 
     # Add hook for calling git-info before each command.
-    add-zsh-hook preexec _theme-ender-preexec
-    add-zsh-hook precmd _theme-ender-precmd
 
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:git*:*' get-revision true

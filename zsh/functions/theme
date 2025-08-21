@@ -1,6 +1,56 @@
 #! /usr/bin/env zsh
 #compdef theme
 
+typeset -g _theme_crossout='✘'
+typeset -g _theme_checkmark='✓'
+
+typeset -g _theme_vcs_unstaged='±'
+typeset -g _theme_vcs_staged='+'
+typeset -g _theme_vcs_branch=''
+typeset -g _theme_vcs_detached='➦'
+typeset -g _theme_vcs_cross='✘'
+
+typeset -g _theme_vcs_ahead='↑'
+typeset -g _theme_vcs_behind='↓'
+
+typeset -g _theme_user_root='#'
+typeset -g _theme_user_other='λ'
+
+typeset -g _theme_preexec_time=$EPOCHREALTIME
+
+typeset -g _theme_timezone="${_theme_timezone:-America/Los_Angeles}"
+
+autoload -Uz add-zsh-hook
+autoload -Uz vcs_info
+
+function _theme-preexec() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    _theme_preexec_time=${EPOCHREALTIME}
+
+    theme run-segment pre-exec
+}
+
+function _theme-precmd() {
+    # Must come first so we aren't getting the exit code from `unsetopt short_loops`
+    local exit_code=$?
+
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    vcs_info
+
+    theme run-segment pre-cmd
+}
+
+add-zsh-hook preexec _theme-preexec
+add-zsh-hook precmd _theme-precmd
+
 theme() {
     emulate -L zsh
     set -uo pipefail
@@ -10,18 +60,48 @@ theme() {
     if [[ ! -v _theme_prompt_segments ]]; then
         typeset -gA _theme_prompt_segments=()
     fi
+    if [[ ! -v _theme_prompt_segments_available ]]; then
+        typeset -gA _theme_prompt_segments_available=(
+            [pre-exec]=1
+            [pre-cmd]=1
+        )
+    fi
 
     local _usage="Usage: theme
 
 Subcommands:
-    run-segment <segment-name>
-        Run a segments functions
+    init
+        Initialize the theme system
 
     add-segment <segment-name> <segment-func>[...<segment-func>]
         Add a function to the segment
 
+    clear-segment <segment-name>
+        Clear all functions from the segment
+
+    list-segments|ls
+        List all segments that have functions defined
+
+    run-segment <segment-name>
+        Run a segments functions
+
     prompt-segment <bg-color> <fg-color> <segment-name>
         Used by <segment-name> functions to actually display the segment to the prompt
+
+    remove-segment <segment-name> <segment-func>|rm <segment-name> <segment-func>
+        Remove a function from the segment
+
+    available-segments
+        List all segments that have functions defined
+
+    clear-available-segments
+        Clear all segments from the theme system
+
+    register-available-segment <segment-name>
+        Register a segment with the theme system
+
+    unregister-available-segment <segment-name>
+        Unregister a segment from the theme system
 
 Arguments:
     <segment-name> - Then name of the segment run/modify
@@ -46,45 +126,15 @@ Options:
         subcmd="$1"
         shift
 
+        # If there were more arguments passed in then pass --help as the first command to the subcommand
         set -- "--help" "$@"
     fi
 
     case $subcmd in
-    run-segment)
-        local _usage="Usage: theme run-segment <segment-name>
-
-Options:
-  -h, --help    Show this message"
-
-        eval "$(dot-parse-opts --dot-parse-opts-init)"
-
-        min_positional_count=1
-        max_positional_count=1
-        dot_parse_opts_errors[too-few-positional]="You must provide at least one segment name"
-        dot_parse_opts_errors[too-many-positional]="You can only provide one segment name"
-
-        local dot_parse_code=0
-        dot-parse-opts "$@" || dot_parse_code=$?
-        if (( -1 == dot_parse_code )); then # Help was output
-            return 0
-        elif (( dot_parse_code )); then
-            return $dot_parse_code
-        fi
-
-        set -- "${positional_args[@]}"
-
-        if [[ ! -v _theme_prompt_segments[$1] || -z "${_theme_prompt_segments[$1]}" ]]; then
-            return 0
-        fi
-
-        local -a segment_funcs=(${(s/:/)_theme_prompt_segments[$1]})
-
-        local segment_func
-        for segment_func in "${segment_funcs[@]}"; do
-            $segment_func # Explicitly not quoted
-        done
-        ;;
-    add-segment)
+    ############################################################################
+    ## add-segment|add
+    ############################################################################
+    add-segment|add)
         local _usage="Usage: theme add-segment <segment-name> <function-name>
 
 Arguments:
@@ -129,6 +179,108 @@ Options:
             shift
         done
         ;;
+
+    ############################################################################
+    ## clear-segment|clear
+    ############################################################################
+    clear-segment|clear)
+        local _usage="Usage: theme clear-segment <segment-name>
+
+Arguments:
+    <segment-name> The name of the segment to clear
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=1
+        max_positional_count=1
+        dot_parse_opts_errors[too-few-positional]="You must provide at least one segment name"
+        dot_parse_opts_errors[too-many-positional]="You can only provide one segment name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        if [[ -v _theme_prompt_segments[$1] ]]; then
+            unset "_theme_prompt_segments[$1]"
+        fi
+        ;;
+
+    ############################################################################
+    ## list-segments|ls
+    ############################################################################
+    list-segments|ls)
+        if (( $# )); then
+            local _usage="Usage: theme (list-segments|ls)
+
+Options:
+  -h, --help    Show this message"
+
+            if [[ $1 == '--help' || $1 == '-h' ]]; then
+                print "$_usage"
+                return 0
+            else
+                print "$_usage"
+                print "Unknown option: $1"
+                return 1
+            fi
+        fi
+
+        dot-print-map _theme_prompt_segments
+        ;;
+
+    ############################################################################
+    ## run-segment
+    ############################################################################
+    run-segment)
+        local _usage="Usage: theme run-segment <segment-name>
+
+Arguments:
+    <segment-name> The name of the segment to run
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=1
+        max_positional_count=1
+        dot_parse_opts_errors[too-few-positional]="You must provide at least one segment name"
+        dot_parse_opts_errors[too-many-positional]="You can only provide one segment name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        if [[ ! -v _theme_prompt_segments[$1] || -z "${_theme_prompt_segments[$1]}" ]]; then
+            return 0
+        fi
+
+        local -a segment_funcs=(${(s/:/)_theme_prompt_segments[$1]})
+
+        local segment_func
+        for segment_func in "${segment_funcs[@]}"; do
+            $segment_func # Explicitly not quoted
+        done
+        ;;
+
+    ############################################################################
+    ## prompt-segment
+    ############################################################################
     prompt-segment)
         local _usage="Usage: theme prompt-segment <bg-color> <fg-color> <segment-name>
 
@@ -146,10 +298,181 @@ Options:
 
         _dot-prompt-segment "$bg_color" "$fg_color" "$segment_name"
         ;;
+
+    ############################################################################
+    ## clear-available-segments
+    ############################################################################
+    clear-available-segments)
+        if (( $# )); then
+            local _usage="Usage: theme clear-available-segments"
+
+            if [[ $1 == '--help' || $1 == '-h' ]]; then
+                print "$_usage"
+                return 0
+            else
+                print-header -e "Unknown option: $1"
+                print "$_usage"
+                return 1
+            fi
+        fi
+
+        unset _theme_prompt_segments_available
+        ;;
+
+    ############################################################################
+    ## remove-segment|rm
+    ############################################################################
+    remove-segment|rm)
+        local _usage="Usage: theme remove-segment <segment-name> <function-name>
+
+Arguments:
+    <segment-name>  The name of the segment to remove the function from
+    <function-name> The name of the function to remove from the segment
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=2
+        max_positional_count=2
+        dot_parse_opts_errors[too-few-positional]="You must provide a segment name and function name"
+        dot_parse_opts_errors[too-many-positional]="You can only provide a segment name and function name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        local segment_name="$1"
+        local segment_func="$2"
+
+        if [[ -v _theme_prompt_segments[$segment_name] ]]; then
+            local -a parts=(${(s/:/)_theme_prompt_segments[$segment_name]})
+            parts=(${parts:#$segment_func})
+            _theme_prompt_segments[$segment_name]="${(j/:/)parts}"
+        fi
+        ;;
+
+    ############################################################################
+    ## available-segments
+    ############################################################################
+    available-segments)
+        if (( $# )); then
+            local _usage="Usage: theme (list-segments|ls)
+
+Options:
+  -h, --help    Show this message"
+
+            if [[ $1 == '--help' || $1 == '-h' ]]; then
+                print "$_usage"
+                return 0
+            else
+                print "$_usage"
+                print "Unknown option: $1"
+                return 1
+            fi
+        fi
+
+        local segment_name
+        for segment_name in "${(@k)_theme_prompt_segments_available}"; do
+            print "$segment_name"
+        done
+        ;;
+
+    ############################################################################
+    ## register-available-segment
+    ############################################################################
+    register-available-segment)
+        local _usage="Usage: theme register-available-segment <line-number> <segment-name>
+
+Arguments:
+    <segment-name> The name of the segment to register
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=2
+        max_positional_count=-1
+        dot_parse_opts_errors[too-few-positional]="You must provide at least one segment name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        local line_number="$1"
+        shift
+
+        local segment_name
+        for segment_name in "$@"; do
+            _theme_prompt_segments_available[$segment_name]=1
+        done
+        ;;
+
+    ############################################################################
+    ## unregister-available-segment
+    ############################################################################
+    unregister-available-segment)
+        local _usage="Usage: theme unregister-available-segment <segment-name>
+
+Arguments:
+    <segment-name> The name of the segment to unregister
+
+Options:
+  -h, --help    Show this message"
+
+        eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+        min_positional_count=1
+        max_positional_count=-1
+        dot_parse_opts_errors[too-few-positional]="You must provide at least one segment name"
+
+        local dot_parse_code=0
+        dot-parse-opts "$@" || dot_parse_code=$?
+        if (( -1 == dot_parse_code )); then # Help was output
+            return 0
+        elif (( dot_parse_code )); then
+            return $dot_parse_code
+        fi
+
+        set -- "${positional_args[@]}"
+
+        local segment_name
+        for segment_name in "${positional_args[@]}"; do
+            unset "_theme_prompt_segments_available[$segment_name]"
+        done
+        ;;
+
+    ############################################################################
+    ## theme-<subcmd> or failure
+    ############################################################################
     *)
         if command -v "theme-${subcmd}" &> /dev/null; then
             "theme-${subcmd}" "$@"
+        else
+            print "Unknown subcommand: $subcmd"
+            print "$_usage"
+
+            if [[ $1 == '--help' ]]; then
+                return 0
+            else
+                return 1
+            fi
         fi
+        ;;
     esac
 }
 
