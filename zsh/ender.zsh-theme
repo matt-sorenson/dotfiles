@@ -106,7 +106,7 @@ _theme-ender-seg-git-info() {
         if [[ "${ref/.../}" == "${ref}" ]]; then
             ref="${_theme_vcs_branch} ${ref}"
         else
-            ref="${_theme_vcs_detached} ${_theme_vcs_cross/.../}"
+            ref="${_theme_vcs_detached} ${_theme_vcs_cross}"
         fi
 
         _theme-ender-segment-print $bg black "${ref}"
