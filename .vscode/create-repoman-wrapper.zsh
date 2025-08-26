@@ -11,7 +11,7 @@ create-repoman-wrapper() {
     local _usage="Usage: create-repoman-wrapper [-h|--help] <name>"
     local -a options=()
     local name
-    local vscode=0
+    local editor
     local local_zshrc=0
     local zshrc=0
     local template
@@ -22,8 +22,14 @@ create-repoman-wrapper() {
             print $_usage
             return 0
             ;;
-        --vscode)
-            vscode=1
+        --editor)
+            if (( $# < 2 )); then
+                print-header -e "--editor requires an argument"
+                return 1
+            fi
+
+            editor="$2"
+            shift 2
             ;;
         --local-zshrc)
             if (( zshrc )); then
@@ -240,7 +246,7 @@ create-repoman-wrapper() {
     final+="\\n}\\n\\n"
     final+="typeset 'dotfiles_completion_functions[${name}]'='_repoman-wrapper'"
 
-    if (( local_zshrc || vscode )); then
+    if (( local_zshrc || zshrc )) || [[ -v editor ]]; then
         print "${final}" > "${filename}"
     fi
 
@@ -259,10 +265,8 @@ create-repoman-wrapper() {
         filename="$zshrc_file"
     fi
 
-    if (( vscode )); then
-        code "$filename"
-    elif (( ! local_zshrc )); then
-        print "${final}"
+    if [[ -v editor ]]; then
+        $editor "${filename}"
     fi
 }
 

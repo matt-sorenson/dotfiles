@@ -12,11 +12,14 @@ local _usage="Usage: create-zsh-script.zsh [-t|--type <type>] [-l|--location <lo
 Options:
   -h, --help            Show this help message
   -t, --type <type>     Specify the type of script [function, func, or bin] (default: bin)
-  -l, --location <loc>  Specify the location [dotfiles or local] (default: dotfiles)"
+  -l, --location <loc>  Specify the location [dotfiles or local] (default: dotfiles)
+  --editor <editor>     Specify the editor to use (can be full path to executable)"
 
 local name
 local base_dir="${DOTFILES}"
 local bin_dir="bin"
+
+local editor
 
 while (( $# )); do
     case "$1" in
@@ -55,6 +58,15 @@ while (( $# )); do
                 print-header -e "Unknown location: $1"
                 return 1
             fi
+            ;;
+        --editor)
+            if (( $# < 2 )); then
+                print-header -e "--editor requires an argument"
+                return 1
+            fi
+
+            editor="$2"
+            shift
             ;;
         *)
             if [[ -v name ]]; then
@@ -95,6 +107,8 @@ mkdir -p "${base_dir}"
 sed "s/<name>/${name}/g" "${template}" > "${target}"
 chmod 755 "${target}"
 
-vseditor ${(q)target}
+if [[ -v editor ]]; then
+    $editor ${(q)target}
+fi
 
 print-header green "✅ Created: $target"
