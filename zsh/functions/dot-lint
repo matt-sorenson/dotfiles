@@ -182,14 +182,15 @@ Options:
 
         local luacheck_errors
         if ! luacheck_errors="$(luacheck "$filename" "${luacheck_config[@]}" 2>&1)"; then
-            file_errors+=("$luacheck_errors"//$filename/$display_name)
+            luacheck_errors="$(print "$luacheck_errors" | sed "s|$filename|$display_name|g")"
+            file_errors+=("$luacheck_errors")
         fi
         ;;
     zsh)
         local zsh_errors
         # || true due to zsh returning an error on any errors, which we specifically want.
         if ! zsh_errors="$(zsh --no-exec "$filename" 2>&1)"; then
-            zsh_errors="${zsh_errors//$filename/$display_name}"
+            zsh_errors="$(print "$zsh_errors" | sed "s|$filename|$display_name|g")"
             # Split errors into array of lines
             file_errors+=("${(@f)zsh_errors}")
         fi
@@ -204,7 +205,8 @@ Options:
     sh|bash|ksh|dash)
         local shellcheck_errors
         if ! shellcheck_errors="$(shellcheck "$filename" 2>&1)"; then
-            shellcheck_errors="${shellcheck_errors//$filename/$display_name}"
+
+            shellcheck_errors="$(print "$shellcheck_errors" | sed "s|$filename|$display_name|g")"
             file_errors+=("$shellcheck_errors")
         fi
         unset shellcheck_errors
