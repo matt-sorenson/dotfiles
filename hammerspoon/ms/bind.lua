@@ -311,7 +311,135 @@ local function init(config)
     return _default_modal
 end
 
+--------------------------------------------------------------------------------
+-- Tests
+--------------------------------------------------------------------------------
+
+local test = require('ms.test')
+
+local function test_parse_key_happycase()
+    local parsed = parse_key('[cmd,shift]a')
+    test.assert.deep_equal({ 'cmd', 'shift' }, parsed.mods)
+    test.assert.equal(parsed.key, 'A')
+end
+
+local function test_parse_key_no_mods()
+    local parsed = parse_key('a')
+    test.assert.deep_equal({}, parsed.mods)
+    test.assert.equal(parsed.key, 'A')
+end
+
+local function test_parse_key_empty_mods()
+    local parsed = parse_key('[]a')
+    test.assert.deep_equal({}, parsed.mods)
+    test.assert.equal(parsed.key, 'A')
+end
+
+
+local function test_normalize_mod()
+    test.assert.equal(normalize_mod('command'), '⌘', 'command -> cmd')
+    test.assert.equal(normalize_mod('cmd'), '⌘', 'cmd -> cmd')
+    test.assert.equal(normalize_mod('control'), '⌃', 'control -> ctrl')
+    test.assert.equal(normalize_mod('ctrl'), '⌃', 'ctrl -> ctrl')
+    test.assert.equal(normalize_mod('alt'), '⌥', 'alt -> ⌥')
+    test.assert.equal(normalize_mod('shift'), '⇧', 'shift -> ⇧')
+    test.assert.equal(normalize_mod('fn'), 'FN', 'fn -> FN')
+    test.assert.equal(normalize_mod('super'), 'SUPER', 'super -> SUPER') -- fallback to upper if not mapped
+end
+
+local function test_dedup_mods_just_mods()
+    -- Only mods
+    local mods = {'cmd', 'ctrl', 'cmd'}
+    local result = dedup_mods(mods)
+    table.sort(result)
+    test.assert.array_unordered_equal(result, {'⌘', '⌃'}, 'just_mods')
+end
+
+local function test_dedup_mods_mods_and_opts()
+    -- Mods and opt, with overlap
+    local mods = {'cmd', 'ctrl'}
+    local opt = {'ctrl', 'alt'}
+    local result = dedup_mods(mods, opt)
+    table.sort(result)
+    test.assert.array_unordered_equal(result, {'⌘', '⌃', '⌥'}, 'mods_and_opts')
+end
+
+local function test_dedup_mods_just_opts()
+    -- Only opt
+    local result = dedup_mods(nil, {'alt', 'alt'})
+    test.assert.array_unordered_equal(result, {'⌥'}, 'just_opts')
+end
+
+local function test_dedup_mods_neither()
+    -- Neither
+    local result = dedup_mods()
+    test.assert.array_unordered_equal(result, {}, 'neither')
+end
+
+local function test_array_set_remove_one_element()
+    -- Remove one element
+    local t1 = {'a', 'b', 'c'}
+    local t2 = {'b'}
+    local result = array_set_remove(t1, t2)
+    table.sort(result)
+    test.assert.deep_equal(result, {'a', 'c'}, 'remove_one_element')
+end
+
+local function test_array_set_remove_multiple_elements()
+    -- Remove multiple elements
+    local t1 = {'a', 'b', 'c', 'd'}
+    local t2 = {'b', 'd'}
+    local result = array_set_remove(t1, t2)
+    table.sort(result)
+    test.assert.deep_equal(result, {'a', 'c'}, 'remove_multiple_elements')
+end
+
+local function test_array_set_remove_none()
+    -- Remove none
+    local t1 = {'a', 'b'}
+    local t2 = {'x', 'y'}
+    local result = array_set_remove(t1, t2)
+    table.sort(result)
+    test.assert.deep_equal(result, {'a', 'b'}, 'remove_none')
+end
+
+local function test_array_set_remove_all()
+    -- Remove all
+    local t1 = {'a', 'b'}
+    local t2 = {'a', 'b'}
+    local result = array_set_remove(t1, t2)
+    test.assert.deep_equal(result, {}, 'remove_all')
+end
+
+
+
+--------------------------------------------------------------------------------
+-- Return
+--------------------------------------------------------------------------------
 return {
     init = init,
-    new = modal_new
+    new = modal_new,
+
+    __tests = {
+        parse_key = {
+            happycase = test_parse_key_happycase,
+            no_mods = test_parse_key_no_mods,
+            empty_mods = test_parse_key_empty_mods,
+        },
+        normalize_mod = {
+            happy_case = test_normalize_mod
+        },
+        dedup_mods = {
+            just_mods = test_dedup_mods_just_mods,
+            mods_and_opts = test_dedup_mods_mods_and_opts,
+            just_opts = test_dedup_mods_just_opts,
+            neither = test_dedup_mods_neither,
+        },
+        array_set_remove = {
+            one_element = test_array_set_remove_one_element,
+            multiple_elements = test_array_set_remove_multiple_elements,
+            none = test_array_set_remove_none,
+            all = test_array_set_remove_all,
+        },
+    },
 }

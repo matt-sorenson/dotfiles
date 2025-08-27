@@ -173,6 +173,49 @@ table.deep_copy = function(t, table_refs_to_not_copy)
     return _deep_copy(t, {}, table_refs_to_not_copy)
 end
 
+--- Compare two tables for deep equality
+-- @param a table to compare
+-- @param b table to compare
+-- @param options table of options
+--    one_way: if true, only check if a is a subset of b, defaults to false
+--             otherwise check both ways for equality
+-- @return true if the tables are equal, false otherwise
+table.deep_eq = function(a, b, options)
+    options = options or {}
+
+    if type(a) ~= type(b) then
+        return false
+    end
+
+    if type(a) ~= 'table' then
+        return a == b
+    end
+
+    local a_keys = {}
+
+    for k, v in pairs(a) do
+        if 'table' == type(v) then
+            if not table.deep_eq(v, b[k]) then
+                return false
+            end
+        elseif v ~= b[k] then
+            return false
+        end
+
+        a_keys[k] = true
+    end
+
+    if not options.one_way then
+        for k, _ in pairs(b) do
+            if not a_keys[k] then
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
 --- Removes non-nil values from an array, in place
 --
 -- example table.compact({1, nil, 3}) would result in {1, 3}

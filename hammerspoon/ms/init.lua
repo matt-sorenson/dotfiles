@@ -1,0 +1,18 @@
+return {
+    audio = require 'ms.audio',
+    bind = require 'ms.bind',
+    caffeine = require 'ms.caffeine',
+    colors = require 'ms.colors',
+    console = require 'ms.console',
+    fs = require 'ms.fs',
+    helper = require 'ms.helper',
+    home_assistant = require 'ms.home-assistant',
+    icon = require 'ms.icon',
+    logger = require 'ms.logger',
+    mouse_highlight = require 'ms.mouse-highlight',
+    streamdeck = require 'ms.streamdeck',
+    sys = require 'ms.sys',
+    window = require 'ms.window',
+    work = require 'ms.work',
+    workspace = require 'ms.workspace',
+}
