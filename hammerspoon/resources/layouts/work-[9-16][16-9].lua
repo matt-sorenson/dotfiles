@@ -1,23 +1,11 @@
-local function messages_slack_window_rect(win)
-    -- If both slack and messages are open then put slack on the left 7/8 of the
-    -- bottom of screen and messages on the right 7/8 of the bottom of the screen.
-    -- Otherwise they take the full bottom of the screen
-    local messagesBundleId = 'com.apple.MobileSMS'
-    local slackBundleId = 'com.tinyspeck.slackmacgap'
+local helpers = require 'ms.window.layout.helpers'
 
-    local inBundleId = win:application():bundleID()
-
-    if inBundleId == slackBundleId then
-        if hs.application.find(messagesBundleId) then
-            return { 0, 1/2, 7/8, 1/2 }
-        end
-    elseif inBundleId == messagesBundleId then
-        if hs.application.find(slackBundleId) then
-            return { 1/8, 1/2, 7/8, 1/2 }
-        end
-    end
-
-    return { 0, 1/2, 1, 1/2 }
+local function messages_slack_window_rect_fn()
+    return helpers.combined_window_rect_fn(
+        'com.tinyspeck.slackmacgap', { 0, 1/2, 7/8, 1/2 },
+        'com.apple.MobileSMS', { 1/8, 1/2, 7/8, 1/2 },
+        { 0, 1/2, 1, 1/2 }
+    )
 end
 
 local main_apps = {'Code', 'Cursor', 'DataGrip', 'IntelliJ IDEA', 'TablePlus', 'Bruno'}
@@ -43,8 +31,8 @@ return {
 
             { app = {'Firefox', 'Music'}, section = 3, categories = 'media' },
 
-            { app = 'Messages', rect = messages_slack_window_rect, categories = 'communications' },
-            { app = 'Slack',    rect = messages_slack_window_rect, categories = 'communications' },
+            { app = 'Messages', fn = messages_slack_window_rect_fn(), categories = 'communications' },
+            { app = 'Slack',    fn = messages_slack_window_rect_fn(), categories = 'communications' },
         }
     },
 

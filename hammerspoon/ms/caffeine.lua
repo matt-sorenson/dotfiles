@@ -76,6 +76,10 @@ local function alert_status()
     end
 end
 
+local function lock_screen()
+    hs.caffeinate.lockScreen()
+end
+
 return {
     is_on = is_on,
     is_off = function() return not is_on() end,
@@ -85,5 +89,7 @@ return {
     toggle = function() set(not is_on()) end,
     timed_on_s = timed_on_s,
     timed_on_m = timed_on_m,
-    alert_status = alert_status
+    alert_status = alert_status,
+
+    lock_screen = lock_screen,
 }

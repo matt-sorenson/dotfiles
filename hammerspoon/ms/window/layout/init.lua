@@ -2,52 +2,7 @@ local print = require('ms.logger').new('ms.layout')
 
 local fs = require 'ms.fs'
 local work = require 'ms.work'
-
---[[ export ]]
-local function move_window(window, rect, screen)
-    window:move(rect, screen or window:screen())
-end
-
---[[ export ]]
-local function resize_window(window, width, height)
-    local frame = window:frame()
-
-    frame.w = width
-    frame.h = height
-
-    window:setFrame(frame)
-end
-
---[[ export ]]
-local function center_window(window, screen)
-    screen = screen or window:screen()
-
-    local screen_rect = screen:frame()
-    local window_rect = window:frame()
-    local rect = {
-        screen_rect.x + (screen_rect.w - window_rect.w) / 2,
-        screen_rect.y + (screen_rect.h - window_rect.h) / 2,
-        window_rect.w,
-        window_rect.h,
-    }
-
-    window:move(rect, screen)
-end
-
---[[ export ]]
-local resize_and_center_window = function(window, width, height, screen)
-    screen = screen or window:screen()
-
-    local screen_rect = screen:frame()
-    local rect = {
-        screen_rect.x + (screen_rect.w - width) / 2,
-        screen_rect.y + (screen_rect.h - height) / 2,
-        width,
-        height,
-    }
-
-    window:move(rect, screen)
-end
+local window = require 'ms.window.window'
 
 local function _layout_score_str_tbl(array, str)
     return nil ~= table.find(array, function(e)
@@ -123,13 +78,13 @@ local function _layout_apply_to_window(self, category, window)
         if rule.section then
             self:move_window_to_section(window, rule.section)
         elseif rule.center then
-            center_window(window, screen)
+            window.center(window, screen)
         elseif rule.resize_center then
-            resize_and_center_window(window, rule.resize_center[1], rule.resize_center[2], screen)
-        elseif 'function' == type(rule.rect) then
-            move_window(window, rule.rect(window), screen)
+            window.resize_and_center(window, rule.resize_center[1], rule.resize_center[2], screen)
+        elseif rule.fn then
+            window.move(window, rule.fn(window), screen)
         elseif rule.rect then
-            move_window(window, rule.rect, screen)
+            window.move(window, rule.rect, screen)
         else
             error("layout:apply_to_window requires the rule to have one of rect, section, or center.")
         end
@@ -160,7 +115,7 @@ local function _layout_move_window_to_section(self, window, section_n)
         local section = sections[section_n]
         local screen = self:get_screen(section.screen or 1)
 
-        move_window(window, section.rect, screen)
+        window.move(window, section.rect, screen)
     end
 end
 
@@ -317,26 +272,6 @@ local function move_window_to_section(window, section)
 end
 
 --[[ export ]]
-local function move_window_fn(rect, screen_n)
-    return function()
-        local screen = get_config():get_screen(screen_n or 1)
-        move_window(hs.window.focusedWindow(), rect, screen)
-    end
-end
-
---[[ export ]]
-local function resize_window_fn(width, height)
-    return function()
-        resize_window(hs.window.focusedWindow(), width, height)
-    end
-end
-
---[[ export ]]
-local function center_window_fn()
-    return function() center_window(hs.window.focusedWindow()) end
-end
-
---[[ export ]]
 local function current_layout_has_section(section_n)
     local sections = get_config():sections()
 
@@ -354,20 +289,10 @@ return {
     end,
     apply_to_window = apply_to_window,
 
-    center_window = center_window,
-    center_window_fn = center_window_fn,
-
-    move_window = move_window,
-    move_window_fn = move_window_fn,
     move_window_to_section = move_window_to_section,
     move_window_to_section_fn = function(section)
         return function() move_window_to_section(hs.window.focusedWindow(), section) end
     end,
-
-    resize_window = resize_window,
-    resize_window_fn = resize_window_fn,
-
-    resize_and_center_window = resize_and_center_window,
 
     current_layout_has_section = current_layout_has_section,
     current_layout_has_section_fn = function(section)

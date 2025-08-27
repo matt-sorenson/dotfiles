@@ -71,16 +71,16 @@ local config = {
             { key = '3', msg = '3rd section of screen', fn = window.layout.move_window_to_section_fn(3), skip_help = layout_has_sections_fn(3) },
             { key = '4', msg = '4rd section of screen', fn = window.layout.move_window_to_section_fn(4), skip_help = layout_has_sections_fn(4) },
 
-            { key = '[shift] 1', msg = '1st 1/3 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 3, 1 }) },
-            { key = '[shift] 2', msg = '2nd 1/3 of screen', fn = window.layout.move_window_fn({ 1 / 3, 0, 1 / 3, 1 }) },
-            { key = '[shift] 3', msg = '3rd 1/3 of screen', fn = window.layout.move_window_fn({ 2 / 3, 0, 1 / 3, 1 }) },
+            { key = '[shift] 1', msg = '1st 1/3 of screen', fn = window.move_fn({ 0, 0, 1 / 3, 1 }) },
+            { key = '[shift] 2', msg = '2nd 1/3 of screen', fn = window.move_fn({ 1 / 3, 0, 1 / 3, 1 }) },
+            { key = '[shift] 3', msg = '3rd 1/3 of screen', fn = window.move_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
-            { key = '[cmd,shift] 1', msg = '1st 1/2 of screen', fn = window.layout.move_window_fn({ 0, 0, 1 / 2, 1 }) },
-            { key = '[cmd,shift] 2', msg = '2nd 1/2 of screen', fn = window.layout.move_window_fn({ 1 / 2, 0, 1 / 2, 1 }) },
+            { key = '[cmd,shift] 1', msg = '1st 1/2 of screen', fn = window.move_fn({ 0, 0, 1 / 2, 1 }) },
+            { key = '[cmd,shift] 2', msg = '2nd 1/2 of screen', fn = window.move_fn({ 1 / 2, 0, 1 / 2, 1 }) },
 
-            { key = '[shift] 5', msg = 'Resize to 1080p', fn = window.layout.resize_window_fn(1920, 1080) },
-            { key = 'F',         msg = 'Maximize',        fn = window.layout.move_window_fn({ 0, 0, 1, 1 }) },
-            { key = 'C',         msg = 'Center',          fn = window.layout.center_window_fn() },
+            { key = '[shift] 5', msg = 'Resize to 1080p', fn = window.resize_fn(1920, 1080) },
+            { key = 'F',         msg = 'Maximize',        fn = window.move_fn({ 0, 0, 1, 1 }) },
+            { key = 'C',         msg = 'Center',          fn = window.center_fn() },
 
             '-',
 
@@ -159,6 +159,10 @@ local config = {
             keybind_caffeine_in_hours('3', 3),
             keybind_caffeine_in_hours('4', 4),
             keybind_caffeine_in_hours('5', 5),
+
+            '-',
+
+            { key = 'L', msg = 'Lock Screen', fn = caffeine.lock_screen },
         },
 
         {
@@ -177,6 +181,10 @@ local config = {
         -- defeat attempts to block paste
         { key = 'V', msg = "'key event' paste", fn = function() hs.eventtap.keyStrokes(hs.pasteboard.getContents()) end },
         { key = 'B', msg = 'Find mouse', fn = require('ms.mouse-highlight') },
+
+        '-',
+
+        { key = 'C', msg = 'Toggle Console', fn = function() hs.toggleConsole() end },
 
         '-',
 
