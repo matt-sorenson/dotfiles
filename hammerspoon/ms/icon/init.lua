@@ -88,7 +88,11 @@ local function get_icon(options)
         elseif option.canvas then
             res = option.canvas
         else
-            print:error('You must provide either a path, text, color, or canvas to get_icon', option)
+            print:error(
+                'You must provide either a path, text, color, ' ..
+                'or canvas to get_icon',
+                option
+            )
         end
 
         table.append(elements, res)

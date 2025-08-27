@@ -241,7 +241,8 @@ local INDENT = '  '
 --
 -- @param t table to convert
 -- @param indent the starting indentation to use, defaults to ''
--- @param looked_up a table of tables that have already been looked up, used to prevent circular references
+-- @param looked_up a table of tables that have already been looked up, used
+--        to prevent circular references
 -- @return a string representation of the table
 table.tostring = function(t, indent, looked_up)
     if not looked_up then
@@ -260,7 +261,8 @@ table.tostring = function(t, indent, looked_up)
                 out = out .. indent .. k .. ': \'<circular>\',\n'
             else
                 local tmp_looked_up = table.shallow_copy(looked_up)
-                out = out .. indent .. k .. ': ' .. table.tostring(v, indent .. INDENT, tmp_looked_up) .. ',\n'
+                out = out .. indent .. k .. ': ' ..
+                    table.tostring(v, indent .. INDENT, tmp_looked_up) .. ',\n'
             end
         else
             if type(v) == 'string' then

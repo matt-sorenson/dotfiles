@@ -64,22 +64,46 @@ end
 return {
     ls = ls,
 
-    get_config_path = function(local_path) return get_path_helper(PATHNAMES.CONFIG, local_path) end,
-    get_dotfiles_path = function(local_path) return get_path_helper(PATHNAMES.DOTFILES, local_path) end,
-    get_hs_path = function(local_path) return get_path_helper(PATHNAMES.HS, local_path) end,
-    get_local_path = function(local_path) return get_path_helper(PATHNAMES.LOCAL, local_path) end,
-    get_resource_path = function(local_path) return get_path_helper(PATHNAMES.RESOURCES, local_path) end,
+    get_config_path = function(local_path)
+        return get_path_helper(PATHNAMES.CONFIG, local_path)
+    end,
+    get_dotfiles_path = function(local_path)
+        return get_path_helper(PATHNAMES.DOTFILES, local_path)
+    end,
+    get_hs_path = function(local_path)
+        return get_path_helper(PATHNAMES.HS, local_path)
+    end,
+    get_local_path = function(local_path)
+        return get_path_helper(PATHNAMES.LOCAL, local_path)
+    end,
+    get_resource_path = function(local_path)
+        return get_path_helper(PATHNAMES.RESOURCES, local_path)
+    end,
 
     file_exists = file_exists,
 
-    file_exists_config = function(path) return file_exists(path, PATHNAMES.CONFIG) end,
-    file_exists_dotfiles = function(path) return file_exists(path, PATHNAMES.DOTFILES) end,
-    file_exists_hs = function(path) return file_exists(path, PATHNAMES.HS) end,
-    file_exists_local = function(path) return file_exists(path, PATHNAMES.LOCAL) end,
-    file_exists_resource = function(path) return file_exists(path, PATHNAMES.RESOURCES) end,
+    file_exists_config = function(path)
+        return file_exists(path, PATHNAMES.CONFIG)
+    end,
+    file_exists_dotfiles = function(path)
+        return file_exists(path, PATHNAMES.DOTFILES)
+    end,
+    file_exists_hs = function(path)
+        return file_exists(path, PATHNAMES.HS)
+    end,
+    file_exists_local = function(path)
+        return file_exists(path, PATHNAMES.LOCAL)
+    end,
+    file_exists_resource = function(path)
+        return file_exists(path, PATHNAMES.RESOURCES)
+    end,
 
-    do_file_resources = function(file) return do_file_helper(file, PATHNAMES.RESOURCES) end,
-    do_file_local  = function(file) return do_file_helper(file, PATHNAMES.LOCAL) end,
+    do_file_resources = function(file)
+        return do_file_helper(file, PATHNAMES.RESOURCES)
+    end,
+    do_file_local  = function(file)
+        return do_file_helper(file, PATHNAMES.LOCAL)
+    end,
 
     samba = require('ms.fs.samba'),
 }

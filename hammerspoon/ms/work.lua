@@ -53,5 +53,7 @@ return {
     is_work_computer = function() return IS_WORK_COMPUTER end,
 
     get_random_team_member = get_random_team_member,
-    get_random_team_member_fn = function(team_name) return function() get_random_team_member(team_name) end end
+    get_random_team_member_fn = function(team_name)
+        return function() get_random_team_member(team_name) end
+    end
 }

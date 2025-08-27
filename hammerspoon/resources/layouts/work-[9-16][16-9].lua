@@ -1,6 +1,6 @@
 local helpers = require 'ms.window.layout.helpers'
 
-local function messages_slack_window_rect_fn()
+local function messages_slack_rect_fn()
     return helpers.combined_window_rect_fn(
         'com.tinyspeck.slackmacgap', { 0, 1/2, 7/8, 1/2 },
         'com.apple.MobileSMS', { 1/8, 1/2, 7/8, 1/2 },
@@ -8,7 +8,14 @@ local function messages_slack_window_rect_fn()
     )
 end
 
-local main_apps = {'Code', 'Cursor', 'DataGrip', 'IntelliJ IDEA', 'TablePlus', 'Bruno'}
+local main_apps = {
+    'Code',
+    'Cursor',
+    'DataGrip',
+    'IntelliJ IDEA',
+    'TablePlus',
+    'Bruno'
+}
 
 return {
     layout = {
@@ -31,8 +38,8 @@ return {
 
             { app = {'Firefox', 'Music'}, section = 3, categories = 'media' },
 
-            { app = 'Messages', fn = messages_slack_window_rect_fn(), categories = 'communications' },
-            { app = 'Slack',    fn = messages_slack_window_rect_fn(), categories = 'communications' },
+            { app = 'Messages', fn = messages_slack_rect_fn(), categories = 'communications' },
+            { app = 'Slack',    fn = messages_slack_rect_fn(), categories = 'communications' },
         }
     },
 

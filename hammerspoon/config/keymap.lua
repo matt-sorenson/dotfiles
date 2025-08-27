@@ -19,7 +19,8 @@ for team, hotkey in pairs(work.get_pr_hotkey_map()) do
     })
 end
 
--- If there are no PR hotkeys then remove the table so we don't have an empty sub-section
+-- If there are no PR hotkeys then remove the table
+-- so we don't have an empty sub-section
 if #pr_hotkeys == 0 then
     pr_hotkeys = nil
 end

@@ -2,7 +2,7 @@ local print = require('ms.logger').new('ms.layout')
 
 local fs = require 'ms.fs'
 local work = require 'ms.work'
-local window = require 'ms.window.window'
+local mswindow = require 'ms.window.window'
 
 local function _layout_score_str_tbl(array, str)
     return nil ~= table.find(array, function(e)
@@ -78,15 +78,18 @@ local function _layout_apply_to_window(self, category, window)
         if rule.section then
             self:move_window_to_section(window, rule.section)
         elseif rule.center then
-            window.center(window, screen)
+            mswindow.center(window, screen)
         elseif rule.resize_center then
-            window.resize_and_center(window, rule.resize_center[1], rule.resize_center[2], screen)
+            mswindow.resize_and_center(window, rule.resize_center[1], rule.resize_center[2], screen)
         elseif rule.fn then
-            window.move(window, rule.fn(window), screen)
+            mswindow.move(window, rule.fn(window), screen)
         elseif rule.rect then
-            window.move(window, rule.rect, screen)
+            mswindow.move(window, rule.rect, screen)
         else
-            error("layout:apply_to_window requires the rule to have one of rect, section, or center.")
+            error(
+                'layout:apply_to_window requires the rule to have one of ' ..
+                'rect, section, or center.'
+            )
         end
     end
 end
@@ -228,15 +231,24 @@ end
 local function filter_configs(screen_configs)
     if not work.is_work_computer() then
         print:debug("Filtering out work layouts.")
-        screen_configs = table.filter(screen_configs, function(v) return not v:is_work_computer() end)
+        screen_configs = table.filter(
+            screen_configs,
+            function(v) return not v:is_work_computer() end
+        )
     else
         print:debug("filtering out non-work layouts.")
-        screen_configs = table.filter(screen_configs, function(v) return v:is_work_computer() end)
+        screen_configs = table.filter(
+            screen_configs,
+            function(v) return v:is_work_computer() end
+        )
     end
 
     if #screen_configs > 1 then
         print:debug("Multiple screen layouts found, filtering out fallback layouts.")
-        screen_configs = table.filter(screen_configs, function(v) return not v:is_fallback() end)
+        screen_configs = table.filter(
+            screen_configs,
+            function(v) return not v:is_fallback() end
+        )
     end
 
     return screen_configs

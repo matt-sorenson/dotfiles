@@ -182,7 +182,8 @@ Options:
 
         local luacheck_errors
         if ! luacheck_errors="$(luacheck "$filename" "${luacheck_config[@]}" 2>&1)"; then
-            luacheck_errors="$(print "$luacheck_errors" | sed "s|$filename|$display_name|g")"
+            # Use awk for literal string replacement, safe for any characters
+            luacheck_errors="$(print "$luacheck_errors" | awk -v from="$filename" -v to="$display_name" '{gsub(from, to); print}')"
             file_errors+=("$luacheck_errors")
         fi
         ;;
@@ -190,7 +191,7 @@ Options:
         local zsh_errors
         # || true due to zsh returning an error on any errors, which we specifically want.
         if ! zsh_errors="$(zsh --no-exec "$filename" 2>&1)"; then
-            zsh_errors="$(print "$zsh_errors" | sed "s|$filename|$display_name|g")"
+            zsh_errors="$(print "$zsh_errors" | awk -v from="$filename" -v to="$display_name" '{gsub(from, to); print}')"
             # Split errors into array of lines
             file_errors+=("${(@f)zsh_errors}")
         fi
@@ -206,7 +207,7 @@ Options:
         local shellcheck_errors
         if ! shellcheck_errors="$(shellcheck "$filename" 2>&1)"; then
 
-            shellcheck_errors="$(print "$shellcheck_errors" | sed "s|$filename|$display_name|g")"
+            shellcheck_errors="$(print "$shellcheck_errors" | awk -v from="$filename" -v to="$display_name" '{gsub(from, to); print}')"
             file_errors+=("$shellcheck_errors")
         fi
         unset shellcheck_errors

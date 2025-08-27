@@ -283,8 +283,17 @@ local function modal_new(config, parent)
             title = nil
         end
 
-        parent:bind({ key = config.key, msg = title, fn = function() out:enter() end, skip_clear = true })
-        out:bind({ key = 'H', fn = function() modal_print_help(out) end, skip_clear = true })
+        parent:bind({
+            key = config.key,
+            msg = title,
+            fn = function() out:enter() end,
+            skip_clear = true
+        })
+        out:bind({
+            key = 'H',
+            fn = function() modal_print_help(out) end,
+            skip_clear = true
+        })
         out:bind({ key = 'escape', fn = escape_fn })
     end
 
@@ -344,7 +353,8 @@ local function test_normalize_mod()
     test.assert.equal(normalize_mod('alt'), '⌥', 'alt -> ⌥')
     test.assert.equal(normalize_mod('shift'), '⇧', 'shift -> ⇧')
     test.assert.equal(normalize_mod('fn'), 'FN', 'fn -> FN')
-    test.assert.equal(normalize_mod('super'), 'SUPER', 'super -> SUPER') -- fallback to upper if not mapped
+    -- fallback to upper if not mapped
+    test.assert.equal(normalize_mod('super'), 'SUPER', 'super -> SUPER')
 end
 
 local function test_dedup_mods_just_mods()

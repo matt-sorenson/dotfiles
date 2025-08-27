@@ -22,3 +22,5 @@ globals={
 
     'REMOTE_SHARES',
 }
+
+max_line_length = 100

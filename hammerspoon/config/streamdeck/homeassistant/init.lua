@@ -15,14 +15,20 @@ return {
                         ha.post('matt-office-blackout-shades:open')
                     end,
 
-                    icon = helpers.button_icon_label('mdi-roller-shade-open.png', 'Blackout', 'top'),
+                    icon = helpers.button_icon_label(
+                        'mdi-roller-shade-open.png',
+                        'Blackout',
+                        'top'),
                 },
                 [6] = {
                     on_press = function(_self, _deck)
                         ha.post('matt-office-blackout-shades:close')
                     end,
 
-                    icon = helpers.button_icon_label('mdi-roller-shade-closed.png', 'Blackout', 'top'),
+                    icon = helpers.button_icon_label(
+                        'mdi-roller-shade-closed.png',
+                        'Blackout',
+                        'top'),
                 },
 
                 [3] = {
@@ -45,14 +51,20 @@ return {
                         ha.post('matt-office-sheer-shades:open')
                     end,
 
-                    icon = helpers.button_icon_label('mdi-roller-shade-open.png', 'Sheer', 'top'),
+                    icon = helpers.button_icon_label(
+                        'mdi-roller-shade-open.png',
+                        'Sheer',
+                        'top'),
                 },
                 [8] = {
                     on_press = function(_self, _deck)
                         ha.post('matt-office-sheer-shades:close')
                     end,
 
-                    icon = helpers.button_icon_label('mdi-roller-shade-closed.png', 'Sheer', 'top'),
+                    icon = helpers.button_icon_label(
+                        'mdi-roller-shade-closed.png',
+                        'Sheer',
+                        'top'),
                 },
             }
         },

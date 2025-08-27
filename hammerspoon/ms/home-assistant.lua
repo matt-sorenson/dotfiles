@@ -67,7 +67,8 @@ end
         - `options`
         - `host` - the host to post to, default from 'config-home-assistant.lua'
         - `webhook_id` - the webhook id to use, default from 'config-home-assistant.lua'
-        - `headers` - a table of headers to include in the request (always sends `Content-Type: application/json`)
+        - `headers` - a table of headers to include in the request
+                      (always sends `Content-Type: application/json`)
         - `callback` - a function to call when the request completes, default to logger
 
     - Mostly configured to use a single webhook for all events, but can be

@@ -41,8 +41,15 @@ local deck = streamdeck.new(require('config.streamdeck'))
 
 if REMOTE_SHARES.config.home then
     local finder_modal = modal.children['global'].children['finder']
-    finder_modal:bind({ key = 'R', msg = 'Remote Home', fn = sys.select_app_fn('Finder', REMOTE_SHARES.config.home,
-    sys.open_finder_fn('/Volumes/' .. REMOTE_SHARES.config.home)) })
+    finder_modal:bind({
+        key = 'R',
+        msg = 'Remote Home',
+        fn = sys.select_app_fn(
+            'Finder',
+            REMOTE_SHARES.config.home,
+            sys.open_finder_fn('/Volumes/' .. REMOTE_SHARES.config.home)
+        )
+    })
 end
 
 local function on_device_change()
