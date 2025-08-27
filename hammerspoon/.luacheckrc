@@ -4,6 +4,7 @@ globals={
     'table.append',
     'table.compact',
     'table.deep_copy',
+    'table.deep_eq',
     'table.each',
     'table.filter',
     'table.find',
