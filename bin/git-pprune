@@ -1,0 +1,113 @@
+#! /usr/bin/env zsh
+#compdef git-pprune
+
+git-pprune() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage: git-pprune
+
+Prune local branches that have been deleted on the remote.
+
+Flags:
+  -h, --help      Show this help message
+  -f, --force     Force delete branches without confirmation
+
+Options:
+  -e, --exclude         Exclude by name
+  -p, --exclude-pattern Exclude by glob pattern (make sure to quote it!)"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    local -a exclude_names=()
+    local -a exclude_patterns=()
+
+    flags[force]=0
+    short_to_long_flags[f]=force
+
+    option_args[exclude]='array:exclude_names'
+    option_args[exclude-pattern]='array:exclude_patterns'
+    short_to_long_opts[e]='exclude'
+    short_to_long_opts[p]='exclude-pattern'
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then # Help was output
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    local lines branch
+    if ! lines=$(git branch -vv | grep '\[.*: gone\]'); then
+        print "No branches to prune."
+        return
+    fi
+
+    local fallback_branch
+    if git show-ref --verify --quiet refs/heads/main; then
+        fallback_branch=main
+    elif git show-ref --verify --quiet refs/heads/master; then
+        fallback_branch=master
+    fi
+
+    print-header cyan "Branches to prune:"
+
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+    local exclude_name exclude_pattern REPLY
+    print "$lines" | awk '$1 == "*" {print $2} $1 != "*" {print $1}' | while read -r branch; do
+        for exclude_name in "${exclude_names[@]}"; do
+            if [[ "$branch" == "$exclude_name" ]]; then
+                print "Skipping branch '$branch' due to exclude name '$exclude_name'."
+                continue 2
+            fi
+        done
+
+        for exclude_pattern in "${exclude_patterns[@]}"; do
+            if [[ "$branch" == $~exclude_pattern ]]; then
+                print "Skipping branch '$branch' due to exclude pattern '$exclude_pattern'."
+                continue 2
+            fi
+        done
+
+        if (( flags[force] )); then
+            if [[ "$branch" == "$current_branch" ]]; then
+                if [[ -v fallback_branch ]]; then
+                    git checkout "$fallback_branch"
+                else
+                    print-header -e "No fallback branch found, cannot delete the current branch."
+                    continue
+                fi
+            fi
+
+            if ! git branch -D "$branch"; then
+                print-header -e "Failed to delete branch '$branch'. It may not be fully merged."
+            fi
+        else
+            print -n "Delete branch '$branch'? [y/N] "
+            if read -q; then
+                if [[ "$branch" == "$current_branch" ]]; then
+                    if [[ -v fallback_branch ]]; then
+                        git checkout "$fallback_branch"
+                    else
+                        print-header -e "No fallback branch found, cannot delete the current branch."
+                        continue
+                    fi
+                fi
+
+                print
+                if ! git branch -D "$branch"; then
+                    print-header -e "Failed to delete branch '$branch'. It may not be fully merged."
+                fi
+            else
+                print
+                print "Skipped branch '$branch'."
+            fi
+        fi
+    done
+}
+
+git-pprune "$@"

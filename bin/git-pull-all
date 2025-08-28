@@ -1,0 +1,345 @@
+#! /usr/bin/env zsh
+#compdef git-pull-all
+
+git-pull-all() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage: git-pull-all
+
+- Fetch from remote
+- Stash any local changes.
+- For any local branch with a remote branch
+  - If the starting branch and --no-autostash was provided output a warning and continue
+  - Otherwise change to the branch and ff if possible or print a warning and continue if not
+- Checkout starting branch and unstash
+
+Options:
+  -4, --ipv4                Use IPv4 addresses only
+  -6, --ipv6                Use IPv6 addresses only
+  --all                     Fetch all remotes
+  --atomic                  Make a single atomic fetch
+  --[no-]auto-maintenance   Run maintenance after fetching
+  --[no-]auto-gc            Run git gc after fetching
+  --autostash               Stash local changes before applying to the current branch
+  -j <n>, --jobs <n>        Number of concurrent download jobs
+  -k, --keep                Keep the downloaded pack
+  --refetch                 Refetch the local repository
+  +p, --no-prune            Don't prune remote-tracking branches that no longer exist on the remote
+  --prune-tags              Prune remote-tracking tags that no longer exist on the remote
+  --stat                    Show a diffstat of what changed for each merge
+  -t, --[no-]tags           Fetch all tags
+  --[no-]write-fetch-head   Write list of remote refs to \${GIT_DIR}/FETCH_HEAD
+
+  --set-upstream            Set upstream reference for branches
+  --show-forced-updates     Always check for forced updates on branches
+  --unshallow               Unshallow the local repository
+  --update-shallow          Accept refs that require updating .git/shallow
+
+  -q, --quiet               Quiet mode
+  -v, --verbose             Verbose mode
+
+  -h, --help                Show this message
+
+Notes: This will only attempt to fast-foward branches."
+
+    local -a exclude_names=()
+    local -a exclude_patterns=()
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    flags[append]=0
+    flags[autostash]=0
+    flags[ipv4]=0
+    flags[ipv6]=0
+    flags[keep]=0
+    flags[prune-tags]=0
+    flags[prune]=1
+    flags[quiet]=0
+    flags[refetch]=0
+    flags[set-upstream]=0
+    flags[show-forced-updates]=0
+    flags[stat]=0
+    flags[tags]=0
+    flags[unshallow]=0
+    flags[update-shallow]=0
+    flags[verbose]=0
+    flags[write-fetch-head]=0
+
+    short_to_long_flags[a]=append
+    short_to_long_flags[6]=ipv6
+    short_to_long_flags[4]=ipv4
+    short_to_long_flags[t]=tags
+    short_to_long_flags[p]=prune
+    short_to_long_flags[k]=keep
+    short_to_long_flags[q]=quiet
+    short_to_long_flags[v]=verbose
+
+    option_args[jobs]=int
+    short_to_long_opts[j]=jobs
+
+    # fetch
+    flags[all]=0
+    flags[atomic]=0
+    flags[auto-maintenance]=1
+    flags[auto-gc]=1
+
+    # pprune
+    flags[force]=0
+    short_to_long_flags[f]=force
+
+    option_args[exclude]='array:exclude_names'
+    option_args[exclude-pattern]='array:exclude_patterns'
+    short_to_long_opts[e]='exclude'
+    short_to_long_opts[p]='exclude-pattern'
+
+    min_positional_count=0
+    max_positional_count=-1
+
+    ## Explicitly unsupported flags/options
+    ### --negotiation-tip=<commit> - Different behavior between fetch/pull
+    ### --porcelain
+    ### -f/--force (force is instead passed to `git pprune`, not `git fetch`)
+
+    ## Unsupported flags/options (but reasonable to do later)
+
+    ### Is Flag And/Or Option
+    #### --rebase=<false|true>
+    #### --recurse-submodules
+    #### --recurse-submodules-default=<>
+    #### --submodule-prefix=<path>
+
+    ### Fine to do later
+    #### --dry-run
+    #### --prefetch
+    #### --depth=<n>/--deepen=<n>/--shallow-since=<date>/--shallow-exclude=<ref>
+
+    ### Extra complexity/don't use but fine to do later
+    #### --unload-pack= <path>
+    #### --refmap=<refspec>
+
+    ### Fetch only
+    #### --multiple
+    #### --write-commit-graph
+    #### --stdin
+
+    ### Pull only
+    #### -u/--update-head-ok
+    #### --cleanup=<mode>
+    #### -S[<key>]/--gpg-sign[=<key>]
+    #### --log[=<n>]/--no-log
+    #### --signoff/--no-signoff
+    #### --stat/-n/--compact-summary
+    #### --squash
+    #### -s <strategy>/--strategy=<strategy>
+    #### -X <option>/--strategy-option=<option>
+    #### --verify-signatures
+    #### --gpg-sign
+    #### --verify
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then # Help was output
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    set -- "${positional_args[@]}"
+    local remote_name='origin'
+
+    if (( $# > 0 )); then
+        remote_name="$1"
+        shift
+    fi
+    local -a refspecs=("$@")
+    set -- # Clear positional args
+
+    local -a fetch_flags=()
+
+    (( flags[all] )) && fetch_flags+=(--all)
+    (( flags[append] )) && fetch_flags+=(--append)
+    (( flags[atomic] )) && fetch_flags+=(--atomic)
+    (( flags[ipv4] )) && fetch_flags+=(--ipv4)
+    (( flags[ipv6] )) && fetch_flags+=(--ipv6)
+    (( flags[keep] )) && fetch_flags+=(--keep)
+    (( flags[prune-tags] )) && fetch_flags+=(--prune-tags)
+    (( flags[prune] )) && fetch_flags+=(--prune)
+    (( flags[quiet] )) && fetch_flags+=(--quiet)
+    (( flags[refetch] )) && fetch_flags+=(--refetch)
+    (( flags[set-upstream] )) && fetch_flags+=(--set-upstream)
+    (( flags[show-forced-updates] )) && fetch_flags+=(--show-forced-updates)
+    (( flags[tags] )) && fetch_flags+=(--tags)
+    (( flags[unshallow] )) && fetch_flags+=(--unshallow)
+    (( flags[update-shallow] )) && fetch_flags+=(--update-shallow)
+    (( flags[verbose] )) && fetch_flags+=(--verbose)
+    (( flags[write-fetch-head] )) && fetch_flags+=(--write-fetch-head)
+
+    local -a flags_with_no=(
+        "all"
+        "auto-gc"
+        "auto-maintenance"
+        "set-upstream"
+        "show-forced-updates"
+        "tags"
+        "write-fetch-head"
+    )
+
+    local flag
+    for flag in "${flags_with_no[@]}"; do
+        if [[ -v set_flags[flag] ]] && (( ! flags[flag] )); then
+            fetch_flags+=(--no-${flag})
+        fi
+    done
+
+    if [[ -v options[jobs] ]]; then
+        fetch_flags+=("--jobs=${options[jobs]}")
+    fi
+
+    ############################################################################
+    ## Fetch from remote
+    ############################################################################
+    print-header cyan "Fetching from '$remote_name'"
+    local -i exit_code=0
+    local fetch_out
+    fetch_out="$(git fetch "${fetch_flags[@]}" "$remote_name" "${refspecs[@]}")" || exit_code=$?
+
+    if (( exit_code )); then
+        print-header -e "Failed to fetch from '$remote_name'"
+        print "${fetch_out}"
+        return 1
+    fi
+
+    ############################################################################
+    ## prune remote-tracking branches that no longer exist on the remote
+    ############################################################################
+    local -a pprune_args=()
+    (( flags[force] )) && pprune_args+=(--force)
+
+    local exclude
+    for exclude in "${exclude_names[@]}"; do
+        pprune_args+=(--exclude "${exclude}")
+    done
+
+    for exclude in "${exclude_patterns[@]}"; do
+        pprune_args+=(--exclude-pattern "${exclude}")
+    done
+
+    print-header cyan "Pruning remote-tracking branches that no longer exist on the remote"
+    git-pprune "${pprune_args[@]}"
+
+    ############################################################################
+    ## FF Branches when able
+    ############################################################################
+    local -a branches=()
+    branches=($(git for-each-ref --format='%(refname:short) %(upstream:remotename)' refs/heads/ \
+      | awk -v remote="$remote_name" '$2 == remote {print $1}')) || exit_code=$?
+
+    if (( exit_code )); then
+        print-header -e "Failed to get list of local branches that have an upstream at '${remote_name}'."
+        return 1
+    fi
+
+    if (( ${#branches} == 0 )); then
+        print-header yellow "No local branches have an upstream at '$remote_name'"
+    fi
+
+    local -i has_stash=0
+    if !git status --porcelain &>/dev/null; then
+        has_stash=1
+        git stash -m '`git pull-all` stash'
+        print-header cyan 'Stashed local changes'
+
+        TRAPEXIT() {
+            local exit_code=$?
+
+            local stash_out
+            stash_out="$(git stash pop)" || {
+                exit_code=$?
+
+                print-header -e "Failed to pop stash"
+                if [[ -n "${stash_out}" ]]; then
+                    print "${stash_out}"
+                fi
+            }
+
+            return "${exit_code}"
+        }
+    fi
+
+    local starting_branch=$(git rev-parse --abbrev-ref HEAD)
+
+    local -a failed_branches=()
+
+    local branch current_branch starting_ref end_ref remote_ref checkout_out
+    for branch in "${branches[@]}"; do
+        current_branch="$(git rev-parse --abbrev-ref HEAD)"
+        if [[ "${current_branch}" != "${branch}" ]]; then
+            checkout_out="$(git checkout "${branch}" 2>&1)" || {
+                print-header -e "Failed to checkout branch '${branch}'"
+                if [[ -n "${checkout_out}" ]]; then
+                    print "${checkout_out}"
+                fi
+                return 1
+            }
+        fi
+
+        starting_ref="$(git rev-parse --short HEAD)"
+        remote_ref="$(git rev-parse --short "${remote_name}/${branch}")"
+
+        if [[ "${starting_ref}" == "${remote_ref}" ]]; then
+            print-header green "Branch '${branch}' is up to date"
+            continue
+        fi
+
+        if [[ "${starting_branch}" == "${branch}" ]]; then
+            if (( has_stash && ! flags[autostash] )); then
+                if [[ -v flags_set[autostash] ]]; then
+                    print-header -w "Skipping branch '${branch}' because it has local changes and --no-autostash was provided"
+                else
+                    print-header -w "Skipping branch '${branch}' because it has local changes and --autostash was not provided"
+                fi
+                failed_branches+=( "${branch}" )
+                continue;
+            fi
+        fi
+
+        local merge_out
+        merge_out="$(git merge --ff-only "${remote_name}/${branch}")" || {
+            print-header -e "Failed to merge branch '${branch}'"
+            if [[ -n "${merge_out}" ]]; then
+                print "${merge_out}"
+            fi
+            failed_branches+=( "${branch}" )
+            print "Continuing..."
+        }
+        unset merge_out
+
+        end_ref="$(git rev-parse --short HEAD)"
+
+        print-header cyan "Merged branch '${branch}' from '${starting_ref}' to '${end_ref}'"
+
+        if (( flags[stat] )); then
+            git diff --stat "${starting_ref}..${end_ref}"
+        fi
+    done
+
+    local current_branch="$(git rev-parse --abbrev-ref HEAD)"
+    if [[ "${current_branch}" != "${starting_branch}" ]]; then
+        git checkout "${starting_branch}"
+    fi
+
+    if (( ${#failed_branches} > 0 )); then
+        print-header -e "Failed to merge the following branches:"
+        print "${failed_branches[*]}"
+        return 1
+    elif (( ${#branches} > 1 )); then
+        print-header green "All branches were updated successfully"
+    fi
+
+    return 0
+}
+
+git-pull-all "$@"
