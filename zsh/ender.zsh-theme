@@ -2,6 +2,8 @@
 
 setopt prompt_subst
 
+unsetopt prompt_subst
+
 zmodload zsh/datetime
 zmodload zsh/regex
 
@@ -194,7 +196,7 @@ _theme-ender-build-prompt-1() {
     _theme-ender-end-segment
 }
 
-_theme-ender-build-prompt2() {
+_theme-ender-build-prompt-2() {
     theme run-segment pre-2
 
     _theme-ender-seg-time
@@ -214,8 +216,9 @@ _theme-ender-precmd() {
 
     _theme_ender_current_bg="NONE"
 
+    unsetopt prompt_subst
     PROMPT="${(e)$(_theme-ender-build-prompt-1)}
-${(e)$(_theme-ender-build-prompt2)} "
+${(e)$(_theme-ender-build-prompt-2)} "
 }
 
 +vi-git-untracked() {
@@ -258,13 +261,23 @@ ${(e)$(_theme-ender-build-prompt2)} "
 
 _theme-ender-git-count() {
     local title="$1"
-    local count=$2
-    local wrapper="${3:-()}"
+    local count=${2:-1}
+    local wrapper_str="${3:-()}"
+
+    local wrapper_open="${wrapper_str[1]}"
+    local wrapper_close="${wrapper_str[2]}"
+
+    if [[ "${wrapper_open}" == '[' ]]; then
+        wrapper_open='('
+    fi
+    if [[ "${wrapper_close}" == ']' ]]; then
+        wrapper_close=')'
+    fi
 
     if (( count > 1 )); then
-        hook_com[misc]+="${wrapper[1]}${title}=${count}${wrapper[2]}"
+        hook_com[misc]+="${wrapper_open}${title}=${count}${wrapper_close}"
     elif (( count )); then
-        hook_com[misc]+="${wrapper[1]}${title}${wrapper[2]}"
+        hook_com[misc]+="${wrapper_open}${title}${wrapper_close}"
     fi
 }
 
@@ -312,6 +325,8 @@ prompt-ender-setup() {
     setopt extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
+    theme clear-available-segments
+
     theme add-segment pre-cmd _theme-ender-precmd
 
     # Line 1
@@ -346,7 +361,7 @@ prompt-ender-setup() {
 
     # Define prompts.
     PROMPT="${(e)$(_theme-ender-build-prompt-1)}
-${(e)$(_theme-ender-build-prompt2)} "
+${(e)$(_theme-ender-build-prompt-2)} "
 }
 
 prompt-ender-setup "$@"
