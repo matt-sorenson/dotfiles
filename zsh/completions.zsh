@@ -345,7 +345,7 @@ _video-downloader() {
     _arguments -s \
         '(-h --help)'{-h,--help}'[Show help]' \
         '(-f --file)'{-u,--url}'[URL to download]:url: ' \
-        '(-u --url -f --file))'{-f,--file}'[File to download]:file:_files' \
+        '(-u --url -f --file)'{-f,--file}'[File to download]:file:_files' \
         '(-o --output)'{-o,--output}'[Output directory]:output:_directories' \
         '(-c --no-cleanup)--no-cleanup[Do not cleanup the "<batch-file>.done" file when the entire batch has finished.]' \
         '(-q --quiet --verbose)--verbose[Verbose output]' \
