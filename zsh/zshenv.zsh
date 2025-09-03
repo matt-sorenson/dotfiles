@@ -5,6 +5,20 @@ setopt warn_create_global # Be annoying about setting global variables
 typeset -g __vsc_prior_prompt
 typeset -g __vsc_prior_prompt2
 
+typeset -gA dotfiles_completion_functions=()
+
+if ! command -v compdef &> /dev/null; then
+    typeset -g _dot_compdef_function=1
+    compdef() {
+        if (( $# != 2)); then
+            print-header -e "compdef: Expected 2 arguments, got $#"
+            return 1
+        fi
+
+        dotfiles_completion_functions[$2]="$1"
+    }
+fi
+
 zmodload zsh/datetime
 ZSHENV_START_TIME=$EPOCHREALTIME
 

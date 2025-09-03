@@ -10,12 +10,10 @@ fi
 # Clean it back up.
 source "${DOTFILES}/zsh/path.zsh"
 
-export AT_WORK=0
+export DOT_AT_WORK=0
 if [[ -f "${DOTFILES}/local/is-work" ]]; then
-    AT_WORK=1
+    DOT_AT_WORK=1
 fi
-
-typeset -A dotfiles_completion_functions=()
 
 if [[ -r "${DOTFILES}/local/zsh/zshrc.zsh" ]]; then
     source "${DOTFILES}/local/zsh/zshrc.zsh"
@@ -104,6 +102,10 @@ bindkey -e
 # Initialize completion system
 ################################################################################
 
+if (( _dot_compdef_function )); then
+    unset -f compdef
+fi
+
 autoload -U compinit && compinit -i -d "${ZSH_COMPDUMP}"
 
 # This has some arrays/maps that are used for auto-completion
@@ -169,6 +171,8 @@ fi
 ################################################################################
 # Initialize ender zsh theme
 ################################################################################
+
+source "${DOTFILES}/zsh/zshrc/theme.zsh"
 
 source "${DOTFILES}/zsh/ender.zsh-theme"
 
