@@ -14,13 +14,30 @@ Arguments:
   <ls args>     Optional arguments to pass directly to ls.
 
 Options:
-  -- <ls args>  Anything passed in after -- will be passed directly to ls
+  --help                        Show this message
+  -l                            print long format (passed to ls as -l)
+  -1                            print one entry per line (passed to ls as -1)
+  -Q, --quote-name              Quote the names of non-printable characters in output (passed to ls as -Q)
+  +A, +a, --no-all              Do not pass in -A to ls
+  +h, --[no-]human-readable     Do not print entries in human readable format (by default -h is passed to ls if -l is passed in)
 
-  -h, --help    Show this message"
+  -- <ls args>      Anything passed in after -- will be passed directly to ls"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     flags[describe]=0
+    flags[all]=1
+    flags[long]=0
+    flags[human-readable]=0
+    flags[one-line]=0
+    flags[quote-name]=0
+
+    short_to_long_flags[a]=all
+    short_to_long_flags[A]=all
+    short_to_long_flags[l]=long
+    short_to_long_flags[h]=human-readable
+    short_to_long_flags[1]=one-line
+    short_to_long_flags[Q]=quote-name
 
     min_positional_count=0
     max_positional_count=1
@@ -41,14 +58,18 @@ Options:
     if (( flags[describe] )); then
         print -n "List the contents of a project directory"
         return 0
-    elif (( ! $# )); then
-        print-header -e "No project name provided."
-        print "Possible projects:"
-        ls "${extra_args[@]}" "${WORKSPACE_ROOT_DIR}"
-        return 1
     fi
 
-    local dir="${WORKSPACE_ROOT_DIR}/$1"
+    local dir="${WORKSPACE_ROOT_DIR}/${1:-}"
+
+    local ls_flags=''
+    (( flags[all] )) && ls_flags+='A'
+    (( flags[one-line] )) && ls_flags+='1'
+    (( flags[quote-name] )) && ls_flags+='Q'
+    (( flags[long] )) && ls_flags+='l' && (( flags[human-readable] )) && ls_flags+='h'
+
+    [[ -n "${ls_flags}" ]] && ls_flags="-${ls_flags}"
+
     if [[ ! -d "${dir}" ]]; then
         print-header -e "The directory '${dir}' does not exist."
         return 1
@@ -57,5 +78,5 @@ Options:
         dir="${dir}/"
     fi
 
-    ls "${extra_args[@]}" "${dir}"
+    ls "${ls_flags}" "${extra_args[@]}" "${dir}"
 }
