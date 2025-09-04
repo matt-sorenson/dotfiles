@@ -104,6 +104,7 @@ bindkey -e
 
 if (( _dot_compdef_function )); then
     unset -f compdef
+    unset _dot_compdef_function
 fi
 
 autoload -U compinit && compinit -i -d "${ZSH_COMPDUMP}"
