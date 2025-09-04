@@ -23,7 +23,7 @@ ws-clone() {
             notes=''
         fi
 
-        print "${cmd_name} [-h|--help][-s|--softlink <ln-dir>][-r|--root <root-dir>] <remote_url> [<local name>] [-- <git clone extra args>]
+        print "${cmd_name} [-h|--help][-s|--softlink <ln-dir>][-r|--root <root-dir>] <remote_url> [<local name>] [-- <git clone args>]
 
 Arguments:
   remote_url    The url to clone the repo from
@@ -34,7 +34,7 @@ Options:
   -r, --root <root-dir>     Root workspace directory, will clone into subdirectory. (default: \$WORKSPACE_ROOT_DIR)
   -s, --soft-link           Directory to create the softlink in
   --no-link                 Disable setting a softlink
-  --                        Any arguments after this are passed directly to the git clone${notes}"
+  -- <git clone args>       Anything passed in after -- will be passed directly to git clone${notes}"
     }
 
     TRAPEXIT() {

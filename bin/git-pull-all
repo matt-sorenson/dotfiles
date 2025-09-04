@@ -7,7 +7,7 @@ git-pull-all() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage: git-pull-all
+    local _usage="Usage: git-pull-all [-- <git fetch options>]
 
 - Fetch from remote
 - Stash any local changes.
@@ -38,8 +38,12 @@ Options:
   --unshallow               Unshallow the local repository
   --update-shallow          Accept refs that require updating .git/shallow
 
+  -f, --force               When pruning local branches don't ask for confirmation
+
   -q, --quiet               Quiet mode
   -v, --verbose             Verbose mode
+
+  -- <git fetch options>    Anything passed in after -- will be passed directly to git fetch
 
   -h, --help                Show this message
 
@@ -97,6 +101,8 @@ Notes: This will only attempt to fast-foward branches."
 
     min_positional_count=0
     max_positional_count=-1
+
+    allow_extra_args=1
 
     ## Explicitly unsupported flags/options
     ### --negotiation-tip=<commit> - Different behavior between fetch/pull
@@ -204,7 +210,7 @@ Notes: This will only attempt to fast-foward branches."
     print-header cyan "Fetching from '$remote_name'"
     local -i exit_code=0
     local fetch_out
-    fetch_out="$(git fetch "${fetch_flags[@]}" "$remote_name" "${refspecs[@]}")" || exit_code=$?
+    fetch_out="$(git fetch "${fetch_flags[@]}" "$remote_name" "${refspecs[@]}" "${extra_args[@]}")" || exit_code=$?
 
     if (( exit_code )); then
         print-header -e "Failed to fetch from '$remote_name'"

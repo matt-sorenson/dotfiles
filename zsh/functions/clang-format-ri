@@ -12,12 +12,14 @@ clang-format-ri() {
         return 1
     fi
 
-    local _usage="Usage: clang-format-ri [options] <source-path> -- [<clang-format-options>...]
+    local _usage="Usage: clang-format-ri [options] <source-path> [-- <clang-format-options>]
 Recursively format C++ source files in place using clang-format.
 
 Options:
   -e, --extension <exts>    List of extensions in a ':' seperated list
                             ex: '.cpp:.h:.hpp'
+  -- <clang-format-options>  Anything passed in after -- will be passed directly to clang-format
+
   -h, --help                Show this help message and exit"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"

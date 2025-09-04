@@ -10,10 +10,12 @@ ws-ls() {
     local _usage="Usage: ws-ls <project> [-- <ls args>]
 
 Arguments:
-  <project>   The project directory to list contents of.
-  <ls args>   Optional arguments to pass directly to ls.
+  <project>     The project directory to list contents of.
+  <ls args>     Optional arguments to pass directly to ls.
 
 Options:
+  -- <ls args>  Anything passed in after -- will be passed directly to ls
+
   -h, --help    Show this message"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
