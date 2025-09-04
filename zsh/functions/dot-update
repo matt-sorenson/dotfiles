@@ -7,6 +7,13 @@ dot-update() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
+    # This is used to prevent trying to immediately try updating again
+    # after the script restarts zsh and not everything updated successfully.
+    if [[ -v DOT_UPDATE_RESTART ]]; then
+        unset DOT_UPDATE_RESTART
+        return 0
+    fi
+
     local doomemacs_bin="${DOOMEMACS_BIN:-${HOME}/.config/emacs/bin/doom}"
 
     local _usage="dot-update [-h|--help][-g|--git][-l|--local][-b|--brew][-d|--doom] [--auto] [+z|--no-zrestart]
@@ -114,7 +121,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     fi
 
     if (( flags[dotfiles] )); then
-        print-header green "Updating dotfiles repo."
+        print-header cyan "Updating dotfiles repo."
         if [[ -d "${DOTFILES}" ]]; then
             local dotfiles_starting_commit="$(git rev-parse --short HEAD)"
 
@@ -126,7 +133,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
                     local hs_changes="$(git diff --name-only "$dotfiles_starting_commit" "$dotfiles_ending_commit" -- hammerspoon/))"
 
                     if [[ -n ${#hs_changes} ]]; then
-                        print-header green "Reloading hammerspoon"
+                        print-header cyan "Reloading hammerspoon"
                         hs -c "hs.reload()" | dot-indent-output -i 2
                     fi
                 fi
@@ -138,7 +145,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
         fi
     fi
 
-    print-header green "Updating plugins."
+    print-header cyan "Updating plugins."
     if (( flags[plugins] )); then
         local repos_to_update=( "${DOTFILES}"/plugins/*(/) ) # ZSH Does handle spaces in the glob correctly.
         local repo
@@ -155,7 +162,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     fi
 
     if [[ "${OSTYPE}" == darwin* ]] && (( flags[brew] )); then
-        print-header green "Updating brew."
+        print-header cyan "Updating brew."
 
         if brew update | dot-indent-output -i 2; then
             if ! brew upgrade | dot-indent-output -i 2; then
@@ -188,7 +195,7 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     fi
 
     if (( flags[doom] )); then
-        print-header green "Updating doom emacs."
+        print-header cyan "Updating doom emacs."
 
         if ! "${doomemacs_bin}" upgrade --aot --force --color; then
             print-header -e -i 2 "doom emacs failed to upgrade."
@@ -204,11 +211,16 @@ For all tasks the shortflag can use +<flag> to disable similar to --no-<task>."
     fi
 
     if (( flags[zrestart] )); then
-        print-header green "Restarting zsh"
-        zrestart
+        if (( out )); then
+            print-header -w "Something failed to update, restarting zsh."
+        else
+            print-header green "Succesfully Updated, restarting zsh."
+        fi
+        # zrestart replaces the current shell so the function never exits.
+        DOT_UPDATE_RESTART=1 zrestart
+    else
+        return $out
     fi
-
-    return $out
 }
 
 dot-update "$@"

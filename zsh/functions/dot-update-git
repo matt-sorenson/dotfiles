@@ -67,7 +67,7 @@ dot-update-git() {
         return 0
     elif [[ "$(git -C "$dir" rev-parse --show-toplevel 2> /dev/null)" != "$dir" ]]; then
         if (( ! flags[quiet] )); then
-            print-header blue "${log_dir}: Directory is not the root of a git repository, skipping"
+            print-header cyan "${log_dir}: Directory is not the root of a git repository, skipping"
         fi
         return 0
     fi
@@ -82,35 +82,30 @@ dot-update-git() {
 
     if (( ${#remotes} == 0 )); then
         if (( ! flags[quiet] )); then
-            print-header -w "${log_dir}: No git remote found, skipping update"
+            print-header cyan "${log_dir}: No git remote found, skipping update"
         else
             print "No git remote found, skipping update"
         fi
         return 0
     fi
 
-    git -C "${dir}" fetch
-
-    local branch
-    branch="$(git -C "${dir}" rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
-    if [[ -n "${branch}" ]]; then
-        if git -C "${dir}" merge-base --is-ancestor HEAD "${branch}"; then
-            git -C "${dir}" merge "${branch}"
-        elif ! git -C "${dir}" merge-base --is-ancestor "${branch}" HEAD; then
-            print-header -e "${log_dir}: Local branch has diverged from upstream"
-            return 1
-        fi
-    else
-        print-header -e "${log_dir}: No upstream branch found for $(git -C "${dir}" rev-parse --abbrev-ref HEAD)"
-        return 0
-    fi
+    git -C "${dir}" fetch || {
+        print-header -e "${log_dir}: Failed to fetch"
+        return 1
+    }
 
     git -C "${dir}" diff --quiet --ignore-submodules HEAD || {
         print-header -e "${log_dir}: Uncommitted changes found"
         return 1
     }
 
-    # Check if branch is behind or has diverged (but NOT just ahead)
+    local branch
+    branch="$(git -C "${dir}" rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)"
+    if [[ -z "${branch}" ]]; then
+        print-header cyan "${log_dir}: No upstream branch found for $(git -C "${dir}" rev-parse --abbrev-ref HEAD)"
+        return 0
+    fi
+
     local behind_ahead ahead behind
     if behind_ahead=$(git -C "${dir}" rev-list --left-right --count HEAD...@{u} 2>/dev/null); then
         ahead=$(print "${behind_ahead}" | awk '{print $1}')
@@ -120,8 +115,7 @@ dot-update-git() {
             print-header -e "${log_dir}: Branch has diverged from upstream. ${ahead} commits ahead and ${behind} commits behind"
             return 1
         elif (( behind > 0 )); then
-            print-header -e "${log_dir}: Branch is behind upstream by ${behind} commits"
-            return 1
+            git -C "${dir}" merge "${branch}"
         elif (( ahead > 0 )); then
             if (( ! flags[quiet] )); then
                 print "${log_dir}: Branch is ahead of upstream by ${ahead} commits"
