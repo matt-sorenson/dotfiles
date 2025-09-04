@@ -7,7 +7,7 @@ git-ppull() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage='Usage: git-ppull [options]
+    local _usage='Usage: git-ppull [options] [-- <git pull options>]
 
 Pull from origin & prune local branches that have been deleted on the remote.
 
@@ -17,10 +17,44 @@ Flags:
 
 Options:
   -e, --exclude         Exclude by name
-  -p, --exclude-pattern Exclude by glob pattern (make sure to quote it!)'
+  -p, --exclude-pattern Exclude by glob pattern (make sure to quote it!)
+  -- <git pull options> Anything passed in after -- will be passed directly to git pull'
 
-    git pull --prune "$@"
-    git-pprune "$@"
+    local -a exclude_names=()
+    local -a exclude_patterns=()
+
+    flags[force]=0
+    short_to_long_flags[f]=force
+
+    option_args[exclude]='array:exclude_names'
+    option_args[exclude-pattern]='array:exclude_patterns'
+    short_to_long_opts[e]='exclude'
+    short_to_long_opts[p]='exclude-pattern'
+
+    allow_extra_args=1
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then # Help was output
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    local -a prune_args=()
+    (( flags[force] )) && prune_args+=(--force)
+
+    local exclude
+    for exclude in "${exclude_names[@]}"; do
+        prune_args+=(--exclude "${exclude}")
+    done
+
+    for exclude in "${exclude_patterns[@]}"; do
+        prune_args+=(--exclude-pattern "${exclude}")
+    done
+
+    git pull --prune "${extra_args[@]}"
+    git-pprune "${prune_args[@]}"
 }
 
 git-ppull "$@"
