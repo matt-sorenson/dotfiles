@@ -20,6 +20,8 @@
     autoSetupRemote = true
 
 [alias]
+    st = stack
+
     # Attemps to do a force push but fails if the remote has diverged.
     # Only use this on branches others aren't using as you'll cause pain
     pushf = push --force-with-lease

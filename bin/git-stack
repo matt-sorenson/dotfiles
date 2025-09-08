@@ -7,74 +7,58 @@ git-stack() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage:
-git-stack [-h|--help] [-c|--clear] [-l|--lines <lines>]
-git-stack [-h|--help] [-c|--clear] <subcommand> <subcommand_args>
-
-Display the saved branch stack (oldest at the top, newest at the bottom).
+    local _usage="Usage: git-stack
 
 Subcommands:
-  init      Call 'git-stack-init' with the remaining arguments
-  push      Call 'git-pushb' with the remaining arguments
-  pop       Call 'git-popb' with the remaining arguments
-  clear     Clear the branch stack
+  init      Initialize the stack from the reflog
+  push      Push a branch onto the stack
+  pop       Pop a branch from the stack
+  clear     Clear the stack
+  show      Show the stack (default)
 
-Base Command:
-  -h, --help            Show this help message
-                          If a subcommand is provided after the flag then --help is passed to the subcommand
-  -l, --lines <lines>   Show a maximum of <lines> elements of the stack"
+init options:
+  +c, --no-clear        Do not clear the existing stack before adding to it.
 
-    local args=()
-    local subcmd
-    local subcmd_args=()
-    local -i clear=0
-    while (( $# )); do
-        if [[ "$1" == 'init' || "$1" == 'pop'|| "$1" == 'push' || "$1" == 'clear' ]]; then
-            subcmd="$1"
-            shift
-            break
-        elif [[ "$1" == '-h' || "$1" == '--help' ]]; then
-            subcmd_args+=("$1")
-        elif [[ "$1" == '-c' || "$1" == '--clear' ]]; then
-            clear=1
-        fi
-        args+=("$1")
-        shift
-    done
+push options:
+  -b, --branch <branch> Create a new branch and check it out
 
-    if [[ -v subcmd ]]; then
-        if (( clear )); then
-            git-stack clear
-        fi
+  -- <checkout options> Any options after -- will be passed to git checkout
 
-        if [[ "$subcmd" == 'init' ]]; then
-            git-stack-init "${subcmd_args[@]}" "$@"
-        elif [[ "$subcmd" == 'pop' ]]; then
-            git-popb "${subcmd_args[@]}" "$@"
-        elif [[ "$subcmd" == 'push' ]]; then
-            git-pushb "${subcmd_args[@]}" "$@"
-        elif [[ "$subcmd" == 'clear' ]]; then
+pop options:
+  +i, --no-init         Do not initialize the stack if it doesn't exist
 
-        fi
-        return
-    fi
+  -- <checkout options> Any options after -- will be passed to git checkout
 
-    # If no subcommand was provided then reset the args to the original args
-    set -- "${args[@]}" "$@"
-    unset args subcmd subcmd_args clear
+show options:
+  -l, --lines <lines>   Show a maximum of <lines> elements of the stack
 
-    local -i max_lines
+Common options:
+  -c, --clear   Clear the stack before calling the subcommand
+  -q, --quiet   Suppress some output messages
+  -h, --help    Show this message"
 
     eval "$(dot-parse-opts --dot-parse-opts-init)"
 
     flags[clear]=0
     flags[quiet]=0
+    flags[help]=0
+    flags[init]=0
     short_to_long_flags[c]=clear
     short_to_long_flags[q]=quiet
+    short_to_long_flags[h]=help
+    short_to_long_flags[i]=init
+
+    option_args[branch]=str
+    short_to_long_opts[b]=branch
 
     options[lines]=10000 # Absurdly large number to show all lines
     option_args[lines]=int:overwrite
     short_to_long_opts[l]=lines
+
+    allow_extra_args=1
+
+    min_positional_count=0
+    max_positional_count=2
 
     local dot_parse_code=0
     dot-parse-opts "$@" || dot_parse_code=$?
@@ -84,31 +68,182 @@ Base Command:
         return $dot_parse_code
     fi
 
-    # Find repo root
+    set -- "${positional_args[@]}"
+
+    # find repo root
     local repo_root
     repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-        print-header -e "Not a git repository.";
-        return 1;
+        print 'Not a git repository.' >&2
+        return 1
     }
 
     local stack_file="${repo_root}/.ms-popb-stack"
 
-    if (( flags[clear] )); then
+    local subcmd
+    if (( $# )); then
+        local subcmd="$1"
+        shift
+    else
+        subcmd='show'
+    fi
+
+    if [[ "${subcmd}" == 'help' ]]; then
+        print "${_usage}"
+        return 0
+    fi
+
+    if (( flags[clear] )) || [[ $# > 0 && "$1" == 'clear' ]]; then
         if [[ -f "$stack_file" ]]; then
             rm "${stack_file}"
 
             if (( ! flags[quiet] )); then
                 print-header green "Cleared branch stack."
             fi
+        elif (( ! flags[quiet] )); then
+            print-header yellow "Nothing to clear."
         fi
-    else
+    fi
+
+    local -a recall_args=()
+
+    if (( flags[quiet] )); then
+        recall_args+=('--quiet')
+    fi
+
+    # ensure stack file exists
+    touch "${stack_file}"
+
+    local current_branch="$(git branch --show-current)"
+
+    case "$subcmd" in
+    clear) ;; # no-op as this was handled above
+    init)
+        if (( ! flags[clear] )) && [[ ! -v flags_set[clear] ]]; then
+            git-stack clear "${recall_args[@]}"
+        fi
+
+        local -a branch_list=(${(f)"$(
+            git log -g HEAD --format="%gs" \
+                | grep '^checkout: moving from ' \
+                | sed 's/^checkout: moving from //' \
+                | awk -F ' to ' 'NF==2 { print $2 }'
+        )"})
+        # reverse the list, seems to handle spaces fine from testing.
+        branch_list=(${(Oa)branch_list[@]})
+
+        local prev_branch="${current_branch}"
+        local branch
+        local -i count=0
+        for branch in "${branch_list[@]}"; do
+            if git show-ref --verify --quiet "refs/heads/${branch}"; then
+                if [[ "$branch" != "$prev_branch" ]]; then
+                    prev_branch="$branch"
+
+                    print "${branch}" >> "${stack_file}"
+                    (( count += 1 ))
+                fi
+            fi
+        done
+
+        if (( ! flags[quiet] )); then
+            if (( count > 0 )); then
+                print-header green "$count branches added to the stack."
+            else
+                print-header cyan "No branches added to the stack."
+            fi
+        fi
+        ;;
+    push)
+        if (( ! $# )) && [[ ! -v options[branch] ]]; then
+            print-header -e "No branch specified and no branch option provided."
+            return 1
+        fi
+
+        local do_insert=1
+        if [[ -s "${stack_file}" ]]; then
+            local last_branch=$(tail -n 1 "${stack_file}")
+            if [[ "${last_branch}" = "${current_branch}" ]]; then
+                do_insert=0
+            fi
+        fi
+
+        if (( do_insert )); then
+            print "${current_branch}" >> "${stack_file}"
+        fi
+
+        local push_args=()
+        if [[ -v options[branch] ]]; then
+            push_args+=("-b" "${options[branch]}")
+        else
+            push_args+=("$1")
+        fi
+
+        git checkout "${push_args[@]}" "${extra_args[@]}"
+        ;;
+    pop)
+        local target_branch
+
         if [[ ! -s "${stack_file}" ]]; then
-            if (( ! flags[quiet] )); then
-                print-header yellow "Branch stack is empty."
+            if [[ ! -v flags_set[init] ]] || (( flags[init] )); then
+                print-header cyan "Stack is empty, initializing stack"
+
+                git-stack init "${recall_args[@]}"
+            elif git show-ref --quiet --verify refs/heads/master; then
+                target_branch=master
+                print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
+            elif git show-ref --quiet --verify refs/heads/main; then
+                target_branch=main
+                print "${fg_bold[yellow]}No branches in stack, checking out ${fg_bold[cyan]}$target_branch$reset_color" >&2
+            else
+                # Fall back to the last checked out branch
+                target_branch="$(git rev-parse --abbrev-ref '@{-1}')"
             fi
         else
-            nl -n rz -w 3 "${stack_file}" | tail -n "${options[lines]}"
+            target_branch=$(tail -n 1 "${stack_file}")
+
+            local stack_contents
+            stack_contents="$(sed '$d' "${stack_file}")"
+            print -n "${stack_contents}" >! "${stack_file}"
+            unset stack_contents
         fi
+
+        if [[ "${target_branch}" = "${current_branch}" ]]; then
+            if [[ -s "${stack_file}" ]]; then
+                git-stack pop --no-init "${recall_args[@]}" -- "${extra_args[@]}"
+            else
+                print-header green --icon ✅ "You are already on '${target_branch}'"
+            fi
+
+            return 0
+        fi
+
+        git checkout "${target_branch}" "${extra_args[@]}" || {
+            print-header -e "Failed to checkout branch '${target_branch}'"
+            return 1
+        }
+        ;;
+    show)
+        if (( flags[clear] )); then
+            return 0
+        fi
+
+        # Show stack
+        if [[ -s "${stack_file}" ]]; then
+            nl -n rz -w 3 "${stack_file}" | tail -n "${options[lines]}"
+        else
+            print-header yellow "Branch stack is empty."
+        fi
+        ;;
+    *)
+        print-header -e "Invalid subcommand: $subcmd"
+        print "${_usage}"
+        return 1
+        ;;
+    esac
+
+    # File exists and is empty
+    if [[ -f "${stack_file}" && ! -s "${stack_file}" ]]; then
+        rm "${stack_file}" || print "Failed to remove empty stack file: ${stack_file}"
     fi
 }
 

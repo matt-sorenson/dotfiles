@@ -201,12 +201,10 @@ compdef _file-rep-headers file-rep-headers
 _git-add-ask() {
     _arguments -s '(-h --help)'{-h,--help}'[Show help]'
 }
-zstyle ':completion:*:*:git:*' user-commands add-ask:'Iterate through unstaged/untracked files, show a diff and ask to stage them.'
 
 _git-alias() {
     _arguments -s '(-h --help)'{-h,--help}'[Show help]'
 }
-zstyle ':completion:*:*:git:*' user-commands alias:'Show all the git aliases configured'
 
 _git-dag() {
     _arguments -s \
@@ -222,14 +220,6 @@ _git-dag() {
             ;;
     esac
 }
-zstyle ':completion:*:*:git:*' user-commands dag:'Show the git history as a directed acyclic graph'
-
-_git-popb() {
-    _arguments -s \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-q --quiet)'{-q,--quiet}'[Less output]' \
-        "--no-init[Don't initialize the stack file if it's empty]"
-}
 
 _git-ppull() {
     _arguments -C -s \
@@ -239,33 +229,165 @@ _git-ppull() {
         '(-p --exclude-pattern)'{-p,--exclude-pattern}'[Exclude branch names with a zsh glob]:exclude_pattern: '
 }
 
-_git-pushb() {
-    # While it's not a perfect 1:1 as calling git-checkout it does for pretty much
-    # all my use cases so reuse the _git-checkout completion function
-    _git-checkout
-}
-
 _git-stack() {
-    _arguments -s \
-        '(-c, --clean)'{-c,--clean}'[Clear the branch stack]' \
-        '(-h --help)'{-h,--help}'[Show help]'
-}
+    local -a subcommands=(help init pop push clear show)
 
-_git-stack-init() {
-    _arguments -s \
-        '(-h --help)'{-h,--help}'[Show help]' \
-        '(-q --quiet)'{-q,--quiet}'[Less output]' \
-        "--no-clear[Don't clear the stack file first]"
+    local -A allow_args=()
+    allow_args[help]=1
+    allow_args[clear]=1
+    allow_args[no_clear]=1
+    allow_args[quiet]=1
+    allow_args[init]=1
+    allow_args[no_init]=1
+    allow_args[branch]=1
+    allow_args[lines]=1
+    allow_args[subcmds]=0
+
+    local subcmd=''
+    local curr_word
+    if [[ -v words ]]; then
+        for curr_word in "${words[@]}"; do
+            if [[ "${curr_word}" == --help || "${curr_word}" == -h || "${curr_word}" == help ]]; then
+                _values
+                return
+            fi
+
+            if [[ "${curr_word}" == --clear || "${curr_word}" == --no-clear || "${curr_word}" == -c || "${curr_word}" == +c ]]; then
+                allow_args[clear]=0
+                allow_args[no_clear]=0
+            fi
+            if [[ "${curr_word}" == --quiet || "${curr_word}" == -q ]]; then
+                allow_args[quiet]=0
+            fi
+            if [[ "${curr_word}" == --init || "${curr_word}" == --no-init || "${curr_word}" == -i || "${curr_word}" == +i ]]; then
+                allow_args[init]=0
+                allow_args[no_init]=0
+            fi
+            if [[ "${curr_word}" == --branch || "${curr_word}" == -b ]]; then
+                allow_args[branch]=0
+            fi
+            if [[ "${curr_word}" == --lines || "${curr_word}" == -l ]]; then
+                allow_args[lines]=0
+            fi
+
+            if [[ "${curr_word}" != stack && "${curr_word}" != -* && -z "${subcmd}" ]]; then
+                subcmd="${curr_word}"
+            fi
+        done
+    fi
+
+    local prev_word="${words[$((CURRENT-1))]}"
+    if [[ "${prev_word}" == -b || "${prev_word}" == --branch ]]; then
+        __git_heads
+        return
+    fi
+
+    case "${subcmd}" in
+    help)
+        for key in "${(k)allow_args[@]}"; do
+            allow_args[${key}]=0
+        done
+        ;;
+    init)
+        allow_args[clear]=0
+        allow_args[init]=0
+        allow_args[no_init]=0
+        allow_args[branch]=0
+        allow_args[lines]=0
+        ;;
+    pop)
+        allow_args[clear]=0
+        allow_args[no_clear]=0
+        allow_args[init]=0
+        allow_args[branch]=0
+        allow_args[lines]=0
+        ;;
+    push)
+        allow_args[clear]=0
+        allow_args[no_clear]=0
+        allow_args[init]=0
+        allow_args[no_init]=0
+        allow_args[lines]=0
+        ;;
+    clear)
+        allow_args[clear]=0
+        allow_args[no_clear]=0
+        allow_args[init]=0
+        allow_args[no_init]=0
+        allow_args[branch]=0
+        allow_args[lines]=0
+        ;;
+    show)
+        allow_args[help]=1
+        allow_args[clear]=1
+        allow_args[no_clear]=1
+        allow_args[quiet]=1
+        allow_args[init]=1
+        allow_args[no_init]=1
+        allow_args[branch]=0
+        allow_args[lines]=0
+        ;;
+    *)
+        for key in "${(k)allow_args[@]}"; do
+            allow_args[${key}]=0
+        done
+
+        allow_args[subcmds]=1
+        ;;
+    esac
+
+    local -a descriptions=()
+    if (( allow_args[subcmds] )); then
+        descriptions+=(
+            'help:Show help'
+            'init:Initialize the stack from the reflog'
+            'pop:Pop a branch from the stack and check it out'
+            'push:Push the current branch onto the stack and check out a new one'
+            'clear:Clear the stack'
+            'show:Show the stack'
+        )
+    fi
+
+    if (( allow_args[branch] )); then
+        descriptions+=({-b,--branch}':Branch to push')
+    fi
+
+    if (( allow_args[lines] )); then
+        descriptions+=({-l,--lines}'Number of lines to show')
+    fi
+
+    if (( allow_args[quiet] )); then
+        descriptions+=({-q,--quiet}':Quiet mode')
+    fi
+
+    if (( allow_args[help] )); then
+        descriptions+=({-h,--help}':Show help')
+    fi
+
+    if (( allow_args[init] )); then
+        descriptions+=({-i,--init}':Initialize the stack file if it is empty.')
+    fi
+    if (( allow_args[no_init] )); then
+        descriptions+=({+i,--no-init}':Do not initialize the stack file if it is empty.')
+    fi
+
+    if (( allow_args[clear] )); then
+        descriptions+=({-c,--clear}':Clear the stack file first')
+    fi
+    if (( allow_args[no_clear] )); then
+        descriptions+=({+c,--no-clear}':Clear the stack file first')
+    fi
+
+     _describe -t commands "git stack subcommands" descriptions
 }
 
 zstyle \
     ':completion:*:*:git:*' user-commands \
     'dag:Displays the git commit history in a directed acyclic graph format' \
     'ppull:Pull and prune local branches that have been deleted on the remote' \
-    'popb:pop the last branch off your git stack and check it out' \
-    'pushb:push the current branch to the top of the stack and checkout the new branch' \
-    'stack:show your current git branch stack' \
-    'stack-init:Use the reflog to initialize a stack file for git-stack' \
+    'pprune:Prune local branches that have been deleted on the remote' \
+    'pull-all:Fetch from remote and update all local branches from remote' \
+    'stack:manage your git branch stack' \
     'pushf:Push the current branch to the default remote, use --force-with-lease to try to force push' \
     'gcf:Run a heavy duty cleanup of the local repo. Will clear the reflog, prune all branches, and delete all untracked files and directories.' \
     'authors:List all the authors of the current git repository' \
