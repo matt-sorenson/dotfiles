@@ -14,13 +14,12 @@ git-stack [-h|--help] [-c|--clear] <subcommand> <subcommand_args>
 Display the saved branch stack (oldest at the top, newest at the bottom).
 
 Subcommands:
-  init  Call 'git-stack-init' with the remaining arguments
-  push  Call 'git-pushb' with the remaining arguments
-  pop   Call 'git-popb' with the remaining arguments
+  init      Call 'git-stack-init' with the remaining arguments
+  push      Call 'git-pushb' with the remaining arguments
+  pop       Call 'git-popb' with the remaining arguments
+  clear     Clear the branch stack
 
 Base Command:
-  -c, --clear           Clear the branch stack
-                          If a subcommand is provided after this flag then the stack is cleared and the subcommand is executed
   -h, --help            Show this help message
                           If a subcommand is provided after the flag then --help is passed to the subcommand
   -l, --lines <lines>   Show a maximum of <lines> elements of the stack"
@@ -30,7 +29,7 @@ Base Command:
     local subcmd_args=()
     local -i clear=0
     while (( $# )); do
-        if [[ "$1" == 'init' || "$1" == 'pop'|| "$1" == 'push' ]]; then
+        if [[ "$1" == 'init' || "$1" == 'pop'|| "$1" == 'push' || "$1" == 'clear' ]]; then
             subcmd="$1"
             shift
             break
@@ -45,7 +44,7 @@ Base Command:
 
     if [[ -v subcmd ]]; then
         if (( clear )); then
-            git-stack --clear
+            git-stack clear
         fi
 
         if [[ "$subcmd" == 'init' ]]; then
@@ -54,9 +53,12 @@ Base Command:
             git-popb "${subcmd_args[@]}" "$@"
         elif [[ "$subcmd" == 'push' ]]; then
             git-pushb "${subcmd_args[@]}" "$@"
+        elif [[ "$subcmd" == 'clear' ]]; then
+
         fi
         return
     fi
+
     # If no subcommand was provided then reset the args to the original args
     set -- "${args[@]}" "$@"
     unset args subcmd subcmd_args clear

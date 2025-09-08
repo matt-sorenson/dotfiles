@@ -41,7 +41,7 @@ Options:
     fi
 
     local lines branch
-    if ! lines=$(git branch -vv | grep '\[.*: gone\]'); then
+    if ! lines=$(git -c color.ui=never branch -vv | grep '\[.*: gone\]'); then
         print "No branches to prune."
         return
     fi
@@ -58,7 +58,14 @@ Options:
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
 
     local exclude_name exclude_pattern REPLY
-    print "$lines" | awk '$1 == "*" {print $2} $1 != "*" {print $1}' | while read -r branch; do
+    local -a branches_to_prune=()
+
+    # Collect branches to prune into an array to avoid subshell issues
+    while IFS= read -r branch; do
+        branches_to_prune+=("$branch")
+    done < <(print "$lines" | awk '$1 == "*" {print $2} $1 != "*" {print $1}')
+
+    for branch in "${branches_to_prune[@]}"; do
         for exclude_name in "${exclude_names[@]}"; do
             if [[ "$branch" == "$exclude_name" ]]; then
                 print "Skipping branch '$branch' due to exclude name '$exclude_name'."
