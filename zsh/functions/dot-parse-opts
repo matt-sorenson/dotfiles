@@ -66,7 +66,9 @@ dot-parse-opts() {
     if (( $# == 1 )) && [[ "$1" == '--dot-parse-opts-init' ]]; then
         print '
 local -A flags=()
-local -A short_to_long_flags=()
+local -A short_to_long_flags=(
+    [h]=help
+)
 local -i allow_duplicate_flags=0
 local -A set_flags=()
 
@@ -93,10 +95,6 @@ local -A dot_parse_opts_errors=(
     local match mbegin mend
 
     local _usage="${_usage:-No usage info provided.}"
-
-    if [[ ! -v short_to_long_flags[h] ]]; then
-        short_to_long_flags[h]=help
-    fi
 
     local flag arg arg_list flag_or_no_flag arg_val array_name array_type
     while (( $# )); do
@@ -277,7 +275,7 @@ local -A dot_parse_opts_errors=(
                 # Pop the front of the list
                 arg_list=("${arg_list[@]:1}")
 
-                if [[ $arg == 'h' && short_to_long_flags[h] == 'help' ]]; then
+                if [[ $arg == 'h' && ${short_to_long_flags[h]} == 'help' ]]; then
                     if [[ -v flags[help] ]]; then
                         flags[help]=1
                     else
