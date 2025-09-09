@@ -22,8 +22,10 @@ Options:
 
     flags[test]=0
     short_to_long_flags[t]=test
+
     min_positional_count=1
     max_positional_count=1
+
     dot_parse_opts_errors[too-many-positional]="You may only specify 1 directory."
     dot_parse_opts_errors[too-few-positional]="You must specify a directory."
 

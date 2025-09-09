@@ -106,26 +106,6 @@ dot-safe-unset-function() {
     done
 }
 
-is-emoji() {
-    emulate -L zsh
-    set -uo pipefail
-    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
-    unsetopt short_loops
-
-    local -a exceptions=('❌' '✅')
-
-    if (( ${exceptions[(Ie)$1]} )); then
-        return 0
-    fi
-
-    local -i codepoint=$(printf '%d' "'$1")
-
-    (( (codepoint >= 0x1F600 && codepoint <= 0x1F64F) ||
-        (codepoint >= 0x1F300 && codepoint <= 0x1F5FF) ||
-        (codepoint >= 0x1F680 && codepoint <= 0x1F6FF) ||
-        (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
-}
-
 function() {
     emulate -L zsh
     set -uo pipefail
@@ -140,14 +120,14 @@ function() {
     for file in "${DOTFILES}/local/zsh/functions/"*(.N); do
         autoload -z "${file:t}"
     done
-}
 
-if [[ -v CURSOR_TRACE_ID ]]; then
-    function vseditor() {
-        cursor "$@"
-    }
-else
-    function vseditor() {
-        code "$@"
-    }
-fi
+    local uname=$(uname -r)
+    if [[ "${uname}" == *microsoft-standard* ]] && command -v ws &> /dev/null; then
+        wsl-clone() {
+            ws clone --cmd-name 'wsl-clone' --root "${WSL_WORKSPACE_ROOT_DIR}" --soft-line "${WORKSPACE_ROOT_DIR}" "$@"
+        }
+
+        # Because [wsl-clone] has the '-' in it we use this strange syntax...
+        typeset 'dotfiles_completion_functions[wsl-clone]'='_ws-clone'
+    fi
+}

@@ -1,0 +1,47 @@
+#! /usr/bin/env zsh
+#compdef is-emoji
+
+is-emoji() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage: is-emoji [-h|--help] <character>
+
+Checks if a character is an emoji.
+
+Options:
+  -h, --help    Show this message"
+
+    local arg
+    while (( $# )); do
+        if [[ "$1" == '-h' || "$1" == '--help' ]]; then
+            print "${_usage}"
+            return 0
+        fi
+        if [[ -v arg ]]; then
+            print-header -e "You may only provide one character."
+            print "${_usage}"
+            return 1
+        fi
+
+        arg="$1"
+        shift
+    done
+
+    local -a exceptions=('❌' '✅')
+
+    if (( ${exceptions[(Ie)$arg]} )); then
+        return 0
+    fi
+
+    local -i codepoint=$(printf '%d' "'$arg")
+
+    (( (codepoint >= 0x1F600 && codepoint <= 0x1F64F) ||
+        (codepoint >= 0x1F300 && codepoint <= 0x1F5FF) ||
+        (codepoint >= 0x1F680 && codepoint <= 0x1F6FF) ||
+        (codepoint >= 0x1F900 && codepoint <= 0x1F9FF) ))
+}
+
+is-emoji "$@"
