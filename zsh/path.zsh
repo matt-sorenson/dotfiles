@@ -118,7 +118,7 @@ local -a pnpm_dirs=(
 local pnpm_dir
 for pnpm_dir in "${pnpm_dirs[@]}"; do
     if [[ -d "${pnpm_dir}" ]]; then
-        PNPM_HOME="${pnpm_dir}"
+        export PNPM_HOME="${pnpm_dir}"
         add-to-path "${PNPM_HOME}"
         break;
     fi
