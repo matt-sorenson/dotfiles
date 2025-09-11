@@ -76,8 +76,8 @@ local config = {
             { key = '[shift] 2', msg = '2nd 1/3 of screen', fn = window.move_fn({ 1 / 3, 0, 1 / 3, 1 }) },
             { key = '[shift] 3', msg = '3rd 1/3 of screen', fn = window.move_fn({ 2 / 3, 0, 1 / 3, 1 }) },
 
-            { key = '[cmd,shift] 1', msg = '1st 1/2 of screen', fn = window.move_fn({ 0, 0, 1 / 2, 1 }) },
-            { key = '[cmd,shift] 2', msg = '2nd 1/2 of screen', fn = window.move_fn({ 1 / 2, 0, 1 / 2, 1 }) },
+            { key = '[ctrl,shift] 1', msg = '1st 1/2 of screen', fn = window.move_fn({ 0, 0, 1 / 2, 1 }) },
+            { key = '[ctrl,shift] 2', msg = '2nd 1/2 of screen', fn = window.move_fn({ 1 / 2, 0, 1 / 2, 1 }) },
 
             { key = '[shift] 5', msg = 'Resize to 1080p', fn = window.resize_fn(1920, 1080) },
             { key = 'F',         msg = 'Maximize',        fn = window.move_fn({ 0, 0, 1, 1 }) },

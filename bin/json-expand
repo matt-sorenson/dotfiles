@@ -1,0 +1,98 @@
+#! /usr/bin/env zsh
+#compdef json-expand
+
+json-expand() {
+    emulate -L zsh
+    set -uo pipefail
+    setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
+    unsetopt short_loops
+
+    local _usage="Usage: json-expand
+
+Options:
+  -h, --help    Show this message"
+
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
+    flags[write]=0
+    flags[quiet]=0
+    short_to_long_flags[w]=write
+    short_to_long_flags[q]=quiet
+
+    option_args[input]=r:file
+    option_args[json-path]=str
+    option_args[output]=str
+
+    short_to_long_opts[i]=input
+    short_to_long_opts[j]=json-path
+    short_to_long_opts[o]=output
+
+    min_positional_count=0
+    max_positional_count=0
+
+    local dot_parse_code=0
+    dot-parse-opts "$@" || dot_parse_code=$?
+    if (( -1 == dot_parse_code )); then # Help was output
+        return 0
+    elif (( dot_parse_code )); then
+        return $dot_parse_code
+    fi
+
+    if (( flags[write] )); then
+        if [[ -v options[output] ]]; then
+            print -u2 "Error: --write and --output are mutually exclusive."
+            print -u2 "$_usage"
+            return 1
+        else
+            options[output]="${options[input]}"
+        fi
+    fi
+
+    local output
+
+    # Use jq to update the value at the given path by parsing it as JSON
+    output="$(jq --arg path "${options[json-path]}" '
+      def set_by_path(path):
+        if (path | length) == 0 then .
+        else
+          . as $in
+          | (path[0] | tostring) as $key
+          | if (path | length) == 1 then
+              .[$key] = ($in[$key] | fromjson)
+            else
+              .[$key] = ($in[$key] | set_by_path(path[1:]))
+            end
+        end;
+
+      # Convert a jq-style path string (e.g., $.foo.bar[0]) to an array
+      def parse_path(s):
+        s | capture("\\$\\.(?<rest>.*)") | .rest
+         | split(".")
+         | map(
+             if test("\\[\\d+\\]$") then
+               capture("(?<key>[^\\[]+)\\[(?<idx>\\d+)\\]") | .key, (.idx|tonumber)
+             else
+               .
+             end
+           ) | flatten;
+
+      set_by_path(parse_path($path))
+    ' "${options[input]}")" || {
+        print-header -e "Failed to parse JSON at ${options[json-path]} in ${options[input]}"
+    }
+
+    if [[ -v options[output] ]]; then
+        print "${output}" > "${options[output]}"
+        if (( ! flags[quiet] )); then
+            if (( flags[write] )); then
+                print-header green "Replaced ${options[output]}"
+            else
+                print-header green "Wrote to ${options[output]}"
+            fi
+        fi
+    else
+        print "${output}"
+    fi
+}
+
+json-expand "$@"
