@@ -20,6 +20,8 @@ Options:
   -p, --exclude-pattern Exclude by glob pattern (make sure to quote it!)
   -- <git pull options> Anything passed in after -- will be passed directly to git pull'
 
+    eval "$(dot-parse-opts --dot-parse-opts-init)"
+
     local -a exclude_names=()
     local -a exclude_patterns=()
 
