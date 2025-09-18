@@ -31,7 +31,7 @@ Options:
     short_to_long_flags[f]=file
     short_to_long_flags[t]=type
 
-    if [[ "$OSTYPE" == darwin* ]]; then
+    if is-macos; then
         flags[keychain]=1
 
         if ! command -v ssh-add > /dev/null; then
@@ -48,7 +48,7 @@ Options:
         return $dot_parse_code
     fi
 
-    if [[ "$OSTYPE" != darwin* ]]; then
+    if !is-macos; then
         if (( flags[keychain] || flags[rotate-password] )); then
             print-header -e "SSH keychain support is only available on macOS."
             return 1

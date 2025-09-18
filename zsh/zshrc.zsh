@@ -22,7 +22,7 @@ fi
 # These are only in zshrc and not path.zsh as they shouldn't be set for non-interactive shells
 add-to-fpath "${DOTFILES}/local/zsh/completions"
 
-if [[ "${OSTYPE}" == darwin* ]]; then
+if is-macos; then
     # this file may have been recreated by brew updates.
     if [[ -e /opt/homebrew/share/zsh/site-functions/_git ]]; then
         print-header cyan "removing /opt/homebrew/share/zsh/site-functions/_git"

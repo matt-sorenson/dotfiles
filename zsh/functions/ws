@@ -80,7 +80,7 @@ Open a ${title} window with the given '\${WORKSPACE_ROOT_DIR}/<project>' working
     }
 
     TRAPEXIT() {
-        dot-safe-unset-function _ws-usage _ws-editor-usage
+        dot-safe-unset-functions _ws-usage _ws-editor-usage
     }
 
     # If no arguments are given then we just change to the workspace root directory

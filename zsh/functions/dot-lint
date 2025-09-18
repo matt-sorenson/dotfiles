@@ -79,7 +79,7 @@ dot-lint() {
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
     TRAPEXIT() {
-        dot-safe-unset-function \
+        dot-safe-unset-functions \
           _dot-lint-auto-detect-file-type \
           _dot-lint-hashbang
     }

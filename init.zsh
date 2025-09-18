@@ -216,15 +216,14 @@ main() {
         [ssh]=1
     )
 
-    local apt_specific_help=''
-    local mac_specific_help=''
+    local os_specific_help=''
     case "${OSTYPE}" in
         darwin*)
             flags[brew]=1
             flags[hammerspoon]=1
             flags[ssh_keychain]=1
             flags[base-emacs]=0
-            mac_specific_help="
+            os_specific_help="
   --no-brew          Do not install Homebrew
   --no-hammerspoon   Do not set up Hammerspoon
   --no-ssh-keychain  Do not set up the ssh key into the macOS keychain
@@ -233,7 +232,8 @@ main() {
         linux*)
             if command -v apt &> /dev/null; then
                 flags[apt]=1
-                apt_specific_help="\n  --no-apt.             Do not install packages using apt"
+                os_specific_help="
+  --no-apt.             Do not install packages using apt"
             fi
             ;;
         *)
@@ -241,7 +241,7 @@ main() {
     esac
 
     local _usage="Usage: init.sh [OPTIONS]
-Options:${mac_specific_help}${apt_specific_help}
+Options:${os_specific_help}
   --no-local-template   Disable initializing the local with basic files
   --work, -w            Set up local/is_work file so hammerspoon & scripts can detect work environment
   --local-git <url>     Use the specified git repo for local dotfiles

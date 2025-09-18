@@ -10,7 +10,7 @@
 # - Custom functions:
 #   - aws-signon (optional, be signed in already, or provide a command with --aws-signon-cmd)
 #   - print-header
-#   - dot-safe-unset-function - Cleanup function to clear out 'local' functions
+#   - dot-safe-unset-functions - Cleanup function to clear out 'local' functions
 
 repoman() {
     emulate -L zsh
@@ -119,7 +119,7 @@ Examples:
 
     # emulate `local -F` since it doesn't exist & return to starting directory.
     TRAPEXIT() {
-        dot-safe-unset-function \
+        dot-safe-unset-functions \
             _repoman-dump-commands \
             _repoman-format-header \
             _repoman-override-tasks \

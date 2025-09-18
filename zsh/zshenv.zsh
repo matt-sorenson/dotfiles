@@ -7,6 +7,39 @@ typeset -g __vsc_prior_prompt2
 
 typeset -gA dotfiles_completion_functions=()
 
+if [[ "${OSTYPE}" == darwin* ]]; then
+    is-macos() {
+        return 0
+    }
+
+    is-linux() {
+        return 1
+    }
+
+    export BROWSER='open'
+elif [[ "${OSTYPE}" == *linux* ]]; then
+    is-macos() {
+        return 1
+    }
+
+    is-linux() {
+        return 0
+    }
+
+    # Debian likes to call compinit with...
+    skip_global_compinit=1
+fi
+
+if [[ "$(uname -r)" == *microsoft-standard* ]]; then
+    is-wsl() {
+        return 0
+    }
+else
+    is-wsl() {
+        return 1
+    }
+fi
+
 if ! command -v compdef &> /dev/null; then
     typeset -g _dot_compdef_function=1
     compdef() {
@@ -28,20 +61,21 @@ export LANG=en_US.UTF-8
 export DOTFILES="${DOTFILES:=${HOME}/.dotfiles}"
 export WORKSPACE_ROOT_DIR="${WORKSPACE_ROOT_DIR:-${HOME}/ws}"
 
-if [[ -r "${DOTFILES}/local/zsh/zshenv.zsh" ]]; then
-    source "${DOTFILES}/local/zsh/zshenv.zsh"
-fi
+ssource() {
+    if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        print-header -e "Usage: source <file>
+
+    Source a file if it exists and is readable."
+    elif [[ -r "$1" ]]; then
+        source "$1"
+    fi
+}
+
+ssource "${DOTFILES}/local/zsh/zshenv.zsh"
 
 source "${DOTFILES}/zsh/path.zsh"
 source "${DOTFILES}/zsh/zshenv/nvm.zsh"
 source "${DOTFILES}/zsh/zshenv/aliases.zsh"
-
-if [[ "${OSTYPE}" == darwin* ]]; then
-    export BROWSER='open'
-elif [[ "${OSTYPE}" == *linux* ]]; then
-    # Debian likes to call compinit with...
-    skip_global_compinit=1
-fi
 
 if command -v brew &> /dev/null; then
     export HOMEBREW_NO_ANALYTICS=1
@@ -74,60 +108,37 @@ fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
 
-if [[ -r "${HOME}/.cargo/env" ]]; then
-    source "${HOME}/.cargo/env"
-fi
+ssource "${HOME}/.cargo/env"
 
 if command -v rbenv > /dev/null ; then
     eval "$(rbenv init -)"
 fi
 
-dot-safe-unset-function() {
-    local functions=()
-
-    while (( $# )); do
-        if [[ "$1" == "-h" || "$1" == "--help" ]]; then
-            print-header -e "Usage: dot-safe-unset-function <function_name>...
-
-    For each function name provided check that it is a function and if so unset it.
-
-    Options:
-    -h, --help  Show this help message and exit"
-            return 0
-        elif [[ "$(type -w $1)" == *": function" ]]; then
-            functions+=("$1")
-        fi # Silently ignore non-function arguments
-        shift
-    done
-
-    local func
-    for func in "${functions[@]}"; do
-        unset -f "$func"
-    done
-}
-
-function() {
+dot-autoload-dir-files() {
     emulate -L zsh
     set -uo pipefail
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local file
-    for file in "${DOTFILES}/zsh/functions/"*(.N); do
-        autoload -z "${file:t}"
-    done
+    if [[ -d "$1" ]]; then
+        add-to-fpath "$1"
 
-    for file in "${DOTFILES}/local/zsh/functions/"*(.N); do
-        autoload -z "${file:t}"
-    done
-
-    local uname=$(uname -r)
-    if [[ "${uname}" == *microsoft-standard* ]] && command -v ws &> /dev/null; then
-        wsl-clone() {
-            ws clone --cmd-name 'wsl-clone' --root "${WSL_WORKSPACE_ROOT_DIR}" --soft-line "${WORKSPACE_ROOT_DIR}" "$@"
-        }
-
-        # Because [wsl-clone] has the '-' in it we use this strange syntax...
-        typeset 'dotfiles_completion_functions[wsl-clone]'='_ws-clone'
+        local file
+        for file in "$1"*(.N); do
+            autoload -z "${file:t}"
+        done
     fi
 }
+
+dot-autoload-dir-files "${DOTFILES}/zsh/functions/env/"
+dot-autoload-dir-files "${DOTFILES}/zsh/functions/"
+dot-autoload-dir-files "${DOTFILES}/local/zsh/functions/"
+
+if is-wsl && command -v ws &> /dev/null; then
+    wsl-clone() {
+        ws clone --cmd-name 'wsl-clone' --root "${WSL_WORKSPACE_ROOT_DIR}" --soft-line "${WORKSPACE_ROOT_DIR}" "$@"
+    }
+
+    # Because [wsl-clone] has the '-' in it we use this strange syntax...
+    typeset 'dotfiles_completion_functions[wsl-clone]'='_ws-clone'
+fi

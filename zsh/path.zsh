@@ -96,12 +96,6 @@ add-to-fpath() {
     add-to-path -f --add-to-fpath "$@"
 }
 
-# osx /etc/zprofile borks the path so fix it...
-if [[ -x /usr/libexec/path_helper ]]; then
-    path=()
-    eval "$(/usr/libexec/path_helper -s)"
-fi
-
 add-to-path "/usr/local/bin"
 add-to-path "/usr/local/sbin"
 add-to-path "${DOTFILES}/bin"
@@ -128,5 +122,6 @@ unset pnpm_dirs pnpm_dir
 add-to-path '/opt/homebrew/bin'
 add-to-path '/opt/homebrew/sbin'
 
+add-to-fpath "${DOTFILES}/zsh/functions/env"
 add-to-fpath "${DOTFILES}/zsh/functions"
 add-to-fpath "${DOTFILES}/local/zsh/functions"
