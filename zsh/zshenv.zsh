@@ -1,3 +1,6 @@
+zmodload zsh/datetime
+ZSHENV_START_TIME=$EPOCHREALTIME
+
 setopt warn_create_global # Be annoying about setting global variables
 
 # These are global variables that are created by VSCode integration but aren't
@@ -51,9 +54,6 @@ if ! command -v compdef &> /dev/null; then
         dotfiles_completion_functions[$2]="$1"
     }
 fi
-
-zmodload zsh/datetime
-ZSHENV_START_TIME=$EPOCHREALTIME
 
 autoload -Uz colors && colors
 
