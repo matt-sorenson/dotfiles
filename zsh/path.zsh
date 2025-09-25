@@ -96,12 +96,14 @@ add-to-fpath() {
     add-to-path -f --add-to-fpath "$@"
 }
 
+add-to-path '/opt/homebrew/bin'
+add-to-path '/opt/homebrew/sbin'
+
 add-to-path "/usr/local/bin"
 add-to-path "/usr/local/sbin"
-add-to-path "${DOTFILES}/bin"
-add-to-path "${DOTFILES}/local/bin"
 add-to-path "${HOME}/bin"
-add-to-path "${HOME}/.rbenv/bin"
+add-to-path "${DOTFILES}/local/bin"
+add-to-path "${DOTFILES}/bin"
 add-to-path "${HOME}/.config/emacs/bin"
 
 local -a pnpm_dirs=(
@@ -118,9 +120,6 @@ for pnpm_dir in "${pnpm_dirs[@]}"; do
     fi
 done
 unset pnpm_dirs pnpm_dir
-
-add-to-path '/opt/homebrew/bin'
-add-to-path '/opt/homebrew/sbin'
 
 add-to-fpath "${DOTFILES}/zsh/functions/env"
 add-to-fpath "${DOTFILES}/zsh/functions"
