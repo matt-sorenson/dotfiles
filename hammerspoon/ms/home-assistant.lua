@@ -8,7 +8,7 @@ local function get_ha_config()
     end)
 
     if not success then
-        print:error("Failed to load config-home-assistant", result)
+        print:warn("No config-home-assistant file to load", result)
 
         result = {}
     elseif 'table' ~= type(result) then

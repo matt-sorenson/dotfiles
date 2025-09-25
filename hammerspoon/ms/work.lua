@@ -19,7 +19,7 @@ end
 
 local function init()
     if not pcall(inner_init) then
-        print:error("Failed to load pr-teams config")
+        print:warn("No pr-teams.lua config file to load.")
         config = {}
     end
 end

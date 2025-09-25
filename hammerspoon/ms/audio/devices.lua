@@ -40,7 +40,11 @@ local function get_input_device_by_name(name)
     if _config[name] then
         return hs.audiodevice.findInputByName(_config[name].device_name)
     else
-        return hs.audiodevice.findInputByName(name)
+        if device then
+            return device
+        else
+            return hs.audiodevice.defaultInputDevice()
+        end
     end
 end
 
@@ -49,7 +53,12 @@ local function get_output_device_by_name(name)
     if _config[name] then
         return hs.audiodevice.findOutputByName(_config[name].device_name)
     else
-        return hs.audiodevice.findOutputByName(name)
+        local device = hs.audiodevice.findOutputByName(name)
+        if device then
+            return device
+        else
+            return hs.audiodevice.defaultOutputDevice()
+        end
     end
 end
 
