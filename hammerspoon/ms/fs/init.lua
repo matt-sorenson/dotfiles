@@ -104,6 +104,9 @@ return {
     do_file_local  = function(file)
         return do_file_helper(file, PATHNAMES.LOCAL)
     end,
+    do_file_config = function(file)
+        return do_file_helper(file, PATHNAMES.CONFIG)
+    end,
 
     samba = require('ms.fs.samba'),
 }

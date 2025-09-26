@@ -212,13 +212,13 @@ end
 
 local function load_screen_configurations()
     local screen_configs = {}
-    local layout_files = fs.ls(fs.get_resource_path() .. '/layouts')
+    local layout_files = fs.ls(fs.get_config_path() .. '/layouts')
 
     table.each(layout_files, function(filename)
         if filename:match('.lua$') then
             local name = filename:gsub('.lua$', '')
             local file = '/layouts/' .. filename
-            local layout = _layout_new(fs.do_file_resources(file), name)
+            local layout = _layout_new(fs.do_file_config(file), name)
             if layout ~= nil then
                 table.insert(screen_configs, layout)
             end
