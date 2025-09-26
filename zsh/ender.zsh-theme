@@ -122,10 +122,17 @@ _theme-ender-seg-is-root() {
 
     local SU_PROMPT
     case $UID in
-        0) SU_PROMPT="${_theme_user_root}" ;;
-        *) SU_PROMPT="${_theme_user_other}" ;;
+        0)
+            SU_PROMPT="${_theme_user_root}"
+            ;;
+        *)
+            #SU_PROMPT="${_theme_user_other}"
+            ;;
     esac
-    _theme-ender-segment-print white black $SU_PROMPT
+
+    if [[ -v SU_PROMPT ]]; then
+        _theme-ender-segment-print white black $SU_PROMPT
+    fi
 
     theme run-segment post-is-root
 }
@@ -236,12 +243,10 @@ ${(e)$(_theme-ender-build-prompt-2)} "
 
     local repo_path="$(command git rev-parse --git-dir 2> /dev/null)";
 
-    if [[ -e "${repo_path}/BISECT_LOG" ]]; then
-        hook_com[branch]+=+='<B>'
-    elif [[ -e "${repo_path}/MERGE_AHEAD" ]]; then
-        hook_com[branch]+=+='>M<'
+    if [[ -e "${repo_path}/MERGE_AHEAD" ]]; then
+        hook_com[branch]+=+=">${_theme_vcs_merge}<"
     elif [[ -e "${repo_path}/rebase" || -e "${repo_path}/rebase-apply" || -e "${repo_path}/rebase-merge" || -e "${repo_path}/../.dotest" ]]; then
-        hook_com[branch]+=+='>R>'
+        hook_com[branch]+=+='>${_theme_vcs_rebase}>'
     fi
 
     if git rev-parse @{u} &> /dev/null; then

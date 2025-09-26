@@ -3,10 +3,12 @@ typeset -g _theme_checkmark='✓'
 
 typeset -g _theme_vcs_unstaged='±'
 typeset -g _theme_vcs_staged='+'
-typeset -g _theme_vcs_branch=''
-typeset -g _theme_vcs_detached='➦'
+#typeset -g _theme_vcs_branch='' # Powerlin
+typeset -g _theme_vcs_branch='' # Nerd Fonts only
+typeset -g _theme_vcs_merge='' # Nerd Fonts only
+typeset -g _theme_vcs_rebase='' # Nerd Fonts only
+typeset -g _theme_vcs_detached='➦' # Powerline
 typeset -g _theme_vcs_cross='✘'
-
 typeset -g _theme_vcs_ahead='↑'
 typeset -g _theme_vcs_behind='↓'
 
