@@ -1,0 +1,99 @@
+# 32 - Tentacle Porn and Boat Monsters
+
+## 📅 6th of Uktar, 15:22
+
+- Surrounding Hirakus a bunch of crack crack pop pops circle around him. Tentacles come out in a circle, breaking the ice around Hirakus, then start to pull him down into the water.
+- We need to save Hirakus. Ishemeal cast suggestion to the tenticles and he suggested them to return Hirakus back to the same spot.
+- As the tentacles were bring him down, they then came up and bring hirukas 4 feet above the ice.  The tentacles rest at Ishemeals feet and opens up gently. The tentacles are 10 ft long.
+- Hirakus moves away from the Tentacle s
+- The ice block that Hirakus is on is waving around
+- Hirakus and Ishemeals have a convo with the Tentacles .
+  - Hirakus ask why they gave him this power
+  - Tentacle says he needed the power?
+  - The Tentacle said he gave him food and power to last longer
+  - The Tentacle says Hirakus doesn't need him any more, so why did you come
+  - Ishemeal ask Hirakus what is this creature and what language
+  - Hirakus says: he doesn't know and deep speech
+  - Ishameal ask him if he can ask the Tentacle a question, he says yes
+  - Ishemeal speaks in deep speech, what is a Nautiloid?
+  - The Tentacle says, a creature of the sea.
+  - Ishamael says is that the dark duchess a nautiloid?
+    - Dark duchuess is Hirkauses ship
+  - The Tentacle says no the ship is not a nautiloaid
+  - Ishamel ask if he has strange thoughts, responds no not really.
+  - Ishamael ask the Tentacle why it save him, tentacle responds, more interesting, mores despeerate, the others were just food, uninteresting maggots.
+  - The Tentacle ask if hirkaus needs food
+  - Says hirakus used his power to kill his tentacles
+  - Ishameal says that they attacked first
+  - Tentacle says, hirakus does not need him and he shall go elsewhere
+  - To hirakus only: The tentacle says if you hunger again, need power, entertain me, you will find the way. Then shakes again, the tentacles receded back into the water and the ice became stable again
+- Otis searches all the suction cups for potential loot, there is none
+- We decide to take the tentacle to see if is yummy. First we cook it to see if it is worth cooking
+  - Otis and I taste it, kinda like squid/octopus but it taste foul and spicy and rotten, not great, spoiled eggs, terrible, too salty.
+  - I am able to stomach it
+  - Otis is poisoned and then vomits onto my chest. That minus one mead for Otis!
+  - I proceed to get the vomit off of my chest with snow, fuck Otis
+  - We take the tentacle anyways and put it on the summoned elks back
+- We arrive at the ship
+  - A big sea of ice
+  - A frozen desert
+  - In the middle is a ship covered in frost. It is encased in thick ice, this ship is not moving
+  - We hear loud creaking and snarls from within the ship
+  - I know it is not a common beast, its larger then a common beast, it is not a yeti.
+  - I tell everyone that
+  - Back of the ship has two exposed port windows, Otis tells me to go look, I thought he meant go in, send the owl
+  - Hirakus looks through the port hole and sees the captains room, which he knows since he was on the shipe
+    - We also can see the very feint outline of a human corpse. Special captian hat and coat.
+  - Headsquid flys around the top of the boat
+    - Main deck
+      - The boards are cracked from frost
+      - A large hole in the floor
+      - Heavy claw dug into the boards around the hole
+    - The front of the ship
+      - Deep grooves on the shipp
+    - Aft of the ship
+      - Just captains wheel
+  - Headsquid goes into the ship
+    - Rolls stealth
+    - Succeeds roll
+    - Can see a large creature underneath the deck
+    - A unknown creature that doesn't look friendly
+    - Creature seemed to be clawing at a door
+  - Hirakus tells us all the information.
+  - We decide to fight it, but maybe on the ship or on the ice.
+  - We decide to fight it on the boat, might be challenging to get onto the ship, but we can do it
+  - Thinking Ishamael can web the creature while its down below.
+  - Ishamael and I climb onto the ship stealthily so he can cast web.
+    - We see two sets of stairs  going downwards, entrance to the stairway is in the middle
+    - Ishamael message me ask me to guide him. And to go slowly.
+    - Hirakus moves Headsquid to be on the same floor on the other side of the hole
+    - I guide Ishamael to the hole in the floor, He hold his hand on my back
+    - I lead him to the hole and on our way we see a creature at the bottom of the stair way. It s trying to bash at a door there.
+    - Ishamael calls the rest of the crew so we can do this ambush.
+    - The crew comes and makes it to the tope of the ship and make a creaking sound once they rrive.
+    - The creature turns around looking at me with its eyes
+    - Combat ensues
+      - Greymond and I prepare to attack the creature once it comes up.
+      - Headsquid flaps in its face and flys away
+      - Ishamael turns on his lamp and stands on top of the boat that’s on the deck
+      - Otis moves over to us and cast a spell on Greymond and I for increased health
+      - Ice crystals start forming around the creature and goes up the stairs.
+      - As it reaches the top, Greymond and I both slice at him
+      - We deal a Solid starting blow. Total 26 damage
+      - The creature bites at Greymond two times, hits him once
+            - Greymond has cold resist? How? When? Where? Ok! A future mystry to dig into
+      - The creature also bites him hitting me once with a minor blow.
+      - Hirakus spawns his tentacle near the creature and blast him with his eldritch blast ut misses, His second eldritch blast hits for 8.
+      - Greymond takes his shield out and slices with his sword and hits multiple times doing olid hits
+      - Then greymond trips the creature and it is now prone.
+      - I go ham on this creature and rage, I do a double attack for 35 damage.
+      - Ishamale attacks the creature with toshas mind whip, limiting its actions later
+      - Otis then attacks twice with his war hammer, striking it twice, nearly klling it.
+      - The creature did some self healing and then did an ice aura that damaged us melee rew, minimal damage, Greymond and I resist.
+      - It attempts to bite at greymond and claw at me and a last attack at otis, missing very single attack. What a Slacker, this creature needs to git gud!
+      - Hirakus attempts a cold attack from its spawned tentacle, for science, has zero effect n the frost monster
+      - Then hirakus does his double eldritch blast, on hit misses, the other hits the reature in the balls and hits the stair way which cause the stairs to collapse
+      - Otis searches the dead Creature for loot, he finds: The creature is slumped over in he hold below now dead. It has no possessions
+      - While in the hold, Otis sees heaps with snow, in the starboard corner is a large pile f treasure covered in ice!!!!!
+      - Otis can hear little scuttling sounds...
+      - The party has Aid on them which last 8 hours, this increases max-hp

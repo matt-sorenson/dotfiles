@@ -1,0 +1,43 @@
+# 71 - What are we doing here?
+
+We head away from the Tower of Conjuration and towards a magic forests of sorts here in the city. The leaves on the trees are golden in color and they seem to sway without any presence of wind. The sky once we entered the forest flickers between a starry night sky and a heavy rain storm with flashes of lightning. No thunder could be heard from the flashes. All of this seems like some kind of illusion. There seems to be vents spewing out clouds making some resemblance of rain. The trees feel real to the touch, but otherwise nothing as far as I can tell seems amiss. Otis proclaims the rain tastes weird.
+
+Otis inquires with Prof. Mustache on Nether Oak wants to which we get a lengthy answer on how they're crafted and that the Nether Oak trees are in an arboretum in each city. Well, seems like we're in the right place if we can assume the map we got from the library is correct.
+
+I ask Jesus if he knows about the Nether Oak trees, but he knows nothing. In fast, Jesus doesn't seems to know nothing about anything in this city. From some further questions it seems he too is as new to the city as we are. Only nobles or higher class Netherese citizens lived in the "flying" cities and the rest of the population lived on the ground.
+
+After a little bit of search, Otis spots a "big weird tree with a weird tree face." Sure enough, there's a rather large tree with an older face moving in a rhythmic motion.
+
+The tree seems to talk. Some kind of magic talking tree. This older tree seems rather Grumpy and just wants to sleep in peace. We state that we're just looking to acquire some Nether Oak to make a wand and be on our way. Grumpy Tree tells us no and that we need a reason to have a wand. Asks us what we're going to do with the wand if we have one and we really don't have an answer besides opening the tower to loot it. The Grumpy Tree asks what are we going to do with the loot, and once again, none of us really have an answer. I suppose it's a good question of why are we here besides just helping Lynn?
+
+I get tired of all the random questions and state our real intent is to build a grand fighting arena and Grumpy Tree seems excited about that. Apparently the Grumpy Tree hates dragons for some reason and wants us to do battle with one of those. Grumpy Tree also is fond of the idea of being moved to watch these battles, though I'm not exactly sure about the mood of the arena with some grumpy tree commentary. In any case, Grumpy Tree was pleased and allows us to cut off a bit of the bark to craft a wand.
+
+Speaking of wand, we never really discussed who's going to perforce the ritual to open the seal on the tower. Graymond offers to carve up the wand. I ask Lynn if she would perform the ritual. She seems agreeable, but who knows what this ritual would entail. We only have two of the steps.
+
+We've make haste to the Tower of Divination, once again following the map from the library. So far it seems to be accurate as we arrive at a location that seems like one of the other wizard towers.
+
+As we arrive Otis spots some more of those one eyed monsters that attacked Thodurr back near Graymond's girlfriend's place. He flips them off and they scurry away. The important information right now is getting into the central tower and finding the parts to the wizard ritual.
+
+We attempt to enter the tower before us, but the entrance is barricaded. Graymond says the door has been welded shut. Otis pulls out his ram and Thodurr and Graymond go to work singing some dwarven song as they bash into the tower. Is there anything these dwarves cannot do?
+
+Inside we can see large spheres of various colors and sizes scattered on the ground. Dancing stars can be seen from around the room. Three constructs stand at the ready in the room with one being slightly different than what we've seen before. Graymond enters first. He pauses after entering and tells us something magically told him to leave. I respond that you should tell them we'll leave if we get the portion of the ritual from this tower. They just keep telling him to leave. Looks like we'll need to fight out way in. Our martial boys head in and make short work of the three sentinels as they burst into flames and their bodies disintegrate on death leaving only their material items they were wearing on the ground. I'm glad to see Graymond checking their pockets for anything important.
+
+We spend a few looking around the room after the skirmish. Graymond and Otis thinks the blue/green sphere looks like the globe we found in the library. Another looks like the broken moon that's in our sky. Hirakas pipes up saying we're in a "planetarium of the outer realm", according to the dragon script on the wall. Prof. Mustache's muffled voice from Lynn's bag says, "Outer realm is what the Netherese called 'space'."
+
+Well, we continued search around and the only way through more of the tower is a hatch that lead up. The boys proclaimed there's a wizard frog that apparently requires my specialty instead of Thodurr's. I crawl up the hatch and sure enough a giant frog like creature, which looks exactly like the one that killed Famed Local Hunter Milborne Taferact, but green, was standing speaking what sounds like Netherese. I consume a charge from this conversation rod we found and allow myself to understand the frog's speech.
+
+Frog just wants us to leave so they could do their work. I make some hand motions to allow me to boop it with the rod so we can speak freely and the frog reluctantly agrees. We learn a great ordeal of information from this frog, who's really the High Diviner Apius. She was once a Netherese who lived in the city when it fell from the sky. She died from a blue Sladd that killed her and she reincarnated as the green Sladd we see before us. We'll seek this blue Sladd at some later point in time. She wants to leave and asked us how we got in. I tell her of our entry by opening the glacier with some other ritual and give her directions to leave.
+
+High Diviner Apius informs us of the divination telescope here that lets you see anywhere, but the sight comes at some kind of cost. Otis willingly proceeds to use the telescope, with experience from the nipple mirror, to hunt for a book of hers that should have the divination ritual portion of the wizard rites. He finds the book laying in the broken Bazaar on our journey ahead. Otis also spots a five headed dragon at the wellspring also ahead and wants to fight it. Apparently the creature is 60ft tall, so of course we must do this. Nothing else seems amiss in the city from Apius's usage of the telescope, though she mentions that there's another Netherese wizard, Garfield, she's been keeping a watch on in the central tower.
+
+We head out with our next destination being the Wellspring. Otis smashes one of the orbs as we're leaving the tower and is given a boon of flight. Lynn was curious about the magical transference and touched another orb. That one gave her the powers to change the colors of the planetarium. Sadly the magic doesn't last very long and fades with the orbs losing the powers.
+
+We head off to the Wellspring and the five headed dragon. Once we arrive, Hirakas reads more of that dragon script saying that we're supposed to sit around the Wellspring and meditate and that the beast that lives down the well is a pentacle. Graymond prepares to start make the wand as Thodurr, Otis, and I sit down around the Wellspring and after a minute Thodurr learns that, "the city's elite wear silk robes". Otis learns that we need to go to the Obelisk with a "staff of power" to allow us to flow back time and make the city fly.
+
+I on the other hand didn't get any of that kind of knowledge. Instead I felt the probing of my mind. The feeling of being feasted on by the mind flayers and the linking of minds with this Wellspring entity. I feel is hunger, the desire to eat, and it surging up the well towards us. I mentally command the Shield Guardian to pull me back away from the Wellspring and shakingly croak out that the dragon is coming to fight.
+
+The party caught a little off guard thankfully trusts my word and prepares for this monstrosity to appear. The monster can be heard clawing its way up the sides of the well. Graymond and Thodurr standing ready, flanking from both sides of the well.
+
+The monster indeed has five heads and is as ugly as Otis said. Though with the early notice given the party makes quick work slaying the beast.
+
+- Ishamael

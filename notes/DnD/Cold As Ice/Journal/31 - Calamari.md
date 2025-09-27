@@ -1,0 +1,27 @@
+# 31 - Calamari?
+
+## 📅 5th of Uktar, 7pm
+
+Smell of sulfur lingers in the room from all the red ooze scattered across the prison’s meeting room. Valesh thanks us for the protection and inquires again about reading the letter that reduces his sentence. We request one last time if there’s anything the Arcane Brotherhood is doing and if he knows anything to speak up, but alas it seems he truly knows nothing, so I hand him the letter.
+
+We chat with the guards about how they were mind controlled. They describe how they just watched the red blob creature engulf Marta and how they were powerless and just watched. At least my abilities to touch the mind seemed to have come in handy to snap them out of whatever charm was placed on them.
+
+All the guards around the prison have regained control over their minds and are doing a headcount of all the prisoners as we return to courtyard. We chat with the guards a bit to see how many unaccounted prisoners they have. Four total missing. Two who could cast magic and two who didn’t. One of those was an assassin and another an older man who was initially cleaning the courtyard of the sewage backup.
+
+I suggest to the one guard that our contract with Marta requires our payment of 250g for our rendered services who agrees and goes to find a counselor as acting Warden to deliver payment since Marta died. Kriv Norixius, a dragonborn, comes to chat with us and inquires with us about the creature we slayed. We inform him of the abilities it possessed, people it killed, and how if we weren’t here this situation could have easily gotten out of hand. I sweet talk him about our contract with Marta, and in this case we were indeed needed which Kriv agrees and eventually procures the gold. Overall it seemed Kriv desired the position of the warden. We wrapped up after paying a small portion of respect to Marta. Even though we only knew her and that dwarven spirit for a short time it felt right. We head out of the prison and collect our weapons and animals and head away from the prison to set up camp for the night.
+
+In the morning Thodurr seems to have sprouted little moose antlers. More and more he seems to be getting it touch with his spiritual self; though I am a bit confused as I thought he said his parents were polar bears with the white fur hair he has and all. Either way it seems his intuition of the terrain and his spiritual guardians have given us a significant boost to our speed of travel allowing us to journey, in 8 hours, along the coastline of the Sea of Moving Ice from Rivel’s End, past Anajuk’s bell, to where Hirakas thinks his crashed ship is located. Easily this journey would have taken several days without Thodurr’s guidance.
+
+Hirakas tells us his story of how the ship he was on, the Dark Duchess, got stuck in the moving ice before the crew had to abandon and head for shore across the ice sheets. Though the most difficult part of Hirakas’s story was of how he “had to eat other crew members to survive.” It’s a bit savage, if you ask me, since he was the only one who made it to the mainland. In any case, Hirakas wanted to find out what remains of the ship, and we venture off onto the ice sheets leaving the animals behind after some words from Thodurr.
+
+During our walk out I stepped on a bone from one of Hirakas’s last dinners, so it seems. Though I was only able to find a single bone. At least this gave us an idea that we were headed in the right direction. We continue onwards. A few more sheets ahead the ice sheet we’re standing on shakes as five, Hirakas looking, large tentacles erupt from the ice around us.
+
+I give Graymond the blessings of haste and he dashes right to the nearest tentacle slashing away and dodging its surprisingly nimble attacks. I hope for the giant elk from the bag of tricks but get a small little weasel who quickly gets squashed by another one of the tentacles. Hirakas seems a bit confused at the hostility of these tenacles and inquiries to why they’re attacking in that strange language of his to which a gurgling reply of “feast” as its response.
+
+Otis summons his jacked, male, spirit guardian bros that start flying around him punching the large tentacles around us, but high fives Hirakas’s little tentacle. Thodurr rushes in in rage after the large tentacle that squashed the poor linen weasel and starts dicing it up with his greataxe. I pull forth another lint from the back in hopes of another elk which does indeed spring forth! I command it to strike at the tentacles attacking from behind and cast shield on myself as another tentacle attempts to slam me.
+
+Hirakas strikes out at two of the tentacles with a bolt of lightning killing the one that Graymond was focusing and severarly hurting the one that striked at me. Otis marches forward and finished off the crispy calamari with his mace. Thodurr dodges a swift swipe of one of the arms and retaliates with lobbing off the tentacle in a smooth swift motion of his axe. The giant elk stomps on one of the retreating tentacles leaving it motionless and Otis finishes it off with a touch of inflicting wounds. The elk then charges towards the last large monstrosity keeping it distracted enough for Graymond to rush in and slash part the final limb.
+
+Otis exclaims that it's now time to check these tentacle's pockets!
+
+- Ishamael

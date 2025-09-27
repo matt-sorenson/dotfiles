@@ -1,0 +1,21 @@
+# 60 - The Ballbusters Shopping Extravaganza
+
+We arrive at the gate of brynn shander with our full assortment of animals, alongside Vellyn's rotting legion of kobolds.
+
+We head to Brynn Shander's clothing store to pick up Ishamel's pimp suit and peruse their goods.  Ishamel gets his new outfit - a stunning Indigo ensemble with gold highlights.  A princely robe for our majestic senior citizen!  He picks up a new pair of fancy shoes to go with his robe - I decide to join in for a new pair myself, but Ishamel goes and pays for mine.  We end up hocking some loose jewelry to the clothing store for a cool 175gp.  Hirakas tries to buy himself a nice red outfit for 20 gold, but Ishamel steps in with some AGGRESSIVE bargaining to get the price down for our scaly friend.
+
+Ishamel enquires about a new loincloth for Thodurr, who begrudgingly agrees to be measured.  We settle on a leather loincloth with a sigil of Moose Horns and a Greataxe.  I take this opportunity to get the clothing of Famed Local Hunter Mylbor Tafferac repaired, so that I can better emulate my hero.
+
+We move on to Rendaril's emporium to see what wares we can offload.  As we enter, Ishamel removes his outer layer to reveal the utter, shocking resplendance that lies beneath.  The proprieter is shocked by the majesty on display as Ishamel begins negotiations.  We show him our items - he takes a particular interest in the spider chalice, but is willing to barter for everything.  After much discussion we end up trading for some Boots of the Winterlands, a bag of holding, an amulet of the drunkard and some potions(3x healing, 1xgrowth).  I also end up selling the magic growdwarf transformohat I've been holding onto before we move on.
+
+We move onto the speaker's house to deliver nimsey's letter and inform her of our heroism.  She seems surprised at how magnificent our exploits were, but comes to accept that we are the slayers of the Chardalyn Dragon and Auril(twice!) plus her delicious fire-breathing bird.  She doesn't have much to offer us due to the current amount of refugees staying in town, but she does agree to stop the lottery.  We bring up the idea of some Tempus-worshipping which she seems to be into.  We discuss Thodurr's mead production with the speaker, and she offers to refer people seeking mead to the Talking Moose.
+
+We next visit the house of the morninglord and retrieve the summer star - it's been charged by a solid 10 day of prayer from the priestess.  Ishamel asks for a book of prayer to try and learn how to charge this thing on our own.  The priestess writes some shit down and talks boring for a while, but we convince her we're legit and she writes down some prayers for Ishamel to use - we expect an hour of prayer a day to get it charged.
+
+We have some downtime so we set about crafting a golden reliquary to allow me to summon one of tempus' celestial allies.  I take my current holy symbol, a flaming sword amulet, to use as a base.  I stoneshape a small periapt to contain the remannts of the Auril juice I've been holding onto, and slot the sword amulet into the opening - symbolising Tempus' conquest of the lesser frigid bitch god.  With the help of the might warrior Graymond we seal it up with a healthy amount of gold - this is a indeed a worthy symbol of righteous conquest and I can't help but feel Tempus' approval.
+
+We next step into the Northlook and engage in conversation with Mr. Scramsax.  Ishamel, in full pimp resplendence, informs Scramsax and the tavern at large of our mighty deeds.  The crowd cheers the ball busters!  We inform them of the new Tempus Arena and scramsax pulls out a special tempus mug to show his devotion.  We force-pour him some of Thodurr's Mead of the Gods to enhance the celebration.  Scramsax promises to tell everyone he can about the Talking Moose and The Ballbusters Present: The Famed Local Hunter Mylbor Tafferac Memorial Arena and Fighting Pit.
+
+We finish out the night by picking up our items from teh clothing store - Thodurr's leather loincloth, the Fine Yeti-hide cloak, and my repaired Clothing of Famed Local Hunter Mylbor Tafferac.
+
+We plan to move on to easthaven to look at new armor for graymond and myself, and perhaps to the dwarven valley next.  We spend the night at the northlook and wake up in the morning.
