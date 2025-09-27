@@ -87,6 +87,12 @@ if [[ ! -v name ]]; then
 fi
 
 template="${DOTFILES}/templates/bin/new-script.zsh"
+
+if [[ "${name}" == */* ]]; then
+    bin_dir="${bin_dir}/$(dirname -- "${name}")"
+    name="$(basename -- "${name}")"
+fi
+
 target="${base_dir}/${bin_dir}/${name}"
 
 mkdir -p "${base_dir}/${bin_dir}"
@@ -101,13 +107,37 @@ if [[ -e "${target}" ]]; then
     return 1
 fi
 
-mkdir -p "${base_dir}"
-
 # Replace <name> with the input value
 sed "s/<name>/${name}/g" "${template}" > "${target}"
 chmod 755 "${target}"
 
 if [[ -v editor ]]; then
+    if is-wsl; then
+        # If running under WSL
+        if [[ "${(L)editor}" == *".exe" ]]; then
+            local base=${editor##*[/\\]}
+            base="${base%.exe}"
+            if command -v "${base}" &> /dev/null; then
+                editor="${base}"
+            elif command -v "${(L)base}" &> /dev/null; then
+                # Try lower case as windows executables are commonly Title Cased
+                editor="${(L)base}"
+            elif "${(L)editor}" == ?:\\[^\\]*; then
+                # Otherwise if given a windows path then use wslpath to convert it
+                # and execute the windows executable.
+                editor="$(wslpath -u "${editor}")"
+
+                if command -v "${editor}" &> /dev/null; then
+                    print-header -e "Editor '${editor}' not found in PATH."
+                    return 1
+                fi
+            else
+                print-header -e "Editor '${editor}' not found in PATH."
+                return 1
+            fi
+        fi
+    fi
+
     $editor ${(q)target}
 fi
 
