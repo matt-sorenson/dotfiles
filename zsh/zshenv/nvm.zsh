@@ -15,7 +15,7 @@ if [[ -v NVM_DIR ]]; then
         print-header -e "NVM_DIR is set but '${NVM_DIR}' does not exist"
         return 1
     else
-        local -a _dot_nvm_lazy_cmds=(corepack node npm npx nvm pnpm pnpx yarn)
+        local -a _dot_nvm_lazy_cmds=(corepack node npm npx nvm pnpm pnpx yarn prettier)
 
         _dot_nvm_lazy_load() {
             emulate -L zsh
