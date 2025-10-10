@@ -6,31 +6,30 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Can
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by Trails (?:and|&) Tribulations/i)
 
 ! Women Only
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Finding Female Friends|Bold Spirit Travel Women|board game girlies|Everett Women's|Ladies with No Babies|NOW Networkin|RevelEleven|Travel Women|.*Single Moms)/i)
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Wine, Women (?:and|&) Wealth|Women (with wins|in))/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Finding Female Friends|Bold Spirit Travel Women|board game girlies|Everett Women's|Ladies with No Babies|NOW Networkin|RevelEleven|Travel Women|.*Single Moms)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Wine, Women (?:and|&) Wealth|Women (with wins|in))/i)
 
 ! Dogs
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by Tailored Pet Services/i)
 
 ! Hustle Culture
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (.*Sip REAL ESTATE Networking|Employment Services for Temporary Residents Meetup|Launchimp an Online Business using AI|Seattle Angel)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:.*Sip REAL ESTATE Networking|Employment Services for Temporary Residents Meetup|Launchimp an Online Business using AI|Seattle Angel)/i)
 
 ! Not Local
 !! Kinda
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Whidbey Akhaldans)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Whidbey Akhaldans)/i)
 
 !! Semi-Local
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Vancouver|vanPUG|Portland)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Vancouver|vanPUG|Portland)/i)
 
 !! California
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(Bay Area|San Francisco|Los Angeles|Single Friends West LA|SuperINTRO Los Angeles|Sacramento|West Valley|oc-good-life|menlo park|TSX Challenge|California)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:Bay Area|San Francisco|Los Angeles|Single Friends West LA|SuperINTRO Los Angeles|Sacramento|West Valley|oc-good-life|menlo park|TSX Challenge|California)/i)
 
 !! Other Locations
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Calgary|I love Austin|Indiana|Minneapolis|North Calgary|Phoenix|Minnesota)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Calgary|I love Austin|Indiana|Minneapolis|North Calgary|Phoenix|Minnesota)/i)
 
 ! Metaphysical/Reiki/Psychic
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Meditate in Sangha|Tarot Talk: practice (?:and|&) discussion for learners|Metaphysical Haven|Somatic Meditation (?:and|&) Conscious Relating|NW Psychic (?:and|&) Holistic Events|Spirit, Intuition, Holistic Health)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Meditate in Sangha|Tarot Talk: practice (?:and|&) discussion for learners|Metaphysical Haven|Somatic Meditation (?:and|&) Conscious Relating|NW Psychic (?:and|&) Holistic Events|Spirit, Intuition, Holistic Health)/i)
 
 ! Other
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Open Seattle Japanese Language|Shut Up (?:and|&) Write|Alcohol Free|Death Cafe|Meditation (?:and|&) Mindfulness for Vegans|Vegan|Socrates Cafe)/i)
-
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Open Seattle Japanese Language|Shut Up (?:and|&) Write|Alcohol Free|Death Cafe|Meditation (?:and|&) Mindfulness for Vegans|Vegan|Socrates Cafe)/i)
