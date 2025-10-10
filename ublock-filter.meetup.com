@@ -33,3 +33,4 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Med
 
 ! Other
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Open Seattle Japanese Language|Shut Up (?:and|&) Write|Alcohol Free|Death Cafe|Meditation (?:and|&) Mindfulness for Vegans|Vegan|Socrates Cafe)/i)
+
