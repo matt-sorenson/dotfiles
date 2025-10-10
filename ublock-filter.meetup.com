@@ -6,8 +6,7 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (can
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by trails (?:and|&) tribulations/i)
 
 ! Women Only
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:finding female friends|bold spirit travel women|board game girlies|ladies with no babies|now networkin|reveleleven|travel women|.*single moms|everett women\'s)/i)
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:wine, women (?:and|&) wealth|women (with wins|in)|snoco ladies)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:finding female friends|bold spirit travel women|board game girlies|ladies with no babies|now networkin|reveleleven|travel women|.*single moms|everett women\'s|wine, women (?:and|&) wealth|women (with wins|in)|snoco ladies|power bi women)/i)
 
 ! Dogs
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by tailored pet services/i)
@@ -26,8 +25,8 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:calgary|i love austin|indiana|minneapolis|north calgary|phoenix|minnesota)/i)
 
 ! Metaphysical/Reiki/Psychic
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:meditate in sangha|tarot talk: practice (?:and|&) discussion for learners|metaphysical haven|somatic meditation (?:and|&) conscious relating|nw psychic (?:and|&) holistic events|spirit, intuition, holistic health)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:meditate in sangha|tarot talk: practice (?:and|&) discussion for learners|metaphysical haven|somatic meditation (?:and|&) conscious relating|nw psychic (?:and|&) holistic events|spirit, intuition, holistic health|by Essentrics with Natalia)/i)
 
 ! Other
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe|woo wednesday)/i)
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan|libertarians)/i)
