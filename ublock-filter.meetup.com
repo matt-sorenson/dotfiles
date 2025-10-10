@@ -30,3 +30,4 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?
 ! Other
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe|woo wednesday)/i)
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan|libertarians|50+ fun snoco|snoco makers|xlsr - xtreme lean sport riders)/i)
+
