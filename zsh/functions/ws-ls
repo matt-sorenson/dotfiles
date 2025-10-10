@@ -7,19 +7,18 @@ ws-ls() {
     setopt err_return extended_glob null_glob typeset_to_unset warn_create_global
     unsetopt short_loops
 
-    local _usage="Usage: ws-ls <project> [-- <ls args>]
+    local _usage="Usage: ws-ls [--help] [-l] [-1] [+A,+a,--no-all] [+h,--[no-]human-readable] [+h,--no-human-readable] <project> [-- <ls args>]
 
 Arguments:
-  <project>     The project directory to list contents of.
-  <ls args>     Optional arguments to pass directly to ls.
+  <project> The project directory to list contents of.
+  <ls args> Optional arguments to pass directly to ls.
 
 Options:
-  --help                        Show this message
-  -l                            print long format (passed to ls as -l)
-  -1                            print one entry per line (passed to ls as -1)
-  -Q, --quote-name              Quote the names of non-printable characters in output (passed to ls as -Q)
-  +A, +a, --no-all              Do not pass in -A to ls
-  +h, --[no-]human-readable     Do not print entries in human readable format (by default -h is passed to ls if -l is passed in)
+  --help                    Show this message
+  -l                        print long format (passed to ls as -l)
+  -1                        print one entry per line (passed to ls as -1)
+  +A, +a, --no-all          Do not pass in -A to ls
+  +h, --no-human-readable   Do not print entries in human readable format (by default -h is passed to ls if -l is passed in)
 
   -- <ls args>      Anything passed in after -- will be passed directly to ls"
 
@@ -30,14 +29,12 @@ Options:
     flags[long]=0
     flags[human-readable]=0
     flags[one-line]=0
-    flags[quote-name]=0
 
     short_to_long_flags[a]=all
     short_to_long_flags[A]=all
     short_to_long_flags[l]=long
     short_to_long_flags[h]=human-readable
     short_to_long_flags[1]=one-line
-    short_to_long_flags[Q]=quote-name
 
     min_positional_count=0
     max_positional_count=1
@@ -53,6 +50,9 @@ Options:
         return $dot_parse_code
     fi
 
+    dot-print-map flags
+    dot-print-map options
+
     set -- "${positional_args[@]}"
 
     if (( flags[describe] )); then
@@ -62,13 +62,10 @@ Options:
 
     local dir="${WORKSPACE_ROOT_DIR}/${1:-}"
 
-    local ls_flags=''
-    (( flags[all] )) && ls_flags+='A'
-    (( flags[one-line] )) && ls_flags+='1'
-    (( flags[quote-name] )) && ls_flags+='Q'
-    (( flags[long] )) && ls_flags+='l' && (( flags[human-readable] )) && ls_flags+='h'
-
-    [[ -n "${ls_flags}" ]] && ls_flags="-${ls_flags}"
+    local ls_flags=()
+    (( flags[all] )) && ls_flags+=('-A')
+    (( flags[one-line] )) && ls_flags+=('-1')
+    (( flags[long] )) && ls_flags+=('-l') && (( flags[human-readable] )) && ls_flags+=('-h')
 
     if [[ ! -d "${dir}" ]]; then
         print-header -e "The directory '${dir}' does not exist."
@@ -78,5 +75,5 @@ Options:
         dir="${dir}/"
     fi
 
-    ls "${ls_flags}" "${extra_args[@]}" "${dir}"
+    ls "${ls_flags[@]}" "${extra_args[@]}" "${dir}"
 }

@@ -1,0 +1,17 @@
+================================================================================
+= ❌ Too many arguments. Can only list 1 project at a time.: [max: 1]          =
+================================================================================
+Usage: ws-ls [--help] [-l] [-1] [+A,+a,--no-all] [+h,--[no-]human-readable] [+h,--no-human-readable] <project> [-- <ls args>]
+
+Arguments:
+  <project> The project directory to list contents of.
+  <ls args> Optional arguments to pass directly to ls.
+
+Options:
+  --help                    Show this message
+  -l                        print long format (passed to ls as -l)
+  -1                        print one entry per line (passed to ls as -1)
+  +A, +a, --no-all          Do not pass in -A to ls
+  +h, --no-human-readable   Do not print entries in human readable format (by default -h is passed to ls if -l is passed in)
+
+  -- <ls args>      Anything passed in after -- will be passed directly to ls
