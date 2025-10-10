@@ -6,7 +6,7 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:c
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by trails (?:and|&) tribulations/i)
 
 ! Women Only
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:finding female friends|bold spirit travel women|board game girlies|ladies with no babies|now networkin|reveleleven|travel women|.*single moms|everett women\'s|wine, women (?:and|&) wealth|women (?:with wins|in)|snoco ladies|power bi women)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:finding female friends|bold spirit travel women|pdx women coders|board game girlies|ladies with no babies|now networkin|reveleleven|travel women|.*single moms|everett women\'s|wine, women (?:and|&) wealth|women (?:with wins|in)|snoco ladies|power bi women)/i)
 
 ! Dogs
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by tailored pet services/i)
@@ -29,4 +29,4 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?
 
 ! Other
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe|woo wednesday)/i)
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan|libertarians||50+ fun snoco|SnoCo Makers|by XLSR - Xtreme Lean Sport Riders)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan|libertarians||50+ fun snoco|snoco makers|by xlsr - xtreme lean sport riders)/i)
