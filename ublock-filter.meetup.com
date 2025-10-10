@@ -6,7 +6,7 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (Can
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by Trails (?:and|&) Tribulations/i)
 
 ! Women Only
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Finding Female Friends|Bold Spirit Travel Women|board game girlies|Everett Women's|Ladies with No Babies|NOW Networkin|RevelEleven|Travel Women|.*Single Moms)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Finding Female Friends|Bold Spirit Travel Women|board game girlies|Ladies with No Babies|NOW Networkin|RevelEleven|Travel Women|.*Single Moms|Everett Women\'s)/i)
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:Wine, Women (?:and|&) Wealth|Women (with wins|in))/i)
 
 ! Dogs
