@@ -25,8 +25,8 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:calgary|i love austin|indiana|minneapolis|north calgary|phoenix|minnesota)/i)
 
 ! Metaphysical/Reiki/Psychic
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:meditate in sangha|tarot talk: practice (?:and|&) discussion for learners|metaphysical haven|somatic meditation (?:and|&) conscious relating|nw psychic (?:and|&) holistic events|spirit, intuition, holistic health|by Essentrics with Natalia)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:meditate in sangha|tarot talk: practice (?:and|&) discussion for learners|metaphysical haven|somatic meditation (?:and|&) conscious relating|nw psychic (?:and|&) holistic events|spirit, intuition, holistic health|essentrics with natalia|sound therapy)/i)
 
 ! Other
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe|woo wednesday)/i)
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan|libertarians|50+ fun snoco)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan|libertarians||50+ fun snoco|SnoCo Makers|by XLSR - Xtreme Lean Sport Riders)/i)
