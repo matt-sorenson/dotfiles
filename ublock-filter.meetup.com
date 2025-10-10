@@ -7,7 +7,7 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by trai
 
 ! Women Only
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:finding female friends|bold spirit travel women|board game girlies|ladies with no babies|now networkin|reveleleven|travel women|.*single moms|everett women\'s)/i)
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:wine, women (?:and|&) wealth|women (with wins|in))/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:wine, women (?:and|&) wealth|women (with wins|in)|snoco ladies)/i)
 
 ! Dogs
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by tailored pet services/i)
@@ -29,4 +29,5 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:c
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:meditate in sangha|tarot talk: practice (?:and|&) discussion for learners|metaphysical haven|somatic meditation (?:and|&) conscious relating|nw psychic (?:and|&) holistic events|spirit, intuition, holistic health)/i)
 
 ! Other
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|alcohol free|death cafe|.*vegan|socrates cafe)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan)/i)
