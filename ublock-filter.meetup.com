@@ -29,5 +29,5 @@ meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:c
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:meditate in sangha|tarot talk: practice (?:and|&) discussion for learners|metaphysical haven|somatic meditation (?:and|&) conscious relating|nw psychic (?:and|&) holistic events|spirit, intuition, holistic health)/i)
 
 ! Other
-meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe)/i)
+meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by (?:open seattle japanese language|shut up (?:and|&) write|socrates cafe|woo wednesday)/i)
 meetup.com##div[data-element-name="categoryResults-eventCard"]:has-text(/by .*(?:alcohol free|death cafe|vegan)/i)
